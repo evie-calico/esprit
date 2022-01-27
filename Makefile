@@ -71,9 +71,9 @@ bin/%.gb bin/%.sym bin/%.map: $(patsubst src/%.asm, obj/%.o, $(SRCS))
 	$(RGBLINK) $(LDFLAGS) -m bin/$*.map -n bin/$*.sym -o bin/$*.gb $^ \
 	&& $(RGBFIX) -v $(FIXFLAGS) bin/$*.gb
 
-obj/%vwf.o dep/%vwf.mk: src/%vwf.asm
-	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$*))
-	$(RGBASM) $(ASFLAGS) -M dep/$*vwf.mk -MG -MP -MQ obj/$*vwf.o -MQ dep/$*vwf.mk -o obj/$*vwf.o $< > src/include/charmap.inc
+obj/libs/vwf.o dep/libs/vwf.mk res/charmap.inc: src/libs/vwf.asm
+	@mkdir -p obj/libs/ dep/libs/ res/
+	$(RGBASM) $(ASFLAGS) -M dep/libs/vwf.mk -MG -MP -MQ obj/libs/vwf.o -MQ dep/libs/vwf.mk -o obj/libs/vwf.o $< > res/charmap.inc
 
 # `.mk` files are auto-generated dependency lists of the "root" ASM files, to save a lot of hassle.
 # Also add all obj dependencies to the dep file too, so Make knows to remake it
