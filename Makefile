@@ -48,6 +48,7 @@ all: $(ROM)
 # `clean`: Clean temp and bin files
 clean:
 	rm -rf bin obj dep res
+	rm -f src/include/charmap.inc
 
 .PHONY: clean
 
