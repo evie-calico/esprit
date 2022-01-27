@@ -1,0 +1,9 @@
+/bin/
+/obj/
+/dep/
+/res/
+/.vscode/
+__pycache__/
+*.todo
+*.tiled-session
+charmap.inc
