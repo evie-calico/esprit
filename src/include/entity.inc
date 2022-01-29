@@ -9,7 +9,7 @@ DEF NB_ENTITIES EQU 8
 
     ; Constant data about an entity, such as graphics, moves, and stats.
     struct EntityData
-
+        words 1, Graphics
     end_struct
 
     struct Entity
@@ -22,6 +22,9 @@ DEF NB_ENTITIES EQU 8
         ; The entity's current position on a 16x16 tile grid.
         bytes 1, PosX
         bytes 1, PosY
+        ; The entity's current and last direction, used to update graphics.
+        bytes 1, Direction
+        bytes 1, LastDirection
     end_struct
 
 ENDC

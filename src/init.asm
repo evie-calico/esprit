@@ -1,3 +1,4 @@
+INCLUDE "bank.inc"
 INCLUDE "engine.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
@@ -87,12 +88,17 @@ Initialize::
     call VRAMSet
 
     ; Initialize an entity for debugging.
-    ld a, BANK(xDebugEntity)
+    ld a, BANK(xLuvui)
     ld [wEntity0_Bank], a
-    ld a, LOW(xDebugEntity)
+    ld a, LOW(xLuvui)
     ld [wEntity0_Data], a
-    ld a, HIGH(xDebugEntity)
+    ld a, HIGH(xLuvui)
     ld [wEntity0_Data + 1], a
+
+    ld bc, 16 * 4
+    ld de, $8000
+    ld hl, xLuvui.graphics + 16 * 48
+    call MemCopy
 
     ; Initiallize OAM
     call InitSprObjLib
@@ -101,11 +107,19 @@ Initialize::
     ld a, IEF_VBLANK
     ldh [rIE], a
 
+    ld a, %11100100
+    ldh [rBGP], a
+    ldh [rOBP1], a
+    ld a, %11010000
+    ldh [rOBP0], a
+
     ; Draw vwf text
+    ld a, BANK(xTextInit)
+    rst SwapBank
     ld a, 18 * 8
     lb bc, $01, 73
     lb de, 4, $90
-    call TextInit
+    call xTextInit
 
     ld b, BANK(xDebugText)
     ld hl, xDebugText
@@ -114,7 +128,7 @@ Initialize::
 
     lb de, 18, 4
     ld hl, $99C1
-    call TextDefineBox
+    bankcall xTextDefineBox
 
     ld a, 1
     ld [wTextLetterDelay], a

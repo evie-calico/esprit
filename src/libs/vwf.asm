@@ -1378,7 +1378,7 @@ TextClear:
 ; @param c  Last tile ID
 ; @param d  Number of lines of text
 ; @param e  Text tile block ($80 or $90)
-TextInit::
+xTextInit::
     ld [wTextLineLength], a
     ld a, b
     ld [wTextCurTile], a
@@ -1401,7 +1401,7 @@ TextInit::
 ; @param d  Text box width in tiles.
 ; @param e  Text box height in tiles.
 ; @param hl The address to print to (usually in the tilemap)
-TextDefineBox::
+xTextDefineBox::
     ld a, d
     ld [wTextWidth], a
     ld a, e

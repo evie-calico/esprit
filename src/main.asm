@@ -7,6 +7,7 @@ Main::
     call DrawVWFChars
     call ResetShadowOAM
     call ProcessEntities
+    call UpdateEntityGraphics
     bankcall xMoveEntities
     bankcall xRenderEntities
     call WaitVBlank

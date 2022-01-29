@@ -1,19 +1,4 @@
-
 .SUFFIXES:
-
-################################################
-#                                              #
-#             CONSTANT DEFINITIONS             #
-#                                              #
-################################################
-
-# Program constants
-RGBDS   :=
-
-RGBASM  := $(RGBDS)rgbasm
-RGBLINK := $(RGBDS)rgblink
-RGBFIX  := $(RGBDS)rgbfix
-RGBGFX  := $(RGBDS)rgbgfx
 
 ROM = bin/vuiiger.gb
 
@@ -31,7 +16,6 @@ LDFLAGS  = -p 0xFF -w -S romx=64
 FIXFLAGS = -p 0xFF -v -i "VUIG" -k "EV" -l 0x33 -m $(MBC) \
            -n $(VERSION) -r $(SRAMSIZE) -t "Vuiiger    "
 
-# The list of "root" ASM files that RGBASM will be invoked on
 SRCS := $(shell find src -name '*.asm')
 FONTS := $(shell find src/res/fonts -name '*.png')
 
@@ -68,12 +52,12 @@ rebuild:
 # How to build a ROM
 bin/%.gb bin/%.sym bin/%.map: $(patsubst src/%.asm, obj/%.o, $(SRCS))
 	@mkdir -p $(@D)
-	$(RGBLINK) $(LDFLAGS) -m bin/$*.map -n bin/$*.sym -o bin/$*.gb $^ \
-	&& $(RGBFIX) -v $(FIXFLAGS) bin/$*.gb
+	rgblink $(LDFLAGS) -m bin/$*.map -n bin/$*.sym -o bin/$*.gb $^ \
+	&& rgbfix -v $(FIXFLAGS) bin/$*.gb
 
 obj/libs/vwf.o dep/libs/vwf.mk res/charmap.inc: src/libs/vwf.asm
 	@mkdir -p obj/libs/ dep/libs/ res/
-	$(RGBASM) $(ASFLAGS) -M dep/libs/vwf.mk -MG -MP -MQ obj/libs/vwf.o -MQ dep/libs/vwf.mk -o obj/libs/vwf.o $< > res/charmap.inc
+	rgbasm $(ASFLAGS) -M dep/libs/vwf.mk -MG -MP -MQ obj/libs/vwf.o -MQ dep/libs/vwf.mk -o obj/libs/vwf.o $< > res/charmap.inc
 
 # `.mk` files are auto-generated dependency lists of the "root" ASM files, to save a lot of hassle.
 # Also add all obj dependencies to the dep file too, so Make knows to remake it
@@ -81,7 +65,7 @@ obj/libs/vwf.o dep/libs/vwf.mk res/charmap.inc: src/libs/vwf.asm
 # (and produce weird errors)
 obj/%.o dep/%.mk: src/%.asm
 	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$*))
-	$(RGBASM) $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o $<
+	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o $<
 
 ifneq ($(MAKECMDGOALS),clean)
 -include $(patsubst src/%.asm, dep/%.mk, $(SRCS))
@@ -102,22 +86,22 @@ VPATH := src
 # Convert .png files into .2bpp files.
 res/%.2bpp: res/%.png
 	@mkdir -p $(@D)
-	$(RGBGFX) -u -o $@ $<
+	rgbgfx -u -o $@ $<
 
 # Convert .png files into .1bpp files.
 res/%.1bpp: res/%.png
 	@mkdir -p $(@D)
-	$(RGBGFX) -d 1 -o $@ $<
+	rgbgfx -d 1 -o $@ $<
 
 # Convert .png files into .h.2bpp files (-h flag).
-res/%.h.2bpp: res/%.png
+res/%.2bpp: res/%.h.png
 	@mkdir -p $(@D)
-	$(RGBGFX) -h -o $@ $<
+	superfamiconv -M gb -D -F -R -H 16 -t $@ -i $<
 
 # Convert .png files into .h.1bpp files (-h flag).
-res/%.h.1bpp: res/%.png
+res/%.1bpp: res/%.h.png
 	@mkdir -p $(@D)
-	$(RGBGFX) -d 1 -h -o $@ $<
+	superfamiconv -M gb -B 1 -D -F -R -H 16 -t $@ -i $<
 
 res/%.vwf: res/%.png
 	@mkdir -p $(@D)

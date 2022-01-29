@@ -2,16 +2,20 @@ INCLUDE "defines.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 
-DEF MOVEMENT_SPEED EQU 1 << 4
+DEF MOVEMENT_SPEED EQU 16
+DEF SPRITE_DIRECTION_SIZE EQU 128 * 3
 
 SECTION "Debug entity", ROMX
-xDebugEntity::
-    db 0
+xLuvui::
+    dw .graphics
+.graphics::
+    INCBIN "res/sprites/luvui.2bpp"
 
 SECTION "Process entities", ROM0
 ProcessEntities::
     call PadToDir
     ret c
+    ld [wEntity0_Direction], a
     add a, a
     add a, LOW(.directionVectors)
     ld l, a
@@ -59,6 +63,71 @@ PadToDir::
     ld a, 3
     ret
 :   scf
+    ret
+
+SECTION "Update entity graphics", ROM0
+UpdateEntityGraphics::
+    ld h, HIGH(wEntity0)
+.loop
+    ld l, LOW(wEntity0_Bank)
+    ld a, [hli]
+    and a, a
+    jr z, .next
+    ld l, LOW(wEntity0_Direction)
+    ld a, [hli]
+    ASSERT Entity_Direction + Entity_LastDirection
+    cp a, [hl]
+    jr z, .next
+    ld [hl], a
+    ld c, a
+    ld l, LOW(wEntity0_Bank)
+    ld a, [hli]
+    ASSERT Entity_Bank + 1 == Entity_Data
+    rst SwapBank
+    push hl
+        ; Save the index in B for later
+        ld a, h
+        sub a, HIGH(wEntity0)
+        ld b, a
+        ; Dereference data and graphics.
+        ld a, [hli]
+        ld h, [hl]
+        ld l, a
+        ASSERT EntityData_Graphics == 0
+        ld a, [hli]
+        ld h, [hl]
+        ld l, a
+        ; Offset graphics by direction
+        ASSERT SPRITE_DIRECTION_SIZE == 384
+        ; Begin by adding (Direction * 256)
+        ld a, h
+        add a, c
+        ld h, a
+        ; Add the remaining (Direction * 128)
+        bit 0, c
+        jr z, :+
+        ld a, l
+        add a, 128
+        ld l, a
+        adc a, h
+        sub a, l
+        ld h, a
+:       bit 1, c
+        jr z, :+
+        inc h
+:       ; Now offset the destination and copy 256 bytes.
+        ld e, $00
+        ld a, b
+        add a, $80
+        ld d, a
+        ld c, 0
+        call VRAMCopySmall
+    pop hl
+.next
+    inc h
+    ld a, h
+    cp a, HIGH(wEntity0) + NB_ENTITIES
+    jr nz, .loop
     ret
 
 SECTION "Move entities", ROMX
@@ -170,8 +239,8 @@ xRenderEntities::
             rrc b
             rra
         ENDR
-        ld [de], a
-        inc e
+        add a, 16
+        ld c, a
 
         ASSERT Entity_SpriteY + 2 == Entity_SpriteX
         ; Read X position.
@@ -183,18 +252,45 @@ xRenderEntities::
             rrc b
             rra
         ENDR
+        add a, 8
+        ld b, a
+
+        ; The following is an unrolled loop which writes both halves of the sprite.
+        ld a, c
         ld [de], a
         inc e
-
+        ld a, b
+        ld [de], a
+        inc e
         ; Determine entity index and render.
         ld a, h
         sub a, HIGH(wEntity0)
         swap a ; a * 16
         ld [de], a
         inc e
+        ; Revert the index and use it as the color palette.
+        swap a
+        ld [de], a
+        inc e
 
+
+        ld a, c
+        ld [de], a
+        inc e
+        ld a, b
+        add a, 8
+        ld [de], a
+        inc e
+        ; Determine entity index and render.
         ld a, h
         sub a, HIGH(wEntity0)
+        swap a ; a * 16
+        add a, 2
+        ld [de], a
+        inc e
+        sub a, 2
+        ; Revert the index and use it as the color palette.
+        swap a
         ld [de], a
         inc e
     pop hl
