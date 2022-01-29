@@ -3,6 +3,8 @@ DEF ENTITY_INC EQU 1
 
 INCLUDE "structs.inc"
 
+DEF NB_ALLIES EQU 3
+DEF NB_ENEMIES EQU 5
 DEF NB_ENTITIES EQU 8
 
     ; Constant data about an entity, such as graphics, moves, and stats.
@@ -11,10 +13,15 @@ DEF NB_ENTITIES EQU 8
     end_struct
 
     struct Entity
+        ; Far pointer to a EntityData struct in ROM.
         bytes 1, Bank
         words 1, Data
-        words 1, YPos
-        words 1, XPos
+        ; The current position of the entity's sprite, in 12.4 fixed-point.
+        words 1, SpriteY
+        words 1, SpriteX
+        ; The entity's current position on a 16x16 tile grid.
+        bytes 1, PosX
+        bytes 1, PosY
     end_struct
 
 ENDC

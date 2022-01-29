@@ -79,6 +79,7 @@ Initialize::
 	rst MemSetSmall
 
     ldh [hCurrentBank], a
+    ldh [hCurrentKeys], a
     ldh [rIF], a
     ld bc, $2000
     ld d, a
@@ -86,10 +87,12 @@ Initialize::
     call VRAMSet
 
     ; Initialize an entity for debugging.
-    ld a, LOW(DebugEntity)
-    ld [wEntity1_Data], a
-    ld a, HIGH(DebugEntity)
-    ld [wEntity1_Data + 1], a
+    ld a, BANK(xDebugEntity)
+    ld [wEntity0_Bank], a
+    ld a, LOW(xDebugEntity)
+    ld [wEntity0_Data], a
+    ld a, HIGH(xDebugEntity)
+    ld [wEntity0_Data + 1], a
 
     ; Initiallize OAM
     call InitSprObjLib
