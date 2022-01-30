@@ -86,7 +86,7 @@ VPATH := src
 # Convert .png files into .2bpp files.
 res/%.2bpp: res/%.png
 	@mkdir -p $(@D)
-	rgbgfx -u -o $@ $<
+	rgbgfx -o $@ $<
 
 # Convert .png files into .1bpp files.
 res/%.1bpp: res/%.png

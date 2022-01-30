@@ -4,6 +4,16 @@ INCLUDE "hardware.inc"
 DEF DUNGEON_WIDTH EQU 64
 DEF DUNGEON_HEIGHT EQU 64
 
+; The dungeon renderer is hard-coded to use these 4 metatiles to draw floors and
+; walls. Additional tiles should follow these metatiles.
+; For example, stairs, which use an ID of 2, should be placed at $90.
+RSSET $80
+DEF BLANK_METATILE_ID RB 4
+DEF STANDALONE_METATILE_ID RB 4
+DEF TERMINAL_METATILE_ID RB 4
+DEF FULL_METATILE_ID RB 4
+DEF EXIT_METATILE_ID RB 4
+
 SECTION "Init dungeon", ROMX
 xInitDungeon::
     xor a, a
@@ -13,6 +23,28 @@ xInitDungeon::
     ld hl, wDungeonMap
     call MemSet
 
+    ld a, 1
+    ld [wDungeonMap + 1 + 1 * 64], a
+    ld [wDungeonMap + 2 + 1 * 64], a
+    ld [wDungeonMap + 3 + 1 * 64], a
+    ld [wDungeonMap + 4 + 1 * 64], a
+    ld [wDungeonMap + 5 + 1 * 64], a
+    ld [wDungeonMap + 7], a
+    ld [wDungeonMap + 8], a
+    ld [wDungeonMap + 9], a
+    ld [wDungeonMap + 10], a
+    ld [wDungeonMap + 1 + 2 * 64], a
+    ld [wDungeonMap + 1 + 3 * 64], a
+    ld [wDungeonMap + 1 + 4 * 64], a
+    ld [wDungeonMap + 1 + 5 * 64], a
+    ld [wDungeonMap + 64 * 2], a
+    ld [wDungeonMap + 8 + 8 * 64], a
+
+    ld bc, 20 * 16
+    ld de, $8000 + BLANK_METATILE_ID * 16
+    ld hl, .debugTileset
+    call VRAMCopy
+
     ; Null out all entities.
     xor a, a
     FOR I, NB_ENTITIES
@@ -21,6 +53,9 @@ xInitDungeon::
         call MemSet
     ENDR
     ret
+
+.debugTileset
+    INCBIN "res/tree_tiles.2bpp"
 
 SECTION "Draw dungeon", ROMX
 xDrawDungeon::
@@ -99,6 +134,13 @@ xDrawDungeon::
         ld [hMapDrawX], a
         jr nz, .drawTile
     pop hl
+    ; Go to the next line of the map.
+    ld a, 64 - 11
+    add a, e
+    ld e, a
+    adc a, d
+    sub a, e
+    ld d, a
     call xVramWrapDown
     ld a, [hMapDrawY]
     dec a
@@ -110,19 +152,84 @@ xDrawDungeon::
 xDrawTile:
     ld a, [de]
     inc e
-    add a, $80
-    ld c, a
-:   ldh a, [rSTAT]
+    cp a, 1
+    jr z, .wall
+    and a, a
+    ld b, BLANK_METATILE_ID
+    jr z, .drawSingle
+    ; Multiply index by 4 and then offset a bit to accomodate the wall tiles.
+    add a, a
+    add a, a
+    add a, BLANK_METATILE_ID + 8
+    ld b, a
+.drawSingle
+:   ld a, [rSTAT]
     and a, STATF_BUSY
     jr nz, :-
-    ; After waiting for VRAM we have at least 17 safe cycles of VRAM address.
-    ; The following code takes 14.
-    ld a, c
+    ; After a STAT check, we have 17.75 safe cycles. The following code takes
+    ; 17 to write a metatile.
+    ld a, b
     ld [hli], a
+    inc a
     ld [hli], a
+    inc a
     ld bc, $20 - 2
     add hl, bc
     ld [hli], a
+    inc a
+    ld [hli], a
+    ret
+.wall
+    ; Wall tiles are given special handling.
+    dec e ; Tempoarirly undo the previous inc e
+    push de
+        call xGetMapAbove
+    pop de
+    and a, 1
+    rlca
+    ld b, a ; Store the 'above' bit in B
+    push de
+        call xGetMapBelow
+    pop de
+    inc e
+    and a, 1
+    or a, b
+    ; a = %11 where %10 is a tile above and %01 is a tile below.
+    ; If a is 0, however, this is a static, standalone tile.
+    ld b, STANDALONE_METATILE_ID
+    jr z, .drawSingle
+    ld b, a
+    ; Now it's time to draw both halves.
+    ; Start with the top.
+:   ld a, [rSTAT]
+    and a, STATF_BUSY
+    jr nz, :-
+    ; The following snippet takes at most 13/17 cycles.
+    ld a, TERMINAL_METATILE_ID
+    ; If above us is a tile, switch from TERMINAL to FULL
+    bit 1, b
+    jr z, :+
+    ld a, FULL_METATILE_ID
+:   ld [hli], a
+    inc a
+    ld [hli], a
+    ; Jump to next row
+    ld a, b ; make sure to reserve b
+    ld bc, $20 - 2
+    add hl, bc
+    ld b, a
+    ; Now draw the bottom.
+:   ld a, [rSTAT]
+    and a, STATF_BUSY
+    jr nz, :-
+    ; The following snippet takes at most 13/17 cycles.
+    ld a, TERMINAL_METATILE_ID + 2
+    ; If below us is a tile, switch from TERMINAL to FULL
+    bit 0, b
+    jr z, :+
+    ld a, FULL_METATILE_ID + 2
+:   ld [hli], a
+    inc a
     ld [hli], a
     ret
 
@@ -158,7 +265,39 @@ xVramWrapDown:
     ld h, $98
     ret
 
-SECTION "Dungeon map", WRAM0
+xGetMapAbove:
+    ld a, e
+    sub a, 64
+    ld e, a
+    jr nc, :+
+    dec d
+:   ld a, d
+    ASSERT LOW(wDungeonMap) == 0
+    cp a, HIGH(wDungeonMap)
+    jr c, .forceTrue
+    ld a, [de]
+    ret
+.forceTrue
+    ld a, 1
+    ret
+
+xGetMapBelow:
+    ld a, e
+    add a, 64
+    ld e, a
+    adc a, d
+    sub a, e
+    ld d, a
+    ASSERT LOW(wDungeonMap + 64 * 64) == 0
+    cp a, HIGH(wDungeonMap + 64 * 64)
+    jr nc, .forceTrue
+    ld a, [de]
+    ret
+.forceTrue
+    ld a, 1
+    ret
+
+SECTION "Dungeon map", WRAM0, ALIGN[8]
 ; This map uses 4096 bytes of WRAM, but is only ever used in dungeons.
 ; If more RAM is needed for other game states, it should be unionized with this
 ; map.

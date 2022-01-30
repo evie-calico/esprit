@@ -80,11 +80,6 @@ Initialize::
     ld hl, _VRAM
     call VRAMSet
 
-    ld a, $FF
-    ld c, 16
-    ld hl, $8800
-    call MemSetSmall
-
     bankcall xInitDungeon
     bankcall xDrawDungeon
 
