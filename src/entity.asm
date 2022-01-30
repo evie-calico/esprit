@@ -5,7 +5,7 @@ INCLUDE "hardware.inc"
 DEF MOVEMENT_SPEED EQU 16
 DEF SPRITE_DIRECTION_SIZE EQU 128 * 3
 
-SECTION "Debug entity", ROMX
+SECTION "Luvui data", ROMX
 xLuvui::
     dw .graphics
 .graphics::
@@ -115,11 +115,11 @@ UpdateEntityGraphics::
 :       bit 1, c
         jr z, :+
         inc h
-:       ; Now offset the destination and copy 256 bytes.
-        ld e, $00
+:       ; Now offset the destination by Index * 128 and copy 256 bytes.
         ld a, b
         add a, $80
         ld d, a
+        ld e, 0
         ld c, 0
         call VRAMCopySmall
     pop hl
@@ -236,7 +236,7 @@ xRenderEntities::
         ld b, [hl]
         ; Adjust 12.4 position down to a 12-bit integer.
         REPT 4
-            rrc b
+            srl b
             rra
         ENDR
         add a, 16
@@ -249,7 +249,7 @@ xRenderEntities::
         ld b, [hl]
         ; Adjust 12.4 position down to a 12-bit integer.
         REPT 4
-            rrc b
+            srl b
             rra
         ENDR
         add a, 8

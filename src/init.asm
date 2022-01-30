@@ -58,15 +58,8 @@ Initialize::
     ; Reset Stack to WRAMX
     ld sp, wStack.top
 
-    ; Null out all entities.
-    xor a, a
-    FOR I, NB_ENTITIES
-        ld bc, sizeof_Entity
-        ld hl, wEntity{d:I}
-        call MemSet
-    ENDR
-
     ; Clear OAM.
+    xor a, a
     ld bc, 160
     ld hl, wShadowOAM
     call MemSet
@@ -87,18 +80,32 @@ Initialize::
     ld hl, _VRAM
     call VRAMSet
 
-    ; Initialize an entity for debugging.
-    ld a, BANK(xLuvui)
-    ld [wEntity0_Bank], a
-    ld a, LOW(xLuvui)
-    ld [wEntity0_Data], a
-    ld a, HIGH(xLuvui)
-    ld [wEntity0_Data + 1], a
+    ld a, $FF
+    ld c, 16
+    ld hl, $8800
+    call MemSetSmall
 
-    ld bc, 16 * 4
-    ld de, $8000
-    ld hl, xLuvui.graphics + 16 * 48
-    call MemCopy
+    bankcall xInitDungeon
+    bankcall xDrawDungeon
+
+    ; Initialize an entity for debugging.
+    ld h, HIGH(wEntity0)
+:   ld l, LOW(wEntity0_Bank)
+    ld a, BANK(xLuvui)
+    ld [hli], a
+    ld a, LOW(xLuvui)
+    ld [hli], a
+    ld a, HIGH(xLuvui)
+    ld [hl], a
+    ld l, LOW(wEntity0_Direction)
+    xor a, a
+    ld [hli], a
+    dec a
+    ld [hl], a
+    inc h
+    ld a, h
+    cp a, HIGH(wEntity0) + 1
+    jr nz, :-
 
     ; Initiallize OAM
     call InitSprObjLib

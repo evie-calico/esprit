@@ -3,12 +3,12 @@ INCLUDE "bank.inc"
 SECTION "Main", ROM0
 Main::
     call UpdateInput
-    call PrintVWFChar
-    call DrawVWFChars
-    call ResetShadowOAM
     call ProcessEntities
-    call UpdateEntityGraphics
     bankcall xMoveEntities
+    call ResetShadowOAM
     bankcall xRenderEntities
+    call UpdateEntityGraphics
+    ;call PrintVWFChar
+    ;call DrawVWFChars
     call WaitVBlank
     jr Main
