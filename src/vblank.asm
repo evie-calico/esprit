@@ -1,3 +1,5 @@
+INCLUDE "hardware.inc"
+
 SECTION "Wait for VBlank", ROM0
 WaitVBlank::
     xor a, a
@@ -19,6 +21,10 @@ SECTION "VBlank Handler", ROM0
 VBlank:
     ld a, HIGH(wShadowOAM)
     call hOAMDMA
+    ldh a, [hShadowSCX]
+    ldh [rSCX], a
+    ldh a, [hShadowSCY]
+    ldh [rSCY], a
     ld a, 1
     ld [wWaitVBlankFlag], a
     pop hl
@@ -29,3 +35,7 @@ VBlank:
 
 SECTION "Wait VBlank flag", WRAM0
 wWaitVBlankFlag: db
+
+SECTION "Shadow scroll registers", HRAM
+hShadowSCX:: db
+hShadowSCY:: db

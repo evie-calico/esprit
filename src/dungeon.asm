@@ -19,7 +19,9 @@ xInitDungeon::
     xor a, a
     ASSERT wDungeonMap + DUNGEON_WIDTH * DUNGEON_HEIGHT == wDungeonCameraX
     ASSERT wDungeonCameraX + 2 == wDungeonCameraY
-    ld bc, DUNGEON_WIDTH * DUNGEON_HEIGHT + 4
+    ASSERT wDungeonCameraY + 2 == wLastDungeonCameraX
+    ASSERT wLastDungeonCameraX + 1 == wLastDungeonCameraY
+    ld bc, DUNGEON_WIDTH * DUNGEON_HEIGHT + 4 + 2
     ld hl, wDungeonMap
     call MemSet
 
@@ -29,10 +31,13 @@ xInitDungeon::
     ld [wDungeonMap + 3 + 1 * 64], a
     ld [wDungeonMap + 4 + 1 * 64], a
     ld [wDungeonMap + 5 + 1 * 64], a
-    ld [wDungeonMap + 7], a
     ld [wDungeonMap + 8], a
     ld [wDungeonMap + 9], a
     ld [wDungeonMap + 10], a
+    ld [wDungeonMap + 11], a
+    ld [wDungeonMap + 12], a
+    ld [wDungeonMap + 13], a
+    ld [wDungeonMap + 14], a
     ld [wDungeonMap + 1 + 2 * 64], a
     ld [wDungeonMap + 1 + 3 * 64], a
     ld [wDungeonMap + 1 + 4 * 64], a
@@ -52,6 +57,24 @@ xInitDungeon::
         ld hl, wEntity{d:I}
         call MemSet
     ENDR
+    ; Initialize an entity for debugging.
+    ld h, HIGH(wEntity0)
+:   ld l, LOW(wEntity0_Bank)
+    ld a, BANK(xLuvui)
+    ld [hli], a
+    ld a, LOW(xLuvui)
+    ld [hli], a
+    ld a, HIGH(xLuvui)
+    ld [hl], a
+    ld l, LOW(wEntity0_Direction)
+    xor a, a
+    ld [hli], a
+    dec a
+    ld [hl], a
+    inc h
+    ld a, h
+    cp a, HIGH(wEntity0) + NB_ENTITIES
+    jr nz, :-
     ret
 
 .debugTileset
@@ -59,61 +82,10 @@ xInitDungeon::
 
 SECTION "Draw dungeon", ROMX
 xDrawDungeon::
-    ; Calculate the VRAM destination by (Camera >> 4) / 8 % 32 * 32
-    ld hl, wDungeonCameraY + 1
-    ld a, [hld]
-    and a, %00001111
-    ld d, a
-    ld a, [hli]
-    and a, %10000000
-    REPT 2
-        srl d
-        rra
-    ENDR
-    ld e, a
-    ; de = (Camera >> 4) / 8 % 32 * 32
-    ld hl, $9800
-    add hl, de ; Add to VRAM
-    ; Adjust the X down by converting to an integer and then dividing by 8 (Camera >> 4) / 8
-    ld a, [wDungeonCameraX + 1]
-    ld b, a
-    ld a, [wDungeonCameraX]
-    ; Rather than shifting right 7 times, we can shift left once and then take the high byte.
-    add a, a
-    rl b
-    ld a, b
-    and a, 31
-    ; Now we have the neccessary X index on the tilemap.
-    add a, l
-    ld l, a
-    adc a, h
-    sub a, l
-    ld h, a
-    ; de = $9800 + CameraX % 32 + CameraY % 32 * 32
-    push hl ; Save this value for later so that the following code can use hl
-
-        ; Now find the top-left corner of the map to begin drawing from.
-        ; Begin with Y
-        ld a, [wDungeonCameraY + 1]
-        ld l, a
-        ld h, 0
-        ld bc, wDungeonMap
-        add hl, hl ; Camera Y * 2
-        add hl, hl ; Camera Y * 4
-        add hl, hl ; Camera Y * 8
-        add hl, hl ; Camera Y * 16
-        add hl, hl ; Camera Y * 32
-        add hl, hl ; Camera Y * 64
-        add hl, bc ; wDungeonMap + CameraY * 64
-        ; Now X
-        ld a, [wDungeonCameraX + 1]
-        ; Use this add to move the value to de
-        add a, l
-        ld e, a
-        adc a, h
-        sub a, e
-        ld d, a
-        ; de = wDungonMap + CameraX + CameraY * 64
+    call xGetCurrentVram
+    push hl
+    ; Now find the top-left corner of the map to begin drawing from.
+    call xGetCurrentMap
     pop hl
 
     ; Now copy the Dungeon map into VRAM
@@ -128,6 +100,7 @@ xDrawDungeon::
         push hl
             call xDrawTile
         pop hl
+        ld c, 2
         call xVramWrapRight
         ld a, [hMapDrawX]
         dec a
@@ -141,6 +114,7 @@ xDrawDungeon::
     adc a, d
     sub a, e
     ld d, a
+    ld a, 2 * 32
     call xVramWrapDown
     ld a, [hMapDrawY]
     dec a
@@ -148,7 +122,154 @@ xDrawDungeon::
     jr nz, .drawRow
     ret
 
-; Draw a tile pointed to by HL to VRAM at DE.
+xHandleMapScroll::
+    ld a, [wDungeonCameraX + 1]
+    ld hl, wLastDungeonCameraX
+    cp a, [hl]
+    jr z, .checkY
+    ld [hl], a
+    jr nc, .drawRight
+    ; Draw a column on the left side
+    call xGetCurrentVram
+    push hl
+    call xGetCurrentMap
+    pop hl
+    jr .drawColumn
+.drawRight
+    call xGetCurrentVram
+    ld c, 20
+    call xVramWrapRight
+    push hl
+    call xGetCurrentMap
+    pop hl
+    ld a, 10
+    add a, e
+    ld e, a
+    adc a, d
+    sub a, e
+    ld d, a
+.drawColumn
+    ld a, 10
+    ldh [hMapDrawY], a
+.drawColumnLoop
+    push hl
+    call xDrawTile
+    ; While xDrawTile usually increments DE for horizontal drawing, we need to
+    ; add an offset to move vertically.
+    ld a, 63
+    add a, e
+    ld e, a
+    adc a, d
+    sub a, e
+    ld d, a
+    pop hl
+    ld a, $40
+    call xVramWrapDown
+    ld a, [hMapDrawY]
+    dec a
+    ld [hMapDrawY], a
+    jr nz, .drawColumnLoop
+    ret
+.checkY
+    ld a, [wDungeonCameraY + 1]
+    ASSERT wLastDungeonCameraX + 1 == wLastDungeonCameraY
+    inc hl
+    cp a, [hl]
+    ret z
+    ld [hl], a
+    jr nc, .drawDown
+    ; Draw a column on the left side
+    call xGetCurrentVram
+    push hl
+    call xGetCurrentMap
+    pop hl
+    jr .drawRow
+.drawDown
+    call xGetCurrentVram
+    ld bc, $20 * 18
+    add hl, bc
+    ld a, h
+    ; If the address is still below $9C00, we do not yet need to wrap.
+    cp a, $9C
+    jr c, :+
+    ; Otherwise, wrap the address around to the top.
+    ld h, $98
+:   push hl
+    call xGetCurrentMap
+    pop hl
+    ld a, 64
+    add a, e
+    ld e, a
+    adc a, d
+    sub a, e
+    ld d, a
+.drawRow
+    ld a, 11
+    ldh [hMapDrawY], a
+.drawRowLoop
+    push hl
+    call xDrawTile
+    pop hl
+    ld c, 2
+    call xVramWrapRight
+    ld a, [hMapDrawY]
+    dec a
+    ld [hMapDrawY], a
+    jr nz, .drawRowLoop
+    ret
+
+; Get the current tilemap address according to the camera positions.
+; @clobbers all
+xGetCurrentVram:
+    ; Calculate the VRAM destination by (Camera >> 4) / 16 % 16 * 32
+    ld a, [wDungeonCameraY + 1]
+    and a, %00001111
+    ld e, 0
+    srl a
+    rr e
+    rra
+    rr e
+    ld d, a
+    ; hl = (Camera >> 8) & 15 << 4
+    ld hl, $9800
+    add hl, de ; Add to VRAM
+    ld a, [wDungeonCameraX + 1]
+    add a, a
+    ; Now we have the neccessary X index on the tilemap.
+    add a, l
+    ld l, a
+    adc a, h
+    sub a, l
+    ld h, a
+    ret
+
+; Return current map position in DE
+; @clobbers all
+xGetCurrentMap:
+    ; Begin with Y
+    ld a, [wDungeonCameraY + 1]
+    ld l, a
+    ld h, 0
+    ld bc, wDungeonMap
+    add hl, hl ; Camera Y * 2
+    add hl, hl ; Camera Y * 4
+    add hl, hl ; Camera Y * 8
+    add hl, hl ; Camera Y * 16
+    add hl, hl ; Camera Y * 32
+    add hl, hl ; Camera Y * 64
+    add hl, bc ; wDungeonMap + CameraY * 64
+    ; Now X
+    ld a, [wDungeonCameraX + 1]
+    ; Use this add to move the value to de
+    add a, l
+    ld e, a
+    adc a, h
+    sub a, e
+    ld d, a
+    ret
+
+; Draw a tile pointed to by HL to VRAM at DE. The user is expected to reserve
+; HL, but can rely on DE being incremented.
 xDrawTile:
     ld a, [de]
     inc e
@@ -235,6 +356,7 @@ xDrawTile:
 
 ; Move the VRAM pointer to the right by 16 pixels, wrapping around to the left
 ; if needed.
+; @ c: Amount to add.
 ; @hl: VRAM pointer
 ; @clobbers a, b
 xVramWrapRight:
@@ -242,17 +364,17 @@ xVramWrapRight:
     and a, %11100000 ; Grab the upper bits, which should stay constant.
     ld b, a
     ld a, l
-    add a, 2
+    add a, c
     and a, %00011111
     or a, b
     ld l, a
     ret
 
 ; Move the VRAM pointer down by 16 pixels, wrapping around to the top if needed.
+; @ a: Amount to add.
 ; @hl: VRAM pointer
 ; @clobbers a
 xVramWrapDown:
-    ld a, $40
     add a, l
     ld l, a
     adc a, h
@@ -304,6 +426,9 @@ SECTION "Dungeon map", WRAM0, ALIGN[8]
 wDungeonMap:: ds DUNGEON_WIDTH * DUNGEON_HEIGHT
 wDungeonCameraX:: dw
 wDungeonCameraY:: dw
+; Only the neccessarily info is saved; the high byte.
+wLastDungeonCameraX:: db
+wLastDungeonCameraY:: db
 
 SECTION "Map drawing counters", HRAM
 hMapDrawX: db

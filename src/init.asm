@@ -71,6 +71,8 @@ Initialize::
 	ld c, $10 * 2
 	ld hl, wTextTileBuffer
 	rst MemSetSmall
+    ldh [hShadowSCX], a
+    ldh [hShadowSCY], a
 
     ldh [hCurrentBank], a
     ldh [hCurrentKeys], a
@@ -82,25 +84,6 @@ Initialize::
 
     bankcall xInitDungeon
     bankcall xDrawDungeon
-
-    ; Initialize an entity for debugging.
-    ld h, HIGH(wEntity0)
-:   ld l, LOW(wEntity0_Bank)
-    ld a, BANK(xLuvui)
-    ld [hli], a
-    ld a, LOW(xLuvui)
-    ld [hli], a
-    ld a, HIGH(xLuvui)
-    ld [hl], a
-    ld l, LOW(wEntity0_Direction)
-    xor a, a
-    ld [hli], a
-    dec a
-    ld [hl], a
-    inc h
-    ld a, h
-    cp a, HIGH(wEntity0) + 1
-    jr nz, :-
 
     ; Initiallize OAM
     call InitSprObjLib
