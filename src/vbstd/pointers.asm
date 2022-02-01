@@ -39,8 +39,8 @@ SECTION "Jump Table", ROM0
 ; Jumps the the `a`th pointer. 128 pointers max. Place pointers after the call
 ; using `dw`. This function is faster than a decrement table if there are 8 or
 ; more destinations, and is always smaller.
-; @ a:  Jump Offset.
-; @ hl: Jump Table Pointer.
+; @param  a: Jump Offset.
+; @param hl: Jump Table Pointer.
 HandleJumpTable::
     ; a * 2 (pointers are 2 bytes!)
     add a, a

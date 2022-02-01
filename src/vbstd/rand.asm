@@ -32,10 +32,10 @@ section "rand",ROM0
 ; Generates a pseudorandom 16-bit integer in BC
 ; using the LCG formula from cc65 rand():
 ; x[i + 1] = x[i] * 0x01010101 + 0x31415927
-; @ a:  Rand high (higher entropy)
-; @ d:  Rand high (higher entropy)
-; @ e:  Rand low (lower entropy)
-; @ b, hl clobbered
+; @param  a:  Rand high (higher entropy)
+; @param  d:  Rand high (higher entropy)
+; @param  e:  Rand low (lower entropy)
+; @clobbers: b, hl
 Rand::
   ; Load bits 31-8 of the current value to BCA
   ld hl,randstate+3

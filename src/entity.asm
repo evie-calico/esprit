@@ -1,4 +1,6 @@
+INCLUDE "bank.inc"
 INCLUDE "defines.inc"
+INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 
@@ -16,29 +18,8 @@ ProcessEntities::
     call PadToDir
     ret c
     ld [wEntity0_Direction], a
-    add a, a
-    add a, LOW(.directionVectors)
-    ld l, a
-    adc a, HIGH(.directionVectors)
-    sub a, l
-    ld h, a
-    ld de, wEntity0_PosX
-    ld a, [de]
-    add a, [hl]
-    ld [de], a
-    inc hl
-    inc e
-    ASSERT Entity_PosX + 1 == Entity_PosY
-    ld a, [de]
-    add a, [hl]
-    ld [de], a
-    ret
-
-.directionVectors
-    db 0, -1
-    db 1, 0
-    db 0, 1
-    db -1, 0
+    ld h, HIGH(wEntity0)
+    jp MoveEntity
 
 ; Reads hCurrentKeys and returns the currently selected pad direction in A.
 ; If no direction is selected, sets the carry flag.
@@ -64,6 +45,54 @@ PadToDir::
     ret
 :   scf
     ret
+
+SECTION "Move entity", ROM0
+; @param a: Direction to move in.
+; @param h: High byte of entity.
+; @returns a: Nonzero if the movement failed.
+; @clobbers: bc, de, l
+; @preserves: h
+MoveEntity:
+    add a, a
+    add a, LOW(.directionVectors)
+    ld e, a
+    adc a, HIGH(.directionVectors)
+    sub a, e
+    ld d, a
+    ld l, LOW(wEntity0_PosX)
+    ld a, [de]
+    add a, [hl]
+    ld b, a
+    inc de
+    inc l
+    ASSERT Entity_PosX + 1 == Entity_PosY
+    ld a, [de]
+    add a, [hl]
+    ld c, a
+    ; bc now equals the target position. Let's check if it's valid!
+    push hl
+    bankcall xGetMapPosition
+    pop hl
+    ld a, [de]
+    cp a, TILE_WALL
+    jr z, .fail
+    ; Move!
+    ld a, c
+    ld [hld], a
+    ASSERT Entity_PosY - 1 == Entity_PosX
+    ld a, b
+    ld [hl], a
+    xor a, a
+    ret
+.fail
+    ld a, 1
+    ret
+
+.directionVectors
+    db 0, -1
+    db 1, 0
+    db 0, 1
+    db -1, 0
 
 SECTION "Update entity graphics", ROM0
 UpdateEntityGraphics::

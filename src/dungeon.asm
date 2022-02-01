@@ -243,23 +243,33 @@ xGetCurrentVram:
     ld h, a
     ret
 
-; Return current map position in DE
-; @clobbers all
+; @return de: Current map postion
+; @clobbers: all
 xGetCurrentMap:
-    ; Begin with Y
+    ld a, [wDungeonCameraX + 1]
+    ld b, a
     ld a, [wDungeonCameraY + 1]
+    ld c, a
+; @param b: X position
+; @param c: Y position
+; @return de: Current map postion
+; @clobbers: a, hl
+; @preserves: bc
+xGetMapPosition::
+    ; Begin with Y
+    ld a, c
     ld l, a
     ld h, 0
-    ld bc, wDungeonMap
+    ld de, wDungeonMap
     add hl, hl ; Camera Y * 2
     add hl, hl ; Camera Y * 4
     add hl, hl ; Camera Y * 8
     add hl, hl ; Camera Y * 16
     add hl, hl ; Camera Y * 32
     add hl, hl ; Camera Y * 64
-    add hl, bc ; wDungeonMap + CameraY * 64
+    add hl, de ; wDungeonMap + CameraY * 64
     ; Now X
-    ld a, [wDungeonCameraX + 1]
+    ld a, b
     ; Use this add to move the value to de
     add a, l
     ld e, a
@@ -356,9 +366,9 @@ xDrawTile:
 
 ; Move the VRAM pointer to the right by 16 pixels, wrapping around to the left
 ; if needed.
-; @ c: Amount to add.
-; @hl: VRAM pointer
-; @clobbers a, b
+; @param  c: Amount to add.
+; @param hl: VRAM pointer
+; @clobbers: a, b
 xVramWrapRight:
     ld a, l
     and a, %11100000 ; Grab the upper bits, which should stay constant.
@@ -371,9 +381,9 @@ xVramWrapRight:
     ret
 
 ; Move the VRAM pointer down by 16 pixels, wrapping around to the top if needed.
-; @ a: Amount to add.
-; @hl: VRAM pointer
-; @clobbers a
+; @param  a: Amount to add.
+; @param hl: VRAM pointer
+; @clobbers: a
 xVramWrapDown:
     add a, l
     ld l, a

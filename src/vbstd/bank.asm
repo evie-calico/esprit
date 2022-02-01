@@ -24,7 +24,7 @@ INCLUDE "hardware.inc"
 
 SECTION "Swap Bank", ROM0[$0020]
 ; Sets rROMB0 and hCurrentBank to `a`
-; @ a: Bank
+; @param a: Bank
 SwapBank::
     ld [rROMB0], a
     ldh [hCurrentBank], a
@@ -32,8 +32,8 @@ SwapBank::
 
 SECTION "Far Call", ROM0[$0028]
 ; Calls a function in another bank
-; @ b:  Target bank
-; @ hl: Target function.
+; @param  b:  Target bank
+; @param hl: Target function.
 FarCall::
     ldh a, [hCurrentBank]
     push af
@@ -45,10 +45,10 @@ FarCall::
 
 SECTION "Memory Copy Far", ROM0
 ; Switches the bank before performing a copy.
-; @ b:  bank
-; @ c:  length
-; @ de: destination
-; @ hl: source
+; @param  b:  bank
+; @param  c:  length
+; @param de: destination
+; @param hl: source
 MemCopyFar::
     ldh a, [hCurrentBank]
     push af

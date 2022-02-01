@@ -24,9 +24,9 @@ INCLUDE "hardware.inc"
 
 SECTION "VRAM Memory Copy", ROM0
 ; Waits for VRAM access before copying data.
-; @ bc: length
-; @ de: destination
-; @ hl: source
+; @param bc: length
+; @param de: destination
+; @param hl: source
 VRAMCopy::
     dec bc
     inc b
@@ -48,9 +48,9 @@ VRAMCopy::
 SECTION "VRAM Small Memory Copy", ROM0
 ; Waits for VRAM access before copying data. Slightly faster than vmemcopy with
 ; less setup, but can only copy 256 bytes at a time.
-; @ c:  length
-; @ de: destination
-; @ hl: source
+; @param  c: length
+; @param de: destination
+; @param hl: source
 VRAMCopySmall::
     ldh a, [rSTAT]
     and STATF_BUSY
@@ -64,9 +64,9 @@ VRAMCopySmall::
 
 SECTION "VRAM Memory Set", ROM0
 ; Waits for VRAM access before setting data.
-; @ d:  source (is preserved)
-; @ bc: length
-; @ hl: destination
+; @param  d: source (is preserved)
+; @param bc: length
+; @param hl: destination
 VRAMSet::
     inc b
     inc c
@@ -87,9 +87,9 @@ VRAMSet::
 
 SECTION "VRAM Memory Set Small", ROM0
 ; Waits for VRAM access before setting data.
-; @ b:  source (is preserved)
-; @ c:  length
-; @ hl: destination
+; @param  b: source (is preserved)
+; @param  c: length
+; @param hl: destination
 VRAMSetSmall::
     ldh a, [rSTAT]
     and STATF_BUSY
