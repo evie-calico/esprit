@@ -42,7 +42,6 @@ xInitDungeon::
     ld [wDungeonMap + 1 + 3 * 64], a
     ld [wDungeonMap + 1 + 4 * 64], a
     ld [wDungeonMap + 1 + 5 * 64], a
-    ld [wDungeonMap + 64 * 2], a
     ld [wDungeonMap + 8 + 8 * 64], a
 
     ld bc, 20 * 16

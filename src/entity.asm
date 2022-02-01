@@ -256,78 +256,102 @@ xRenderEntities::
     ld a, [hli]
     and a, a
     jr z, .next
-    push hl
-        ASSERT Entity_Bank + 3 == Entity_SpriteY
-        inc l
-        inc l
-        ; Read Y position.
-        ld a, [hli]
-        ld b, [hl]
-        ; Adjust 12.4 position down to a 12-bit integer.
-        REPT 4
-            srl b
-            rra
-        ENDR
-        add a, 16
-        ld c, a
+    ASSERT Entity_Bank + 4 == Entity_SpriteY + 1
+    inc l
+    inc l
+    inc l
+    ; Now check if the entity is within the camera bounds
+    ld a, [wDungeonCameraY + 1]
+    cp a, [hl] ; possibly need to inc/dec here?
+    jr z, :+
+    jr nc, .next
+:   add a, 9
+    cp a, [hl]
+    jr c, .next
+    dec l
+    ; Read Y position.
+    ld a, [wDungeonCameraY]
+    ld c, a
+    ld a, [hli]
+    sub a, c
+    ld c, a
+    ld a, [wDungeonCameraY + 1]
+    ld b, a
+    ld a, [hli]
+    sbc a, b
+    ld b, a
+    ld a, c
+    ; Adjust 12.4 position down to a 12-bit integer.
+    REPT 4
+        srl b
+        rra
+    ENDR
+    add a, 16
+    ldh [hRenderTempByte], a
 
-        ASSERT Entity_SpriteY + 2 == Entity_SpriteX
-        ; Read X position.
-        inc l
-        ld a, [hli]
-        ld b, [hl]
-        ; Adjust 12.4 position down to a 12-bit integer.
-        REPT 4
-            srl b
-            rra
-        ENDR
-        add a, 8
-        ld b, a
+    ASSERT Entity_SpriteY + 2 == Entity_SpriteX
+    ; Read X position.
+    ld a, [wDungeonCameraX]
+    ld c, a
+    ld a, [hli]
+    sub a, c
+    ld c, a
+    ld a, [wDungeonCameraX + 1]
+    ld b, a
+    ld a, [hli]
+    sbc a, b
+    ld b, a
+    ld a, c
+    ; Adjust 12.4 position down to a 12-bit integer.
+    REPT 4
+        srl b
+        rra
+    ENDR
+    add a, 8
+    ld b, a
 
-        ; The following is an unrolled loop which writes both halves of the sprite.
-        ld a, c
-        ld [de], a
-        inc e
-        ld a, b
-        ld [de], a
-        inc e
-        ; Determine entity index and render.
-        ld a, h
-        sub a, HIGH(wEntity0)
-        swap a ; a * 16
-        ld [de], a
-        inc e
-        ; Revert the index and use it as the color palette.
-        swap a
-        ld [de], a
-        inc e
+    ; The following is an unrolled loop which writes both halves of the sprite.
+    ldh a, [hRenderTempByte]
+    ld [de], a
+    inc e
+    ld a, b
+    ld [de], a
+    inc e
+    ; Determine entity index and render.
+    ld a, h
+    sub a, HIGH(wEntity0)
+    swap a ; a * 16
+    ld [de], a
+    inc e
+    ; Revert the index and use it as the color palette.
+    swap a
+    ld [de], a
+    inc e
 
-
-        ld a, c
-        ld [de], a
-        inc e
-        ld a, b
-        add a, 8
-        ld [de], a
-        inc e
-        ; Determine entity index and render.
-        ld a, h
-        sub a, HIGH(wEntity0)
-        swap a ; a * 16
-        add a, 2
-        ld [de], a
-        inc e
-        sub a, 2
-        ; Revert the index and use it as the color palette.
-        swap a
-        ld [de], a
-        inc e
-    pop hl
+    ldh a, [hRenderTempByte]
+    ld [de], a
+    inc e
+    ld a, b
+    add a, 8
+    ld [de], a
+    inc e
+    ; Determine entity index and render.
+    ld a, h
+    sub a, HIGH(wEntity0)
+    swap a ; a * 16
+    add a, 2
+    ld [de], a
+    inc e
+    sub a, 2
+    ; Revert the index and use it as the color palette.
+    swap a
+    ld [de], a
+    inc e
 .next
     inc h
     ld a, h
     cp a, HIGH(wEntity0) + NB_ENTITIES
-    jr nz, .loop
+    jp nz, .loop
     ; Store final OAM index.
     ld a, e
     ldh [hOAMIndex], a
@@ -342,3 +366,6 @@ wEnemies::
     ENDC
         dstruct Entity, wEntity{d:I}
 ENDR
+
+SECTION "Render Temp", HRAM
+hRenderTempByte: db
