@@ -25,24 +25,12 @@ xInitDungeon::
     ld hl, wDungeonMap
     call MemSet
 
-    ld a, 1
-    ld [wDungeonMap + 1 + 1 * 64], a
-    ld [wDungeonMap + 2 + 1 * 64], a
-    ld [wDungeonMap + 3 + 1 * 64], a
-    ld [wDungeonMap + 4 + 1 * 64], a
-    ld [wDungeonMap + 5 + 1 * 64], a
-    ld [wDungeonMap + 8], a
-    ld [wDungeonMap + 9], a
-    ld [wDungeonMap + 10], a
-    ld [wDungeonMap + 11], a
-    ld [wDungeonMap + 12], a
-    ld [wDungeonMap + 13], a
-    ld [wDungeonMap + 14], a
-    ld [wDungeonMap + 1 + 2 * 64], a
-    ld [wDungeonMap + 1 + 3 * 64], a
-    ld [wDungeonMap + 1 + 4 * 64], a
-    ld [wDungeonMap + 1 + 5 * 64], a
-    ld [wDungeonMap + 8 + 8 * 64], a
+    FOR I, 64
+        ld a, 1
+        ld [wDungeonMap + I / 4 + I * 64], a
+        ld a, 2
+        ld [wDungeonMap + 5 + (I & 1) * 2 + 64 * I], a
+    ENDR
 
     ld bc, 20 * 16
     ld de, $8000 + BLANK_METATILE_ID * 16
@@ -192,16 +180,16 @@ xHandleMapScroll::
     cp a, $9C
     jr c, :+
     ; Otherwise, wrap the address around to the top.
-    ld h, $98
+    sub a, $9C - $98
+    ld h, a
 :   push hl
-    call xGetCurrentMap
+    ld a, [wDungeonCameraX + 1]
+    ld b, a
+    ld a, [wDungeonCameraY + 1]
+    add a, 9
+    ld c, a
+    call xGetMapPosition
     pop hl
-    ld a, 64
-    add a, e
-    ld e, a
-    adc a, d
-    sub a, e
-    ld d, a
 .drawRow
     ld a, 11
     ldh [hMapDrawY], a
@@ -306,6 +294,11 @@ xDrawTile:
     inc a
     ld bc, $20 - 2
     add hl, bc
+    ld b, a
+:   ld a, [rSTAT]
+    and a, STATF_BUSY
+    jr nz, :-
+    ld a, b
     ld [hli], a
     inc a
     ld [hli], a

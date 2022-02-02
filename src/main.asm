@@ -9,13 +9,13 @@ Main::
     bankcall xRenderEntities
     call UpdateEntityGraphics
     bankcall xHandleMapScroll
-    ld a, [wDungeonCameraX]
+    ld a, [wDungeonCameraY]
     add a, 1
-    ld [wDungeonCameraX], a
+    ld [wDungeonCameraY], a
     jr nc, :+
-    ld a, [wDungeonCameraX + 1]
+    ld a, [wDungeonCameraY + 1]
     inc a
-    ld [wDungeonCameraX + 1], a
+    ld [wDungeonCameraY + 1], a
 :   ld a, [wDungeonCameraX + 1]
     ld b, a
     ld a, [wDungeonCameraX]
