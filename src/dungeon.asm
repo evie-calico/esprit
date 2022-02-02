@@ -233,6 +233,7 @@ xGetCurrentVram:
     ld hl, $9800
     add hl, de ; Add to VRAM
     ld a, [wDungeonCameraX + 1]
+    and a, %00001111
     add a, a
     ; Now we have the neccessary X index on the tilemap.
     add a, l

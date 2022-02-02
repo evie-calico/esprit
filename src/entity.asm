@@ -255,7 +255,7 @@ xRenderEntities::
     ld l, LOW(wEntity0_Bank)
     ld a, [hli]
     and a, a
-    jr z, .next
+    jp z, .next
     ASSERT Entity_Bank + 4 == Entity_SpriteY + 1
     inc l
     inc l
@@ -268,6 +268,19 @@ xRenderEntities::
 :   add a, 9
     cp a, [hl]
     jr c, .next
+    ASSERT Entity_SpriteY + 3 == Entity_SpriteX + 1
+    inc l
+    inc l
+    ld a, [wDungeonCameraX + 1]
+    cp a, [hl] ; possibly need to inc/dec here?
+    jr z, :+
+    jr nc, .next
+:   add a, 11
+    cp a, [hl]
+    jr c, .next
+    ASSERT Entity_SpriteX - 2 == Entity_SpriteY
+    dec l
+    dec l
     dec l
     ; Read Y position.
     ld a, [wDungeonCameraY]
