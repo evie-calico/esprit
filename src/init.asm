@@ -3,8 +3,6 @@ INCLUDE "engine.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 INCLUDE "optimize.inc"
-INCLUDE "textfmt.inc"
-INCLUDE "res/charmap.inc"
 
 SECTION "Header", ROM0[$100]
     di
@@ -70,21 +68,24 @@ Initialize::
     ldh [hOAMIndex], a
 
     ; Initialize VWF.
-	ld [wTextCurPixel], a
+    ld [wMoveEntityCounter], a
+    ld [wSTATTarget], a
+    ld [wSTATTarget + 1], a
 	ld [wTextCharset], a
-	ld c, $10 * 2
-	ld hl, wTextTileBuffer
-	rst MemSetSmall
-    ldh [hShadowSCX], a
-    ldh [hShadowSCY], a
-
+	ld [wTextCurPixel], a
     ldh [hCurrentBank], a
     ldh [hCurrentKeys], a
+    ldh [hFrameCounter], a
+    ldh [hShadowSCX], a
+    ldh [hShadowSCY], a
     ldh [rIF], a
     ld bc, $2000
     ld d, a
     ld hl, _VRAM
     call VRAMSet
+	ld c, $10 * 2
+	ld hl, wTextTileBuffer
+	rst MemSetSmall
 
     bankcall xInitDungeon
     bankcall xDrawDungeon
@@ -93,8 +94,14 @@ Initialize::
     call InitSprObjLib
 
     ; Enable interrupts
-    ld a, IEF_VBLANK
+    ld a, IEF_VBLANK | IEF_STAT
     ldh [rIE], a
+
+    ld a, STATF_LYC
+    ldh [rSTAT], a
+
+    ld a, 144 - 32
+    ldh [rLYC], a
 
     ld a, %11100100
     ldh [rBGP], a
@@ -102,43 +109,12 @@ Initialize::
     ld a, %11010000
     ldh [rOBP0], a
 
-    ; Draw vwf text
-    ld a, BANK(xTextInit)
-    rst SwapBank
-    ld a, 18 * 8
-    lb bc, $01, 73
-    lb de, 4, $90
-    call xTextInit
-
-    ld b, BANK(xDebugText)
-    ld hl, xDebugText
-    ld a, 1
-    call PrintVWFText
-
-    lb de, 18, 4
-    ld hl, $9DC1
-    bankcall xTextDefineBox
-
-    ld a, 6
-    ld [wTextLetterDelay], a
-
     ; Turn on the screen.
     ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON | LCDCF_OBJ16
     ldh [rLCDC], a
 
     ei
     jp Main
-
-SECTION "Debug Text", ROMX
-xDebugText:
-    db "Player is facing "
-    db TEXT_FMT, BANK(xDebugTable)
-    dw wEntity0_Direction, xDebugTable
-    db " -- "
-    db TEXT_JUMP, BANK(xDebugText)
-    dw xDebugText
-
-xDebugTable: fmttable "up", "right", "down", "left"
 
 SECTION "Stack", WRAM0
 wStack:

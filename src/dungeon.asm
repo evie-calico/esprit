@@ -62,6 +62,11 @@ xInitDungeon::
     ld a, h
     cp a, HIGH(wEntity0) + NB_ENTITIES
     jr nz, :-
+
+    ld a, 1
+    ld [wEntity0_Frame], a
+
+    call InitUI
     ret
 
 .debugTileset

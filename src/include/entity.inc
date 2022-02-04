@@ -25,6 +25,9 @@ DEF NB_ENTITIES EQU 8
         ; The entity's current and last direction, used to update graphics.
         bytes 1, Direction
         bytes 1, LastDirection
+        ; Decides what the latter 8 tiles should be. These tiles are only used
+        ; if the frame is non zero.
+        bytes 1, Frame
     end_struct
 
 ENDC

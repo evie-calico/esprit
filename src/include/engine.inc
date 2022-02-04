@@ -1,8 +1,14 @@
 IF !DEF(ENGINE_INC)
 DEF ENGINE_INC EQU 1
 
+INCLUDE "enum.inc"
+
 DEF SYSTEM_DMG EQU 0
 DEF SYSTEM_CGB EQU 1
 DEF SYSTEM_AGB EQU 2
+
+    start_enum GAMESTATE
+        enum DUNGEON
+    end_enum
 
 ENDC

@@ -904,16 +904,6 @@ DEF OAMB_XFLIP      EQU 5 ; X flip
 DEF OAMB_PAL1       EQU 4 ; Palette number; 0,1 (DMG)
 DEF OAMB_BANK1      EQU 3 ; Bank number; 0,1 (GBC)
 
-; I (GreenAndEievui) added these. Yes, they're just ints.
-DEF OAMF_GBCPAL0    EQU %00000000 ; Palette (GBC)
-DEF OAMF_GBCPAL1    EQU %00000001 ; Palette (GBC)
-DEF OAMF_GBCPAL2    EQU %00000010 ; Palette (GBC)
-DEF OAMF_GBCPAL3    EQU %00000011 ; Palette (GBC)
-DEF OAMF_GBCPAL4    EQU %00000100 ; Palette (GBC)
-DEF OAMF_GBCPAL5    EQU %00000101 ; Palette (GBC)
-DEF OAMF_GBCPAL6    EQU %00000110 ; Palette (GBC)
-DEF OAMF_GBCPAL7    EQU %00000111 ; Palette (GBC)
-
 ;*
 ;* Nintendo scrolling logo
 ;* (Code won't work on a real GameBoy)

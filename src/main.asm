@@ -4,8 +4,8 @@ SECTION "Main", ROM0
 Main::
     ; Poll player input and move as needed.
     call UpdateInput
-    call ProcessEntities
     bankcall xMoveEntities
+    call ProcessEntities
 
     ; Scroll the map after moving entities.
     bankcall xHandleMapScroll

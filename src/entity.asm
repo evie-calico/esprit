@@ -15,9 +15,16 @@ xLuvui::
 
 SECTION "Process entities", ROM0
 ProcessEntities::
+    ld a, [wMoveEntityCounter]
+    and a, a
+    ret nz
     call PadToDir
     ret c
     ld [wEntity0_Direction], a
+    ; Force the player to the walking frame.
+    ld a, 1
+    ld [wEntity0_Frame], a
+    ld a, [wEntity0_Direction]
     ld h, HIGH(wEntity0)
     jp MoveEntity
 
@@ -25,7 +32,7 @@ ProcessEntities::
 ; If no direction is selected, sets the carry flag.
 PadToDir::
     xor a, a ; Clear carry flag
-    ldh a, [hNewKeys]
+    ldh a, [hCurrentKeys]
     bit PADB_UP, a
     jr z, :+
     ASSERT UP == 0
@@ -161,12 +168,14 @@ UpdateEntityGraphics::
 
 SECTION "Move entities", ROMX
 xMoveEntities::
+    xor a, a
+    ld [wMoveEntityCounter], a
     ld h, HIGH(wEntity0)
 .loop
     ld l, LOW(wEntity0_Bank)
     ld a, [hli]
     and a, a
-    jr z, .next
+    jr z, .skip
 .yCheck
     ld l, LOW(wEntity0_PosY)
     ld d, [hl]
@@ -225,7 +234,7 @@ xMoveEntities::
 .xCheckLow
     ld a, [hl]
     cp a, 0
-    jr z, .next
+    jr z, .skip
     jr nc, .xLesser
     ; Fallthrough to xGreater.
 .xGreater
@@ -237,6 +246,14 @@ xMoveEntities::
     inc [hl]
 
 .next
+    ld hl, wMoveEntityCounter
+    inc [hl]
+    ld a, 1
+    jr :+
+.skip
+    xor a, a
+:   ld l, LOW(wEntity0_Frame)
+    ld [hl], a
     inc h
     ld a, h
     cp a, HIGH(wEntity0) + NB_ENTITIES
@@ -264,17 +281,17 @@ xRenderEntities::
     ld a, [wDungeonCameraY + 1]
     cp a, [hl] ; possibly need to inc/dec here?
     jr z, :+
-    jr nc, .next
+    jp nc, .next
 :   add a, 9
     cp a, [hl]
-    jr c, .next
+    jp c, .next
     ASSERT Entity_SpriteY + 3 == Entity_SpriteX + 1
     inc l
     inc l
     ld a, [wDungeonCameraX + 1]
     cp a, [hl] ; possibly need to inc/dec here?
     jr z, :+
-    jr nc, .next
+    jp nc, .next
 :   add a, 11
     cp a, [hl]
     jr c, .next
@@ -314,43 +331,47 @@ xRenderEntities::
     sub a, c
     ld b, a
 
-    ; The following is an unrolled loop which writes both halves of the sprite.
-    ldh a, [hRenderTempByte]
-    ld [de], a
-    inc e
-    ld a, b
-    ld [de], a
-    inc e
-    ; Determine entity index and render.
-    ld a, h
-    sub a, HIGH(wEntity0)
-    swap a ; a * 16
-    ld [de], a
-    inc e
-    ; Revert the index and use it as the color palette.
-    swap a
-    ld [de], a
-    inc e
-
-    ldh a, [hRenderTempByte]
-    ld [de], a
-    inc e
-    ld a, b
-    add a, 8
-    ld [de], a
-    inc e
-    ; Determine entity index and render.
-    ld a, h
-    sub a, HIGH(wEntity0)
-    swap a ; a * 16
-    add a, 2
-    ld [de], a
-    inc e
-    sub a, 2
-    ; Revert the index and use it as the color palette.
-    swap a
-    ld [de], a
-    inc e
+    FOR I, 2
+        ; The following is an unrolled loop which writes both halves of the sprite.
+        ldh a, [hRenderTempByte]
+        ld [de], a
+        inc e
+        ld a, b
+        IF I
+            add a, 8
+        ENDC
+        ld [de], a
+        inc e
+        ; Determine entity index and render.
+        ld a, h
+        sub a, HIGH(wEntity0)
+        swap a ; a * 16
+        ld c, a
+        ldh a, [hFrameCounter]
+        and a, %00010000
+        rra
+        rra
+        IF I
+            add a, 2
+        ENDC
+        add a, c
+        ld c, a
+        IF !I
+            ld l, LOW(wEntity0_Frame)
+        ENDC
+        ld a, [hl]
+        and a, a
+        jr z, :+
+        ld a, 8
+:       add a, c
+        ld [de], a
+        inc e
+        ; Use the index and use it as the color palette.
+        ld a, h
+        sub a, HIGH(wEntity0)
+        ld [de], a
+        inc e
+    ENDR
 .next
     inc h
     ld a, h
@@ -370,7 +391,7 @@ xFocusCamera::
     ld a, [bc]
     inc c
     ld h, a
-    ld de, (SCRN_Y - 24) / -2 << 4
+    ld de, (SCRN_Y - 50) / -2 << 4
     add hl, de
     bit 7, h
     jr nz, :+
@@ -409,6 +430,9 @@ wEnemies::
     ENDC
         dstruct Entity, wEntity{d:I}
 ENDR
+
+SECTION "Movement return", WRAM0
+wMoveEntityCounter:: db
 
 SECTION "Render Temp", HRAM
 hRenderTempByte: db

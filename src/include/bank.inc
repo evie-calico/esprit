@@ -27,4 +27,9 @@ MACRO farcall
     rst FarCall
 ENDM
 
+MACRO farptr
+    db BANK(\1)
+    dw \1
+ENDM
+
 ENDC
