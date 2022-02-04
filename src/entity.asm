@@ -14,20 +14,77 @@ xLuvui::
     INCBIN "res/sprites/luvui.2bpp"
 
 SECTION "Process entities", ROM0
+; Iterate through the entities.
+; The individual logic functions can choose to return on their own to end logic
+; processing. This is used to queue up movements to occur simultaneuously.
 ProcessEntities::
     ld a, [wMoveEntityCounter]
     and a, a
     ret nz
+    ld a, [wActiveEntity]
+.loop
+    and a, a
+    jp z, PlayerLogic
+    cp a, NB_ALLIES
+    jp c, AllyLogic
+    jp EnemyLogic
+.next
+    ld a, [wActiveEntity]
+    inc a
+    cp a, NB_ENTITIES
+    jr nz, :+
+    xor a, a
+:   ld [wActiveEntity], a
+    jr .loop
+
+SECTION "Player logic", ROM0
+; @param a: Contains the value of wActiveEntity
+PlayerLogic:
+    ; If any movement is queued, the player should refuse to take its turn to
+    ; allow all sprites to catch up.
+    ld a, [wMovementQueued]
+    and a, a
+    ret nz
+    ; Read the joypad to see if the player is attempting to move.
     call PadToDir
+    ; If no input is given, the player waits a frame to take its turn
     ret c
+    ; Turn the player according to the given direction.
     ld [wEntity0_Direction], a
-    ; Force the player to the walking frame.
+    ; Force the player to show the walking frame.
     ld a, 1
     ld [wEntity0_Frame], a
+    ; Attempt to move the player.
     ld a, [wEntity0_Direction]
     ld h, HIGH(wEntity0)
-    jp MoveEntity
+    call MoveEntity
+    ; If movement was successful, end the player's turn and process the next
+    ; entity.
+    ld a, [wMovementQueued]
+    and a, a
+    ret z
+    jp ProcessEntities.next
 
+SECTION "Ally logic", ROM0
+; @param a: Contains the value of wActiveEntity
+AllyLogic:
+    ; Stub to immediately spend turn.
+    jp ProcessEntities.next
+
+SECTION "Enemy logic", ROM0
+; @param a: Contains the value of wActiveEntity
+EnemyLogic:
+    add a, HIGH(wEntity0)
+    ld h, a
+    ld l, LOW(wEntity0_Direction)
+    ld a, 1
+    ld [hl], a
+    ld l, LOW(wEntity0_Frame)
+    ld [hl], a
+    call MoveEntity
+    jp ProcessEntities.next
+
+SECTION "Joypad to direction", ROM0
 ; Reads hCurrentKeys and returns the currently selected pad direction in A.
 ; If no direction is selected, sets the carry flag.
 PadToDir::
@@ -89,6 +146,8 @@ MoveEntity:
     ASSERT Entity_PosY - 1 == Entity_PosX
     ld a, b
     ld [hl], a
+    ld a, 1
+    ld [wMovementQueued], a
     xor a, a
     ret
 .fail
@@ -246,8 +305,9 @@ xMoveEntities::
     inc [hl]
 
 .next
-    ld hl, wMoveEntityCounter
-    inc [hl]
+    ld a, [wMoveEntityCounter]
+    inc a
+    ld [wMoveEntityCounter], a
     ld a, 1
     jr :+
 .skip
@@ -258,6 +318,8 @@ xMoveEntities::
     ld a, h
     cp a, HIGH(wEntity0) + NB_ENTITIES
     jr nz, .loop
+    ld a, [wMoveEntityCounter]
+    ld [wMovementQueued], a
     ret
 
 SECTION "Render entities", ROMX
@@ -432,7 +494,16 @@ wEnemies::
 ENDR
 
 SECTION "Movement return", WRAM0
+; Set to 0 if all entities are done moving.
 wMoveEntityCounter:: db
+
+SECTION "Active entity", WRAM0
+; The next entity to be processed.
+wActiveEntity:: db
+
+SECTION "Movement Queued", WRAM0
+; nonzero if any entity is ready to move.
+wMovementQueued: db
 
 SECTION "Render Temp", HRAM
 hRenderTempByte: db

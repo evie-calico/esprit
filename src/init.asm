@@ -68,6 +68,7 @@ Initialize::
     ldh [hOAMIndex], a
 
     ; Initialize VWF.
+	ld [wActiveEntity], a
     ld [wMoveEntityCounter], a
     ld [wSTATTarget], a
     ld [wSTATTarget + 1], a
