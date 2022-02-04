@@ -144,6 +144,7 @@ ENDM
     reader_only_control_char CALL,         ReaderCall
     reader_only_control_char JUMP,         ReaderJumpTo
     reader_only_control_char SOFT_HYPHEN,  ReaderSoftHyphen
+    reader_only_control_char FMT,          ReaderFormat
 
     ; The base of the table is located at its end
     ; Unusual, I know, but it works better!
@@ -874,6 +875,74 @@ ReaderCall:
     ld [rROMB0], a
     ret
 
+; bank, index ptr, table ptr
+ReaderFormat::
+    push de
+    ld a, [wTextStackSize]
+    IF DEF(STACK_OVERFLOW_HANDLER)
+        cp TEXT_STACK_CAPACITY
+        call nc, STACK_OVERFLOW_HANDLER
+    ENDC
+
+    ; Read target ptr
+    inc a ; Increase stack size
+    ld [wTextStackSize], a
+
+    ; Get ptr to end of 1st empty entry
+    ld b, a
+    add a, a
+    add a, b
+    add a, LOW(wTextStack - 1)
+    ld c, a
+    adc a, HIGH(wTextStack - 1)
+    sub c
+    ld b, a
+    ; Save ROM bank immediately, as we're gonna bankswitch
+    ldh a, [hCurrentBank]
+    ld [bc], a
+    dec bc
+    dec bc
+
+    ; Save src ptr
+    ld a, l
+    add a, 5
+    ld [bc], a
+    inc bc
+    ld a, h
+    adc a, 0
+    ld [bc], a
+
+    ; Read dest bank
+    ld a, [hli]
+    ld b, a
+    ; Deref index
+    ld a, [hli]
+    ld d, [hl]
+    ld e, a
+    inc hl
+    ld a, [de]
+    ; Double index, since pointers are 2 bytes
+    add a, a
+    ld c, a
+    ; Deref format table, index and call
+    ld a, [hli]
+    ld h, [hl]
+    add a, c
+    ld l, a
+    adc a, h
+    sub a, l
+    ld h, a
+    ; finally, deref.
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
+
+    ; Perform bankswitch now that all bytecode has been read
+    ld a, b
+    ldh [hCurrentBank], a
+    ld [rROMB0], a
+    pop de
+    ret
 
 SECTION "VWF ROMX functions + data", ROMX
 

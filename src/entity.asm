@@ -281,46 +281,37 @@ xRenderEntities::
     ASSERT Entity_SpriteX - 2 == Entity_SpriteY
     dec l
     dec l
-    dec l
     ; Read Y position.
-    ld a, [wDungeonCameraY]
+    ldh a, [hShadowSCY]
     ld c, a
-    ld a, [hli]
-    sub a, c
-    ld c, a
-    ld a, [wDungeonCameraY + 1]
+    ld a, [hld]
     ld b, a
     ld a, [hli]
-    sbc a, b
-    ld b, a
-    ld a, c
     ; Adjust 12.4 position down to a 12-bit integer.
     REPT 4
         srl b
         rra
     ENDR
     add a, 16
+    sub a, c
     ldh [hRenderTempByte], a
 
     ASSERT Entity_SpriteY + 2 == Entity_SpriteX
+    inc l
+    inc l
     ; Read X position.
-    ld a, [wDungeonCameraX]
+    ldh a, [hShadowSCX]
     ld c, a
-    ld a, [hli]
-    sub a, c
-    ld c, a
-    ld a, [wDungeonCameraX + 1]
+    ld a, [hld]
     ld b, a
     ld a, [hli]
-    sbc a, b
-    ld b, a
-    ld a, c
     ; Adjust 12.4 position down to a 12-bit integer.
     REPT 4
         srl b
         rra
     ENDR
     add a, 8
+    sub a, c
     ld b, a
 
     ; The following is an unrolled loop which writes both halves of the sprite.

@@ -2,12 +2,12 @@ INCLUDE "bank.inc"
 
 SECTION "Main", ROM0
 Main::
+    ; Poll player input and move as needed.
     call UpdateInput
     call ProcessEntities
     bankcall xMoveEntities
-    call ResetShadowOAM
-    bankcall xRenderEntities
-    call UpdateEntityGraphics
+
+    ; Scroll the map after moving entities.
     bankcall xHandleMapScroll
     bankcall xFocusCamera
 
@@ -27,7 +27,16 @@ Main::
         rra
     ENDR
     ldh [hShadowSCY], a
-    ;call PrintVWFChar
-    ;call DrawVWFChars
+
+    ; Render entities after scrolling.
+    call ResetShadowOAM
+    bankcall xRenderEntities
+    call UpdateEntityGraphics
+
+    ; Print any pending text.
+    call PrintVWFChar
+    call DrawVWFChars
+
+    ; Wait for the next frame.
     call WaitVBlank
     jr Main

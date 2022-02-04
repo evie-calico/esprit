@@ -3,6 +3,7 @@ INCLUDE "engine.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 INCLUDE "optimize.inc"
+INCLUDE "textfmt.inc"
 INCLUDE "res/charmap.inc"
 
 SECTION "Header", ROM0[$100]
@@ -26,20 +27,23 @@ InitializeSystem:
     jr .store
 .cgb
     ld a, SYSTEM_CGB
-    .store
+.store
     ldh [hSystem], a
 
     ; Overclock the CGB
     and a, a
     jr z, Initialize
 
-    ; Wait to turn off the screen, because speed switch can be finicky.
-    .waitVBlank
-    ldh a, [rLY]
+    ; Do lotsa stuff to be very safe.
+:   ldh a, [rLY]
     cp a, 144
-    jr c, .waitVBlank
+    jr c, :-
     xor a, a
     ldh [rLCDC], a
+    ldh [rIE], a
+    ld a, $30
+    ldh [rP1], a
+    di
 
     ld a, 1
     ldh [rKEY1], a
@@ -112,10 +116,10 @@ Initialize::
     call PrintVWFText
 
     lb de, 18, 4
-    ld hl, $99C1
+    ld hl, $9DC1
     bankcall xTextDefineBox
 
-    ld a, 1
+    ld a, 6
     ld [wTextLetterDelay], a
 
     ; Turn on the screen.
@@ -126,11 +130,15 @@ Initialize::
     jp Main
 
 SECTION "Debug Text", ROMX
-xDebugText: db "<CLEAR>Eievui used Scratch!<DELAY>",60,"<NEWLINE>Enemy took 255 damage and was defeated.<DELAY>",120,"<CLEAR>", \
-               "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ", \
-               "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ", \
-               "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ", \
-               "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<END>"
+xDebugText:
+    db "Player is facing "
+    db TEXT_FMT, BANK(xDebugTable)
+    dw wEntity0_Direction, xDebugTable
+    db " -- "
+    db TEXT_JUMP, BANK(xDebugText)
+    dw xDebugText
+
+xDebugTable: fmttable "up", "right", "down", "left"
 
 SECTION "Stack", WRAM0
 wStack:
