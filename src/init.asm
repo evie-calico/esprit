@@ -87,6 +87,8 @@ Initialize::
 	ld c, $10 * 2
 	ld hl, wTextTileBuffer
 	rst MemSetSmall
+    ld a, $FF
+    ld [wTextSrcPtr + 1], a
 
     bankcall xInitDungeon
     bankcall xDrawDungeon
@@ -113,8 +115,14 @@ Initialize::
     ldh [rOBP0], a
 
     ; Turn on the screen.
-    ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON | LCDCF_OBJ16
+    ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON | LCDCF_OBJ16 | LCDCF_WINON | LCDCF_WIN9C00
     ldh [rLCDC], a
+    ld a, SCRN_X
+    ldh [rWX], a
+    ldh [hShadowWX], a
+    ld a, SCRN_Y
+    ldh [rWY], a
+    ldh [hShadowWY], a
 
     ei
     jp Main

@@ -95,7 +95,7 @@ VRAMSetSmall::
     and STATF_BUSY
     jr nz, VRAMSetSmall
 
-    ld b, a
+    ld a, b
     ld [hli], a
     dec c
     jr nz, VRAMSetSmall

@@ -29,16 +29,19 @@ VBlank:
     ld a, [hCurrentBank]
     push af
 
-    ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON | LCDCF_OBJ16
-    ldh [rLCDC], a
-
     ld a, HIGH(wShadowOAM)
     call hOAMDMA
 
+    ldh a, [hShadowWX]
+    ldh [rWX], a
+    ldh a, [hShadowWY]
+    ldh [rWY], a
     ldh a, [hShadowSCX]
     ldh [rSCX], a
     ldh a, [hShadowSCY]
     ldh [rSCY], a
+    ld a, [hShadowLCDC]
+    ldh [rLCDC], a
 
     call gbt_update
 
@@ -81,7 +84,10 @@ wWaitVBlankFlag: db
 SECTION "STAT target", WRAM0
 wSTATTarget:: dw
 
-SECTION "Shadow scroll registers", HRAM
+SECTION "Shadow registers", HRAM
 hShadowSCX:: db
 hShadowSCY:: db
+hShadowWX:: db
+hShadowWY:: db
+hShadowLCDC:: db
 hFrameCounter:: db

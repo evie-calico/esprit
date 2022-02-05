@@ -22,10 +22,13 @@
 
 INCLUDE "hardware.inc"
 
-SECTION "Swap Bank", ROM0[$0020]
+SECTION "Swap Bank", ROM0[$0020 - 1]
+BankReturn::
+    pop af
 ; Sets rROMB0 and hCurrentBank to `a`
 ; @param a: Bank
 SwapBank::
+    ASSERT @ == $20
     ld [rROMB0], a
     ldh [hCurrentBank], a
     ret

@@ -35,6 +35,8 @@ Main::
     bankcall xRenderEntities
     call UpdateEntityGraphics
 
+    call UpdateAttackWindow
+
     ; Print any pending text.
     ld a, [wTextSrcPtr + 1]
     inc a ; cp a, $FF
