@@ -4,7 +4,7 @@
   - Programming
   - Art
 
-- "Halfcourt Yeet"
+- Benjamin "Mojius" Daly
   - Music composition.
 
 - Damian "PinoBatch" Yerrick
