@@ -17,7 +17,6 @@ FIXFLAGS = -p 0xFF -v -c -i "VUIG" -k "EV" -l 0x33 -m $(MBC) \
            -n $(VERSION) -r $(SRAMSIZE) -t "Vuiiger    "
 
 SRCS := $(shell find src -name '*.asm')
-FONTS := $(shell find src/res/fonts -name '*.png')
 
 ################################################
 #                                              #
@@ -106,6 +105,20 @@ res/%.1bpp: res/%.h.png
 res/%.vwf: res/%.png
 	@mkdir -p $(@D)
 	python3 tools/make_font.py $< $@
+
+res/%.asm: res/%.mod bin/mod2gbt
+	@mkdir -p $(@D)
+	./bin/mod2gbt $< $@ $(patsubst res/music/%.asm, %, $@)
+
+################################################
+#                                              #
+#                 BUILD TOOLS                  #
+#                                              #
+################################################
+
+bin/mod2gbt: tools/mod2gbt.c
+	@mkdir -p $(@D)
+	$(CC) -o $@ $<
 
 # Catch non-existent files
 # KEEP THIS LAST!!

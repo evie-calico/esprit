@@ -1,5 +1,7 @@
 INCLUDE "bank.inc"
 
+INCLUDE "res/music/dungeon.asm"
+
 SECTION "Main", ROM0
 Main::
     ; Poll player input and move as needed.
@@ -34,9 +36,12 @@ Main::
     call UpdateEntityGraphics
 
     ; Print any pending text.
+    ld a, [wTextSrcPtr + 1]
+    inc a ; cp a, $FF
+    jr z, :+
     call PrintVWFChar
     call DrawVWFChars
-
+:
     ; Wait for the next frame.
     call WaitVBlank
     jr Main

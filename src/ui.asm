@@ -30,10 +30,16 @@ InitUI::
     ld a, HIGH(ShowTextBox)
     ld [wSTATTarget + 1], a
 
+    ld a, 144 - 32 - 1
+    ldh [rLYC], a
+
     ret
 
 SECTION "Show text box", ROM0
 ShowTextBox:
+:   ld a, [rSTAT]
+    and a, STATF_BUSY
+    jr nz, :-
     ld a, LCDCF_ON | LCDCF_BGON | LCDCF_BG9C00 | LCDCF_OBJ16
     ldh [rLCDC], a
     xor a, a

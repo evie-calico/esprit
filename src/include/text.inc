@@ -19,7 +19,4 @@ MACRO textjump ; dest
     dw \1
 ENDM
 
-; Ensure that '\n' is a newline
-charmap "\n", "<NEWLINE>"
-
 ENDC

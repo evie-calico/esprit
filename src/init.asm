@@ -94,15 +94,17 @@ Initialize::
     ; Initiallize OAM
     call InitSprObjLib
 
+    ld c, BANK(dungeon_data)
+    ld de, dungeon_data
+    ld a, 0
+    call gbt_play
+
     ; Enable interrupts
     ld a, IEF_VBLANK | IEF_STAT
     ldh [rIE], a
 
     ld a, STATF_LYC
     ldh [rSTAT], a
-
-    ld a, 144 - 32
-    ldh [rLYC], a
 
     ld a, %11100100
     ldh [rBGP], a

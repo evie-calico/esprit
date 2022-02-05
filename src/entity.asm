@@ -160,6 +160,26 @@ MoveEntity:
     db 0, 1
     db -1, 0
 
+SECTION "Spawn entity", ROM0
+; @param b: Entity data bank.
+; @param de: Entity data pointer.
+; @param h: High byte of entity struct.
+SpawnEntity:
+    ld a, [hCurrentBank]
+    push af
+
+    ld a, b
+    rst SwapBank
+    ; Clear out entity struct
+    xor a, a
+    ld l, LOW(wEntity0)
+    ld bc, sizeof_Entity
+    call MemSetSmall
+
+
+    pop af
+    rst SwapBank
+
 SECTION "Update entity graphics", ROM0
 UpdateEntityGraphics::
     ld h, HIGH(wEntity0)

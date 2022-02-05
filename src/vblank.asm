@@ -26,19 +26,32 @@ SECTION "STAT Interrupt", ROM0[$0048]
 
 SECTION "VBlank Handler", ROM0
 VBlank:
+    ld a, [hCurrentBank]
+    push af
+
     ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON | LCDCF_OBJ16
     ldh [rLCDC], a
+
     ld a, HIGH(wShadowOAM)
     call hOAMDMA
+
     ldh a, [hShadowSCX]
     ldh [rSCX], a
     ldh a, [hShadowSCY]
     ldh [rSCY], a
+
+    call gbt_update
+
     ldh a, [hFrameCounter]
     inc a
     ldh [hFrameCounter], a
+
     ld a, 1
     ld [wWaitVBlankFlag], a
+
+    pop af
+    rst SwapBank
+
     pop hl
     pop de
     pop bc
