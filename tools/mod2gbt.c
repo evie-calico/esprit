@@ -878,13 +878,13 @@ int main(int argc, char *argv[])
     int more_than_256_banks = 0;
 
     int i;
-
+/*
     printf("mod2gbt v3.1 (part of GBT Player)\n");
     printf("Copyright (c) 2009-2018 Antonio Niño Díaz "
            "<antonio_nd@outlook.com>\n");
     printf("All rights reserved\n");
     printf("\n");
-
+*/
     if ((argc < 4) || (argc > 6))
     {
         print_usage();
@@ -918,24 +918,21 @@ int main(int argc, char *argv[])
     if (modfile == NULL)
         return -2;
 
-    printf("%s loaded!\n", argv[1]);
+    // printf("%s loaded!\n", argv[1]);
 
-    if (strncmp(modfile->identifier, "M.K.", 4) == 0)
-    {
-        printf("Valid mod file!\n");
-    }
-    else
-    {
+    if (strncmp(modfile->identifier, "M.K.", 4) != 0) {
         printf("ERROR: Not a valid mod file.\n"
                "Only 4 channel mod files with 31 samples allowed.\n");
         return -3;
     }
 
+    /*
     printf("\nSong name: ");
     for (i = 0; i < 20; i++)
         if (modfile->name[i])
             printf("%c", modfile->name[i]);
     printf("\n");
+    */
 
     u8 num_patterns = 0;
 
@@ -945,20 +942,20 @@ int main(int argc, char *argv[])
 
     num_patterns++;
 
-    printf("Number of patterns: %d\n", num_patterns);
+    //printf("Number of patterns: %d\n", num_patterns);
 
     out_open(outfile);
 
     out_write_str("\n; File created by mod2gbt\n\n");
 
-    printf("\nConverting patterns...\n");
+    //printf("\nConverting patterns...\n");
     for (i = 0; i < num_patterns; i++)
     {
-        printf(".");
+        //printf(".");
         convert_pattern(&(modfile->pattern[i]), i);
     }
 
-    printf("\n\nPattern order...\n");
+    //printf("\n\nPattern order...\n");
 
     out_write_str("  SECTION \"");
     out_write_str(label_name);
@@ -1002,7 +999,7 @@ int main(int argc, char *argv[])
 
     out_close();
 
-    printf("\nDone!\n");
+    //printf("\nDone!\n");
 
     return 0;
 }
