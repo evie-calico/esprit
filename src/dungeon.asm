@@ -38,33 +38,57 @@ xInitDungeon::
     call VRAMCopy
 
     ; Null out all entities.
-    xor a, a
     FOR I, NB_ENTITIES
-        ld bc, sizeof_Entity
-        ld hl, wEntity{d:I}
-        call MemSet
+        ld b, BANK(xLuvui)
+        ld de, xLuvui
+        ld h, HIGH(wEntity{d:I})
+        call SpawnEntity
     ENDR
-    ; Initialize an entity for debugging.
-    ld h, HIGH(wEntity0)
-:   ld l, LOW(wEntity0_Bank)
-    ld a, BANK(xLuvui)
+
+    ; Set palettes
+    ld a, %11111111
+    ld [wBGPaletteMask], a
+    ld a, %11111111
+    ld [wOBJPaletteMask], a
+
+    ld b, 8
+    ld hl, wBGPaletteBuffer
+.loop
+    ld a, $FF
     ld [hli], a
-    ld a, LOW(xLuvui)
     ld [hli], a
-    ld a, HIGH(xLuvui)
-    ld [hl], a
-    ld l, LOW(wEntity0_Direction)
+    ld [hli], a
+    ld a, $60
+    ld [hli], a
+    ld [hli], a
+    ld [hli], a
+    ld a, $30
+    ld [hli], a
+    ld [hli], a
+    ld [hli], a
     xor a, a
     ld [hli], a
-    dec a
-    ld [hl], a
-    inc h
-    ld a, h
-    cp a, HIGH(wEntity0) + NB_ENTITIES
-    jr nz, :-
+    ld [hli], a
+    ld [hli], a
+    dec b
+    jr nz, .loop
+    ld b, 8
 
-    ld a, 1
-    ld [wEntity0_Frame], a
+    ld hl, wOBJPaletteBuffer
+:   ld a, $FF
+    ld [hli], a
+    ld [hli], a
+    ld [hli], a
+    ld a, $60
+    ld [hli], a
+    ld [hli], a
+    ld [hli], a
+    xor a, a
+    ld [hli], a
+    ld [hli], a
+    ld [hli], a
+    dec b
+    jr nz, :-
 
     call InitUI
     ret

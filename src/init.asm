@@ -87,6 +87,13 @@ Initialize::
 	ld c, $10 * 2
 	ld hl, wTextTileBuffer
 	rst MemSetSmall
+
+    ld a, $FF
+    ld [wFadeAmount], a
+    ld a, $FF - $80
+    ld [wFadeSteps], a
+    ld a, -1
+    ld [wFadeDelta], a
     ld a, $FF
     ld [wTextSrcPtr + 1], a
 

@@ -37,6 +37,15 @@ Main::
 
     call UpdateAttackWindow
 
+    ldh a, [hSystem]
+    and a, a
+    jr z, .noFade
+    ld a, [wFadeSteps]
+    and a, a
+    jr z, .noFade
+    call nz, FadePaletteBuffers
+.noFade
+
     ; Print any pending text.
     ld a, [wTextSrcPtr + 1]
     inc a ; cp a, $FF
@@ -46,4 +55,4 @@ Main::
 :
     ; Wait for the next frame.
     call WaitVBlank
-    jr Main
+    jp Main

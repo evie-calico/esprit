@@ -15,3 +15,4 @@
 - Eldred "ISSOtm" Habert
   - RGBDS Structs (structs.inc)
   - vwf.asm
+  - palfade.asm

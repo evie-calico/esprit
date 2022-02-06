@@ -164,18 +164,29 @@ SECTION "Spawn entity", ROM0
 ; @param b: Entity data bank.
 ; @param de: Entity data pointer.
 ; @param h: High byte of entity struct.
-SpawnEntity:
+; @preserves: h, bank
+SpawnEntity::
     ld a, [hCurrentBank]
     push af
 
-    ld a, b
-    rst SwapBank
     ; Clear out entity struct
     xor a, a
     ld l, LOW(wEntity0)
-    ld bc, sizeof_Entity
+    ld c, sizeof_Entity
     call MemSetSmall
-
+    dec h ; correct high byte (MemSet causes it to overflow)
+    ld a, b
+    rst SwapBank
+    ld l, LOW(wEntity0_Bank)
+    ld [hli], a
+    ASSERT Entity_Bank + 1 == Entity_Data
+    ld a, e
+    ld [hli], a
+    ld a, d
+    ld [hli], a
+    ; Forcefully load entity graphics.
+    ld l, LOW(wEntity0_LastDirection)
+    ld [hl], -1
 
     pop af
     rst SwapBank
