@@ -10,6 +10,7 @@ DEF NB_ENTITIES EQU 8
     ; Constant data about an entity, such as graphics, moves, and stats.
     struct EntityData
         words 1, Graphics
+        words 1, Palette
     end_struct
 
     struct Entity

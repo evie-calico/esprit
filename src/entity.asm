@@ -7,12 +7,6 @@ INCLUDE "hardware.inc"
 DEF MOVEMENT_SPEED EQU 16
 DEF SPRITE_DIRECTION_SIZE EQU 128 * 3
 
-SECTION "Luvui data", ROMX
-xLuvui::
-    dw .graphics
-.graphics::
-    INCBIN "res/sprites/luvui.2bpp"
-
 SECTION "Process entities", ROM0
 ; Iterate through the entities.
 ; The individual logic functions can choose to return on their own to end logic
@@ -188,8 +182,38 @@ SpawnEntity::
     ld l, LOW(wEntity0_LastDirection)
     ld [hl], -1
 
-    pop af
-    rst SwapBank
+    ; Figure out the entity's index and save it later.
+    ld a, h
+    sub a, HIGH(wEntity0)
+    ld b, a
+    ld l, LOW(wEntity0_Data)
+    push hl
+        ld a, [hli]
+        ld h, [hl]
+        ld l, a
+        ASSERT EntityData_Palette == 2
+        inc hl
+        inc hl
+        ld a, [hli]
+        ld h, [hl]
+        ld l, a
+
+        ld a, b
+        ; An entire palette is 9 bytes
+        add a, a ; a * 2
+        add a, a ; a * 4
+        add a, a ; a * 8
+        add a, b ; a * 9
+        add a, LOW(wOBJPaletteBuffer)
+        ld e, a
+        adc a, HIGH(wOBJPaletteBuffer)
+        sub a, e
+        ld d, a
+        ld c, 9
+        call MemCopySmall
+    pop hl
+
+    jp BankReturn
 
 SECTION "Update entity graphics", ROM0
 UpdateEntityGraphics::

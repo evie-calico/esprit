@@ -88,16 +88,16 @@ Initialize::
 	ld hl, wTextTileBuffer
 	rst MemSetSmall
 
-    ld a, $FF
+    ld a, $80 + 20 * 4
     ld [wFadeAmount], a
-    ld a, $FF - $80
+    ld a, 20
     ld [wFadeSteps], a
-    ld a, -1
+    ld a, -4
     ld [wFadeDelta], a
     ld a, $FF
     ld [wTextSrcPtr + 1], a
 
-    bankcall xInitDungeon
+    call InitDungeon
     bankcall xDrawDungeon
 
     ; Initiallize OAM

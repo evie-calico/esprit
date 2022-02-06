@@ -1,3 +1,4 @@
+INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 
@@ -14,8 +15,19 @@ DEF TERMINAL_METATILE_ID RB 4
 DEF FULL_METATILE_ID RB 4
 DEF EXIT_METATILE_ID RB 4
 
-SECTION "Init dungeon", ROMX
-xInitDungeon::
+SECTION "Init dungeon", ROM0
+InitDungeon::
+    ld a, [hCurrentBank]
+    push af
+
+    ld hl, wActiveDungeon
+    ld a, BANK(xForestDungeon)
+    ld [hli], a
+    ld a, LOW(xForestDungeon)
+    ld [hli], a
+    ld a, HIGH(xForestDungeon)
+    ld [hli], a
+
     xor a, a
     ASSERT wDungeonMap + DUNGEON_WIDTH * DUNGEON_HEIGHT == wDungeonCameraX
     ASSERT wDungeonCameraX + 2 == wDungeonCameraY
@@ -32,11 +44,6 @@ xInitDungeon::
         ld [wDungeonMap + 5 + (I & 1) * 2 + 64 * I], a
     ENDR
 
-    ld bc, 20 * 16
-    ld de, $8000 + BLANK_METATILE_ID * 16
-    ld hl, .debugTileset
-    call VRAMCopy
-
     ; Null out all entities.
     FOR I, NB_ENTITIES
         ld b, BANK(xLuvui)
@@ -51,50 +58,39 @@ xInitDungeon::
     ld a, %11111111
     ld [wOBJPaletteMask], a
 
-    ld b, 8
-    ld hl, wBGPaletteBuffer
-.loop
-    ld a, $FF
-    ld [hli], a
-    ld [hli], a
-    ld [hli], a
-    ld a, $60
-    ld [hli], a
-    ld [hli], a
-    ld [hli], a
-    ld a, $30
-    ld [hli], a
-    ld [hli], a
-    ld [hli], a
-    xor a, a
-    ld [hli], a
-    ld [hli], a
-    ld [hli], a
-    dec b
-    jr nz, .loop
-    ld b, 8
+    ; Load the active dungeon.
+    ld hl, wActiveDungeon
+    ld a, [hli]
+    rst SwapBank
+    ; Deref pointer
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
+    push hl
+        ; Deref tileset
+        ASSERT Dungeon_Tileset == 0
+        ld a, [hli]
+        ld h, [hl]
+        ld l, a
+        ld bc, 20 * 16
+        ld de, $8000 + BLANK_METATILE_ID * 16
+        call VRAMCopy
+    pop hl
+    ; Deref palette
+    ASSERT Dungeon_Palette == 2
+    inc hl
+    inc hl
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
 
-    ld hl, wOBJPaletteBuffer
-:   ld a, $FF
-    ld [hli], a
-    ld [hli], a
-    ld [hli], a
-    ld a, $60
-    ld [hli], a
-    ld [hli], a
-    ld [hli], a
-    xor a, a
-    ld [hli], a
-    ld [hli], a
-    ld [hli], a
-    dec b
-    jr nz, :-
+    ld bc, 8 * 12
+    ld de, wBGPaletteBuffer
+    call MemCopy
 
     call InitUI
-    ret
 
-.debugTileset
-    INCBIN "res/tree_tiles.2bpp"
+    jp BankReturn
 
 SECTION "Draw dungeon", ROMX
 xDrawDungeon::
@@ -451,7 +447,7 @@ xGetMapBelow:
     ld a, 1
     ret
 
-SECTION "Dungeon map", WRAM0, ALIGN[8]
+SECTION "Dungeon variables", WRAM0, ALIGN[8]
 ; This map uses 4096 bytes of WRAM, but is only ever used in dungeons.
 ; If more RAM is needed for other game states, it should be unionized with this
 ; map.
@@ -461,6 +457,8 @@ wDungeonCameraY:: dw
 ; Only the neccessarily info is saved; the high byte.
 wLastDungeonCameraX:: db
 wLastDungeonCameraY:: db
+; A far pointer to the current dungeon. Bank, Low, High.
+wActiveDungeon:: ds 3
 
 SECTION "Map drawing counters", HRAM
 hMapDrawX: db
