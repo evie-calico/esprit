@@ -6,4 +6,12 @@ DEF RIGHT EQU 1
 DEF DOWN EQU 2
 DEF LEFT EQU 3
 
+MACRO rgb
+    db \2, \1, \3
+ENDM
+
+MACRO rgb_lim
+    rgb (\1) * 8, (\2) * 8, (\3) * 8
+ENDM
+
 ENDC

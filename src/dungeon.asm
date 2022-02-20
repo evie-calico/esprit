@@ -52,12 +52,6 @@ InitDungeon::
         call SpawnEntity
     ENDR
 
-    ; Set palettes
-    ld a, %11111111
-    ld [wBGPaletteMask], a
-    ld a, %11111111
-    ld [wOBJPaletteMask], a
-
     ; Load the active dungeon.
     ld hl, wActiveDungeon
     ld a, [hli]
@@ -76,17 +70,28 @@ InitDungeon::
         ld de, $8000 + BLANK_METATILE_ID * 16
         call VRAMCopy
     pop hl
-    ; Deref palette
-    ASSERT Dungeon_Palette == 2
-    inc hl
-    inc hl
-    ld a, [hli]
-    ld h, [hl]
-    ld l, a
 
-    ld bc, 8 * 12
-    ld de, wBGPaletteBuffer
-    call MemCopy
+    ; Deref palette if on CGB
+    ldh a, [hSystem]
+    and a, a
+    jr z, .skipCGB
+        ; Set palettes
+        ld a, %11111111
+        ld [wBGPaletteMask], a
+        ld a, %11111111
+        ld [wOBJPaletteMask], a
+
+        ASSERT Dungeon_Palette == 2
+        inc hl
+        inc hl
+        ld a, [hli]
+        ld h, [hl]
+        ld l, a
+
+        ld bc, 8 * 12
+        ld de, wBGPaletteBuffer
+        call MemCopy
+.skipCGB
 
     call InitUI
 

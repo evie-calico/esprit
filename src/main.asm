@@ -1,4 +1,5 @@
 INCLUDE "bank.inc"
+INCLUDE "hardware.inc"
 
 INCLUDE "res/music/dungeon.asm"
 
@@ -6,6 +7,10 @@ SECTION "Main", ROM0
 Main::
     ; Poll player input and move as needed.
     call UpdateInput
+    ld a, [hCurrentKeys]
+    cp a, PADF_A | PADF_B | PADF_SELECT | PADF_START
+    jp z, Initialize
+
     bankcall xMoveEntities
     call ProcessEntities
 

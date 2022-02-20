@@ -1,4 +1,5 @@
 INCLUDE "bank.inc"
+INCLUDE "defines.inc"
 INCLUDE "hardware.inc"
 INCLUDE "optimize.inc"
 INCLUDE "text.inc"
@@ -30,6 +31,11 @@ xUIFrame:
 xUIArrows:
     INCBIN "res/ui/arrows.2bpp"
 .end
+xUIPalette:
+    rgb_lim 31, 20, 31
+    rgb_lim 31, 3, 31
+    rgb_lim 16, 0, 16
+    rgb 0, 0, 0
 
 SECTION "Initialize user interface", ROM0
 InitUI::
@@ -89,6 +95,25 @@ InitUI::
     ldh [hShadowWX], a
     ld a, SCRN_Y
     ldh [hShadowWY], a
+
+    ldh a, [hSystem]
+    and a, a
+    jr z, .skipCGB
+        ; Load to the 7th palette.
+        ld c, 4 * 3
+        ld de, wBGPaletteBuffer + 4 * 3 * 7
+        ld hl, xUIPalette
+        call MemCopySmall
+
+        ld a, 1
+        ldh [rVBK], a
+        ld d, 7
+        ld bc, $400
+        ld hl, $9C00
+        call VRAMSet
+        xor a, a
+        ldh [rVBK], a
+.skipCGB
 
     pop af
     jp SwapBank
@@ -214,6 +239,9 @@ ShowTextBox:
 
 SECTION "Window effect bounce", WRAM0
 wWindowBounce: db
+
+SECTION "User interface palette", WRAM0
+
 
 SECTION "Debug Text", ROMX
 xDebugText: db "Eievui used scratch!<DELAY>",60,"\n"
