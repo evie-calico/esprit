@@ -76,9 +76,9 @@ MoveActionAttack:
     ld [wMissedEntity + 2], a
 
     ld hl, wEntityAnimation
-    ld a, LOW(EntityHurtAnimation)
+    ld a, LOW(EntityAttackAnimation)
     ld [hli], a
-    ld a, HIGH(EntityHurtAnimation)
+    ld a, HIGH(EntityAttackAnimation)
     ld [hli], a
     xor a, a
     ld [hli], a
