@@ -11,8 +11,16 @@ Main::
     cp a, PADF_A | PADF_B | PADF_SELECT | PADF_START
     jp z, Initialize
 
-    bankcall xMoveEntities
-    call ProcessEntities
+    ld hl, wEntityAnimation.pointer
+    ld a, [hli]
+    or a, [hl]
+    jr nz, .playAnimation
+        bankcall xMoveEntities
+        call ProcessEntities
+        jr :+
+.playAnimation
+        bankcall xUpdateAnimation
+:
 
     ; Scroll the map after moving entities.
     bankcall xHandleMapScroll
@@ -50,14 +58,6 @@ Main::
     jr z, .noFade
     call nz, FadePaletteBuffers
 .noFade
-
-    ; Print any pending text.
-    ld a, [wTextSrcPtr + 1]
-    inc a ; cp a, $FF
-    jr z, :+
-    call PrintVWFChar
-    call DrawVWFChars
-:
     ; Wait for the next frame.
     call WaitVBlank
     jp Main

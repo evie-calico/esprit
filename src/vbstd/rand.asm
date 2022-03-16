@@ -29,7 +29,7 @@ randstate:: ds 4
 section "rand",ROM0
 
 ;;
-; Generates a pseudorandom 16-bit integer in BC
+; Generates a pseudorandom 16-bit integer in DE
 ; using the LCG formula from cc65 rand():
 ; x[i + 1] = x[i] * 0x01010101 + 0x31415927
 ; @param  a:  Rand high (higher entropy)
@@ -37,7 +37,7 @@ section "rand",ROM0
 ; @param  e:  Rand low (lower entropy)
 ; @clobbers: b, hl
 Rand::
-  ; Load bits 31-8 of the current value to BCA
+  ; Load bits 31-8 of the current value to DEA
   ld hl,randstate+3
   ld a,[hl-]
   ld d,a

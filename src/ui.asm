@@ -118,13 +118,47 @@ InitUI::
     pop af
     jp SwapBank
 
+SECTION "Print HUD", ROM0
+; @param b:  Bank of string
+; @param hl: String to print
+PrintHUD::
+    ldh a, [hCurrentBank]
+    push af
+    push bc
+    ; Draw move names
+    ld a, BANK(xTextInit)
+    rst SwapBank
+    ld a, vTextbox_Width * 8
+    lb bc, idof_vTextboxTiles, idof_vTextboxTiles + vTextbox_Width * vTextbox_Height
+    lb de, vTextbox_Height, HIGH(vTextboxTiles) & $F0
+    call xTextInit
+
+    xor a, a
+    ld [wTextLetterDelay], a
+
+    pop bc
+    ld a, 1
+    call PrintVWFText
+
+    lb de, vTextbox_Width, vTextbox_Height
+    ld hl, vTextbox
+    bankcall xTextDefineBox
+    call ReaderClear
+    call TextClear
+    call PrintVWFChar
+    call DrawVWFChars
+
+    pop af
+    rst SwapBank
+    ret
+
 SECTION "Attack window", ROM0
 UpdateAttackWindow::
     ldh a, [hCurrentBank]
     push af
 
-    ldh a, [hCurrentKeys]
-    bit PADB_A, a
+    ld a, [wShowMoves]
+    and a, a
     jp z, .close
 .open
     ldh a, [hNewKeys]
@@ -171,7 +205,7 @@ UpdateAttackWindow::
         lb de, vAttackText_Height, HIGH(vAttackTiles) & $F0
         call xTextInit
 
-        ld a, 0
+        xor a, a
         ld [wTextLetterDelay], a
 
         ld b, BANK(xDebugAttacks)
@@ -182,6 +216,8 @@ UpdateAttackWindow::
         lb de, vAttackText_Width, vAttackText_Height
         ld hl, vAttackText
         bankcall xTextDefineBox
+        call PrintVWFChar
+        call DrawVWFChars
 .skipRedraw
     ld a, [wWindowBounce]
     and a, a
@@ -240,12 +276,9 @@ ShowTextBox:
 SECTION "Window effect bounce", WRAM0
 wWindowBounce: db
 
-SECTION "User interface palette", WRAM0
-
-
 SECTION "Debug Text", ROMX
 xDebugText: db "Eievui used scratch!<DELAY>",60,"\n"
             db "Dealt 255 damage.<DELAY>",60,"<END>"
 
 SECTION "Debug attacks", ROMX
-xDebugAttacks: db "One<NEWLINE>Two<NEWLINE>Three<NEWLINE>Four<END>"
+xDebugAttacks: db "One\nTwo\nThree\nFour<END>"

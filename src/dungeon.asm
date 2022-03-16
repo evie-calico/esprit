@@ -1,6 +1,7 @@
 INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
+INCLUDE "res/charmap.inc"
 
 DEF DUNGEON_WIDTH EQU 64
 DEF DUNGEON_HEIGHT EQU 64
@@ -36,6 +37,9 @@ InitDungeon::
     ld bc, DUNGEON_WIDTH * DUNGEON_HEIGHT + 4 + 2
     ld hl, wDungeonMap
     call MemSet
+    ld c, 6
+    ld hl, wEntityAnimation
+    call MemSetSmall
 
     FOR I, 64
         ld a, 1
@@ -51,6 +55,12 @@ InitDungeon::
         ld h, HIGH(wEntity{d:I})
         call SpawnEntity
     ENDR
+    ld a, BANK(xDebugMove)
+    ld [wEntity0_Moves], a
+    ld a, LOW(xDebugMove)
+    ld [wEntity0_Moves + 1], a
+    ld a, HIGH(xDebugMove)
+    ld [wEntity0_Moves + 2], a
 
     ; Load the active dungeon.
     ld hl, wActiveDungeon
@@ -94,8 +104,12 @@ InitDungeon::
 .skipCGB
 
     call InitUI
+    ld b, BANK(.text)
+    ld hl, .text
+    call PrintHUD
 
     jp BankReturn
+.text db "Hello, world!<END>"
 
 SECTION "Draw dungeon", ROMX
 xDrawDungeon::

@@ -74,6 +74,10 @@ Initialize::
     ld [wSTATTarget + 1], a
 	ld [wTextCharset], a
 	ld [wTextCurPixel], a
+    ld [randstate], a
+    ld [randstate + 1], a
+    ld [randstate + 2], a
+    ld [randstate + 3], a
     ldh [hCurrentBank], a
     ldh [hCurrentKeys], a
     ldh [hFrameCounter], a

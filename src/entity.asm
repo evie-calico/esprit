@@ -32,13 +32,31 @@ ProcessEntities::
     jr .loop
 
 SECTION "Player logic", ROM0
-; @param a: Contains the value of wActiveEntity
 PlayerLogic:
+    xor a, a
+    ld [wShowMoves], a
     ; If any movement is queued, the player should refuse to take its turn to
     ; allow all sprites to catch up.
     ld a, [wMovementQueued]
     and a, a
     ret nz
+
+    ; First, check for buttons to see if the player is selecting a move.
+    ldh a, [hCurrentKeys]
+    bit PADB_A, a
+    jr z, .movementCheck
+    ld a, 1
+    ld [wShowMoves], a
+    ; Read the joypad to see if the player is attempting to use a move.
+    call PadToDir
+    ; If no input is given, the player waits a frame to take its turn
+    ret c
+    ld b, HIGH(wEntity0)
+    call UseMove
+
+    ret
+
+.movementCheck
     ; Read the joypad to see if the player is attempting to move.
     call PadToDir
     ; If no input is given, the player waits a frame to take its turn
@@ -538,6 +556,208 @@ xFocusCamera::
     ld [wDungeonCameraX + 1], a
     ret
 
+SECTION "Update animation", ROMX
+xUpdateAnimation::
+    ld a, [wEntityAnimation.timer]
+    and a, a
+    jr z, :+
+    dec a
+    ld [wEntityAnimation.timer], a
+    ret
+:
+    ld hl, wEntityAnimation.pointer
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
+.readByte
+    ld a, [hli]
+    ; execute bytecode
+    and a, a
+    jr z, .wait
+    dec a
+    jr z, .frame
+    dec a
+    jr z, .hide
+    dec a
+    jr z, .show
+    dec a
+    jr z, .forward
+    dec a
+    jr z, .backward
+    ; end
+    ld hl, wEntityAnimation.pointer
+    xor a, a
+    ld [hli], a
+    ld [hli], a
+    ld a, [hli]
+    or a, [hl]
+    ret z
+    ; If the callback is not NULL, jump to it!
+    dec hl
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
+    jp hl
+
+.wait
+    ld a, [hli]
+    ld [wEntityAnimation.timer], a
+    ld a, l
+    ld [wEntityAnimation.pointer], a
+    ld a, h
+    ld [wEntityAnimation.pointer + 1], a
+    ret
+.frame
+    ld a, [wEntityAnimation.target]
+    ld d, a
+    ld e, LOW(wEntity0_Frame)
+    ld a, [hli]
+    ld [de], a
+    jr .readByte
+.hide
+    ld a, [wEntityAnimation.target]
+    ld d, a
+    ld e, LOW(wEntity0_SpriteY)
+    xor a, a
+    ld [de], a
+    inc e
+    ld [de], a
+    inc e
+    ld [de], a
+    inc e
+    ld [de], a
+    inc e
+    jr .readByte
+.show
+    ld a, [wEntityAnimation.target]
+    ld d, a
+    ld e, LOW(wEntity0_PosY)
+    ld a, [de]
+    ASSERT Entity_PosY - 1 == Entity_PosX
+    dec e
+    ld b, a
+    ld a, [de]
+    ASSERT Entity_PosX - 2 == Entity_SpriteX
+    dec e
+    ld [de], a
+    dec e
+    xor a, a
+    ld [de], a
+    ASSERT Entity_SpriteX - 2 == Entity_SpriteY
+    dec e
+    ld a, b
+    ld [de], a
+    dec e
+    xor a, a
+    ld [de], a
+    jr .readByte
+.forward
+    ld a, [wEntityAnimation.target]
+    ld d, a
+    ld e, LOW(wEntity0_Direction)
+    ld a, [de]
+.backwardHook
+    and a, a
+    jr z, .up
+    dec a
+    jr z, .right
+    dec a
+    jr z, .down
+    jr .left
+.backward
+    ld a, [wEntityAnimation.target]
+    ld d, a
+    ld e, LOW(wEntity0_Direction)
+    ld a, [de]
+    add a, 2
+    and a, %11
+    jr .backwardHook
+.up
+    ld a, [wEntityAnimation.target]
+    ld d, a
+    ld e, LOW(wEntity0_SpriteY)
+.leftHook
+    ld a, [de]
+    ld c, a
+    inc e
+    ld a, [de]
+    ld b, a
+
+    ld a, c
+    sub a, 1 << 4
+    ld c, a
+    jr nc, :+
+    dec b
+:
+    ld a, b
+    ld [de], a
+    dec e
+    ld a, c
+    ld [de], a
+    jp .readByte
+.down
+    ld a, [wEntityAnimation.target]
+    ld d, a
+    ld e, LOW(wEntity0_SpriteY)
+.rightHook
+    ld a, [de]
+    ld c, a
+    inc e
+    ld a, [de]
+    ld b, a
+
+    ld a, c
+    add a, 1 << 4
+    ld c, a
+    adc a, b
+    sub a, c
+
+    ld [de], a
+    dec e
+    ld a, c
+    ld [de], a
+    jp .readByte
+.left
+    ld a, [wEntityAnimation.target]
+    ld d, a
+    ld e, LOW(wEntity0_SpriteX)
+    jr .leftHook
+.right
+    ld a, [wEntityAnimation.target]
+    ld d, a
+    ld e, LOW(wEntity0_SpriteX)
+    jr .rightHook
+
+EntityAttackAnimation::
+    ea_wait 8
+    ea_backward
+    ea_wait 3
+    ea_show
+    ea_frame ENTITY_FRAME_HURT
+    ea_wait 8
+    ea_frame ENTITY_FRAME_ATTK
+    ea_wait 8
+    ea_frame ENTITY_FRAME_IDLE
+    ea_end
+
+EntityHurtAnimation::
+    ea_frame ENTITY_FRAME_HURT
+    ; Get knocked back.
+    REPT 3
+        ea_backward
+        ea_wait 2
+    ENDR
+    ; Then shake.
+    REPT 3
+        ea_forward
+        ea_wait 4
+        ea_backward
+        ea_wait 4
+    ENDR
+    ea_show
+    ea_frame ENTITY_FRAME_IDLE
+    ea_end
+
 FOR I, NB_ENTITIES
     SECTION "Entity {I}", WRAM0[$C100 - sizeof_Entity + I * $100]
     IF I == 0
@@ -559,6 +779,16 @@ wActiveEntity:: db
 SECTION "Movement Queued", WRAM0
 ; nonzero if any entity is ready to move.
 wMovementQueued: db
+
+SECTION "Show Moves", WRAM0
+wShowMoves:: db
+
+SECTION "Entity Animation", WRAM0
+wEntityAnimation::
+.pointer:: dw
+.callback:: dw
+.target:: db
+.timer db
 
 SECTION "Render Temp", HRAM
 hRenderTempByte: db
