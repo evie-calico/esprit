@@ -145,6 +145,7 @@ ENDM
     reader_only_control_char JUMP,         ReaderJumpTo
     reader_only_control_char SOFT_HYPHEN,  ReaderSoftHyphen
     reader_only_control_char FMT,          ReaderFormat
+    reader_only_control_char CALL_PTR,         ReaderCallPtr
 
     ; The base of the table is located at its end
     ; Unusual, I know, but it works better!
@@ -804,7 +805,7 @@ ReaderWaitButtonScroll:
     ld a, [wTextNbLines]
     jr StartNewLine
 
-ReaderClear:
+ReaderClear::
     ld a, [wTextNbLines]
     ld [wTextRemainingLines], a
 StartNewLine:
@@ -914,7 +915,9 @@ ReaderFormat::
 
     ; Read dest bank
     ld a, [hli]
-    ld b, a
+    ; Perform bankswitch
+    ldh [hCurrentBank], a
+    ld [rROMB0], a
     ; Deref index
     ld a, [hli]
     ld d, [hl]
@@ -936,11 +939,60 @@ ReaderFormat::
     ld a, [hli]
     ld h, [hl]
     ld l, a
+    pop de
+    ret
 
-    ; Perform bankswitch now that all bytecode has been read
-    ld a, b
+; bank, index ptr, table ptr
+ReaderCallPtr::
+    push de
+    ld a, [wTextStackSize]
+    IF DEF(STACK_OVERFLOW_HANDLER)
+        cp TEXT_STACK_CAPACITY
+        call nc, STACK_OVERFLOW_HANDLER
+    ENDC
+
+    ; Read target ptr
+    inc a ; Increase stack size
+    ld [wTextStackSize], a
+
+    ; Get ptr to end of 1st empty entry
+    ld b, a
+    add a, a
+    add a, b
+    add a, LOW(wTextStack - 1)
+    ld c, a
+    adc a, HIGH(wTextStack - 1)
+    sub c
+    ld b, a
+    ; Save ROM bank immediately, as we're gonna bankswitch
+    ldh a, [hCurrentBank]
+    ld [bc], a
+    dec bc
+    dec bc
+
+    ; Save src ptr
+    ld a, l
+    add a, 2
+    ld [bc], a
+    inc bc
+    ld a, h
+    adc a, 0
+    ld [bc], a
+
+    ; Read dest bank
+    ; Deref format table, index and call
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
+    ld a, [hli]
     ldh [hCurrentBank], a
     ld [rROMB0], a
+    ; finally, deref.
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
+
+    ; Perform bankswitch now that all bytecode has been read
     pop de
     ret
 
@@ -1388,7 +1440,7 @@ TextSync:
     ret
 
 
-TextClear:
+TextClear::
     push hl
     ld a, [wPenStartingPosition]
     ld l, a
