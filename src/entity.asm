@@ -127,9 +127,9 @@ SECTION "Move entity", ROM0
 ; @preserves: h
 MoveEntity:
     add a, a
-    add a, LOW(.directionVectors)
+    add a, LOW(DirectionVectors)
     ld e, a
-    adc a, HIGH(.directionVectors)
+    adc a, HIGH(DirectionVectors)
     sub a, e
     ld d, a
     ld l, LOW(wEntity0_PosX)
@@ -149,6 +149,12 @@ MoveEntity:
     ld a, [de]
     cp a, TILE_WALL
     jr z, .fail
+    push hl
+    bankcall xCheckForEntity
+    ld a, h
+    and a, a
+    pop hl
+    jr nz, .fail
     ; Move!
     ld a, c
     ld [hld], a
@@ -163,7 +169,42 @@ MoveEntity:
     ld a, 1
     ret
 
-.directionVectors
+SECTION "Check for entity", ROMX
+; Checks for an entity at a given position, returning its index if found.
+; Otherwise, returns 0.
+; @param b: X position
+; @param c: Y position
+; @return h: index, or 0 upon failure.
+; @preserves b, c, d, e
+xCheckForEntity::
+    xor a, a
+    ld [wMoveEntityCounter], a
+    ld h, HIGH(wEntity0)
+.loop
+    ld l, LOW(wEntity0_Bank)
+    ld a, [hli]
+    and a, a
+    jr z, .next
+    ld l, LOW(wEntity0_PosX)
+    ld a, b
+    cp a, [hl]
+    jr nz, .next
+    ASSERT Entity_PosX + 1 == Entity_PosY
+    inc l
+    ld a, c
+    cp a, [hl]
+    ret z
+.next
+    inc h
+    ld a, h
+    cp a, HIGH(wEntity0) + NB_ENTITIES
+    jp nz, .loop
+    ld h, 0
+    ret
+
+SECTION "Direction vectors", ROM0
+; An array of vectors used to offset positions using a direction.
+DirectionVectors::
     db 0, -1
     db 1, 0
     db 0, 1

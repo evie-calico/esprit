@@ -396,7 +396,7 @@ xUpdateAnimation::
     ld a, [wEntityAnimation.target]
     ld d, a
     ld e, LOW(wEntity0_SpriteY)
-    xor a, a
+    ld a, $F0
     ld [de], a
     inc e
     ld [de], a
@@ -516,7 +516,6 @@ EntityAttackAnimation::
     ea_frame ENTITY_FRAME_ATTK
     ea_wait 8
     ea_frame ENTITY_FRAME_IDLE
-    ea_wait 1
     ea_end
 
 EntityHurtAnimation::
@@ -535,7 +534,30 @@ EntityHurtAnimation::
     ENDR
     ea_show
     ea_frame ENTITY_FRAME_IDLE
-    ea_wait 1
+    ea_end
+
+EntityDefeatAnimation::
+    ea_frame ENTITY_FRAME_HURT
+    ; Get knocked back.
+    REPT 3
+        ea_backward
+        ea_wait 2
+    ENDR
+    ; Then shake.
+    REPT 3
+        ea_forward
+        ea_wait 4
+        ea_backward
+        ea_wait 4
+    ENDR
+    REPT 10
+        ea_hide
+        ea_wait 2
+        ea_show
+        ea_backward
+        ea_backward
+        ea_wait 2
+    ENDR
     ea_end
 
 SECTION "Entity animation graphics update", ROM0
@@ -546,7 +568,7 @@ UpdateAnimationFrame:
     ; Save the entity's frame for later.
     ld e, LOW(wEntity0_Frame)
     ld a, [de]
-    cp a, ENTITY_FRAME_STEP ; The idle frame should be treated as step instead.
+    cp a, ENTITY_FRAME_STEP ; The idle and step frames should defer updates.
     jr nc, :+
     ld e, LOW(wEntity0_LastDirection)
     ld a, -1

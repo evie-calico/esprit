@@ -148,7 +148,7 @@ IF DEF(GBT_USE_MBC5_512BANKS)
     xor     a,a
     ld      [$3000],a
 ENDC
-    ld      a,$01
+    ld      a,BANK("GBT_BANK1")
     ld      [$2000],a ; MBC1, MBC3, MBC5 - Set bank 1
 
     ret
@@ -329,7 +329,7 @@ IF DEF(GBT_USE_MBC5_512BANKS)
     xor     a,a
     ld      [$3000],a
 ENDC
-    ld      a,$01
+    ld      a,BANK("GBT_BANK1")
     ld      [$2000],a ; MBC1, MBC3, MBC5 - Set bank 1
     ; Call update function in bank 1 (in gbt_player_bank1.s)
     call    gbt_update_effects_bank1
@@ -361,7 +361,7 @@ IF DEF(GBT_USE_MBC5_512BANKS)
     xor     a,a
     ld      [$3000],a
 ENDC
-    ld      a,$01
+    ld      a,BANK("GBT_BANK1")
     ld      [$2000],a ; MBC1, MBC3, MBC5 - Set bank 1
     ; Call update function in bank 1 (in gbt_player_bank1.s)
     call    gbt_update_effects_bank1
@@ -500,7 +500,7 @@ IF DEF(GBT_USE_MBC5_512BANKS)
     xor     a,a
     ld      [$3000],a ; MBC5
 ENDC
-    ld      a,$01
+    ld      a,BANK("GBT_BANK1")
     ld      [$2000],a ; MBC1, MBC3, MBC5 - Set bank 1
     ; Call update function in bank 1 (in gbt_player_bank1.s)
     call    gbt_update_bank1
