@@ -8,7 +8,7 @@ MBC := 0x1B
 SRAMSIZE := 0x02
 VERSION := 0
 
-INCDIRS  = src/ src/include/ src/vbstd/
+INCDIRS  = src/ src/include/ src/util/
 WARNINGS = all extra
 
 ASFLAGS  = -p 0xFF -h $(addprefix -i, $(INCDIRS)) $(addprefix -W, $(WARNINGS))

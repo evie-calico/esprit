@@ -26,7 +26,7 @@ section "bcd",ROM0
 ; @param HL the number
 ; @return C: digit in myriads place; D: digits in thousands and
 ; hundreds places; E: digits in tens and ones places; AB trashed
-bcd16:
+bcd16::
   ; Bits 15-13: Just shift left into A (12 c)
   xor a
   ld d,a

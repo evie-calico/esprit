@@ -999,8 +999,12 @@ ReaderCallPtr::
 
 ReaderU16::
     push de
-
     push hl
+
+    ld b, b
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
     ld a, [hli]
     ld h, [hl]
     ld l, a
@@ -1052,7 +1056,6 @@ ReaderU16::
     ld [hli], a
     ld [hl], 0
 
-    pop hl
 
     ld a, [wTextStackSize]
     IF DEF(STACK_OVERFLOW_HANDLER)
@@ -1079,9 +1082,8 @@ ReaderU16::
     dec bc
 
     ; Swap src ptrs
-    ld a, [hli]
-    ld [de], a ; Use current byte in char buffer as scratch
     ; Save src ptr now
+    pop hl
     inc hl
     inc hl
     ld a, h
@@ -1090,15 +1092,7 @@ ReaderU16::
     ld a, l
     ld [bc], a
     ; Read new src ptr
-    dec hl
-    ld a, [hld]
-    ld l, [hl]
-    ld h, a
-    ; Perform bankswitch now that all bytecode has been read
-    ld a, [de]
-    ldh [hCurrentBank], a
-    ld [rROMB0], a
-
+    ld hl, wNumberBuffer
     pop de
     ret
 

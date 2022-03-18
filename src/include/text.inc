@@ -20,7 +20,7 @@ MACRO textjump ; dest
 ENDM
 
 MACRO textcallptr ; dest
-    db TEXT_CALLPTR
+    db TEXT_CALL_PTR
     dw \1
 ENDM
 

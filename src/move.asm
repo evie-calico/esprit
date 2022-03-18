@@ -193,9 +193,36 @@ MoveActionAttack:
     jr .offsetDirection
 
 .found
+    push hl
     ASSERT Move_Range + 1 == Move_Power
     inc de
-    ; TODO: Do something with move power here.
+    ld a, [de]
+    add a, a
+    add a, a
+    ; TODO: Damage target with move power here.
+    ld [wDealtDamage.value], a
+    xor a, a
+    ld [wDealtDamage.value + 1], a
+    ld l, LOW(wEntity0_Bank)
+    ld a, [hli]
+    ld [wDealtDamage.target], a
+    rst SwapBank
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
+    inc hl
+    inc hl
+    inc hl
+    inc hl
+    ld a, [hli]
+    ld [wDealtDamage.target + 1], a
+    ld a, [hl]
+    ld [wDealtDamage.target + 2], a
+
+    ld b, BANK(xDealtText)
+    ld hl, xDealtText
+    call PrintHUD
+    pop hl
 
     ; Finally, play the damage animation.
     ld b, h
@@ -243,7 +270,9 @@ xUsedText:
 
 SECTION "Dealt damage text", ROMX
 xDealtText:
-    db "Dealt # damage to "
+    db "Dealt <U16>"
+    dw wDealtDamage.value
+    db " damage to "
     textcallptr wDealtDamage.target
     db "!<END>"
 
