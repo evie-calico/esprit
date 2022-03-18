@@ -145,7 +145,8 @@ ENDM
     reader_only_control_char JUMP,         ReaderJumpTo
     reader_only_control_char SOFT_HYPHEN,  ReaderSoftHyphen
     reader_only_control_char FMT,          ReaderFormat
-    reader_only_control_char CALL_PTR,         ReaderCallPtr
+    reader_only_control_char CALL_PTR,     ReaderCallPtr
+    reader_only_control_char U16,          ReaderU16
 
     ; The base of the table is located at its end
     ; Unusual, I know, but it works better!
@@ -996,6 +997,111 @@ ReaderCallPtr::
     pop de
     ret
 
+ReaderU16::
+    push de
+
+    push hl
+    ld a, [hli]
+    ld h, [hl]
+    ld l, a
+    call bcd16
+    ; Value is returned in CDE
+    ld hl, wNumberBuffer
+    ; Skip over all leading zeros
+    ; Write the first digit. If it is zero, skip it.
+    ld a, c
+    and a, a
+    jr nz, .write0
+    ld a, d
+    swap a
+    and a, $F
+    jr nz, .write1
+    ld a, d
+    and a, $F
+    jr nz, .write2
+    ld a, e
+    swap a
+    and a, $F
+    jr nz, .write3
+    jr .write4
+
+.write0
+    add a, "0"
+    ld [hli], a
+    ld a, d
+    swap a
+    and a, $F
+.write1
+    add a, "0"
+    ld [hli], a
+    ld a, d
+    and a, $F
+.write2
+    add a, "0"
+    ld [hli], a
+    ld a, e
+    swap a
+    and a, $F
+.write3
+    add a, "0"
+    ld [hli], a
+.write4
+    ld a, e
+    and a, $F
+    add a, "0"
+    ld [hli], a
+    ld [hl], 0
+
+    pop hl
+
+    ld a, [wTextStackSize]
+    IF DEF(STACK_OVERFLOW_HANDLER)
+        cp TEXT_STACK_CAPACITY
+        call nc, STACK_OVERFLOW_HANDLER
+    ENDC
+
+    ; Read target ptr
+    inc a ; Increase stack size
+    ld [wTextStackSize], a
+
+    ; Get ptr to end of 1st empty entry
+    ld b, a
+    add a, a
+    add a, b
+    add a, LOW(wTextStack - 1)
+    ld c, a
+    adc a, HIGH(wTextStack - 1)
+    sub c
+    ld b, a
+    ; Save ROM bank immediately, as we're gonna bankswitch
+    ldh a, [hCurrentBank]
+    ld [bc], a
+    dec bc
+
+    ; Swap src ptrs
+    ld a, [hli]
+    ld [de], a ; Use current byte in char buffer as scratch
+    ; Save src ptr now
+    inc hl
+    inc hl
+    ld a, h
+    ld [bc], a
+    dec bc
+    ld a, l
+    ld [bc], a
+    ; Read new src ptr
+    dec hl
+    ld a, [hld]
+    ld l, [hl]
+    ld h, a
+    ; Perform bankswitch now that all bytecode has been read
+    ld a, [de]
+    ldh [hCurrentBank], a
+    ld [rROMB0], a
+
+    pop de
+    ret
+
 SECTION "VWF ROMX functions + data", ROMX
 
 PrintVWFControlChar:
@@ -1694,6 +1800,9 @@ wTextWidth:
     db
 wTextHeight:
     db
+
+wNumberBuffer:
+    ds 6
 
 SECTION "VWF engine fast memory", HRAM
 
