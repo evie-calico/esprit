@@ -19,4 +19,9 @@ MACRO textjump ; dest
     dw \1
 ENDM
 
+MACRO textcallptr ; dest
+    db TEXT_CALLPTR
+    dw \1
+ENDM
+
 ENDC

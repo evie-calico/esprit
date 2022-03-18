@@ -1,6 +1,6 @@
 INCLUDE "bank.inc"
 INCLUDE "entity.inc"
-INCLUDE "res/charmap.inc"
+INCLUDE "text.inc"
 
 SECTION "Use Move", ROM0
 ; @param a: Move index
@@ -236,16 +236,20 @@ MoveActionAttack:
 
 SECTION "Used move text", ROMX
 xUsedText:
-    db "<CALL_PTR>"
-    dw wUsedMove.user
-    db " used <CALL_PTR>"
-    dw wUsedMove.move
+    textcallptr wUsedMove.user
+    db " used "
+    textcallptr wUsedMove.move
+    db "!<END>"
+
+SECTION "Dealt damage text", ROMX
+xDealtText:
+    db "Dealt # damage to "
+    textcallptr wDealtDamage.target
     db "!<END>"
 
 SECTION "Missed move text", ROMX
 xMissedText:
-    db "<CALL_PTR>"
-    dw wMissedMove.user
+    textcallptr wMissedMove.user
     db " missed!<END>"
 
 SECTION UNION "Move text variables", WRAM0
@@ -256,6 +260,11 @@ wUsedMove:
 SECTION UNION "Move text variables", WRAM0
 wMissedMove:
 .user ds 3
+
+SECTION UNION "Move text variables", WRAM0
+wDealtDamage:
+.value dw
+.target ds 3
 
 ; User to save the parameters of UseMove for animation callbacks.
 SECTION "Move state", WRAM0
