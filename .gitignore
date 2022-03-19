@@ -7,3 +7,4 @@ __pycache__/
 *.todo
 *.tiled-session
 charmap.inc
+*.DS_Store
