@@ -1,5 +1,5 @@
 INCLUDE "entity.inc"
-INCLUDE "res/charmap.inc"
+INCLUDE "text.inc"
 
 SECTION "Luvui data", ROMX
 xLuvui::
@@ -12,11 +12,3 @@ xLuvui::
     db $20, $90, $30
     db $00, $20, $00
 .name db "Luvui<END>"
-
-xDebugMove::
-    db MOVE_ACTION_ATTACK
-    dw .name
-    db 128
-    db 1
-    db 10
-.name db "Debug<END>"

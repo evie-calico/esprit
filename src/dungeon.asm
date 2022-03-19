@@ -56,11 +56,11 @@ InitDungeon::
         ld h, HIGH(wEntity{d:I})
         call SpawnEntity
     ENDR
-    ld a, BANK(xDebugMove)
+    ld a, BANK(xPounce)
     ld [wEntity0_Moves], a
-    ld a, LOW(xDebugMove)
+    ld a, LOW(xPounce)
     ld [wEntity0_Moves + 1], a
-    ld a, HIGH(xDebugMove)
+    ld a, HIGH(xPounce)
     ld [wEntity0_Moves + 2], a
 
     ; Load the active dungeon.
