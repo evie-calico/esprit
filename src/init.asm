@@ -1,8 +1,8 @@
 INCLUDE "bank.inc"
+INCLUDE "defines.inc"
 INCLUDE "engine.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
-INCLUDE "optimize.inc"
 
 SECTION "Header", ROM0[$100]
     di

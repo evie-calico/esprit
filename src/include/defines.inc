@@ -14,4 +14,15 @@ MACRO rgb_lim
     rgb (\1) * 8, (\2) * 8, (\3) * 8
 ENDM
 
+MACRO fall
+    ASSERT _NARG == 1, "Expected 1 argument!"
+    ASSERT @ == \1, "Fallthrough to \1 failed!"
+ENDM
+
+MACRO lb
+    assert -128 <= (\2) && (\2) <= 255, "Second argument to `lb` must be 8-bit!"
+    assert -128 <= (\3) && (\3) <= 255, "Third argument to `lb` must be 8-bit!"
+    ld \1, (((\2) << 8) & $FF00) | ((\3) & $FF)
+ENDM
+
 ENDC

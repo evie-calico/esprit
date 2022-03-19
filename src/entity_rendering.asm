@@ -2,7 +2,6 @@ INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 
 DEF MOVEMENT_SPEED EQU 16
-DEF SPRITE_DIRECTION_SIZE EQU 128 * 3
 
 SECTION "Update entity graphics", ROM0
 UpdateEntityGraphics::
@@ -538,18 +537,6 @@ EntityHurtAnimation::
 
 EntityDefeatAnimation::
     ea_frame ENTITY_FRAME_HURT
-    ; Get knocked back.
-    REPT 3
-        ea_backward
-        ea_wait 2
-    ENDR
-    ; Then shake.
-    REPT 3
-        ea_forward
-        ea_wait 4
-        ea_backward
-        ea_wait 4
-    ENDR
     REPT 10
         ea_hide
         ea_wait 2

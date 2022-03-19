@@ -212,6 +212,7 @@ DirectionVectors::
 
 SECTION "Spawn entity", ROM0
 ; @param b: Entity data bank.
+; @param c: Entity level.
 ; @param de: Entity data pointer.
 ; @param h: High byte of entity struct.
 ; @preserves: h, bank
@@ -219,24 +220,45 @@ SpawnEntity::
     ld a, [hCurrentBank]
     push af
 
-    ; Clear out entity struct
-    xor a, a
-    ld l, LOW(wEntity0)
-    ld c, sizeof_Entity
-    call MemSetSmall
-    dec h ; correct high byte (MemSet causes it to overflow)
+    push bc
+        ; Clear out entity struct
+        xor a, a
+        ld l, LOW(wEntity0)
+        ld c, sizeof_Entity
+        call MemSetSmall
+        dec h ; correct high byte (MemSet causes it to overflow)
+        ld a, b
+        rst SwapBank
+        ld l, LOW(wEntity0_Bank)
+        ld [hli], a
+        ASSERT Entity_Bank + 1 == Entity_Data
+        ld a, e
+        ld [hli], a
+        ld a, d
+        ld [hli], a
+        ; Forcefully load entity graphics.
+        ld l, LOW(wEntity0_LastDirection)
+        ld [hl], -1
+    pop bc
+
+    ; Set level
+    ld l, LOW(wEntity0_Level)
     ld a, b
-    rst SwapBank
-    ld l, LOW(wEntity0_Bank)
     ld [hli], a
-    ASSERT Entity_Bank + 1 == Entity_Data
-    ld a, e
+
+    ; Use level to determine health.
+    ASSERT Entity_Level + 1 == Entity_Health
+    push hl
+        call GetMaxHealth
+        ld a, l
+        ld b, h
+    pop hl
     ld [hli], a
-    ld a, d
-    ld [hli], a
-    ; Forcefully load entity graphics.
-    ld l, LOW(wEntity0_LastDirection)
-    ld [hl], -1
+    ld [hl], b
+
+    ldh a, [hSystem]
+    and a, a
+    jp z, BankReturn
 
     ; Figure out the entity's index and save it later.
     ld a, h
@@ -271,6 +293,24 @@ SpawnEntity::
 
     jp BankReturn
 
+SECTION "GetMaxHealth", ROM0
+; This function encapsulates the maximum level formula, allowing it to
+; be easily changed in the future.
+; @param a: Level
+; @return hl: Max Health
+GetMaxHealth::
+    ; The current formula is 10 + level * 4
+    ld l, a
+    ld h, 0
+    add hl, hl
+    add hl, hl
+    ld a, 10
+    add a, l
+    ld l, a
+    adc a, h
+    sub a, l
+    ld h, a
+    ret
 
 FOR I, NB_ENTITIES
     SECTION "Entity {I}", WRAM0[$C100 - sizeof_Entity + I * $100]

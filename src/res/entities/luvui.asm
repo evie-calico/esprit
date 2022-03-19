@@ -18,5 +18,5 @@ xDebugMove::
     dw .name
     db 128
     db 1
-    db 1
+    db 10
 .name db "Debug<END>"

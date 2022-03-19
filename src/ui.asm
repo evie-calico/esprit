@@ -1,7 +1,6 @@
 INCLUDE "bank.inc"
 INCLUDE "defines.inc"
 INCLUDE "hardware.inc"
-INCLUDE "optimize.inc"
 INCLUDE "text.inc"
 INCLUDE "vdef.inc"
 
@@ -275,10 +274,6 @@ ShowTextBox:
 
 SECTION "Window effect bounce", WRAM0
 wWindowBounce: db
-
-SECTION "Debug Text", ROMX
-xDebugText: db "Eievui used scratch!<DELAY>",60,"\n"
-            db "Dealt 255 damage.<DELAY>",60,"<END>"
 
 SECTION "Debug attacks", ROMX
 xDebugAttacks: db "One\nTwo\nThree\nFour<END>"

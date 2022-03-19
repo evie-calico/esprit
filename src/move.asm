@@ -149,7 +149,7 @@ MoveActionAttack:
     ld c, a
     ld a, [de]
     cp a, c
-    jr c, .miss
+    jp c, .miss
 
     ASSERT Move_Chance + 1 == Move_Range
     inc de
@@ -196,10 +196,18 @@ MoveActionAttack:
     push hl
     ASSERT Move_Range + 1 == Move_Power
     inc de
-    ld a, [de]
-    add a, a
-    add a, a
     ; TODO: Damage target with move power here.
+    ld a, [de]
+    ld e, a ; Save the move power in e. We don't need de anymore.
+    ld l, LOW(wEntity0_Health)
+    ld a, [hl]
+    sub a, e
+    ld [hli], a
+    ld a, [hl]
+    sbc a, 0
+    ld [hl], a
+    ; Prepare for printing.
+    ld a, e
     ld [wDealtDamage.value], a
     xor a, a
     ld [wDealtDamage.value + 1], a
@@ -231,10 +239,13 @@ MoveActionAttack:
     ld [hli], a
     ld a, HIGH(EntityHurtAnimation)
     ld [hli], a
-    xor a, a
+    ld a, LOW(DefeatCheck)
     ld [hli], a
+    ld a, HIGH(DefeatCheck)
     ld [hli], a
     ld [hl], b
+    ld a, b
+    ld [wDefeatCheckTarget], a
     ret
 
 .miss
@@ -260,6 +271,38 @@ MoveActionAttack:
     ld b, BANK(xMissedText)
     ld hl, xMissedText
     jp PrintHUD
+
+SECTION "Defeat check", ROM0
+DefeatCheck::
+    ld a, [wDefeatCheckTarget]
+    ld h, a
+    ld l, LOW(wEntity0_Health)
+    ld a, [hli]
+    or a, [hl]
+    jr z, .defeat
+    bit 7, [hl]
+    ret z
+.defeat
+    ld b, h
+    ld hl, wEntityAnimation
+    ld a, LOW(EntityDefeatAnimation)
+    ld [hli], a
+    ld a, HIGH(EntityDefeatAnimation)
+    ld [hli], a
+    ld a, LOW(.final)
+    ld [hli], a
+    ld a, HIGH(.final)
+    ld [hli], a
+    ld [hl], b
+    ret
+
+.final
+    ld a, [wDefeatCheckTarget]
+    ld h, a
+    ld l, LOW(wEntity0_Bank)
+    xor a, a
+    ld [hli], a
+    ret
 
 SECTION "Used move text", ROMX
 xUsedText:
@@ -301,6 +344,10 @@ wMoveState:
 .userIndex db
 .moveBank db
 .movePointer dw
+
+SECTION "Defeat check target", WRAM0
+; High byte of the entity for the coming defeat check to target.
+wDefeatCheckTarget: db
 
 SECTION "Attack range counter", HRAM
 hRangeCounter: db

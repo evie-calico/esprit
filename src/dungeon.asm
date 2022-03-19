@@ -1,3 +1,4 @@
+INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
@@ -50,7 +51,7 @@ InitDungeon::
 
     ; Null out all entities.
     FOR I, NB_ENTITIES
-        ld b, BANK(xLuvui)
+        lb bc, BANK(xLuvui), 5
         ld de, xLuvui
         ld h, HIGH(wEntity{d:I})
         call SpawnEntity
