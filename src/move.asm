@@ -161,6 +161,8 @@ MoveActionAttack:
     ld b, a
     ld c, [hl]
 .offsetDirection
+    ldh a, [hSaveUserIndex]
+    ld h, a
     push de
         ld l, LOW(wEntity0_Direction)
         ld a, [hl]
