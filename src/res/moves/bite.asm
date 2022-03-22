@@ -8,4 +8,4 @@ xBite::
 	db 224
 	db 1
 	db 8
-.name db "Bite"
+.name db "Bite<END>"

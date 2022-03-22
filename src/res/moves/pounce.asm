@@ -8,4 +8,4 @@ xPounce::
 	db 224
 	db 2
 	db 6
-.name db "Pounce"
+.name db "Pounce<END>"

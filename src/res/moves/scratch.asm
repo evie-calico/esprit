@@ -8,4 +8,4 @@ xScratch::
 	db -1
 	db 1
 	db 6
-.name db "Scratch"
+.name db "Scratch<END>"
