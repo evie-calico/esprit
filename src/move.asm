@@ -198,7 +198,7 @@ MoveActionAttack:
     push hl
     ASSERT Move_Range + 1 == Move_Power
     inc de
-    ; TODO: Damage target with move power here.
+    ; Damage target with move power.
     ld a, [de]
     ld e, a ; Save the move power in e. We don't need de anymore.
     ld l, LOW(wEntity0_Health)
