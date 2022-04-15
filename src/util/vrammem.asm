@@ -28,22 +28,22 @@ SECTION "VRAM Memory Copy", ROM0
 ; @param de: destination
 ; @param hl: source
 VRAMCopy::
-    dec bc
-    inc b
-    inc c
+	dec bc
+	inc b
+	inc c
 .loop:
-    ldh a, [rSTAT]
-    and STATF_BUSY
-    jr nz, .loop
+	ldh a, [rSTAT]
+	and STATF_BUSY
+	jr nz, .loop
 
-    ld a, [hli]
-    ld [de], a
-    inc de
-    dec c
-    jr nz, .loop
-    dec b
-    jr nz, .loop
-    ret
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec c
+	jr nz, .loop
+	dec b
+	jr nz, .loop
+	ret
 
 SECTION "VRAM Small Memory Copy", ROM0
 ; Waits for VRAM access before copying data. Slightly faster than vmemcopy with
@@ -52,15 +52,15 @@ SECTION "VRAM Small Memory Copy", ROM0
 ; @param de: destination
 ; @param hl: source
 VRAMCopySmall::
-    ldh a, [rSTAT]
-    and STATF_BUSY
-    jr nz, VRAMCopySmall
-    ld a, [hli]
-    ld [de], a
-    inc de
-    dec c
-    jr nz, VRAMCopySmall
-    ret
+	ldh a, [rSTAT]
+	and STATF_BUSY
+	jr nz, VRAMCopySmall
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec c
+	jr nz, VRAMCopySmall
+	ret
 
 SECTION "VRAM Memory Set", ROM0
 ; Waits for VRAM access before setting data.
@@ -68,22 +68,22 @@ SECTION "VRAM Memory Set", ROM0
 ; @param bc: length
 ; @param hl: destination
 VRAMSet::
-    inc b
-    inc c
-    jr .decCounter
+	inc b
+	inc c
+	jr .decCounter
 .loadByte
-    ldh a, [rSTAT]
-    and STATF_BUSY
-    jr nz, .loadByte
+	ldh a, [rSTAT]
+	and STATF_BUSY
+	jr nz, .loadByte
 
-    ld a, d
-    ld [hli], a
+	ld a, d
+	ld [hli], a
 .decCounter
-    dec c
-    jr nz, .loadByte
-    dec b
-    jr nz, .loadByte
-    ret
+	dec c
+	jr nz, .loadByte
+	dec b
+	jr nz, .loadByte
+	ret
 
 SECTION "VRAM Memory Set Small", ROM0
 ; Waits for VRAM access before setting data.
@@ -91,12 +91,12 @@ SECTION "VRAM Memory Set Small", ROM0
 ; @param  c: length
 ; @param hl: destination
 VRAMSetSmall::
-    ldh a, [rSTAT]
-    and STATF_BUSY
-    jr nz, VRAMSetSmall
+	ldh a, [rSTAT]
+	and STATF_BUSY
+	jr nz, VRAMSetSmall
 
-    ld a, b
-    ld [hli], a
-    dec c
-    jr nz, VRAMSetSmall
-    ret
+	ld a, b
+	ld [hli], a
+	dec c
+	jr nz, VRAMSetSmall
+	ret

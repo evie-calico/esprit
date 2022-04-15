@@ -7,9 +7,9 @@ RSRESET
 DEF TILE_CLEAR RB 1
 DEF TILE_WALL RB 1
 
-    struct Dungeon
-        words 1, Tileset
-        words 1, Palette
-    end_struct
+	struct Dungeon
+		words 1, Tileset
+		words 1, Palette
+	end_struct
 
 ENDC

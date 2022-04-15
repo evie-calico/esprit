@@ -27,45 +27,45 @@ section "bcd",ROM0
 ; @return C: digit in myriads place; D: digits in thousands and
 ; hundreds places; E: digits in tens and ones places; AB trashed
 bcd16::
-  ; Bits 15-13: Just shift left into A (12 c)
-  xor a
-  ld d,a
-  ld c,a
-  add hl,hl
-  adc a
-  add hl,hl
-  adc a
-  add hl,hl
-  adc a
+	; Bits 15-13: Just shift left into A (12 c)
+	xor a
+	ld d,a
+	ld c,a
+	add hl,hl
+	adc a
+	add hl,hl
+	adc a
+	add hl,hl
+	adc a
 
-  ; Bits 12-9: Shift left into A and DAA (33 c)
-  ld b,4
+	; Bits 12-9: Shift left into A and DAA (33 c)
+	ld b,4
 .l1:
-  add hl,hl
-  adc a
-  daa
-  dec b
-  jr nz,.l1
+	add hl,hl
+	adc a
+	daa
+	dec b
+	jr nz,.l1
 
-  ; Bits 8-0: Shift left into E, DAA, into D, DAA, into C (139 c)
-  ld e,a
-  rl d
-  ld b,9
+	; Bits 8-0: Shift left into E, DAA, into D, DAA, into C (139 c)
+	ld e,a
+	rl d
+	ld b,9
 .l2:
-  add hl,hl
-  ld a,e
-  adc a
-  daa
-  ld e,a
-  ld a,d
-  adc a
-  daa
-  ld d,a
-  rl c
-  dec b
-  jr nz,.l2
+	add hl,hl
+	ld a,e
+	adc a
+	daa
+	ld e,a
+	ld a,d
+	adc a
+	daa
+	ld d,a
+	rl c
+	dec b
+	jr nz,.l2
 
-  ret
+	ret
 
 /*
 
@@ -76,26 +76,26 @@ bcd16::
 ; B[7:2]: unspecified
 bcd8bit_baa::
 
-  swap a
-  ld b,a
-  and $0F  ; bits 3-0 in A, range $00-$0F
-  or a     ; for some odd reason, AND sets half carry to 1
-  daa      ; A=$00-$15
+	swap a
+	ld b,a
+	and $0F  ; bits 3-0 in A, range $00-$0F
+	or a     ; for some odd reason, AND sets half carry to 1
+	daa      ; A=$00-$15
 
-  sla b
-  adc a
-  daa
-  sla b
-  adc a
-  daa      ; A=$00-$63
-  rl b
-  adc a
-  daa
-  rl b
-  adc a
-  daa
-  rl b
-  ret
+	sla b
+	adc a
+	daa
+	sla b
+	adc a
+	daa      ; A=$00-$63
+	rl b
+	adc a
+	daa
+	rl b
+	adc a
+	daa
+	rl b
+	ret
 
 section "pctdigit",ROM0
 ;;
@@ -105,41 +105,41 @@ section "pctdigit",ROM0
 ; @return A = floor(10 * B / C); B = 10 * B % C;
 ; CHL unchanged; D clobbered; E = 0
 pctdigit::
-  ld de,$1000
+	ld de,$1000
 
-  ; bit 3: A.E = B * 1.25
-  ld a,b
-  srl a
-  rr e
-  srl a
-  rr e
-  add b
-  jr .have_first_carry
+	; bit 3: A.E = B * 1.25
+	ld a,b
+	srl a
+	rr e
+	srl a
+	rr e
+	add b
+	jr .have_first_carry
 
-  ; bits 2-0: mul A.E by 2
-  .bitloop:
-    rl e
-    adc a
-  .have_first_carry:
-    jr c,.yessub
-    cp c
-    jr c,.nosub
-    .yessub:
-      ; Usually A>=C so subtracting C won't borrow.  But if we
-      ; arrived via yessub, A>256 so even though 256+A>=C, A<C.
-      sub c
-      or a
-    .nosub:
-    rl d
-    jr nc,.bitloop
+	; bits 2-0: mul A.E by 2
+	.bitloop:
+		rl e
+		adc a
+	.have_first_carry:
+		jr c,.yessub
+		cp c
+		jr c,.nosub
+		.yessub:
+			; Usually A>=C so subtracting C won't borrow.  But if we
+			; arrived via yessub, A>256 so even though 256+A>=C, A<C.
+			sub c
+			or a
+		.nosub:
+		rl d
+		jr nc,.bitloop
 
-  ld b,a
-  ; Binary to decimal subtracts if trial subtraction has no borrow.
-  ; 6502/ARM carry: 0: borrow; 1: no borrow
-  ; 8080 carry: 1: borrow; 0: borrow
-  ; The 6502 interpretation is more convenient for binary to decimal
-  ; conversion, so convert to 6502 discipline
-  ld a,$0F
-  xor d
-  ret
+	ld b,a
+	; Binary to decimal subtracts if trial subtraction has no borrow.
+	; 6502/ARM carry: 0: borrow; 1: no borrow
+	; 8080 carry: 1: borrow; 0: borrow
+	; The 6502 interpretation is more convenient for binary to decimal
+	; conversion, so convert to 6502 discipline
+	ld a,$0F
+	xor d
+	ret
 */
