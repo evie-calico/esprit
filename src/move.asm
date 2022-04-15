@@ -1,4 +1,4 @@
-INCLUDE "bank.inc"
+INCLUDE "defines.inc"
 INCLUDE "entity.inc"
 INCLUDE "text.inc"
 

@@ -1,4 +1,3 @@
-INCLUDE "bank.inc"
 INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"

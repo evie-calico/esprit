@@ -22,6 +22,7 @@ InitDungeon::
     ld a, [hCurrentBank]
     push af
 
+    ; Value init
     ld hl, wActiveDungeon
     ld a, BANK(xForestDungeon)
     ld [hli], a
@@ -29,7 +30,11 @@ InitDungeon::
     ld [hli], a
     ld a, HIGH(xForestDungeon)
     ld [hli], a
+    ld a, GAMESTATE_DUNGEON
+    ld [wGameState], a
 
+
+    ; Null init
     xor a, a
     ASSERT wDungeonMap + DUNGEON_WIDTH * DUNGEON_HEIGHT == wDungeonCameraX
     ASSERT wDungeonCameraX + 2 == wDungeonCameraY
@@ -41,7 +46,9 @@ InitDungeon::
     ld c, 6
     ld hl, wEntityAnimation
     call MemSetSmall
+    ld [wIsDungeonFading], a
 
+    ; Draw static debug map
     FOR I, 64
         ld a, 1
         ld [wDungeonMap + I / 4 + I * 64], a
@@ -91,6 +98,12 @@ InitDungeon::
         ld [wBGPaletteMask], a
         ld a, %11111111
         ld [wOBJPaletteMask], a
+        ld a, 20
+        ld [wFadeSteps], a
+        ld a, $80 + 20 * 4
+        ld [wFadeAmount], a
+        ld a, -4
+        ld [wFadeDelta], a
 
         ASSERT Dungeon_Palette == 2
         inc hl
@@ -109,11 +122,79 @@ InitDungeon::
     ld hl, .text
     call PrintHUD
 
+    bankcall xDrawDungeon
+
     jp BankReturn
 .text db "Hello, world!<END>"
 
+SECTION "Dungeon State", ROM0
+DungeonState::
+    ; If only START is pressed, open pause menu.
+    ld a, [hCurrentKeys]
+    cp a, PADF_START
+    jr nz, :+
+        ld a, 1
+        ld [wIsDungeonFading], a
+        xor a, a
+        ; Set palettes
+        ld a, %11111111
+        ld [wBGPaletteMask], a
+        ld a, %11111111
+        ld [wOBJPaletteMask], a
+        ld a, 20
+        ld [wFadeSteps], a
+        ld a, $80
+        ld [wFadeAmount], a
+        ld a, 4
+        ld [wFadeDelta], a
+        ; Set all colors to white.
+        ld a, $FF
+        ld bc, 8 * 12
+        ld hl, wBGPaletteBuffer
+        call MemSet
+:
+
+    ld hl, wEntityAnimation.pointer
+    ld a, [hli]
+    or a, [hl]
+    jr nz, .playAnimation
+        bankcall xMoveEntities
+        call ProcessEntities
+        jr :+
+.playAnimation
+        bankcall xUpdateAnimation
+:
+
+    ; Scroll the map after moving entities.
+    bankcall xHandleMapScroll
+    bankcall xFocusCamera
+
+    ld a, [wDungeonCameraX + 1]
+    ld b, a
+    ld a, [wDungeonCameraX]
+    REPT 4
+        srl b
+        rra
+    ENDR
+    ldh [hShadowSCX], a
+    ld a, [wDungeonCameraY + 1]
+    ld b, a
+    ld a, [wDungeonCameraY]
+    REPT 4
+        srl b
+        rra
+    ENDR
+    ldh [hShadowSCY], a
+
+    ; Render entities after scrolling.
+    call ResetShadowOAM
+    bankcall xRenderEntities
+    call UpdateEntityGraphics
+
+    jp UpdateAttackWindow
+
 SECTION "Draw dungeon", ROMX
-xDrawDungeon::
+xDrawDungeon:
     call xGetCurrentVram
     push hl
     ; Now find the top-left corner of the map to begin drawing from.
@@ -154,7 +235,7 @@ xDrawDungeon::
     jr nz, .drawRow
     ret
 
-xHandleMapScroll::
+xHandleMapScroll:
     ld a, [wDungeonCameraX + 1]
     ld hl, wLastDungeonCameraX
     cp a, [hl]
@@ -467,18 +548,19 @@ xGetMapBelow:
     ld a, 1
     ret
 
-SECTION "Dungeon variables", WRAM0, ALIGN[8]
+SECTION UNION "State variables", WRAM0, ALIGN[8]
 ; This map uses 4096 bytes of WRAM, but is only ever used in dungeons.
 ; If more RAM is needed for other game states, it should be unionized with this
 ; map.
-wDungeonMap:: ds DUNGEON_WIDTH * DUNGEON_HEIGHT
+wDungeonMap: ds DUNGEON_WIDTH * DUNGEON_HEIGHT
 wDungeonCameraX:: dw
 wDungeonCameraY:: dw
 ; Only the neccessarily info is saved; the high byte.
-wLastDungeonCameraX:: db
-wLastDungeonCameraY:: db
+wLastDungeonCameraX: db
+wLastDungeonCameraY: db
 ; A far pointer to the current dungeon. Bank, Low, High.
-wActiveDungeon:: ds 3
+wActiveDungeon: ds 3
+wIsDungeonFading: db
 
 SECTION "Map drawing counters", HRAM
 hMapDrawX: db

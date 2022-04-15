@@ -1,6 +1,4 @@
-INCLUDE "bank.inc"
 INCLUDE "defines.inc"
-INCLUDE "engine.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 
@@ -68,12 +66,12 @@ Initialize::
     ldh [hOAMIndex], a
 
     ; Initialize VWF.
-	ld [wActiveEntity], a
+    ld [wActiveEntity], a
     ld [wMoveEntityCounter], a
     ld [wSTATTarget], a
     ld [wSTATTarget + 1], a
-	ld [wTextCharset], a
-	ld [wTextCurPixel], a
+    ld [wTextCharset], a
+    ld [wTextCurPixel], a
     ld [randstate], a
     ld [randstate + 1], a
     ld [randstate + 2], a
@@ -88,21 +86,14 @@ Initialize::
     ld d, a
     ld hl, _VRAM
     call VRAMSet
-	ld c, $10 * 2
-	ld hl, wTextTileBuffer
-	rst MemSetSmall
+    ld c, $10 * 2
+    ld hl, wTextTileBuffer
+    rst MemSetSmall
 
-    ld a, $80 + 20 * 4
-    ld [wFadeAmount], a
-    ld a, 20
-    ld [wFadeSteps], a
-    ld a, -4
-    ld [wFadeDelta], a
     ld a, $FF
     ld [wTextSrcPtr + 1], a
 
     call InitDungeon
-    bankcall xDrawDungeon
 
     ; Initiallize OAM
     call InitSprObjLib
