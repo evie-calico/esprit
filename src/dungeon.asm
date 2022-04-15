@@ -129,6 +129,20 @@ InitDungeon::
 
 SECTION "Dungeon State", ROM0
 DungeonState::
+
+    ; If fading out, do nothing but animate entities and wait for the fade to
+    ; complete.
+    ld a, [wIsDungeonFading]
+    and a, a
+    jr z, .notFading
+    ld a, [wFadeSteps]
+    and a, a
+    jr nz, .dungeonRendering
+    ld a, GAMESTATE_MENU
+    ld [wGameState], a
+    ret
+.notFading
+
     ; If only START is pressed, open pause menu.
     ld a, [hCurrentKeys]
     cp a, PADF_START
@@ -165,6 +179,7 @@ DungeonState::
         bankcall xUpdateAnimation
 :
 
+.dungeonRendering
     ; Scroll the map after moving entities.
     bankcall xHandleMapScroll
     bankcall xFocusCamera

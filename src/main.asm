@@ -49,6 +49,10 @@ SECTION "Menu State", ROM0
 ; palettes while continuing to animate entities. Once fading is complete, the
 ; pause menu can be drawn and faded in.
 MenuState:
+    ld a, BANK(xDrawPauseMenu)
+    rst SwapBank
+    ld hl, xDrawPauseMenu
+    call DrawMenu
     ret
 
 SECTION "Game State", WRAM0

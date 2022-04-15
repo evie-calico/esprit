@@ -1,4 +1,3 @@
-INCLUDE "bank.inc"
 INCLUDE "defines.inc"
 INCLUDE "hardware.inc"
 INCLUDE "text.inc"
@@ -25,7 +24,13 @@ DEF POPUP_SPEED EQU 8
 
 SECTION "User interface graphics", ROMX
 xUIFrame:
-    INCBIN "res/ui/hud_frame.2bpp"
+    ; TODO: rewrite the code in this file to handle the frame without needing to
+    ; store a second copy.
+    INCBIN "res/ui/hud_frame.2bpp", 16, 16 ; top
+    INCBIN "res/ui/hud_frame.2bpp", 48, 16 ; left
+    INCBIN "res/ui/hud_frame.2bpp", 80, 16 ; right
+    INCBIN "res/ui/hud_frame.2bpp",  0, 16 ; top left
+    INCBIN "res/ui/hud_frame.2bpp", 32, 16 ; top right
 .end
 xUIArrows:
     INCBIN "res/ui/arrows.2bpp"
