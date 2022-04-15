@@ -14,6 +14,21 @@ DEF ENTITY_FRAME_STEP EQU 1
 DEF ENTITY_FRAME_ATTK EQU 2
 DEF ENTITY_FRAME_HURT EQU 3
 
+; Move actions. Must not exceed 128, as this is the limit for a jump table.
+RSRESET
+; A simple attack, dealing damage to an enemy in front of the user.
+DEF MOVE_ACTION_ATTACK RB 1
+
+; Animation bytecode
+RSRESET
+DEF ENTITY_ANIMATION_WAIT RB 1
+DEF ENTITY_ANIMATION_FRAME RB 1
+DEF ENTITY_ANIMATION_HIDE RB 1
+DEF ENTITY_ANIMATION_SHOW RB 1
+DEF ENTITY_ANIMATION_FORWARD RB 1
+DEF ENTITY_ANIMATION_BACKWARD RB 1
+DEF ENTITY_ANIMATION_END RB 1
+
     ; Constant data about an entity, such as graphics, moves, and stats.
     struct EntityData
         ; All of these pointers are assumed to share a bank with this struct.
@@ -73,12 +88,6 @@ DEF ENTITY_FRAME_HURT EQU 3
         words 1, Health
     end_struct
 
-    ; Must not exceed 128, as this is the limit for a jump table.
-    start_enum MOVE_ACTION
-        ; A simple attack, dealing damage to an enemy in front of the user.
-        enum ATTACK
-    end_enum
-
     struct Move
         ; The behavior of this move.
         bytes 1, Action
@@ -92,16 +101,6 @@ DEF ENTITY_FRAME_HURT EQU 3
         ; displayed.
         bytes 1, Power
     end_struct
-
-    start_enum ENTITY_ANIMATION
-        enum WAIT
-        enum FRAME
-        enum HIDE
-        enum SHOW
-        enum FORWARD
-        enum BACKWARD
-        enum END
-    end_enum
 
     ; Wait a number of frames before continuing the script.
     MACRO ea_wait ; frames
