@@ -105,11 +105,12 @@ ResetShadowOAM::
 
 SECTION "Render Simple Sprite", ROM0
 ; Render a single object, or sprite, to OAM.
+; Preserves all arguments
 ; @param b: Y position
 ; @param c: X position
 ; @param d: Tile ID
 ; @param e: Tile Attribute
-; @clobbers: hl
+; @clobbers: a, hl
 RenderSimpleSprite::
 	ld h, HIGH(wShadowOAM)
 	ldh a, [hOAMIndex]

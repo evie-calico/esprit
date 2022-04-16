@@ -138,9 +138,15 @@ DungeonState::
 	ld a, [wFadeSteps]
 	and a, a
 	jr nz, .dungeonRendering
-	ld a, GAMESTATE_MENU
-	ld [wGameState], a
-	ret
+		ld b, BANK(PauseMenu)
+		ld de, PauseMenu
+		call AddMenu
+		ld a, GAMESTATE_MENU
+		ld [wGameState], a
+		xor a, a
+		ld [wSTATTarget], a
+		ld [wSTATTarget + 1], a
+		ret
 .notFading
 
 	; If only START is pressed, open pause menu.
@@ -149,7 +155,6 @@ DungeonState::
 	jr nz, :+
 		ld a, 1
 		ld [wIsDungeonFading], a
-		xor a, a
 		; Set palettes
 		ld a, %11111111
 		ld [wBGPaletteMask], a
@@ -202,7 +207,6 @@ DungeonState::
 	ldh [hShadowSCY], a
 
 	; Render entities after scrolling.
-	call ResetShadowOAM
 	bankcall xRenderEntities
 	call UpdateEntityGraphics
 

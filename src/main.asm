@@ -13,6 +13,9 @@ Main::
 	cp a, PADF_A | PADF_B | PADF_SELECT | PADF_START
 	jp z, Initialize
 
+	; Clear last frame's shadow OAM.
+	call ResetShadowOAM
+
 	; State-specific logic.
 	ld a, [wGameState]
 	add a, a
@@ -49,10 +52,7 @@ SECTION "Menu State", ROM0
 ; palettes while continuing to animate entities. Once fading is complete, the
 ; pause menu can be drawn and faded in.
 MenuState:
-	ld a, BANK(xDrawPauseMenu)
-	rst SwapBank
-	ld hl, xDrawPauseMenu
-	call DrawMenu
+	call ProcessMenus
 	ret
 
 SECTION "Game State", WRAM0

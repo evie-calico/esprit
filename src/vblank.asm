@@ -65,14 +65,10 @@ SECTION "STAT Handler", ROM0
 STAT:
 	ld hl, wSTATTarget
 	ld a, [hli]
-	or a, [hl]
-	jr z, :+
-	dec hl
-	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	rst CallHL
-:   pop hl
+	pop hl
 	pop de
 	pop bc
 	pop af

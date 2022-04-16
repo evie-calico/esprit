@@ -201,14 +201,6 @@ UpdateAttackWindow::
 		ld a, idof_vUIFrameLeft ; 8
 		ld [vAttackWindow + 96], a ; 12
 
-		; Draw move names
-		ld a, BANK(xTextInit)
-		rst SwapBank
-		ld a, vAttackText_Width * 8
-		lb bc, idof_vAttackTiles, idof_vAttackTiles + vAttackText_Width * vAttackText_Height
-		lb de, vAttackText_Height, HIGH(vAttackTiles) & $F0
-		call xTextInit
-
 		xor a, a
 		ld [wTextLetterDelay], a
 
@@ -216,6 +208,14 @@ UpdateAttackWindow::
 		ld hl, xDebugAttacks
 		ld a, 1
 		call PrintVWFText
+
+		; Draw move names
+		ld a, BANK(xTextInit)
+		rst SwapBank
+		ld a, vAttackText_Width * 8
+		lb bc, idof_vAttackTiles, idof_vAttackTiles + vAttackText_Width * vAttackText_Height
+		lb de, vAttackText_Height, HIGH(vAttackTiles) & $F0
+		call xTextInit
 
 		lb de, vAttackText_Width, vAttackText_Height
 		ld hl, vAttackText

@@ -55,6 +55,33 @@ MACRO dtile ; Name, [Size in tiles]
 	ENDC
 ENDM
 
+MACRO dtile_union ; Name
+	ASSERT _NARG == 1 || _NARG == 2, "Expected 1 argument!"
+	ASSERT DEF(_dtile_section), "Please set dtile_section."
+	ASSERT _dtile_section >= $8000 && _dtile_section < $9800, "Address {_dtile_section} is outside of VRAM tile range!"
+	IF _dtile_section >= $9000
+		DEF idof_\1 EQU (_dtile_section - $9000) / 16
+	ELSE
+		DEF idof_\1 EQU (_dtile_section - $8000) / 16
+	ENDC
+	DEF \1 EQU _dtile_section
+ENDM
+
+MACRO dtile_anon ; [Size in tiles]
+	ASSERT _NARG == 1, "Expected 1 argument!"
+	ASSERT DEF(_dtile_section), "Please set dtile_section."
+	ASSERT _dtile_section >= $8000 && _dtile_section < $9800, "Address {_dtile_section} is outside of VRAM tile range!"
+	REDEF _dtile_section = _dtile_section + (\1) * 16
+ENDM
+
+MACRO get_id ; dest
+	IF _dtile_section >= $9000
+		DEF \1 EQU (_dtile_section - $9000) / 16
+	ELSE
+		DEF \1 EQU (_dtile_section - $8000) / 16
+	ENDC
+ENDM
+
 ; Create a tile region in VRAM.
 MACRO dregion ; Name, x, y, width, height, [address]
 	IF _NARG == 5

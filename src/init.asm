@@ -76,6 +76,7 @@ Initialize::
 	ld [randstate + 1], a
 	ld [randstate + 2], a
 	ld [randstate + 3], a
+	ld [wNbMenus], a
 	ldh [hCurrentBank], a
 	ldh [hCurrentKeys], a
 	ldh [hFrameCounter], a
@@ -92,6 +93,12 @@ Initialize::
 
 	ld a, $FF
 	ld [wTextSrcPtr + 1], a
+	; Set a default theme.
+	; TODO add a theme selection to the options menu.
+	ld a, LOW(PinkMenuTheme)
+	ld [wActiveTheme], a
+	ld a, HIGH(PinkMenuTheme)
+	ld [wActiveTheme + 1], a
 
 	call InitDungeon
 
