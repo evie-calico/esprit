@@ -108,9 +108,9 @@ res/%.1bpp: res/%.h.png
 	@mkdir -p $(@D)
 	superfamiconv -M gb -B 1 -D -F -R -H 16 -t $@ -i $<
 
-res/%.vwf: res/%.png
+res/%.vwf: res/%.png bin/makefont
 	@mkdir -p $(@D)
-	python3 tools/make_font.py $< $@
+	./bin/makefont $< $@
 
 res/%.asm: res/%.mod bin/mod2gbt
 	@mkdir -p $(@D)
@@ -121,6 +121,10 @@ res/%.asm: res/%.mod bin/mod2gbt
 #                 BUILD TOOLS                  #
 #                                              #
 ################################################
+
+bin/makefont: tools/makefont.c tools/libplum.c
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^
 
 bin/mod2gbt: tools/mod2gbt.c
 	@mkdir -p $(@D)
