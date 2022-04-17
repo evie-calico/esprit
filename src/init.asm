@@ -95,10 +95,14 @@ Initialize::
 	ld [wTextSrcPtr + 1], a
 	; Set a default theme.
 	; TODO add a theme selection to the options menu.
-	ld a, LOW(PinkMenuTheme)
-	ld [wActiveTheme], a
-	ld a, HIGH(PinkMenuTheme)
-	ld [wActiveTheme + 1], a
+	ld a, LOW(PinkMenuPalette)
+	ld [wActiveMenuPalette], a
+	ld a, HIGH(PinkMenuPalette)
+	ld [wActiveMenuPalette + 1], a
+	ld a, LOW(PawprintMenuTheme)
+	ld [wActiveMenuTheme], a
+	ld a, HIGH(PawprintMenuTheme)
+	ld [wActiveMenuTheme + 1], a
 
 	call InitDungeon
 

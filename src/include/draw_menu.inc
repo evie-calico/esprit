@@ -5,33 +5,17 @@ INCLUDE "vdef.inc"
 
 RSRESET
 DEF MENUDRAW_END RB 1
-DEF MENUDRAW_SET_FRAME RB 1
 DEF MENUDRAW_SET_BACKGROUND RB 1
 DEF MENUDRAW_LOAD_TILES RB 1
 DEF MENUDRAW_PRINT_TEXT RB 1
 
 DEF MENUDRAW_MAX RB 0
 
-	dtile_section $9000
-	dtile vFrameTopLeft
-	dtile vFrameTop
-	dtile vFrameTopRight
-	dtile vFrameLeft
-	dtile vFrameCenter
-	dtile vFrameRight
-	dtile vFrameBottomLeft
-	dtile vFrameBottom
-	dtile vFrameBottomRight
+	dtile_section $8800
 	; Scratch space, used for allocating additional graphics
 	dtile_union vScratchSpace
 
 DEF menu_end EQUS "db MENUDRAW_END"
-
-MACRO set_frame ; frame
-	db MENUDRAW_SET_FRAME
-	db BANK(\1)
-	dw \1
-ENDM
 
 MACRO set_background ; tile id
 	db MENUDRAW_SET_BACKGROUND

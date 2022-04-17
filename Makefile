@@ -93,6 +93,11 @@ res/%.1bpp: res/%.png
 	@mkdir -p $(@D)
 	rgbgfx $(GFXFLAGS) -d 1 -o $@ $<
 
+# Convert .png files into .2bpp and .map files.
+res/%.2bpp res/%.map: res/%.map.png
+	@mkdir -p $(@D)
+	rgbgfx $(GFXFLAGS) -u -o res/$*.2bpp -t res/$*.map $<
+
 # Convert .png files into .h.2bpp files (-h flag).
 res/%.2bpp: res/%.h.png
 	@mkdir -p $(@D)

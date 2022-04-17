@@ -34,44 +34,13 @@ DrawMenu::
 	; It must preserve this value, skipping over any parameter bytes.
 
 .jumpTable
-	dw MenuLoadFrameset
 	dw MenuSetBackground
 	dw MenuLoadTiles
 	dw MenuPrint
-	ASSERT MENUDRAW_MAX == 5
-
-SECTION "Menu Load Frameset", ROM0
-MenuLoadFrameset:
-	ldh a, [hCurrentBank]
-	push af
-
-	; Read farpointer to frame tiles.
-	ld a, [hli]
-	ld b, a ; Save bank.
-	ld a, [hli]
-	; We only read one byte after the `push`; this must be skipped later.
-	push hl
-		ld h, [hl]
-		ld l, a
-		ld a, b
-		rst SwapBank
-		ld de, vFrameTopLeft
-		ld c, 16 * 9
-		call VRAMCopySmall
-	pop hl
-	inc hl
-
-	pop af
-	rst SwapBank
-	jp DrawMenu.readByte
+	ASSERT MENUDRAW_MAX == 4
 
 SECTION "Menu Set Region", ROM0
 MenuSetBackground:
-; Used to set a full map of 20*14 regular tiles. LCD-Safe
-; @ hl: Pointer to upper-left tile
-; @ b : Tile ID
-; @ c : Number of rows to copy
-ScreenSet::
 	ld a, [hli]
 	push hl
 
@@ -161,8 +130,8 @@ MenuPrint:
 
 		ld a, BANK(xTextInit)
 		rst SwapBank
-		; TODO hard-coding 0x90 might be problematic...
-		ld a, $90
+		; TODO hard-coding 0x80 might be problematic...
+		ld a, $80
 		ld e, a
 		ld d, SCRN_Y_B
 		ld a, SCRN_X
@@ -246,6 +215,37 @@ DrawCursor::
 	ld c, a
 	jp RenderSimpleSprite
 
+SECTION "Map Region", ROM0
+; @param b: Width
+; @param c: Height
+; @param de: VRAM destination
+; @param hl: Source map
+MapRegion::
+	ld a, b
+	push af
+.copy
+.waitVram
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, .waitVram
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec b
+	jr nz, .copy
+	pop af
+	dec c
+	ret z
+	push af
+	ld b, a
+	ld a, SCRN_VX_B
+	sub a, b
+	add a, e
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+	jr .copy
 
 SECTION "Cursor vars", WRAM0
 wCursor::
