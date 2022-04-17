@@ -37,37 +37,37 @@ section "rand",ROM0
 ; @param  e:  Rand low (lower entropy)
 ; @clobbers: b, hl
 Rand::
-  ; Load bits 31-8 of the current value to DEA
-  ld hl,randstate+3
-  ld a,[hl-]
-  ld d,a
-  ld a,[hl-]
-  ld e,a
-  ld a,[hl-]  ; skip D; thanks ISSOtm for the idea
-  ; Used to load bits 7-0 to E.  Reading [HL] each time turned out
-  ; no slower and saved 1 byte.
+	; Load bits 31-8 of the current value to DEA
+	ld hl,randstate+3
+	ld a,[hl-]
+	ld d,a
+	ld a,[hl-]
+	ld e,a
+	ld a,[hl-]  ; skip D; thanks ISSOtm for the idea
+	; Used to load bits 7-0 to E.  Reading [HL] each time turned out
+	; no slower and saved 1 byte.
 
-  ; Multiply by 0x01010101
-  add [hl]
-  ld b,a
-  adc e
-  ld e,a
-  adc d
-  ld d,a
+	; Multiply by 0x01010101
+	add [hl]
+	ld b,a
+	adc e
+	ld e,a
+	adc d
+	ld d,a
 
-  ; Add 0x31415927 and write back
-  ld a,[hl]
-  add $27
-  ld [hl+],a
-  ld a,b
-  adc $59
-  ld [hl+],a
-  ld a,e
-  adc $41
-  ld [hl+],a
-  ld e,a
-  ld a,d
-  adc $31
-  ld [hl],a
-  ld d,a
-  ret
+	; Add 0x31415927 and write back
+	ld a,[hl]
+	add $27
+	ld [hl+],a
+	ld a,b
+	adc $59
+	ld [hl+],a
+	ld a,e
+	adc $41
+	ld [hl+],a
+	ld e,a
+	ld a,d
+	adc $31
+	ld [hl],a
+	ld d,a
+	ret

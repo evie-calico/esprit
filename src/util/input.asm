@@ -58,41 +58,41 @@ SECTION "rom_pads", ROM0
 ; +-------- Down
 
 UpdateInput::
-  ; Poll half the controller
-  ld a,P1F_BUTTONS
-  call .onenibble
-  ld b,a  ; B7-4 = 1; B3-0 = unpressed buttons
+	; Poll half the controller
+	ld a,P1F_BUTTONS
+	call .onenibble
+	ld b,a  ; B7-4 = 1; B3-0 = unpressed buttons
 
-  ; Poll the other half
-  ld a,P1F_DPAD
-  call .onenibble
-  swap a   ; A3-0 = unpressed directions; A7-4 = 1
-  xor b    ; A = pressed buttons + directions
-  ld b,a   ; B = pressed buttons + directions
+	; Poll the other half
+	ld a,P1F_DPAD
+	call .onenibble
+	swap a   ; A3-0 = unpressed directions; A7-4 = 1
+	xor b    ; A = pressed buttons + directions
+	ld b,a   ; B = pressed buttons + directions
 
-  ; And release the controller
-  ld a,P1F_NONE
-  ldh [rP1],a
+	; And release the controller
+	ld a,P1F_NONE
+	ldh [rP1],a
 
-  ; Combine with previous hCurrentKeys to make hNewKeys
-  ldh a,[hCurrentKeys]
-  xor b    ; A = keys that changed state
-  and b    ; A = keys that changed to pressed
-  ldh [hNewKeys],a
-  ld a,b
-  ldh [hCurrentKeys],a
-  ret
+	; Combine with previous hCurrentKeys to make hNewKeys
+	ldh a,[hCurrentKeys]
+	xor b    ; A = keys that changed state
+	and b    ; A = keys that changed to pressed
+	ldh [hNewKeys],a
+	ld a,b
+	ldh [hCurrentKeys],a
+	ret
 
 .onenibble:
-  ldh [rP1],a     ; switch the key matrix
-  call .knownret  ; burn 10 cycles calling a known ret
-  ; ignore value while waiting for the key matrix to settle
-  ldh a,[rP1] ; no-optimize Useless loads.
-  ldh a,[rP1] ; no-optimize Useless loads.
-  ldh a,[rP1]     ; this read counts
-  or $F0   ; A7-4 = 1; A3-0 = unpressed keys
+	ldh [rP1],a     ; switch the key matrix
+	call .knownret  ; burn 10 cycles calling a known ret
+	; ignore value while waiting for the key matrix to settle
+	ldh a,[rP1] ; no-optimize Useless loads.
+	ldh a,[rP1] ; no-optimize Useless loads.
+	ldh a,[rP1]     ; this read counts
+	or $F0   ; A7-4 = 1; A3-0 = unpressed keys
 .knownret:
-  ret
+	ret
 
 
 ;;
@@ -100,34 +100,34 @@ UpdateInput::
 ; every DAS_SPEED frames thereafter
 ; @param B which keys are eligible for autorepeat
 AutoRepeat::
-  ; If no eligible keys are held, skip all autorepeat processing
-  ldh a,[hCurrentKeys]
-  and b
-  ret z
-  ld c,a  ; C: Currently held
+	; If no eligible keys are held, skip all autorepeat processing
+	ldh a,[hCurrentKeys]
+	and b
+	ret z
+	ld c,a  ; C: Currently held
 
-  ; If any keys were newly pressed, set the eligible keys among them
-  ; as the autorepeating set.  For example, changing from Up to
-  ; Up+Right sets Right as the new autorepeating set.
-  ldh a,[hNewKeys]
-  ld d,a  ; D: hNewKeys
-  or a
-  jr z,.no_restart_das
-  and b
-  ld [wDasKeys],a
-  ld a,DAS_DELAY
-  jr .have_wDasTimer
+	; If any keys were newly pressed, set the eligible keys among them
+	; as the autorepeating set.  For example, changing from Up to
+	; Up+Right sets Right as the new autorepeating set.
+	ldh a,[hNewKeys]
+	ld d,a  ; D: hNewKeys
+	or a
+	jr z,.no_restart_das
+	and b
+	ld [wDasKeys],a
+	ld a,DAS_DELAY
+	jr .have_wDasTimer
 .no_restart_das:
 
-  ; If time has expired, merge in the autorepeating set
-  ld a,[wDasTimer]
-  dec a
-  jr nz,.have_wDasTimer
-  ld a,[wDasKeys]
-  and c
-  or d
-  ldh [hNewKeys],a
-  ld a,DAS_SPEED
+	; If time has expired, merge in the autorepeating set
+	ld a,[wDasTimer]
+	dec a
+	jr nz,.have_wDasTimer
+	ld a,[wDasKeys]
+	and c
+	or d
+	ldh [hNewKeys],a
+	ld a,DAS_SPEED
 .have_wDasTimer:
-  ld [wDasTimer],a
-  ret
+	ld [wDasTimer],a
+	ret

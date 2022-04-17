@@ -1,63 +1,71 @@
-INCLUDE "bank.inc"
+INCLUDE "defines.inc"
 INCLUDE "hardware.inc"
 
 INCLUDE "res/music/dungeon.asm"
 
 SECTION "Main", ROM0
 Main::
-    ; Poll player input and move as needed.
-    call UpdateInput
-    ld a, [hCurrentKeys]
-    cp a, PADF_A | PADF_B | PADF_SELECT | PADF_START
-    jp z, Initialize
+	; Poll player input and move as needed.
+	call UpdateInput
 
-    ld hl, wEntityAnimation.pointer
-    ld a, [hli]
-    or a, [hl]
-    jr nz, .playAnimation
-        bankcall xMoveEntities
-        call ProcessEntities
-        jr :+
-.playAnimation
-        bankcall xUpdateAnimation
+	; Soft reset if A B START SELECT is held.
+	ld a, [hCurrentKeys]
+	cp a, PADF_A | PADF_B | PADF_SELECT | PADF_START
+	jp z, Initialize
+
+	; Clear last frame's shadow OAM.
+	call ResetShadowOAM
+
+	; State-specific logic.
+	ld a, [wGameState]
+	add a, a
+	add a, LOW(.stateTable)
+	ld l, a
+	adc a, HIGH(.stateTable)
+	sub a, l
+	ld h, a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	rst CallHL
 :
 
-    ; Scroll the map after moving entities.
-    bankcall xHandleMapScroll
-    bankcall xFocusCamera
-
-    ld a, [wDungeonCameraX + 1]
-    ld b, a
-    ld a, [wDungeonCameraX]
-    REPT 4
-        srl b
-        rra
-    ENDR
-    ldh [hShadowSCX], a
-    ld a, [wDungeonCameraY + 1]
-    ld b, a
-    ld a, [wDungeonCameraY]
-    REPT 4
-        srl b
-        rra
-    ENDR
-    ldh [hShadowSCY], a
-
-    ; Render entities after scrolling.
-    call ResetShadowOAM
-    bankcall xRenderEntities
-    call UpdateEntityGraphics
-
-    call UpdateAttackWindow
-
-    ldh a, [hSystem]
-    and a, a
-    jr z, .noFade
-    ld a, [wFadeSteps]
-    and a, a
-    jr z, .noFade
-    call nz, FadePaletteBuffers
+	; Fading
+	ldh a, [hSystem]
+	and a, a
+	jr z, .noFade
+	ld a, [wFadeSteps]
+	and a, a
+	jr z, .noFade
+	call nz, FadePaletteBuffers
+	jr .noCallback
 .noFade
-    ; Wait for the next frame.
-    call WaitVBlank
-    jp Main
+	ld hl, wFadeCallback
+	ld a, [hli]
+	or a, [hl]
+	jr z, .noCallback
+	dec hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	rst CallHL
+	xor a, a
+	ld hl, wFadeCallback
+	ld [hli], a
+	ld [hl], a
+.noCallback
+
+	; Wait for the next frame.
+	call WaitVBlank
+	jp Main
+
+.stateTable
+	dw DungeonState
+	dw ProcessMenus
+
+SECTION "Game State", WRAM0
+; The current process to run within the main loop.
+wGameState:: db
+
+SECTION "Fade callback", WRAM0
+wFadeCallback:: dw

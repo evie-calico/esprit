@@ -30,18 +30,18 @@ SECTION "Memory Copy", ROM0
 ; @param de: destination
 ; @param hl: source
 MemCopy::
-    dec bc
-    inc b
-    inc c
+	dec bc
+	inc b
+	inc c
 .loop:
-    ld a, [hli]
-    ld [de], a
-    inc de
-    dec c
-    jr nz, .loop
-    dec b
-    jr nz, .loop
-    ret
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec c
+	jr nz, .loop
+	dec b
+	jr nz, .loop
+	ret
 
 SECTION "Memory Copy Small", ROM0[$0010]
 
@@ -52,12 +52,12 @@ SECTION "Memory Copy Small", ROM0[$0010]
 ; @param de: destination
 ; @param hl: source
 MemCopySmall::
-    ld a, [hli]
-    ld [de], a
-    inc de
-    dec c
-    jr nz, MemCopySmall
-    ret
+	ld a, [hli]
+	ld [de], a
+	inc de
+	dec c
+	jr nz, MemCopySmall
+	ret
 
 SECTION "Memory Set", ROM0
 
@@ -67,17 +67,17 @@ SECTION "Memory Set", ROM0
 ; @param bc: length
 ; @param hl: destination
 MemSet::
-    inc b
-    inc c
-    jr .decCounter
+	inc b
+	inc c
+	jr .decCounter
 .loadByte
-    ld [hli],a
+	ld [hli],a
 .decCounter
-    dec c
-    jr nz, .loadByte
-    dec b
-    jr nz, .loadByte
-    ret
+	dec c
+	jr nz, .loadByte
+	dec b
+	jr nz, .loadByte
+	ret
 
 SECTION "Memset Small", ROM0[$0018]
 
@@ -88,7 +88,7 @@ SECTION "Memset Small", ROM0[$0018]
 ; @param  c: length
 ; @param hl: destination
 MemSetSmall::
-    ld [hli], a
-    dec c
-    jr nz, MemSetSmall
-    ret
+	ld [hli], a
+	dec c
+	jr nz, MemSetSmall
+	ret

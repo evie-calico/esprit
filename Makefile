@@ -8,13 +8,14 @@ MBC := 0x1B
 SRAMSIZE := 0x02
 VERSION := 0
 
-INCDIRS  = src/ src/include/ src/util/
+INCDIRS  = src/ src/include/
 WARNINGS = all extra
 
 ASFLAGS  = -p 0xFF -h $(addprefix -i, $(INCDIRS)) $(addprefix -W, $(WARNINGS))
 LDFLAGS  = -p 0xFF -w -S romx=64
 FIXFLAGS = -p 0xFF -v -c -i "VUIG" -k "EV" -l 0x33 -m $(MBC) \
            -n $(VERSION) -r $(SRAMSIZE) -t "Vuiiger    "
+GFXFLAGS = -c embedded
 
 SRCS := $(shell find src -name '*.asm')
 
@@ -85,12 +86,17 @@ VPATH := src
 # Convert .png files into .2bpp files.
 res/%.2bpp: res/%.png
 	@mkdir -p $(@D)
-	rgbgfx -o $@ $<
+	rgbgfx $(GFXFLAGS) -o $@ $<
 
 # Convert .png files into .1bpp files.
 res/%.1bpp: res/%.png
 	@mkdir -p $(@D)
-	rgbgfx -d 1 -o $@ $<
+	rgbgfx $(GFXFLAGS) -d 1 -o $@ $<
+
+# Convert .png files into .2bpp and .map files.
+res/%.2bpp res/%.map: res/%.map.png
+	@mkdir -p $(@D)
+	rgbgfx $(GFXFLAGS) -u -o res/$*.2bpp -t res/$*.map $<
 
 # Convert .png files into .h.2bpp files (-h flag).
 res/%.2bpp: res/%.h.png
@@ -102,9 +108,9 @@ res/%.1bpp: res/%.h.png
 	@mkdir -p $(@D)
 	superfamiconv -M gb -B 1 -D -F -R -H 16 -t $@ -i $<
 
-res/%.vwf: res/%.png
+res/%.vwf: res/%.png bin/makefont
 	@mkdir -p $(@D)
-	python3 tools/make_font.py $< $@
+	./bin/makefont $< $@
 
 res/%.asm: res/%.mod bin/mod2gbt
 	@mkdir -p $(@D)
@@ -115,6 +121,10 @@ res/%.asm: res/%.mod bin/mod2gbt
 #                 BUILD TOOLS                  #
 #                                              #
 ################################################
+
+bin/makefont: tools/makefont.c tools/libplum.c
+	@mkdir -p $(@D)
+	$(CC) -o $@ $^
 
 bin/mod2gbt: tools/mod2gbt.c
 	@mkdir -p $(@D)
