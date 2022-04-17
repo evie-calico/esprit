@@ -38,23 +38,34 @@ Main::
 	and a, a
 	jr z, .noFade
 	call nz, FadePaletteBuffers
+	jr .noCallback
 .noFade
+	ld hl, wFadeCallback
+	ld a, [hli]
+	or a, [hl]
+	jr z, .noCallback
+	dec hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	rst CallHL
+	xor a, a
+	ld hl, wFadeCallback
+	ld [hli], a
+	ld [hl], a
+.noCallback
+
 	; Wait for the next frame.
 	call WaitVBlank
 	jp Main
 
 .stateTable
 	dw DungeonState
-	dw MenuState
-
-SECTION "Menu State", ROM0
-; When switching into the menu state from the game state, first fade out the
-; palettes while continuing to animate entities. Once fading is complete, the
-; pause menu can be drawn and faded in.
-MenuState:
-	call ProcessMenus
-	ret
+	dw ProcessMenus
 
 SECTION "Game State", WRAM0
 ; The current process to run within the main loop.
 wGameState:: db
+
+SECTION "Fade callback", WRAM0
+wFadeCallback:: dw

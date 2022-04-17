@@ -9,7 +9,8 @@ DEF POPUP_SPEED EQU 8
 	dregion vTextbox, 1, 29, 18, 3, $9C00
 	dregion vAttackWindow, 0, 0, 10, 5, $9C00
 	dregion vAttackText, 2, 1, 8, 4, $9C00
-	dtile_section $9010
+	dtile_section $9000
+	dtile vBlankTile
 	dtile vTextboxTiles, vTextbox_Width * vTextbox_Height
 	dtile vAttackTiles, vAttackText_Width * vAttackText_Height
 	dtile vUIFrameTop
@@ -24,8 +25,6 @@ DEF POPUP_SPEED EQU 8
 
 SECTION "User interface graphics", ROMX
 xUIFrame:
-	; TODO: rewrite the code in this file to handle the frame without needing to
-	; store a second copy.
 	INCBIN "res/ui/hud_frame.2bpp", 16, 16 ; top
 	INCBIN "res/ui/hud_frame.2bpp", 48, 16 ; left
 	INCBIN "res/ui/hud_frame.2bpp", 80, 16 ; right
@@ -56,6 +55,20 @@ InitUI::
 	ld de, vUIArrowUp
 	ld hl, xUIArrows
 	call VRAMCopySmall
+
+	lb bc, 0, 16
+	ld hl, vBlankTile
+	call VRAMSetSmall
+
+	lb bc, idof_vBlankTile, vHUD_Width - 2
+	ld hl, vHUD + 33
+	call VRAMSetSmall
+	ld c, vHUD_Width - 2
+	ld hl, vHUD + 65
+	call VRAMSetSmall
+	ld c, vHUD_Width - 2
+	ld hl, vHUD + 97
+	call VRAMSetSmall
 
 	lb bc, idof_vUIFrameTop, vHUD_Width - 2
 	ld hl, vHUD + 1

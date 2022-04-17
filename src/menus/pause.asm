@@ -9,14 +9,14 @@ PauseMenu::
 	db BANK(@)
 	dw xPauseMenuInit
 	; Used Buttons
-	db PADF_UP | PADF_DOWN
+	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
 	; Auto-repeat
 	db 1
 	; Button functions
 	; A, B, Sel, Start, Right, Left, Up, Down
 	;dw HandleAPress, HandleBPress, HandleStartPress, HandleStartPress, \
 	;   MoveRight, MoveLeft, MoveUp, MoveDown
-	dw null, null, null, null, null, null, null, null
+	dw xAPress, null, null, null, null, null, null, null
 	db 0 ; Last selected item
 	; Allow wrapping
 	db 0
@@ -43,7 +43,7 @@ xDrawPauseMenu:
 	print_text 3, 11, "Escape!", 6
 	menu_end
 	; Custom vallocs must happen after the menu has been defined.
-	dtile_align
+	dtile_section $8000
 	dtile vCursor, 4
 
 .blankTile ds 16, 0
@@ -131,7 +131,25 @@ xPauseMenuRedraw:
 	call DrawCursor
 	ret
 
+xAPress:
+	ret
+
 xPauseMenuClose:
+	; Set palettes
+	ld a, %11111111
+	ld [wBGPaletteMask], a
+	ld a, %11111111
+	ld [wOBJPaletteMask], a
+	ld a, 20
+	ld [wFadeSteps], a
+	ld a, $80
+	ld [wFadeAmount], a
+	ld a, 4
+	ld [wFadeDelta], a
+	ld hl, wFadeCallback
+	ld a, LOW(SwitchToDungeonState)
+	ld [hli], a
+	ld [hl], HIGH(SwitchToDungeonState)
 	ret
 
 xSimpleFrame:

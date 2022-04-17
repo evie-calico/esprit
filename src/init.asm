@@ -77,6 +77,8 @@ Initialize::
 	ld [randstate + 2], a
 	ld [randstate + 3], a
 	ld [wNbMenus], a
+	ld [wFadeCallback], a
+	ld [wFadeCallback + 1], a
 	ldh [hCurrentBank], a
 	ldh [hCurrentKeys], a
 	ldh [hFrameCounter], a

@@ -30,9 +30,6 @@ InitDungeon::
 	ld [hli], a
 	ld a, HIGH(xForestDungeon)
 	ld [hli], a
-	ld a, GAMESTATE_DUNGEON
-	ld [wGameState], a
-
 
 	; Null init
 	xor a, a
@@ -46,7 +43,6 @@ InitDungeon::
 	ld c, 6
 	ld hl, wEntityAnimation
 	call MemSetSmall
-	ld [wIsDungeonFading], a
 
 	; Draw static debug map
 	FOR I, 64
@@ -69,6 +65,39 @@ InitDungeon::
 	ld [wEntity0_Moves + 1], a
 	ld a, HIGH(xPounce)
 	ld [wEntity0_Moves + 2], a
+
+	call SwitchToDungeonState
+
+	ld b, BANK(.text)
+	ld hl, .text
+	call PrintHUD
+
+	jp BankReturn
+.text db "Hello, world!<END>"
+
+SECTION "Switch To Dungeon State", ROM0
+SwitchToDungeonState::
+	ld a, [hCurrentBank]
+	push af
+
+	ld a, GAMESTATE_DUNGEON
+	ld [wGameState], a
+	xor a, a
+	ld [wIsDungeonFading], a
+
+	call InitUI
+
+	ld h, HIGH(wEntity0)
+.loop
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	and a, a
+	call nz, LoadEntityGraphics
+.next
+	inc h
+	ld a, h
+	cp a, HIGH(wEntity0) + NB_ENTITIES
+	jp nz, .loop
 
 	; Load the active dungeon.
 	ld hl, wActiveDungeon
@@ -112,20 +141,14 @@ InitDungeon::
 		ld h, [hl]
 		ld l, a
 
-		ld bc, 8 * 12
+		ld bc, 7 * 12
 		ld de, wBGPaletteBuffer
 		call MemCopy
 .skipCGB
 
-	call InitUI
-	ld b, BANK(.text)
-	ld hl, .text
-	call PrintHUD
-
 	bankcall xDrawDungeon
 
 	jp BankReturn
-.text db "Hello, world!<END>"
 
 SECTION "Dungeon State", ROM0
 DungeonState::
@@ -166,11 +189,6 @@ DungeonState::
 		ld [wFadeAmount], a
 		ld a, 4
 		ld [wFadeDelta], a
-		; Set all colors to white.
-		ld a, $FF
-		ld bc, 8 * 12
-		ld hl, wBGPaletteBuffer
-		call MemSet
 :
 
 	ld hl, wEntityAnimation.pointer
