@@ -1,13 +1,22 @@
 IF !DEF(DRAW_MENU_INC)
 DEF DRAW_MENU_INC EQU 1
 
+INCLUDE "structs.inc"
 INCLUDE "vdef.inc"
+
+	struct Cursor
+		bytes 1, X
+		bytes 1, Y
+		bytes 1, Tile
+		bytes 1, Attribute
+	end_struct
 
 RSRESET
 DEF MENUDRAW_END RB 1
 DEF MENUDRAW_SET_BACKGROUND RB 1
 DEF MENUDRAW_LOAD_TILES RB 1
 DEF MENUDRAW_PRINT_TEXT RB 1
+DEF MENUDRAW_SET_SLACK RB 1
 
 DEF MENUDRAW_MAX RB 0
 
@@ -54,6 +63,13 @@ MACRO print_text ; X, Y, string, [length hint]
 	; And inline the string
 	db \3
 	db 0
+ENDM
+
+; Set the VRAM slack to a given address. This is intended for creating overlayed
+; menus without once menu overwriting the other.
+MACRO set_slack ; address
+	db MENUDRAW_SET_SLACK
+	dw \1
 ENDM
 
 ENDC

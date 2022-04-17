@@ -5,7 +5,7 @@ INCLUDE "menu.inc"
 INCLUDE "structs.inc"
 
 SECTION "Pause Menu", ROMX
-PauseMenu::
+xPauseMenu::
 	db BANK(@)
 	dw xPauseMenuInit
 	; Used Buttons
@@ -14,12 +14,10 @@ PauseMenu::
 	db 1
 	; Button functions
 	; A, B, Sel, Start, Right, Left, Up, Down
-	;dw HandleAPress, HandleBPress, HandleStartPress, HandleStartPress, \
-	;   MoveRight, MoveLeft, MoveUp, MoveDown
 	dw xAPress, null, null, null, null, null, null, null
 	db 0 ; Last selected item
 	; Allow wrapping
-	db 0
+	db 1
 	; Default selected item
 	db 0
 	; Number of items in the menu
@@ -33,8 +31,6 @@ PauseMenu::
 
 ; Place this first to define certain constants.
 xDrawPauseMenu:
-	load_tiles .blankTile, 1, vBlankTile
-	set_background idof_vBlankTile
 	print_text 3, 1, "Return"
 	print_text 3, 3, "Items"
 	print_text 3, 5, "Party"
@@ -43,12 +39,24 @@ xDrawPauseMenu:
 	print_text 3, 11, "Escape!", 6
 	menu_end
 	; Custom vallocs must happen after the menu has been defined.
+	dtile vBlankTile
+	; Unused tiles reserved for submenus to draw text on.
+	dtile vScratchRegion
 	dtile_section $8000
 	dtile vCursor, 4
 
 .blankTile ds 16, 0
 
 xPauseMenuInit:
+	; Clear background.
+	lb bc, 0, 16
+	ld hl, vBlankTile
+	call VRAMSetSmall
+	ld d, idof_vBlankTile
+	ld bc, $400
+	ld hl, $9800
+	call VRAMSet
+
 	ld hl, xDrawPauseMenu
 	call DrawMenu
 
@@ -102,7 +110,7 @@ xPauseMenuInit:
 	ld [wFadeDelta], a
 
 	; Initialize cursor
-	ld hl, wCursor
+	ld hl, wPauseMenuCursor
 	ld a, 4
 	ld [hli], a
 	ld a, 4
@@ -110,6 +118,13 @@ xPauseMenuInit:
 	ld a, idof_vCursor
 	ld [hli], a
 	ld [hl], 0
+
+	; Set scroll
+	xor a, a
+	ldh [hShadowSCX], a
+	ldh [hShadowSCY], a
+	ld [wScrollInterp.x], a
+	ld [wScrollInterp.y], a
 	ret
 
 xPauseMenuRedraw:
@@ -128,11 +143,46 @@ xPauseMenuRedraw:
 	add a, 4
 	ld b, a
 	ld c, 4
+	ld hl, wPauseMenuCursor
 	call DrawCursor
-	ret
+
+	jp xScrollInterp
 
 xAPress:
-	ret
+	ld hl, sp+2
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	ld a, [hl]
+	and a, a
+	ret z
+	dec a
+	jr z, .inventory
+	dec a
+	jr z, .party
+	dec a
+	ret z
+.options
+	xor a, a
+	ld [wMenuAction], a
+	ld de, xOptionsMenu
+	ld b, BANK(xOptionsMenu)
+	jp AddMenu
+
+.party
+	xor a, a
+	ld [wMenuAction], a
+	ld de, xPartyMenu
+	ld b, BANK(xPartyMenu)
+	jp AddMenu
+
+.inventory
+	xor a, a
+	ld [wMenuAction], a
+	ld de, xInventoryMenu
+	ld b, BANK(xInventoryMenu)
+	jp AddMenu
 
 xPauseMenuClose:
 	; Set palettes
@@ -152,5 +202,175 @@ xPauseMenuClose:
 	ld [hl], HIGH(SwitchToDungeonState)
 	ret
 
-xSimpleFrame:
-	INCBIN "res/ui/hud_frame.2bpp"
+xInventoryMenu::
+	db BANK(@)
+	dw xInventoryMenuInit
+	; Used Buttons
+	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
+	; Auto-repeat
+	db 1
+	; Button functions
+	; A, B, Sel, Start, Right, Left, Up, Down
+	dw null, null, null, null, null, null, null, null
+	db 0 ; Last selected item
+	; Allow wrapping
+	db 0
+	; Default selected item
+	db 0
+	; Number of items in the menu
+	db 8
+	; Redraw
+	dw xInventoryMenuRedraw
+	; Private Items Pointer
+	dw null
+	; Close Function
+	dw xInventoryMenuClose
+
+xInventoryMenuInit:
+	ld a, SCRN_VX - SCRN_X
+	ld [wScrollInterp.x], a
+	xor a, a
+	ld [wScrollInterp.y], a
+	ld [wSubMenuCursor], a
+	ld [wSubMenuCursor + 1], a
+	ret
+
+xInventoryMenuRedraw:
+	ld hl, wSubMenuCursor
+	call DrawCursor
+	jp xScrollInterp
+
+xInventoryMenuClose:
+	xor a, a
+	ld [wScrollInterp.x], a
+	ld [wScrollInterp.y], a
+	ret
+
+xPartyMenu::
+	db BANK(@)
+	dw xPartyMenuInit
+	; Used Buttons
+	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
+	; Auto-repeat
+	db 1
+	; Button functions
+	; A, B, Sel, Start, Right, Left, Up, Down
+	dw null, null, null, null, null, null, null, null
+	db 0 ; Last selected item
+	; Allow wrapping
+	db 0
+	; Default selected item
+	db 0
+	; Number of items in the menu
+	db 8
+	; Redraw
+	dw xPartyMenuRedraw
+	; Private Items Pointer
+	dw null
+	; Close Function
+	dw xPartyMenuClose
+
+xPartyMenuInit:
+	ld a, SCRN_VX - SCRN_X
+	ld [wScrollInterp.x], a
+	xor a, a
+	ld [wScrollInterp.y], a
+	ld [wSubMenuCursor], a
+	ld [wSubMenuCursor + 1], a
+	ret
+
+xPartyMenuRedraw:
+	ld hl, wSubMenuCursor
+	call DrawCursor
+	jp xScrollInterp
+
+xPartyMenuClose:
+	xor a, a
+	ld [wScrollInterp.x], a
+	ld [wScrollInterp.y], a
+	ret
+
+xOptionsMenu::
+	db BANK(@)
+	dw xOptionsMenuInit
+	; Used Buttons
+	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
+	; Auto-repeat
+	db 1
+	; Button functions
+	; A, B, Sel, Start, Right, Left, Up, Down
+	dw null, null, null, null, null, null, null, null
+	db 0 ; Last selected item
+	; Allow wrapping
+	db 0
+	; Default selected item
+	db 0
+	; Number of items in the menu
+	db 8
+	; Redraw
+	dw xOptionsMenuRedraw
+	; Private Items Pointer
+	dw null
+	; Close Function
+	dw xOptionsMenuClose
+
+xOptionsMenuInit:
+	ld a, SCRN_VX - SCRN_X
+	ld [wScrollInterp.x], a
+	xor a, a
+	ld [wScrollInterp.y], a
+	ret
+
+xOptionsMenuRedraw:
+	ld hl, wSubMenuCursor
+	call DrawCursor
+	jp xScrollInterp
+
+xOptionsMenuClose:
+	xor a, a
+	ld [wScrollInterp.x], a
+	ld [wScrollInterp.y], a
+	ret
+
+; Scroll towards a target position.
+xScrollInterp:
+	ld hl, hShadowSCX
+	ld a, [wScrollInterp.x]
+	cp a, [hl]
+	jr z, .finishedX
+	jr c, .moveLeft
+.moveRight
+	ld a, [hl]
+	add a, 8
+	ld [hl], a
+	jr .finishedX
+.moveLeft
+	ld a, [hl]
+	sub a, 8
+	ld [hl], a
+.finishedX
+	inc l
+
+	ld a, [wScrollInterp.y]
+	cp a, [hl]
+	ret z
+	jr c, .moveDown
+.moveUp
+	ld a, [hl]
+	add a, 8
+	ld [hl], a
+	ret
+.moveDown
+	ld a, [hl]
+	sub a, 8
+	ld [hl], a
+	ret
+
+SECTION "Scroll interp vars", WRAM0
+wScrollInterp:
+.x db
+.y db
+
+SECTION "Pause menu cursor", WRAM0
+	dstruct Cursor, wPauseMenuCursor
+	dstruct Cursor, wSubMenuCursor

@@ -37,7 +37,8 @@ DrawMenu::
 	dw MenuSetBackground
 	dw MenuLoadTiles
 	dw MenuPrint
-	ASSERT MENUDRAW_MAX == 4
+	dw MenuSetSlack
+	ASSERT MENUDRAW_MAX == 5
 
 SECTION "Menu Set Region", ROM0
 MenuSetBackground:
@@ -166,13 +167,20 @@ MenuPrint:
 	rst SwapBank
 	jp DrawMenu.readByte
 
+SECTION "Menu Set Slack", ROM0
+MenuSetSlack:
+	ld a, [hli]
+	ld [wVramSlack], a
+	ld a, [hli]
+	ld [wVramSlack + 1], a
+	jp DrawMenu.readByte
+
 SECTION "Cursor Renderer", ROM0
 ; Draws a cursor and moves it towards a target.
 ; @param b: Target Y position
 ; @param c: Target X position
+; @param hl: Cursor struct
 DrawCursor::
-	ld hl, wCursor
-
 	ld a, c
 	cp a, [hl]
 	jr z, .finishedX
@@ -206,6 +214,15 @@ DrawCursor::
 	ld a, [hli]
 	ld d, a
 	ld e, [hl]
+
+	ld hl, hShadowSCX
+	ld a, c
+	sub a, [hl]
+	ld c, a
+	inc l
+	ld a, b
+	sub a, [hl]
+	ld b, a
 
 	call RenderSimpleSprite
 	inc d
@@ -246,13 +263,6 @@ MapRegion::
 	sub a, e
 	ld d, a
 	jr .copy
-
-SECTION "Cursor vars", WRAM0
-wCursor::
-.x:: db
-.y:: db
-.tile:: db
-.attribute:: db
 
 SECTION "Draw Menu vars", WRAM0
 wVramSlack: dw

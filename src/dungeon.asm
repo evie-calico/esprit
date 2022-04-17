@@ -161,8 +161,8 @@ DungeonState::
 	ld a, [wFadeSteps]
 	and a, a
 	jr nz, .dungeonRendering
-		ld b, BANK(PauseMenu)
-		ld de, PauseMenu
+		ld b, BANK(xPauseMenu)
+		ld de, xPauseMenu
 		call AddMenu
 		ld a, GAMESTATE_MENU
 		ld [wGameState], a
