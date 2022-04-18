@@ -31,9 +31,6 @@ Main::
 :
 
 	; Fading
-	ldh a, [hSystem]
-	and a, a
-	jr z, .noFade
 	ld a, [wFadeSteps]
 	and a, a
 	jr z, .noFade

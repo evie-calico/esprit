@@ -1,12 +1,41 @@
-; Written by ISSOtm
-
 INCLUDE "hardware.inc"
 
-SECTION "Palette buffer fading", ROM0
+SECTION "Fading", ROM0
 
-; Applies fade to both palette buffers
-;
-FadePaletteBuffers::
+MACRO wait_vram
+:	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+ENDM
+
+FadeDMGToWhite:
+	ld c, LOW(hBGP)
+	ld hl, wBGP
+.fadeDMGPalToWhite
+	ld a, [hli]
+	ld b, 4
+.fadeDMGColorToWhite
+	ld e, a
+	and $C0
+	sub d
+	jr nc, .DMGNotWhite
+	xor a
+.DMGNotWhite
+	xor e
+	and $C0
+	xor e
+	rlca
+	rlca
+	dec b
+	jr nz, .fadeDMGColorToWhite
+	ldh [c], a
+	ld a, c
+	inc c
+	cp LOW(hOBP1)
+	jr nz, .fadeDMGPalToWhite
+	ret
+
+FadePaletteBuffers:: ;; --------- ENTRY POINT ------
 	ld hl, wFadeSteps
 	dec [hl]
 	inc hl
@@ -38,9 +67,9 @@ FadePaletteBuffers::
 	jr nc, .fadeToBlack
 
 	ld d, a
-	; ld a, [hConsoleType]
-	; and a
-	; jr nz, FadeDMGToWhite
+	ld a, [hSystem]
+	and a
+	jr z, FadeDMGToWhite
 .fadeBufferToWhite
 	ld a, $80
 	ldh [c], a
@@ -69,9 +98,7 @@ FadePaletteBuffers::
 	rlca
 	rlca
 	ld e, a
-:       ldh a, [rSTAT]
-		and a, STATF_BUSY
-		jr nz, :-
+	wait_vram
 	ld a, [hli] ; Read red
 	add a, d
 	jr nc, .notFullRed
@@ -84,9 +111,7 @@ FadePaletteBuffers::
 	and $1F
 	xor e
 	ldh [c], a
-:       ldh a, [rSTAT]
-		and a, STATF_BUSY
-		jr nz, :-
+	wait_vram
 	ld a, [hli] ; Read blue
 	add a, d
 	jr nc, .notFullBlue
@@ -127,9 +152,9 @@ FadePaletteBuffers::
 	cpl
 	inc a
 	ld d, a
-	; ldh a, [hConsoleType]
-	; and a
-	; jr nz, .fadeDMGToBlack
+	ldh a, [hSystem]
+	and a
+	jr z, .fadeDMGToBlack
 .fadeBufferToBlack
 	ld a, $80
 	ldh [c], a
@@ -159,9 +184,7 @@ FadePaletteBuffers::
 	rlca
 	rlca
 	ld e, a
-:       ldh a, [rSTAT]
-		and a, STATF_BUSY
-		jr nz, :-
+	wait_vram
 	ld a, [hli] ; Read red
 	sub d
 	jr nc, .stillSomeRed
@@ -174,9 +197,7 @@ FadePaletteBuffers::
 	and $1F
 	xor e
 	ldh [c], a
-:       ldh a, [rSTAT]
-		and a, STATF_BUSY
-		jr nz, :-
+	wait_vram
 	ld a, [hli] ; Read blue
 	sub d
 	jr nc, .stillSomeBlue
@@ -213,17 +234,44 @@ FadePaletteBuffers::
 	ld h, a
 	jr .fadedPaletteBlack
 
+.fadeDMGToBlack
+	ld c, LOW(hBGP)
+	ld hl, wBGP
+.fadeDMGPalToBlack
+	ld a, [hli]
+	ld b, 4
+.fadeDMGColorToBlack
+	ld e, a
+	and $C0
+	add a, d
+	jr nc, .DMGNotBlack
+	sbc a, a ; ld a, $FF
+.DMGNotBlack
+	xor e
+	and $C0
+	xor e
+	rlca
+	rlca
+	dec b
+	jr nz, .fadeDMGColorToBlack
+	ldh [c], a
+	ld a, c
+	inc c
+	cp LOW(hOBP1)
+	jr nz, .fadeDMGPalToBlack
+	ret
 
+PUSHS
 SECTION UNION "Scratch buffer", HRAM
 
 hPaletteMask: db
 
-SECTION "Fade state memory", WRAM0,ALIGN[9] ; Ensure that palette bufs don't cross pages
+SECTION "Fade state memory", WRAM0
 
 wFadeSteps:: db ; Number of fade steps to take
 wFadeDelta:: db ; Value to add to wFadeAmount on each step
 
-; 00    = bugged equivalent of 80, do not use
+; 00    = bugged equivalent of 00, do not use
 ; 01-7F = 01 is fully black, 7F is barely faded
 ; 80    = not faded
 ; 81-FF = FF is fully white, 81 is barely faded
@@ -232,8 +280,15 @@ wFadeAmount:: db
 wBGPaletteMask:: db ; Mask of which palettes to fade (01234567)
 wBGPaletteBuffer:: ; 24-bit GRB, in this order
 	ds 8 * 4 * 3 ; 8 palettes, 4 colors, 3 bytes
-.end::
 wOBJPaletteMask:: db
 wOBJPaletteBuffer:: ; Same as above
 	ds 8 * 3 * 3 ; Same, but only 3 colors
-.end::
+
+wBGP:: db
+wOBP0:: db
+wOBP1:: db
+
+SECTION "Shadow Pals", HRAM
+hBGP:: db
+hOBP0:: db
+hOBP1:: db

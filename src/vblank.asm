@@ -40,8 +40,14 @@ VBlank:
 	ldh [rSCX], a
 	ldh a, [hShadowSCY]
 	ldh [rSCY], a
-	ld a, [hShadowLCDC]
+	ldh a, [hShadowLCDC]
 	ldh [rLCDC], a
+	ldh a, [hBGP]
+	ldh [rBGP], a
+	ldh a, [hOBP0]
+	ldh [rOBP0], a
+	ldh a, [hOBP1]
+	ldh [rOBP1], a
 
 	call gbt_update
 

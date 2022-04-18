@@ -65,7 +65,7 @@ Initialize::
 	call MemSet
 	ldh [hOAMIndex], a
 
-	; Initialize VWF.
+	; zero-init vars
 	ld [wActiveEntity], a
 	ld [wMoveEntityCounter], a
 	ld [wSTATTarget], a
@@ -84,6 +84,12 @@ Initialize::
 	ldh [hFrameCounter], a
 	ldh [hShadowSCX], a
 	ldh [hShadowSCY], a
+	ldh [hBGP], a
+	ldh [rBGP], a
+	ldh [hOBP0], a
+	ldh [rOBP0], a
+	ldh [hOBP1], a
+	ldh [rOBP1], a
 	ldh [rIF], a
 	ld bc, $2000
 	ld d, a
@@ -105,6 +111,13 @@ Initialize::
 	ld [wActiveMenuTheme], a
 	ld a, HIGH(PawprintMenuTheme)
 	ld [wActiveMenuTheme + 1], a
+	; Set palettes.
+	; These never change for the whole course of the program.
+	ld a, %11100100
+	ld [wBGP], a
+	ld [wOBP1], a
+	ld a, %11010000
+	ld [wOBP0], a
 
 	call InitDungeon
 
@@ -122,12 +135,6 @@ Initialize::
 
 	ld a, STATF_LYC
 	ldh [rSTAT], a
-
-	ld a, %11100100
-	ldh [rBGP], a
-	ldh [rOBP1], a
-	ld a, %11010000
-	ldh [rOBP0], a
 
 	; Turn on the screen.
 	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON | LCDCF_OBJ16 | LCDCF_WINON | LCDCF_WIN9C00

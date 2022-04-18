@@ -82,42 +82,55 @@ xPauseMenuInit:
 	call MapRegion
 
 	; Load palette
-	ld hl, wActiveMenuPalette
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	push hl
-	; The first member of a theme is a palette.
-	ld de, wBGPaletteBuffer
-	ld c, 12
-	call MemCopySmall
-	pop hl
-	inc hl
-	inc hl
-	inc hl
-	ld de, wOBJPaletteBuffer
-	ld c, 12
-	call MemCopySmall
+	ldh a, [hSystem]
+	and a, a
+	jr z, .skipCGB
+		ld hl, wActiveMenuPalette
+		ld a, [hli]
+		ld h, [hl]
+		ld l, a
+		push hl
+		; The first member of a theme is a palette.
+		ld de, wBGPaletteBuffer
+		ld c, 12
+		call MemCopySmall
+		pop hl
+		inc hl
+		inc hl
+		inc hl
+		ld de, wOBJPaletteBuffer
+		ld c, 12
+		call MemCopySmall
+
+		ld a, %10000000
+		ld [wBGPaletteMask], a
+		ld a, %10000000
+		ld [wOBJPaletteMask], a
+.skipCGB
 
 	; Set palettes
-	ld a, %10000000
-	ld [wBGPaletteMask], a
-	ld a, %10000000
-	ld [wOBJPaletteMask], a
 	ld a, 20
 	ld [wFadeSteps], a
 	ld a, -4
 	ld [wFadeDelta], a
 
-	; Initialize cursor
+	; Initialize cursors
 	ld hl, wPauseMenuCursor
 	ld a, 4
 	ld [hli], a
-	ld a, 4
 	ld [hli], a
 	ld a, idof_vCursor
 	ld [hli], a
-	ld [hl], 0
+	ld [hl], OAMF_PAL1
+	; This menu is expected to maintain submenu's cursors so that they show
+	; while scrolling.
+	ld hl, wSubMenuCursor
+	ld a, -16
+	ld [hli], a
+	ld [hli], a
+	ld a, idof_vCursor
+	ld [hli], a
+	ld [hl], OAMF_PAL1
 
 	; Set scroll
 	xor a, a
@@ -144,6 +157,12 @@ xPauseMenuRedraw:
 	ld b, a
 	ld c, 4
 	ld hl, wPauseMenuCursor
+	call DrawCursor
+	ld hl, wSubMenuCursor
+	ld a, [hli]
+	ld c, a
+	ld a, [hld]
+	ld b, a
 	call DrawCursor
 
 	jp xScrollInterp
@@ -231,12 +250,28 @@ xInventoryMenuInit:
 	ld [wScrollInterp.x], a
 	xor a, a
 	ld [wScrollInterp.y], a
-	ld [wSubMenuCursor], a
-	ld [wSubMenuCursor + 1], a
+	ld hl, wSubMenuCursor
+	ld a, SCRN_VX - SCRN_X + 64
+	ld [hli], a
+	ld a, 4
+	ld [hli], a
+	ld a, idof_vCursor
+	ld [hli], a
+	ld [hl], OAMF_PAL1
 	ret
 
 xInventoryMenuRedraw:
 	ld hl, wSubMenuCursor
+	ld a, [hli]
+	ld c, a
+	ld a, [hld]
+	ld b, a
+	call DrawCursor
+	ld hl, wPauseMenuCursor
+	ld a, [hli]
+	ld c, a
+	ld a, [hld]
+	ld b, a
 	call DrawCursor
 	jp xScrollInterp
 
@@ -275,12 +310,28 @@ xPartyMenuInit:
 	ld [wScrollInterp.x], a
 	xor a, a
 	ld [wScrollInterp.y], a
-	ld [wSubMenuCursor], a
-	ld [wSubMenuCursor + 1], a
+	ld hl, wSubMenuCursor
+	ld a, SCRN_VX - SCRN_X + 4
+	ld [hli], a
+	ld a, 4
+	ld [hli], a
+	ld a, idof_vCursor
+	ld [hli], a
+	ld [hl], OAMF_PAL1
 	ret
 
 xPartyMenuRedraw:
 	ld hl, wSubMenuCursor
+	ld a, [hli]
+	ld c, a
+	ld a, [hld]
+	ld b, a
+	call DrawCursor
+	ld hl, wPauseMenuCursor
+	ld a, [hli]
+	ld c, a
+	ld a, [hld]
+	ld b, a
 	call DrawCursor
 	jp xScrollInterp
 
@@ -319,10 +370,28 @@ xOptionsMenuInit:
 	ld [wScrollInterp.x], a
 	xor a, a
 	ld [wScrollInterp.y], a
+	ld hl, wSubMenuCursor
+	ld a, SCRN_VX - SCRN_X + 4
+	ld [hli], a
+	ld a, 4
+	ld [hli], a
+	ld a, idof_vCursor
+	ld [hli], a
+	ld [hl], OAMF_PAL1
 	ret
 
 xOptionsMenuRedraw:
 	ld hl, wSubMenuCursor
+	ld a, [hli]
+	ld c, a
+	ld a, [hld]
+	ld b, a
+	call DrawCursor
+	ld hl, wPauseMenuCursor
+	ld a, [hli]
+	ld c, a
+	ld a, [hld]
+	ld b, a
 	call DrawCursor
 	jp xScrollInterp
 

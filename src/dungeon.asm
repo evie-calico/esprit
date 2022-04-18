@@ -118,6 +118,13 @@ SwitchToDungeonState::
 		call VRAMCopy
 	pop hl
 
+	ld a, 20
+	ld [wFadeSteps], a
+	ld a, $80 + 20 * 4
+	ld [wFadeAmount], a
+	ld a, -4
+	ld [wFadeDelta], a
+
 	; Deref palette if on CGB
 	ldh a, [hSystem]
 	and a, a
@@ -127,12 +134,6 @@ SwitchToDungeonState::
 		ld [wBGPaletteMask], a
 		ld a, %11111111
 		ld [wOBJPaletteMask], a
-		ld a, 20
-		ld [wFadeSteps], a
-		ld a, $80 + 20 * 4
-		ld [wFadeAmount], a
-		ld a, -4
-		ld [wFadeDelta], a
 
 		ASSERT Dungeon_Palette == 2
 		inc hl
@@ -145,6 +146,7 @@ SwitchToDungeonState::
 		ld de, wBGPaletteBuffer
 		call MemCopy
 .skipCGB
+
 
 	bankcall xDrawDungeon
 
