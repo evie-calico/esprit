@@ -226,6 +226,15 @@ SpawnEntity::
 		ld c, sizeof_Entity
 		call MemSetSmall
 		dec h ; correct high byte (MemSet causes it to overflow)
+		ld l, LOW(wEntity0_SpriteY + 1)
+		ld [hl], DUNGEON_HEIGHT / 2
+		inc l
+		inc l
+		ld [hl], DUNGEON_WIDTH / 2
+		inc l
+		ld [hl], DUNGEON_WIDTH / 2
+		inc l
+		ld [hl], DUNGEON_HEIGHT / 2
 		ld a, b
 		rst SwapBank
 		ld l, LOW(wEntity0_Bank)
