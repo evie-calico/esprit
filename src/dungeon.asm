@@ -30,13 +30,6 @@ InitDungeon::
 
 	; Null init
 	xor a, a
-	ASSERT wDungeonMap + DUNGEON_WIDTH * DUNGEON_HEIGHT == wDungeonCameraX
-	ASSERT wDungeonCameraX + 2 == wDungeonCameraY
-	ASSERT wDungeonCameraY + 2 == wLastDungeonCameraX
-	ASSERT wLastDungeonCameraX + 1 == wLastDungeonCameraY
-	ld bc, DUNGEON_WIDTH * DUNGEON_HEIGHT + 4 + 2
-	ld hl, wDungeonMap
-	call MemSet
 	ld c, 6
 	ld hl, wEntityAnimation
 	call MemSetSmall
@@ -138,15 +131,17 @@ SwitchToDungeonState::
 		ld de, wBGPaletteBuffer
 		call MemCopy
 .skipCGB
-
-
-	bankcall xDrawDungeon
+	ld a, BANK(xFocusCamera)
+	rst SwapBank
+	call xFocusCamera
+	ld a, BANK(xDrawDungeon)
+	rst SwapBank
+	call xDrawDungeon
 
 	jp BankReturn
 
 SECTION "Dungeon State", ROM0
 DungeonState::
-
 	; If fading out, do nothing but animate entities and wait for the fade to
 	; complete.
 	ld a, [wIsDungeonFading]
