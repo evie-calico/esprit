@@ -180,7 +180,9 @@ PlayerLogic:
 	ret c
 	ld b, HIGH(wEntity0)
 	call UseMove
-
+	; End the player's turn.
+	ld a, 1
+	ld [wActiveEntity], a
 	ret
 
 .movementCheck
