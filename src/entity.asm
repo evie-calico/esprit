@@ -27,6 +27,137 @@ ProcessEntities::
 :   ld [wActiveEntity], a
 	jr .loop
 
+SECTION "Pathfind helpers", ROM0
+; @param a: direction
+; @param b: X
+; @param c: Y
+StepDir:
+	and a, a
+	jr z, .up
+	dec a
+	jr z, .right
+	dec a
+	jr z, .down
+.left
+	dec b
+	jr .correctX
+.down
+	inc c
+	jr .correctY
+.right
+	inc b
+	jr .correctX
+.up
+	dec c
+.correctY
+	ld a, c
+	cp a, $FF
+	jr nz, :+
+	inc c
+:	cp a, DUNGEON_WIDTH
+	ret nz
+	dec c
+	ret
+
+.correctX
+	ld a, b
+	cp a, $FF
+	jr nz, :+
+	inc b
+:	cp a, DUNGEON_HEIGHT
+	ret nz
+	dec b
+	ret
+
+; @param d: direction
+; @param h: entity high byte
+; @clobbers: a, bc, de, l
+; @return carry: set upon success.
+TryStep:
+	ld l, LOW(wEntity0_Direction)
+	ld a, d
+	add a, 2
+	and a, %11
+	cp a, [hl]
+	jr z, .fail
+
+	; Try to move
+	ld l, LOW(wEntity0_Direction)
+	ld [hl], d
+	ld a, d
+	call MoveEntity
+	and a, a
+	jr nz, .fail
+	scf
+	ret
+
+.fail
+	xor a, a
+	ret
+
+; @param b: X position
+; @param c: Y position
+; @clobbers l
+; @returns d: X distance
+; @returns e: Y distance
+; @returns h: Target high byte
+GetClosestAlly:
+	xor a, a
+	ld [wClosestAllyTemp], a
+	ld h, HIGH(wEntity0)
+	lb de, 64, 64 ; An impossible distance, but not too high.
+.loop
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	and a, a
+	jr z, .next
+	ld l, LOW(wEntity0_PosX)
+	; Compare total distances first.
+	ld a, [hli]
+	add a, [hl]
+	sub a, b
+	sub a, c
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	; a = abs((X + Y) - (TX - TY))
+	; Use l as a scratch register
+	ld l, a
+	ld a, d
+	add a, e
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	; a = abs(total distance)
+	cp a, l
+	jr c, .next ; If the new position is more steps away, don't switch to it.
+
+	; Set new distance
+	ld l, LOW(wEntity0_PosX)
+	ld a, [hli]
+	sub a, b
+	ld d, a
+	ld a, [hl]
+	sub a, c
+	ld e, a
+	ld a, h
+	ld [wClosestAllyTemp], a
+
+.next
+	inc h
+	ld a, h
+	cp a, HIGH(wEntity0) + NB_ALLIES
+	jp nz, .loop
+	ld a, [wClosestAllyTemp]
+	ld h, a
+	ret
+
 SECTION "Player logic", ROM0
 PlayerLogic:
 	xor a, a
@@ -84,12 +215,89 @@ SECTION "Enemy logic", ROM0
 EnemyLogic:
 	add a, HIGH(wEntity0)
 	ld h, a
-	ld l, LOW(wEntity0_Direction)
-	ld a, 1
-	ld [hl], a
-	ld l, LOW(wEntity0_Frame)
-	ld [hl], a
-	call MoveEntity
+	ld l, LOW(wEntity0_PosX)
+	ld a, [hli]
+	ld b, a
+	ld c, [hl]
+	; Determine the distance to the target and two best directions to move in.
+	call GetClosestAlly
+	; Determine best directions
+	ld a, d
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	ld b, a
+
+	ld a, e
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	cp a, b
+	jr c, .xCloser
+.yCloser
+	bit 7, e
+	jr z, :+
+	xor a, a
+	jr .storeBestY
+:	ld a, DOWN
+.storeBestY
+	ld [wBestDir], a
+	; Now check X, but store it as the second best.
+	bit 7, d
+	jr z, :+
+	ld a, LEFT
+	jr .store2ndBest
+:	ld a, RIGHT
+	jr .store2ndBest
+
+.xCloser
+	bit 7, d
+	jr z, :+
+	ld a, LEFT
+	jr .storeBestX
+:	ld a, RIGHT
+.storeBestX
+	ld [wBestDir], a
+	; Now check X, but store it as the second best.
+	bit 7, e
+	jr z, :+
+	xor a, a
+	jr .store2ndBest
+:	ld a, DOWN
+	jr .store2ndBest
+
+.store2ndBest
+	ld [wNextBestDir], a
+
+	; Now it's time to attempt movement.
+	ld a, [wActiveEntity]
+	add a, HIGH(wEntity0)
+	ld h, a
+	ld a, [wBestDir]
+	ld d, a
+	call TryStep
+	jp c, ProcessEntities.next
+	ld a, [wNextBestDir]
+	ld d, a
+	call TryStep
+	jp c, ProcessEntities.next
+	ld a, [wBestDir]
+	add a, 2
+	and a, %11
+	ld d, a
+	call TryStep
+	jp c, ProcessEntities.next
+	ld a, [wNextBestDir]
+	add a, 2
+	and a, %11
+	ld d, a
+	call TryStep
 	jp ProcessEntities.next
 
 SECTION "Joypad to direction", ROM0
@@ -103,19 +311,19 @@ PadToDir::
 	ASSERT UP == 0
 	xor a, a
 	ret
-:   bit PADB_RIGHT, a
+:	bit PADB_RIGHT, a
 	jr z, :+
 	ld a, 1
 	ret
-:   bit PADB_DOWN, a
+:	bit PADB_DOWN, a
 	jr z, :+
 	ld a, 2
 	ret
-:   bit PADB_LEFT, a
+:	bit PADB_LEFT, a
 	jr z, :+
 	ld a, 3
 	ret
-:   scf
+:	scf
 	ret
 
 SECTION "Move entity", ROM0
@@ -350,3 +558,8 @@ wMovementQueued:: db
 
 SECTION "Show Moves", WRAM0
 wShowMoves:: db
+
+SECTION "Pathfinding vars", WRAM0
+wClosestAllyTemp: db
+wBestDir: db
+wNextBestDir: db
