@@ -134,6 +134,10 @@ SwitchToDungeonState::
 	ld a, BANK(xFocusCamera)
 	rst SwapBank
 	call xFocusCamera
+	ld a, [wDungeonCameraX + 1]
+	ld [wLastDungeonCameraX], a
+	ld a, [wDungeonCameraY + 1]
+	ld [wLastDungeonCameraY], a
 	ld a, BANK(xDrawDungeon)
 	rst SwapBank
 	call xDrawDungeon
