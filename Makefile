@@ -1,6 +1,8 @@
 .SUFFIXES:
 
 ROM = bin/vuiiger.gb
+MOD2GBT = tools/bin/mod2gbt
+MAKEFONT = tools/bin/makefont
 
 # 0x1B is MBC5 with RAM + Battery
 MBC := 0x1B
@@ -113,13 +115,13 @@ res/%.1bpp: res/%.h.png
 	@mkdir -p $(@D)
 	superfamiconv -M gb -B 1 -D -F -R -H 16 -t $@ -i $<
 
-res/%.vwf: res/%.png bin/makefont
+res/%.vwf: res/%.png $(MAKEFONT)
 	@mkdir -p $(@D)
-	./bin/makefont $< $@
+	./tools/bin/makefont $< $@
 
-res/%.asm: res/%.mod bin/mod2gbt
+res/%.asm: res/%.mod $(MOD2GBT)
 	@mkdir -p $(@D)
-	./bin/mod2gbt $< $@ $(patsubst res/music/%.asm, %, $@)
+	./tools/bin/mod2gbt $< $@ $(patsubst res/music/%.asm, %, $@)
 
 ################################################
 #                                              #
@@ -127,11 +129,11 @@ res/%.asm: res/%.mod bin/mod2gbt
 #                                              #
 ################################################
 
-bin/makefont: tools/makefont.c tools/libplum.c
+$(MAKEFONT): tools/makefont.c tools/libplum.c
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^
 
-bin/mod2gbt: tools/mod2gbt.c
+$(MOD2GBT): tools/mod2gbt.c
 	@mkdir -p $(@D)
 	$(CC) -o $@ $<
 

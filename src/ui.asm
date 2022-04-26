@@ -209,7 +209,7 @@ UpdateAttackWindow::
 :           ld a, [rSTAT]
 			and a, STATF_BUSY
 			jr nz, :-
-		ld a, idof_vUIArrowUp ; 2
+		ld a, idof_vUIArrowLeft ; 2
 		ld [vAttackWindow + 1 + 128], a ; 6
 		ld a, idof_vUIFrameLeft ; 8
 		ld [vAttackWindow + 96], a ; 12
