@@ -16,8 +16,8 @@ PawprintMenuTheme::
 	INCBIN "res/ui/paw_emblem.map"
 
 SECTION "Explorer Theme", ROM0
-ExplorerMenuTheme::
-	dw PawprintMenuTheme
+ExplorerMenuTheme:
+	dw HeartMenuTheme
 	INCBIN "res/ui/explorer_cursor.2bpp"
 	dw .end - .emblem
 	dw .emblem
@@ -28,6 +28,20 @@ ExplorerMenuTheme::
 .end
 .map
 	INCBIN "res/ui/explorer_emblem.map"
+
+SECTION "Heart Theme", ROM0
+HeartMenuTheme:
+	dw PawprintMenuTheme
+	INCBIN "res/ui/heart_cursor.2bpp"
+	dw .end - .emblem
+	dw .emblem
+	dw .map
+	db "Hearts", 0
+.emblem
+	INCBIN "res/ui/heart_emblem.2bpp"
+.end
+.map
+	INCBIN "res/ui/heart_emblem.map"
 
 SECTION "Pink Theme", ROM0
 PinkMenuPalette::

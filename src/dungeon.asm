@@ -169,6 +169,8 @@ DungeonState::
 	ld a, [hCurrentKeys]
 	cp a, PADF_START
 	jr nz, :+
+		xor a, a
+		ld [wShowMoves], a
 		ld a, 1
 		ld [wIsDungeonFading], a
 		; Set palettes

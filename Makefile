@@ -14,7 +14,7 @@ INCDIRS  = src/ src/include/
 WARNINGS = all extra
 
 ASFLAGS  = -p 0xFF -h $(addprefix -i, $(INCDIRS)) $(addprefix -W, $(WARNINGS))
-LDFLAGS  = -p 0xFF -w -S romx=64
+LDFLAGS  = -p 0xFF -w
 FIXFLAGS = -p 0xFF -v -c -i "VUIG" -k "EV" -l 0x33 -m $(MBC) \
            -n $(VERSION) -r $(SRAMSIZE) -t "Vuiiger    "
 GFXFLAGS = -c embedded

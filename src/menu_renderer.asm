@@ -188,8 +188,12 @@ DrawCursor::
 .moveRight
 	inc [hl]
 	inc [hl]
+	inc [hl]
+	inc [hl]
 	jr .finishedX
 .moveLeft
+	dec [hl]
+	dec [hl]
 	dec [hl]
 	dec [hl]
 .finishedX
@@ -203,8 +207,12 @@ DrawCursor::
 .moveUp
 	inc [hl]
 	inc [hl]
+	inc [hl]
+	inc [hl]
 	jr .finishedY
 .moveDown
+	dec [hl]
+	dec [hl]
 	dec [hl]
 	dec [hl]
 .finishedY
