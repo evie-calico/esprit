@@ -160,24 +160,52 @@ GetClosestAlly:
 
 SECTION "Player logic", ROM0
 PlayerLogic:
-	xor a, a
-	ld [wShowMoves], a
 	; If any movement is queued, the player should refuse to take its turn to
 	; allow all sprites to catch up.
 	ld a, [wMovementQueued]
 	and a, a
-	ret nz
+	jr z, .noHide
+	xor a, a
+	ld [wShowMoves], a
+	ret
 
+.noHide
+	ld a, [wWindowSticky]
+	and a, a
+	jr nz, .sticky
+.loose
 	; First, check for buttons to see if the player is selecting a move.
 	ldh a, [hCurrentKeys]
 	bit PADB_A, a
 	jr z, .movementCheck
 	ld a, 1
 	ld [wShowMoves], a
+	jr .useMove
+
+.sticky
+	ldh a, [hCurrentKeys]
+	bit PADB_A, a
+	jr z, :+
+	ld a, 1
+	ld [wShowMoves], a
+	ldh a, [hCurrentKeys]
+:
+	bit PADB_B, a
+	jr z, :+
+	xor a, a
+	ld [wShowMoves], a
+	jr .movementCheck
+:
+.useMove
+	ld a, [wShowMoves]
+	and a, a
+	jr z, .movementCheck
 	; Read the joypad to see if the player is attempting to use a move.
 	call PadToDir
 	; If no input is given, the player waits a frame to take its turn
 	ret c
+	xor a, a
+	ld [wShowMoves], a
 	ld b, HIGH(wEntity0)
 	call UseMove
 	; End the player's turn.
@@ -186,6 +214,8 @@ PlayerLogic:
 	ret
 
 .movementCheck
+	xor a, a
+	ld [wShowMoves], a
 	; Read the joypad to see if the player is attempting to move.
 	call PadToDir
 	; If no input is given, the player waits a frame to take its turn

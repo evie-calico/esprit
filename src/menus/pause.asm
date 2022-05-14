@@ -17,7 +17,7 @@ xPauseMenu::
 	dw xPauseMenuAPress, null, null, null, null, null, null, null
 	db 0 ; Last selected item
 	; Allow wrapping
-	db 1
+	db 0
 	; Default selected item
 	db 0
 	; Number of items in the menu
@@ -59,44 +59,7 @@ xPauseMenuInit:
 
 	ld hl, xDrawPauseMenu
 	call DrawMenu
-
-	; Load theme
-	ld hl, wActiveMenuTheme
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	; Skip next pointer.
-	inc hl
-	inc hl
-	; First is the cursor. We can seek over it by loading!
-	ld de, vCursor
-	ld c, 16 * 4
-	call VRAMCopySmall
-	; After this is the emblem tiles
-	; First read the length
-	ld a, [hli]
-	ld c, a
-	ld a, [hli]
-	ld b, a
-	; THen deref the tiles
-	ld a, [hli]
-	push hl
-	ld h, [hl]
-	ld l, a
-	ld de, $9000
-	call VRAMCopy
-	pop hl
-	inc hl
-
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	; And finally, the tilemap.
-	lb bc, 11, 10
-	ld de, $9909
-	call MapRegion
-
-
+	call xLoadTheme
 	; Load palette
 	ldh a, [hSystem]
 	and a, a
@@ -353,7 +316,7 @@ xOptionsMenu::
 	; Default selected item
 	db 0
 	; Number of items in the menu
-	db 5
+	db 3
 	; Redraw
 	dw xOptionsMenuRedraw
 	; Private Items Pointer
@@ -364,11 +327,9 @@ xOptionsMenu::
 xDrawOptionsMenu::
 	dtile_section vScratchRegion
 	print_text 24, 1, "Options"
-	print_text 23, 3, "Back", 3
-	print_text 23, 6, "Theme:"
-	print_text 23, 9, "Color:"
-	print_text 23, 12, "Window style:"
-	print_text 23, 15, "Music:"
+	print_text 23, 3, "Theme:"
+	print_text 23, 6, "Color:"
+	print_text 23, 9, "Window style:"
 	end_menu
 	dtile vSelectionsText
 
@@ -440,16 +401,19 @@ xOptionsMenuAPress:
 	inc hl
 	ld a, [hl]
 	and a, a
-	ret z
-	dec a
-	;
+	jr z, .changeTheme
 	dec a
 	jr z, .changeColor
-	dec a
-	;
-	dec a
-	;
-	ret
+	jr .toggleSticky
+
+.toggleSticky
+	xor a, a
+	ld [wMenuAction], a
+	ld hl, wWindowSticky
+	ld a, 1
+	xor a, [hl]
+	ld [hl], a
+	jr xOptionsMenuDrawSelections
 
 .changeColor
 	ld hl, wActiveMenuPalette
@@ -466,7 +430,7 @@ xOptionsMenuAPress:
 	; Reload the palette.
 	ldh a, [hSystem]
 	and a, a
-	jr z, .skipCGB
+	jr z, xOptionsMenuDrawSelections
 	call xLoadPalettes
 	ld a, $81
 	ld [wFadeAmount], a
@@ -474,44 +438,35 @@ xOptionsMenuAPress:
 	ld [wFadeSteps], a
 	ld a, -1
 	ld [wFadeDelta], a
-.skipCGB
+	jr xOptionsMenuDrawSelections
 
+.changeTheme
+	ld hl, wActiveMenuTheme
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [hli]
+	ld [wActiveMenuTheme], a
+	ld a, [hl]
+	ld [wActiveMenuTheme + 1], a
+	xor a, a
+	ld [wMenuAction], a
+	call xLoadTheme
 	jr xOptionsMenuDrawSelections
 
 xOptionsMenuDrawSelections:
+	; Clear the tiles of text where we will draw.
+	ld hl, $9800 + 23 + 4 * 32
+	lb bc, idof_vBlankTile, 8
+	call VRAMSetSmall
 	ld hl, $9800 + 23 + 7 * 32
-:	ldh a, [rSTAT]
-	and a, STATF_BUSY
-	jr nz, :-
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
+	lb bc, idof_vBlankTile, 8
+	call VRAMSetSmall
 	ld hl, $9800 + 23 + 10 * 32
-:	ldh a, [rSTAT]
-	and a, STATF_BUSY
-	jr nz, :-
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld hl, $9800 + 23 + 13 * 32
-:	ldh a, [rSTAT]
-	and a, STATF_BUSY
-	jr nz, :-
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld hl, $9800 + 23 + 16 * 32
-:	ldh a, [rSTAT]
-	and a, STATF_BUSY
-	jr nz, :-
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
+	lb bc, idof_vBlankTile, 8
+	call VRAMSetSmall
 
+	; Print palette name.
 	ld hl, wActiveMenuPalette
 	ld a, [hli]
 	ld h, [hl]
@@ -522,23 +477,64 @@ xOptionsMenuDrawSelections:
 	ld h, a
 	ld a, 1
 	call PrintVWFText
-	xor a, a
-	ld [wTextLetterDelay], a
 
 	; Text is already mostly initialized by the menu renderer.
+	xor a, a
+	ld [wTextLetterDelay], a
 	ld a, idof_vSelectionsText
 	ld [wTextCurTile], a
 	ld [wWrapTileID], a
 	ld a, $FF
 	ld [wLastTextTile], a
+	lb de, SCRN_X_B, SCRN_Y_B
+	ld hl, $9800 + 23 + 7 * 32
+	call TextDefineBox
 
+	call PrintVWFChar
+	call DrawVWFChars
+
+	; Print theme name.
+	ld hl, wActiveMenuTheme
+	ld a, [hli]
+	ld h, [hl]
+	add a, MenuTheme_Name
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld a, 1
+	call PrintVWFText
+
+	; Text is already mostly initialized by the menu renderer.
+	lb de, SCRN_X_B, SCRN_Y_B
+	ld hl, $9800 + 23 + 4 * 32
+	call TextDefineBox
+
+	call PrintVWFChar
+	call DrawVWFChars
+
+	ld a, [wWindowSticky]
+	ld hl, .loose
+	and a, a
+	jr z, :+
+	ld hl, .sticky
+:
+	ld a, 1
+	ld b, BANK(@)
+	call PrintVWFText
+
+	; Text is already mostly initialized by the menu renderer.
 	lb de, SCRN_X_B, SCRN_Y_B
 	ld hl, $9800 + 23 + 10 * 32
 	call TextDefineBox
+
 	call PrintVWFChar
 	call DrawVWFChars
 
 	ret
+
+.loose db "Loose", 0
+.sticky db "Sticky", 0
 
 xOptionsMenuClose:
 	xor a, a
@@ -606,6 +602,43 @@ xLoadPalettes:
 	ld a, %10000000
 	ld [wOBJPaletteMask], a
 	ret
+
+xLoadTheme:
+	; Load theme
+	ld hl, wActiveMenuTheme
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	; Skip next pointer.
+	inc hl
+	inc hl
+	; First is the cursor. We can seek over it by loading!
+	ld de, vCursor
+	ld c, 16 * 4
+	call VRAMCopySmall
+	; After this is the emblem tiles
+	; First read the length
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	ld b, a
+	; THen deref the tiles
+	ld a, [hli]
+	push hl
+	ld h, [hl]
+	ld l, a
+	ld de, $9000
+	call VRAMCopy
+	pop hl
+	inc hl
+
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	; And finally, the tilemap.
+	lb bc, 11, 10
+	ld de, $9909
+	jp MapRegion
 
 SECTION "Scroll interp vars", WRAM0
 wScrollInterp:

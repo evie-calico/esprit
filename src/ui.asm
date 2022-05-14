@@ -144,7 +144,6 @@ PrintHUD::
 	ldh a, [hCurrentBank]
 	push af
 	push bc
-	; Draw move names
 	ld a, vTextbox_Width * 8
 	lb bc, idof_vTextboxTiles, idof_vTextboxTiles + vTextbox_Width * vTextbox_Height
 	lb de, vTextbox_Height, HIGH(vTextboxTiles) & $F0
@@ -161,7 +160,7 @@ PrintHUD::
 	ld hl, vTextbox
 	call TextDefineBox
 	call ReaderClear
-	call TextClear
+	bankcall TextClear
 	call PrintVWFChar
 	call DrawVWFChars
 
@@ -290,6 +289,7 @@ ShowTextBox:
 
 SECTION "Window effect bounce", WRAM0
 wWindowBounce: db
+wWindowSticky:: db
 
 SECTION "Debug attacks", ROMX
 xDebugAttacks: db "One\nTwo\nThree\nFour<END>"

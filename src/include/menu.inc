@@ -68,7 +68,7 @@ ld l, a
 
 	struct MenuTheme
 		words 1, Next
-		bytes 16, Cursor
+		bytes 64, Cursor
 		words 1, TileLen
 		words 1, Tiles
 		words 1, Map

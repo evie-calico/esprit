@@ -79,6 +79,7 @@ Initialize::
 	ld [wNbMenus], a
 	ld [wFadeCallback], a
 	ld [wFadeCallback + 1], a
+	ld [wWindowSticky], a
 	ldh [hCurrentBank], a
 	ldh [hCurrentKeys], a
 	ldh [hFrameCounter], a
