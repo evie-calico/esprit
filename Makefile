@@ -52,19 +52,16 @@ rebuild:
 ###############################################
 
 # How to build a ROM
-bin/%.gb bin/%.sym bin/%.map: $(patsubst src/%.asm, obj/%.o, $(SRCS)) obj/version.o
+bin/%.gb bin/%.sym bin/%.map: $(patsubst src/%.asm, obj/%.o, $(SRCS))
 	@mkdir -p $(@D)
-	rgblink $(LDFLAGS) -m bin/$*.map -n bin/$*.sym -o bin/$*.gb $^ \
+	printf "SECTION \"Version\", ROM0\nVersion:: db \"Vuiiger version %s\\\\nBuilt on \", __ISO_8601_UTC__, \"\\\\nUsing RGBDS {__RGBDS_VERSION__}\", 0\n" `git describe --tags --always --dirty` \
+	| rgbasm $(ASFLAGS) -o obj/version.o -
+	rgblink $(LDFLAGS) -m bin/$*.map -n bin/$*.sym -o bin/$*.gb $^ obj/version.o  \
 	&& rgbfix -v $(FIXFLAGS) bin/$*.gb
 
 obj/libs/vwf.o dep/libs/vwf.mk res/charmap.inc: src/libs/vwf.asm
 	@mkdir -p obj/libs/ dep/libs/ res/
 	rgbasm $(ASFLAGS) -M dep/libs/vwf.mk -MG -MP -MQ obj/libs/vwf.o -MQ dep/libs/vwf.mk -o obj/libs/vwf.o $< > res/charmap.inc
-
-obj/version.o:
-	@mkdir -p obj/
-	printf "SECTION \"Version\", ROM0\nVersion:: db \"Vuiiger version %s\\\\nBuilt on \", __ISO_8601_UTC__, \"\\\\nUsing RGBDS {__RGBDS_VERSION__}\", 0\n" `git describe --tags --always --dirty` | \
-	rgbasm $(ASFLAGS) -o obj/version.o -
 
 # `.mk` files are auto-generated dependency lists of the "root" ASM files, to save a lot of hassle.
 # Also add all obj dependencies to the dep file too, so Make knows to remake it
