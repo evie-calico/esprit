@@ -1591,6 +1591,8 @@ TextClear::
 	pop hl
 	ret
 
+SECTION "VWF helpers", ROM0
+
 ; Generalized engine initialization for simple cases to reduce the
 ; overhead of scattering simple VWF strings all over the place. Originally
 ; written by tbsp for Shock Lobster.
@@ -1599,7 +1601,7 @@ TextClear::
 ; @param c  Last tile ID
 ; @param d  Number of lines of text
 ; @param e  Text tile block ($80 or $90)
-xTextInit::
+TextInit::
 	ld [wTextLineLength], a
 	ld a, b
 	ld [wTextCurTile], a
@@ -1622,7 +1624,7 @@ xTextInit::
 ; @param d  Text box width in tiles.
 ; @param e  Text box height in tiles.
 ; @param hl The address to print to (usually in the tilemap)
-xTextDefineBox::
+TextDefineBox::
 	ld a, d
 	ld [wTextWidth], a
 	ld a, e

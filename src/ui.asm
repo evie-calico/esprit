@@ -1,5 +1,6 @@
 INCLUDE "defines.inc"
 INCLUDE "hardware.inc"
+INCLUDE "menu.inc"
 INCLUDE "text.inc"
 INCLUDE "vdef.inc"
 
@@ -34,11 +35,6 @@ xUIFrame:
 xUIArrows:
 	INCBIN "res/ui/arrows.2bpp"
 .end
-xUIPalette:
-	rgb_lim 31, 20, 31
-	rgb_lim 31, 3, 31
-	rgb_lim 16, 0, 16
-	rgb 0, 0, 0
 
 SECTION "Initialize user interface", ROM0
 InitUI::
@@ -119,7 +115,13 @@ InitUI::
 		; Load to the 7th palette.
 		ld c, 4 * 3
 		ld de, wBGPaletteBuffer + 4 * 3 * 7
-		ld hl, xUIPalette
+		ld hl, wActiveMenuPalette
+		ld a, [hli]
+		ld h, [hl]
+		ld l, a
+		ASSERT MenuPal_Colors == 2 
+		inc hl
+		inc hl
 		call MemCopySmall
 
 		ld a, 1
@@ -143,12 +145,10 @@ PrintHUD::
 	push af
 	push bc
 	; Draw move names
-	ld a, BANK(xTextInit)
-	rst SwapBank
 	ld a, vTextbox_Width * 8
 	lb bc, idof_vTextboxTiles, idof_vTextboxTiles + vTextbox_Width * vTextbox_Height
 	lb de, vTextbox_Height, HIGH(vTextboxTiles) & $F0
-	call xTextInit
+	call TextInit
 
 	xor a, a
 	ld [wTextLetterDelay], a
@@ -159,7 +159,7 @@ PrintHUD::
 
 	lb de, vTextbox_Width, vTextbox_Height
 	ld hl, vTextbox
-	bankcall xTextDefineBox
+	call TextDefineBox
 	call ReaderClear
 	call TextClear
 	call PrintVWFChar
@@ -223,16 +223,14 @@ UpdateAttackWindow::
 		call PrintVWFText
 
 		; Draw move names
-		ld a, BANK(xTextInit)
-		rst SwapBank
 		ld a, vAttackText_Width * 8
 		lb bc, idof_vAttackTiles, idof_vAttackTiles + vAttackText_Width * vAttackText_Height
 		lb de, vAttackText_Height, HIGH(vAttackTiles) & $F0
-		call xTextInit
+		call TextInit
 
 		lb de, vAttackText_Width, vAttackText_Height
 		ld hl, vAttackText
-		bankcall xTextDefineBox
+		call TextDefineBox
 		call PrintVWFChar
 		call DrawVWFChars
 .skipRedraw

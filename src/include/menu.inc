@@ -60,4 +60,18 @@ ld l, a
 		bytes 2, MiscState ; The struct is allowed to do anything with this (frame counter, state, etc.)
 	end_struct
 
+	struct MenuPal
+		words 1, Next
+		bytes 12, Colors
+		dunion Name
+	end_struct
+
+	struct MenuTheme
+		words 1, Next
+		bytes 16, Cursor
+		words 1, TileLen
+		words 1, Tiles
+		words 1, Map
+		dunion Name
+
 	ENDC

@@ -129,14 +129,14 @@ MenuPrint:
 		xor a, a
 		ld [wTextLetterDelay], a
 
-		ld a, BANK(xTextInit)
-		rst SwapBank
+		; This function only needs to be called once.
+		; TODO: move this to its own bytecode.
 		; TODO hard-coding 0x80 might be problematic...
 		ld a, $80
 		ld e, a
 		ld d, SCRN_Y_B
 		ld a, SCRN_X
-		call xTextInit
+		call TextInit
 	pop hl
 	pop af
 	push af
@@ -146,7 +146,7 @@ MenuPrint:
 		lb de, SCRN_X_B, SCRN_Y_B
 		ld h, [hl]
 		ld l, a
-		bankcall xTextDefineBox
+		call TextDefineBox
 		call PrintVWFChar
 		call DrawVWFChars
 

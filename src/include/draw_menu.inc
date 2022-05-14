@@ -24,7 +24,7 @@ DEF MENUDRAW_MAX RB 0
 	; Scratch space, used for allocating additional graphics
 	dtile_union vScratchSpace
 
-DEF menu_end EQUS "db MENUDRAW_END"
+DEF end_menu EQUS "db MENUDRAW_END"
 
 MACRO set_background ; tile id
 	db MENUDRAW_SET_BACKGROUND

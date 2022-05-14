@@ -14,7 +14,7 @@ xPauseMenu::
 	db 1
 	; Button functions
 	; A, B, Sel, Start, Right, Left, Up, Down
-	dw xAPress, null, null, null, null, null, null, null
+	dw xPauseMenuAPress, null, null, null, null, null, null, null
 	db 0 ; Last selected item
 	; Allow wrapping
 	db 1
@@ -36,8 +36,8 @@ xDrawPauseMenu:
 	print_text 3, 5, "Party"
 	print_text 3, 7, "Save", 3
 	print_text 3, 9, "Options"
-	print_text 3, 11, "Escape!", 6
-	menu_end
+	print_text 3, 11, "Escape!", 5
+	end_menu
 	; Custom vallocs must happen after the menu has been defined.
 	dtile vBlankTile
 	; Unused tiles reserved for submenus to draw text on.
@@ -65,47 +65,43 @@ xPauseMenuInit:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
+	; Skip next pointer.
+	inc hl
+	inc hl
 	; First is the cursor. We can seek over it by loading!
 	ld de, vCursor
 	ld c, 16 * 4
 	call VRAMCopySmall
 	; After this is the emblem tiles
+	; First read the length
 	ld a, [hli]
 	ld c, a
 	ld a, [hli]
 	ld b, a
+	; THen deref the tiles
+	ld a, [hli]
+	push hl
+	ld h, [hl]
+	ld l, a
 	ld de, $9000
 	call VRAMCopy
+	pop hl
+	inc hl
+
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
 	; And finally, the tilemap.
 	lb bc, 11, 10
 	ld de, $9909
 	call MapRegion
 
+
 	; Load palette
 	ldh a, [hSystem]
 	and a, a
 	jr z, .skipCGB
-		ld hl, wActiveMenuPalette
-		ld a, [hli]
-		ld h, [hl]
-		ld l, a
-		push hl
-		; The first member of a theme is a palette.
-		ld de, wBGPaletteBuffer
-		ld c, 12
-		call MemCopySmall
-		pop hl
-		inc hl
-		inc hl
-		inc hl
-		ld de, wOBJPaletteBuffer
-		ld c, 12
-		call MemCopySmall
-
-		ld a, %10000000
-		ld [wBGPaletteMask], a
-		ld a, %10000000
-		ld [wOBJPaletteMask], a
+	call xLoadPalettes
 .skipCGB
 
 	; Set palettes
@@ -167,7 +163,7 @@ xPauseMenuRedraw:
 
 	jp xScrollInterp
 
-xAPress:
+xPauseMenuAPress:
 	ld hl, sp+2
 	ld a, [hli]
 	ld h, [hl]
@@ -297,7 +293,7 @@ xPartyMenu::
 	; Default selected item
 	db 0
 	; Number of items in the menu
-	db 8
+	db 4
 	; Redraw
 	dw xPartyMenuRedraw
 	; Private Items Pointer
@@ -350,14 +346,14 @@ xOptionsMenu::
 	db 1
 	; Button functions
 	; A, B, Sel, Start, Right, Left, Up, Down
-	dw null, null, null, null, null, null, null, null
+	dw xOptionsMenuAPress, null, null, null, null, null, null, null
 	db 0 ; Last selected item
 	; Allow wrapping
 	db 0
 	; Default selected item
 	db 0
 	; Number of items in the menu
-	db 8
+	db 5
 	; Redraw
 	dw xOptionsMenuRedraw
 	; Private Items Pointer
@@ -365,22 +361,63 @@ xOptionsMenu::
 	; Close Function
 	dw xOptionsMenuClose
 
+xDrawOptionsMenu::
+	dtile_section vScratchRegion
+	print_text 24, 1, "Options"
+	print_text 23, 3, "Back", 3
+	print_text 23, 6, "Theme:"
+	print_text 23, 9, "Color:"
+	print_text 23, 12, "Window style:"
+	print_text 23, 15, "Music:"
+	end_menu
+	dtile vSelectionsText
+
 xOptionsMenuInit:
 	ld a, SCRN_VX - SCRN_X
 	ld [wScrollInterp.x], a
 	xor a, a
 	ld [wScrollInterp.y], a
 	ld hl, wSubMenuCursor
-	ld a, SCRN_VX - SCRN_X + 4
+	ld a, SCRN_VX - SCRN_X + 68
 	ld [hli], a
-	ld a, 4
+	ld a, 20
 	ld [hli], a
 	ld a, idof_vCursor
 	ld [hli], a
 	ld [hl], OAMF_PAL1
+	ld hl, xDrawOptionsMenu
+	call DrawMenu
+	call xOptionsMenuDrawSelections
 	ret
 
 xOptionsMenuRedraw:
+	ld hl, sp+2
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	dec hl
+	dec hl ; Size
+	dec hl ; Selection
+	ld a, [hl]
+	add a, a ; a * 2
+	add a, a ; a * 4
+	add a, a ; a * 8
+	ld b, a
+	add a, a ; a * 16
+	add a, b
+	add a, 20
+	ld b, a
+	ld c, SCRN_VX - SCRN_X + 68
+	ld hl, wSubMenuCursor
+	call DrawCursor
+	ld hl, wPauseMenuCursor
+	ld a, [hli]
+	ld c, a
+	ld a, [hld]
+	ld b, a
+	call DrawCursor
+	jp xScrollInterp
+
 	ld hl, wSubMenuCursor
 	ld a, [hli]
 	ld c, a
@@ -394,6 +431,114 @@ xOptionsMenuRedraw:
 	ld b, a
 	call DrawCursor
 	jp xScrollInterp
+
+xOptionsMenuAPress:
+	ld hl, sp+2
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	ld a, [hl]
+	and a, a
+	ret z
+	dec a
+	;
+	dec a
+	jr z, .changeColor
+	dec a
+	;
+	dec a
+	;
+	ret
+
+.changeColor
+	ld hl, wActiveMenuPalette
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [hli]
+	ld [wActiveMenuPalette], a
+	ld a, [hl]
+	ld [wActiveMenuPalette + 1], a
+	xor a, a
+	ld [wMenuAction], a
+
+	; Reload the palette.
+	ldh a, [hSystem]
+	and a, a
+	jr z, .skipCGB
+	call xLoadPalettes
+	ld a, $81
+	ld [wFadeAmount], a
+	ld a, 1
+	ld [wFadeSteps], a
+	ld a, -1
+	ld [wFadeDelta], a
+.skipCGB
+
+	jr xOptionsMenuDrawSelections
+
+xOptionsMenuDrawSelections:
+	ld hl, $9800 + 23 + 7 * 32
+:	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld hl, $9800 + 23 + 10 * 32
+:	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld hl, $9800 + 23 + 13 * 32
+:	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld hl, $9800 + 23 + 16 * 32
+:	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+
+	ld hl, wActiveMenuPalette
+	ld a, [hli]
+	ld h, [hl]
+	add a, MenuPal_Name ; size of 4 palettes
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld a, 1
+	call PrintVWFText
+	xor a, a
+	ld [wTextLetterDelay], a
+
+	; Text is already mostly initialized by the menu renderer.
+	ld a, idof_vSelectionsText
+	ld [wTextCurTile], a
+	ld [wWrapTileID], a
+	ld a, $FF
+	ld [wLastTextTile], a
+
+	lb de, SCRN_X_B, SCRN_Y_B
+	ld hl, $9800 + 23 + 10 * 32
+	call TextDefineBox
+	call PrintVWFChar
+	call DrawVWFChars
+
+	ret
 
 xOptionsMenuClose:
 	xor a, a
@@ -433,6 +578,33 @@ xScrollInterp:
 	ld a, [hl]
 	sub a, 8
 	ld [hl], a
+	ret
+
+xLoadPalettes:
+	ld hl, wActiveMenuPalette
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	; Skip over next pointer.
+	inc hl
+	inc hl
+	push hl
+	; The first member of a theme is a palette.
+	ld de, wBGPaletteBuffer
+	ld c, 12
+	call MemCopySmall
+	pop hl
+	inc hl
+	inc hl
+	inc hl
+	ld de, wOBJPaletteBuffer
+	ld c, 12
+	call MemCopySmall
+
+	ld a, %10000000
+	ld [wBGPaletteMask], a
+	ld a, %10000000
+	ld [wOBJPaletteMask], a
 	ret
 
 SECTION "Scroll interp vars", WRAM0
