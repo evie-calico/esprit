@@ -105,12 +105,12 @@ res/%.2bpp res/%.map: res/%.map.png
 # Convert .png files into .h.2bpp files (-h flag).
 res/%.2bpp: res/%.h.png
 	@mkdir -p $(@D)
-	superfamiconv -M gb -D -F -R -H 16 -t $@ -i $<
+	rgbgfx -h -o $@ $<
 
 # Convert .png files into .h.1bpp files (-h flag).
 res/%.1bpp: res/%.h.png
 	@mkdir -p $(@D)
-	superfamiconv -M gb -B 1 -D -F -R -H 16 -t $@ -i $<
+	rgbgfx -h -d 1 -o $@ $<
 
 res/%.vwf: res/%.png $(MAKEFONT)
 	@mkdir -p $(@D)

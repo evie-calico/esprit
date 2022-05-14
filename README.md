@@ -9,7 +9,6 @@ to build this project.
 - [RGBDS 0.5.2 master branch](https://github.com/gbdev/rgbds) (For `-S` flag)
 - [RGBGFX CXX Branch](https://github.com/ISSOtm/rgbds/tree/rgbgfx-cxx) (For testing new features)
 - [GNU Make 4.3](https://www.gnu.org/software/make/)
-- [SuperFamiconvX](https://github.com/ISSOtm/SuperFamiconvX) (Until RGBGFX-CXX is finished)
 - A C compiler
 
 Windows is not supported by any means. Use [WSL](https://docs.microsoft.com/en-us/windows/wsl/install).
