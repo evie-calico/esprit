@@ -45,6 +45,10 @@ rebuild:
 	$(MAKE) all
 .PHONY: rebuild
 
+release:
+	$(MAKE) clean
+	${MAKE} LDFLAGS="-p 0xFF -w"
+
 ###############################################
 #                                             #
 #                 COMPILATION                 #
@@ -57,7 +61,7 @@ bin/%.gb bin/%.sym bin/%.map: $(patsubst src/%.asm, obj/%.o, $(SRCS))
 	printf "SECTION \"Version\", ROM0\nVersion:: db \"Vuiiger version %s\\\\nBuilt on \", __ISO_8601_UTC__, \"\\\\nUsing RGBDS {__RGBDS_VERSION__}\", 0\n" `git describe --tags --always --dirty` \
 	| rgbasm $(ASFLAGS) -o obj/version.o -
 	rgblink $(LDFLAGS) -m bin/$*.map -n bin/$*.sym -o bin/$*.gb $^ obj/version.o  \
-	&& rgbfix -v $(FIXFLAGS) bin/$*.gb
+	&& rgbfix $(FIXFLAGS) bin/$*.gb
 
 obj/libs/vwf.o dep/libs/vwf.mk res/charmap.inc: src/libs/vwf.asm
 	@mkdir -p obj/libs/ dep/libs/ res/
