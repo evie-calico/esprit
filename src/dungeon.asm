@@ -13,6 +13,7 @@ DEF STANDALONE_METATILE_ID RB 4
 DEF TERMINAL_METATILE_ID RB 4
 DEF FULL_METATILE_ID RB 4
 DEF EXIT_METATILE_ID RB 4
+DEF ITEM_METATILE_ID RB 4 * 4
 
 SECTION "Init dungeon", ROM0
 InitDungeon::
@@ -36,6 +37,15 @@ InitDungeon::
 
 	; Draw debug map
 	bankcall xGenerateScraper
+	ld a, 3 ; Item0
+	ld [wDungeonMap + 30 + 30 * 64], a
+	ld a, 4 ; Item1
+	ld [wDungeonMap + 31 + 30 * 64], a
+	ld a, 5 ; Item2
+	ld [wDungeonMap + 32 + 30 * 64], a
+	ld a, 6 ; Item3
+	ld [wDungeonMap + 33 + 30 * 64], a
+	call VRAMCopySmall
 
 	; Null out all entities.
 	FOR I, NB_ENTITIES

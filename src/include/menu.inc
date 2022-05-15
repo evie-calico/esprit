@@ -61,17 +61,17 @@ ld l, a
 	end_struct
 
 	struct MenuPal
-		words 1, Next
+		bytes 3, Next
 		bytes 12, Colors
-		dunion Name
+		bytes 1, Name
 	end_struct
 
 	struct MenuTheme
-		words 1, Next
+		bytes 3, Next
 		bytes 64, Cursor
 		words 1, TileLen
 		words 1, Tiles
 		words 1, Map
-		dunion Name
+		bytes 1, Name
 
 	ENDC

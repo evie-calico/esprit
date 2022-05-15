@@ -59,12 +59,12 @@ xPauseMenuInit:
 
 	ld hl, xDrawPauseMenu
 	call DrawMenu
-	call xLoadTheme
+	call LoadTheme
 	; Load palette
 	ldh a, [hSystem]
 	and a, a
 	jr z, .skipCGB
-	call xLoadPalettes
+	call LoadPalettes
 .skipCGB
 
 	; Set palettes
@@ -417,13 +417,25 @@ xOptionsMenuAPress:
 
 .changeColor
 	ld hl, wActiveMenuPalette
+	ldh a, [hCurrentBank]
+	call ChangeColorROM0
+PUSHS
+SECTION "Change Color ROM0", ROM0
+ChangeColorROM0:
+	push af
+	ld a, [hli]
+	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ld a, [hli]
 	ld [wActiveMenuPalette], a
-	ld a, [hl]
+	ld a, [hli]
 	ld [wActiveMenuPalette + 1], a
+	ld a, [hl]
+	ld [wActiveMenuPalette + 2], a
+	jp BankReturn
+POPS
 	xor a, a
 	ld [wMenuAction], a
 
@@ -431,7 +443,7 @@ xOptionsMenuAPress:
 	ldh a, [hSystem]
 	and a, a
 	jr z, xOptionsMenuDrawSelections
-	call xLoadPalettes
+	call LoadPalettes
 	ld a, $81
 	ld [wFadeAmount], a
 	ld a, 1
@@ -442,16 +454,28 @@ xOptionsMenuAPress:
 
 .changeTheme
 	ld hl, wActiveMenuTheme
+	ldh a, [hCurrentBank]
+	call ChangeThemeROM0
+PUSHS
+SECTION "Change Theme ROM0", ROM0
+ChangeThemeROM0:
+	push af
+	ld a, [hli]
+	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ld a, [hli]
 	ld [wActiveMenuTheme], a
-	ld a, [hl]
+	ld a, [hli]
 	ld [wActiveMenuTheme + 1], a
+	ld a, [hl]
+	ld [wActiveMenuTheme + 2], a
+	jp BankReturn
+POPS
 	xor a, a
 	ld [wMenuAction], a
-	call xLoadTheme
+	call LoadTheme
 	jr xOptionsMenuDrawSelections
 
 xOptionsMenuDrawSelections:
@@ -469,8 +493,10 @@ xOptionsMenuDrawSelections:
 	; Print palette name.
 	ld hl, wActiveMenuPalette
 	ld a, [hli]
+	ld b, a
+	ld a, [hli]
 	ld h, [hl]
-	add a, MenuPal_Name ; size of 4 palettes
+	add a, MenuPal_Name + 2
 	ld l, a
 	adc a, h
 	sub a, l
@@ -486,7 +512,7 @@ xOptionsMenuDrawSelections:
 	ld [wWrapTileID], a
 	ld a, $FF
 	ld [wLastTextTile], a
-	lb de, SCRN_X_B, SCRN_Y_B
+	lb de, 8, 1
 	ld hl, $9800 + 23 + 7 * 32
 	call TextDefineBox
 
@@ -496,8 +522,10 @@ xOptionsMenuDrawSelections:
 	; Print theme name.
 	ld hl, wActiveMenuTheme
 	ld a, [hli]
+	ld b, a
+	ld a, [hli]
 	ld h, [hl]
-	add a, MenuTheme_Name
+	add a, MenuTheme_Name + 2
 	ld l, a
 	adc a, h
 	sub a, l
@@ -506,7 +534,7 @@ xOptionsMenuDrawSelections:
 	call PrintVWFText
 
 	; Text is already mostly initialized by the menu renderer.
-	lb de, SCRN_X_B, SCRN_Y_B
+	lb de, 8, 1
 	ld hl, $9800 + 23 + 4 * 32
 	call TextDefineBox
 
@@ -524,7 +552,7 @@ xOptionsMenuDrawSelections:
 	call PrintVWFText
 
 	; Text is already mostly initialized by the menu renderer.
-	lb de, SCRN_X_B, SCRN_Y_B
+	lb de, 8, 1
 	ld hl, $9800 + 23 + 10 * 32
 	call TextDefineBox
 
@@ -576,12 +604,19 @@ xScrollInterp:
 	ld [hl], a
 	ret
 
-xLoadPalettes:
+SECTION "Pause Menu Load Palettes", ROM0
+LoadPalettes:
+	ldh a, [hCurrentBank]
+	push af
 	ld hl, wActiveMenuPalette
+	ld a, [hli]
+	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	; Skip over next pointer.
+	ASSERT MenuPal_Colors == 3
+	inc hl
 	inc hl
 	inc hl
 	push hl
@@ -601,15 +636,22 @@ xLoadPalettes:
 	ld [wBGPaletteMask], a
 	ld a, %10000000
 	ld [wOBJPaletteMask], a
-	ret
+	jp BankReturn
 
-xLoadTheme:
+SECTION "Pause Menu Load Theme", ROM0
+LoadTheme:
+	ldh a, [hCurrentBank]
+	push af
 	; Load theme
 	ld hl, wActiveMenuTheme
+	ld a, [hli]
+	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	; Skip next pointer.
+	ASSERT MenuTheme_Cursor == 3
+	inc hl
 	inc hl
 	inc hl
 	; First is the cursor. We can seek over it by loading!
@@ -638,7 +680,8 @@ xLoadTheme:
 	; And finally, the tilemap.
 	lb bc, 11, 10
 	ld de, $9909
-	jp MapRegion
+	call MapRegion
+	jp BankReturn
 
 SECTION "Scroll interp vars", WRAM0
 wScrollInterp:

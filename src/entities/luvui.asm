@@ -1,5 +1,4 @@
 INCLUDE "entity.inc"
-INCLUDE "text.inc"
 
 SECTION "Luvui data", ROMX
 xLuvui::
@@ -11,4 +10,4 @@ xLuvui::
 	db $FF, $FF, $A0
 	db $20, $90, $30
 	db $00, $20, $00
-.name db "Luvui<END>"
+.name db "Luvui", 0

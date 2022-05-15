@@ -103,15 +103,18 @@ Initialize::
 	ld a, $FF
 	ld [wTextSrcPtr + 1], a
 	; Set a default theme.
-	; TODO add a theme selection to the options menu.
-	ld a, LOW(PinkMenuPalette)
+	ld a, BANK(PinkMenuPalette)
 	ld [wActiveMenuPalette], a
-	ld a, HIGH(PinkMenuPalette)
+	ld a, LOW(PinkMenuPalette)
 	ld [wActiveMenuPalette + 1], a
-	ld a, LOW(PawprintMenuTheme)
+	ld a, HIGH(PinkMenuPalette)
+	ld [wActiveMenuPalette + 2], a
+	ld a, BANK(PawprintMenuTheme)
 	ld [wActiveMenuTheme], a
-	ld a, HIGH(PawprintMenuTheme)
+	ld a, LOW(PawprintMenuTheme)
 	ld [wActiveMenuTheme + 1], a
+	ld a, HIGH(PawprintMenuTheme)
+	ld [wActiveMenuTheme + 2], a
 	; Set palettes.
 	; These never change for the whole course of the program.
 	ld a, %11100100

@@ -117,9 +117,12 @@ InitUI::
 		ld de, wBGPaletteBuffer + 4 * 3 * 7
 		ld hl, wActiveMenuPalette
 		ld a, [hli]
+		rst SwapBank
+		ld a, [hli]
 		ld h, [hl]
 		ld l, a
-		ASSERT MenuPal_Colors == 2 
+		ASSERT MenuPal_Colors == 3
+		inc hl
 		inc hl
 		inc hl
 		call MemCopySmall
@@ -134,8 +137,7 @@ InitUI::
 		ldh [rVBK], a
 .skipCGB
 
-	pop af
-	jp SwapBank
+	jp BankReturn
 
 SECTION "Print HUD", ROM0
 ; @param b:  Bank of string

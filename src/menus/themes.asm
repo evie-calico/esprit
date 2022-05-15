@@ -1,111 +1,101 @@
 INCLUDE "defines.inc"
 INCLUDE "menu.inc"
 
-SECTION "Paw Theme", ROM0
-PawprintMenuTheme::
-	dw ExplorerMenuTheme
-	INCBIN "res/ui/paw_cursor.2bpp"
-	dw .end - .emblem
-	dw .emblem
-	dw .map
-	db "Pawprint", 0
-.emblem
-	INCBIN "res/ui/paw_emblem.2bpp"
-.end
-.map
-	INCBIN "res/ui/paw_emblem.map"
+; TODO: It's not really appropriate for these to be in ROM0. Move them.
 
-SECTION "Explorer Theme", ROM0
-ExplorerMenuTheme:
-	dw HeartMenuTheme
-	INCBIN "res/ui/explorer_cursor.2bpp"
-	dw .end - .emblem
-	dw .emblem
-	dw .map
-	db "Explorer", 0
-.emblem
-	INCBIN "res/ui/explorer_emblem.2bpp"
-.end
-.map
-	INCBIN "res/ui/explorer_emblem.map"
+; These two helper macros helpfully define the themes and palettes,
+; automatically turning them into a circular linked list. You're welcome :3
 
-SECTION "Heart Theme", ROM0
-HeartMenuTheme:
-	dw PawprintMenuTheme
-	INCBIN "res/ui/heart_cursor.2bpp"
-	dw .end - .emblem
-	dw .emblem
-	dw .map
-	db "Hearts", 0
-.emblem
-	INCBIN "res/ui/heart_emblem.2bpp"
-.end
-.map
-	INCBIN "res/ui/heart_emblem.map"
+MACRO themes
+	DEF FIRST_NAME EQUS "\1MenuTheme"
+	REPT _NARG / 3
+		DEF CUR_NAME EQUS "\1"
+		SECTION "\1 Theme", ROMX
+		\1MenuTheme::
+			IF _NARG > 3
+				db BANK(\4MenuTheme)
+				dw \4MenuTheme
+			ELSE
+				db BANK(FIRST_NAME)
+				dw FIRST_NAME
+			ENDC
+			INCBIN \2
+			dw .end - .emblem, .emblem, .map
+			db "{CUR_NAME}", 0
+		.emblem INCBIN "\3.2bpp"
+		.end
+		.map INCBIN "\3.map"
+			SHIFT 3
+		PURGE CUR_NAME
+	ENDR
+	PURGE FIRST_NAME
+ENDM
 
-SECTION "Pink Theme", ROM0
-PinkMenuPalette::
-	dw RedMenuPalette
-	rgb_lim 31, 20, 31
-	rgb_lim 31, 3, 31
-	rgb_lim 16, 0, 16
-	rgb 0, 0, 0
-	db "Pink", 0
+MACRO colors
+	DEF FIRST_NAME EQUS "\1MenuPalette"
+	REPT _NARG / 13
+		DEF CUR_NAME EQUS "\1"
+		SECTION "\1 Theme", ROMX
+		\1MenuPalette::
+			IF _NARG > 13
+				SHIFT 13
+				db BANK(\1MenuPalette)
+				dw \1MenuPalette
+				SHIFT -13
+			ELSE
+				db BANK(FIRST_NAME)
+				dw FIRST_NAME
+			ENDC
+			SHIFT 1
+			rgb \1, \2, \3
+			SHIFT 3
+			rgb \1, \2, \3
+			SHIFT 3
+			rgb \1, \2, \3
+			SHIFT 3
+			rgb \1, \2, \3
+			SHIFT 3
+			db "{CUR_NAME}", 0
+		PURGE CUR_NAME
+	ENDR
+	PURGE FIRST_NAME
+ENDM
 
-SECTION "Red Theme", ROM0
-RedMenuPalette:
-	dw OrangeMenuPalette
-	rgb_lim 31, 20, 20
-	rgb_lim 31, 3, 3
-	rgb_lim 16, 0, 0
-	rgb 0, 0, 0
-	db "Red", 0
+	themes \
+		Pawprint, "res/ui/paw_cursor.2bpp", res/ui/paw_emblem, \
+		Explorer, "res/ui/explorer_cursor.2bpp", res/ui/explorer_emblem, \
+		Heart, "res/ui/heart_cursor.2bpp", res/ui/heart_emblem, \
 
-SECTION "Orange Theme", ROM0
-OrangeMenuPalette:
-	dw YellowMenuPalette
-	rgb 255, 238, 204
-	rgb 230, 153, 16
-	rgb 150, 102, 0
-	rgb 0, 0, 0
-	db "Orange", 0
-
-SECTION "Yellow Theme", ROM0
-YellowMenuPalette::
-	dw GreenMenuPalette
-	rgb_lim 31, 31, 20
-	rgb_lim 31, 31, 3
-	rgb_lim 16, 16, 0
-	rgb 0, 0, 0
-	db "Yellow", 0
-
-SECTION "Green Theme", ROM0
-GreenMenuPalette:
-	dw BlueMenuPalette
-	rgb_lim 20, 31, 20
-	rgb_lim 3, 31, 3
-	rgb_lim 0, 16, 0
-	rgb 0, 0, 0
-	db "Green", 0
-
-SECTION "Blue Theme", ROM0
-BlueMenuPalette:
-	dw BlackMenuPalette
-	rgb_lim 20, 20, 31
-	rgb_lim 3, 3, 31
-	rgb_lim 0, 0, 16
-	rgb 0, 0, 0
-	db "Blue", 0
-
-SECTION "Black Theme", ROM0
-BlackMenuPalette:
-	dw PinkMenuPalette
-	rgb 0, 0, 0
-	rgb_lim 8, 8, 8
-	rgb_lim 16, 16, 16
-	rgb_lim 31, 31, 31
-	db "Black", 0
+	colors \
+		Pink,   255, 160, 255, \
+		        255,  24, 255, \
+		        128,   0, 128, \
+		          0,   0,   0, \
+		Red,    255, 160, 160, \
+		        255,  24,  24, \
+		        128,   0,   0, \
+		          0,   0,   0, \
+		Orange, 255, 238, 204, \
+		        230, 153,  16, \
+		        150, 102,   0, \
+		          0,   0,   0, \
+		Yellow, 255, 255, 160, \
+		        255, 255,  24, \
+		        128, 128,   0, \
+		          0,   0,   0, \
+		Green,  160, 255, 160, \
+		         24, 255,  24, \
+		          0, 128,   0, \
+		          0,   0,   0, \
+		Blue,   160, 160, 255, \
+		         24,  24, 255, \
+		          0,   0, 128, \
+		          0,   0,   0, \
+		Black,    0,   0,   0, \
+		         64,  64,  64, \
+		        128, 128, 128, \
+		        255, 255, 255, \
 
 SECTION "Active Theme", WRAM0
-wActiveMenuPalette:: dw
-wActiveMenuTheme:: dw
+wActiveMenuPalette:: ds 3
+wActiveMenuTheme:: ds 3
