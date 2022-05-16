@@ -45,6 +45,31 @@ InitDungeon::
 	ld [wDungeonMap + 32 + 30 * 64], a
 	ld a, 6 ; Item3
 	ld [wDungeonMap + 33 + 30 * 64], a
+
+	; Load item graphics
+	ld c, 64
+	ld de, $8000 + ITEM_METATILE_ID * 16
+	ld hl, xApple.gfx
+	ld a, BANK(xApple.gfx)
+	rst SwapBank
+	call VRAMCopySmall
+	ld c, 64
+	ld de, $8000 + ITEM_METATILE_ID * 16 + 64
+	ld hl, xGrapes.gfx
+	ld a, BANK(xGrapes.gfx)
+	rst SwapBank
+	call VRAMCopySmall
+	ld c, 64
+	ld de, $8000 + ITEM_METATILE_ID * 16 + 128
+	ld hl, xPepper.gfx
+	ld a, BANK(xPepper.gfx)
+	rst SwapBank
+	call VRAMCopySmall
+	ld c, 64
+	ld de, $8000 + ITEM_METATILE_ID * 16 + 192
+	ld hl, xScarf.gfx
+	ld a, BANK(xScarf.gfx)
+	rst SwapBank
 	call VRAMCopySmall
 
 	; Null out all entities.
@@ -437,6 +462,11 @@ xGetMapPosition::
 ; Draw a tile pointed to by HL to VRAM at DE. The user is expected to reserve
 ; HL, but can rely on DE being incremented.
 xDrawTile:
+	ldh a, [hSystem]
+	and a, a
+	jr z, :+
+	push hl
+:
 	ld a, [de]
 	inc e
 	cp a, 1
@@ -470,7 +500,8 @@ xDrawTile:
 	ld [hli], a
 	inc a
 	ld [hli], a
-	ret
+	jr .exit
+
 .wall
 	; Wall tiles are given special handling.
 	dec e ; Tempoarirly undo the previous inc e
@@ -523,6 +554,33 @@ xDrawTile:
 :   ld [hli], a
 	inc a
 	ld [hli], a
+.exit
+	ldh a, [hSystem]
+	and a, a
+	ret z
+	; If on CGB, repeat for colors.
+	pop hl
+	; Switch bank
+	ld a, 1
+	ldh [rVBK], a
+	ld bc, $20 - 2
+	; Wait for VRAM.
+	; On the CGB, we have twice as much time.
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+
+	dec e
+	ld a, [de]
+	inc e
+	ld [hli], a
+	ld [hli], a
+	add hl, bc
+	ld [hli], a
+	ld [hli], a
+	xor a, a
+	ldh [rVBK], a
 	ret
 
 ; Move the VRAM pointer to the right by 16 pixels, wrapping around to the left

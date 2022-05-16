@@ -8,7 +8,7 @@ x\1::
 	db \4
 	db \3
 	db \2
-.name db "\1", 0
+.name:: db "\1", 0
 ENDM
 
 	attack Bite, 8, 1, 224

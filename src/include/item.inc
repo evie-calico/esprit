@@ -10,6 +10,7 @@ DEF ITEM_HEAL RB 1 ; An item that restores health.
 	struct Item
 		words 1, Name
 		words 1, Graphics
+		words 1, Palette
 		bytes 1, Type
 	end_struct
 
