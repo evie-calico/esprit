@@ -4,9 +4,9 @@ INCLUDE "item.inc"
 MACRO item ; Name, Graphics, Type
 SECTION "\1 Item", ROMX
 x\1::
-	dw .name
-	dw .gfx
 	dw .palette
+	dw .gfx
+	dw .name
 	db ITEM_NULL
 	ASSERT sizeof_Item == 7
 .name:: db "\1", 0
@@ -16,9 +16,9 @@ ENDM
 MACRO heal
 SECTION "\1 Item", ROMX
 x\1::
-	dw .name
-	dw .gfx
 	dw .palette
+	dw .gfx
+	dw .name
 	db ITEM_HEAL
 	ASSERT sizeof_Item == 7
 	db \3

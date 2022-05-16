@@ -38,38 +38,25 @@ DrawMenu::
 	dw MenuLoadTiles
 	dw MenuPrint
 	dw MenuSetSlack
-	ASSERT MENUDRAW_MAX == 5
+	dw MenuEndDMG
+	dw MenuEndCGB
+	ASSERT MENUDRAW_MAX == 7
 
 SECTION "Menu Set Region", ROM0
 MenuSetBackground:
 	ld a, [hli]
-	push hl
-
 	ld b, a
-	ld hl, $9800
-	ld e, SCRN_Y_B
-.nextRow
-	ld d, SCRN_X_B
-.rowLoop
-		ldh a, [rSTAT]
-		and STATF_BUSY
-		jr nz, .rowLoop
-	ld a, b
-	ld [hli], a
-	dec d
-	jr nz, .rowLoop
-	dec e
-	jr z, .exit
-	ld a, SCRN_VX_B - SCRN_X_B
-	add a, l
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	ld d, a
+	ld a, [hli]
+	push hl
+	ld h, [hl]
 	ld l, a
-	adc a, h
-	sub a, l
-	ld h, a
-	jr .nextRow
-
-.exit
+	call FillRegion
 	pop hl
+	inc hl
 	jp DrawMenu.readByte
 
 SECTION "Menu Load Tiles", ROM0
@@ -175,6 +162,21 @@ MenuSetSlack:
 	ld [wVramSlack + 1], a
 	jp DrawMenu.readByte
 
+SECTION "Menu End DMG", ROM0
+MenuEndDMG:
+	ldh a, [hSystem]
+	and a, a
+	ret z
+	ld a, 1
+	ldh [rVBK], a
+	jp DrawMenu.readByte
+
+SECTION "Menu End CGB", ROM0
+MenuEndCGB:
+	xor a, a
+	ldh [rVBK], a
+	ret
+
 SECTION "Cursor Renderer", ROM0
 ; Draws a cursor and moves it towards a target.
 ; @param b: Target Y position
@@ -270,6 +272,37 @@ MapRegion::
 	adc a, d
 	sub a, e
 	ld d, a
+	jr .copy
+
+SECTION "Fill Region", ROM0
+; @param b: Width
+; @param c: Height
+; @param d: Value
+; @param hl: VRAM destination
+FillRegion::
+	ld a, b
+	push af
+.copy
+.waitVram
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, .waitVram
+	ld a, d
+	ld [hli], a
+	dec b
+	jr nz, .copy
+	pop af
+	dec c
+	ret z
+	push af
+	ld b, a
+	ld a, SCRN_VX_B
+	sub a, b
+	add a, l
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
 	jr .copy
 
 SECTION "Draw Menu vars", WRAM0

@@ -17,6 +17,8 @@ DEF MENUDRAW_SET_BACKGROUND RB 1
 DEF MENUDRAW_LOAD_TILES RB 1
 DEF MENUDRAW_PRINT_TEXT RB 1
 DEF MENUDRAW_SET_SLACK RB 1
+DEF MENUDRAW_END_DMG RB 1
+DEF MENUDRAW_END_CGB RB 1
 
 DEF MENUDRAW_MAX RB 0
 
@@ -25,10 +27,17 @@ DEF MENUDRAW_MAX RB 0
 	dtile_union vScratchSpace
 
 DEF end_menu EQUS "db MENUDRAW_END"
+DEF end_dmg  EQUS "db MENUDRAW_END_DMG"
+DEF end_cgb  EQUS "db MENUDRAW_END_CGB"
 
 MACRO set_background ; tile id
 	db MENUDRAW_SET_BACKGROUND
-	db \1
+	db \3, \4, \5
+	IF _NARG > 5
+		dw \6 + \1 + \2 * 32
+	ELSE
+		dw $9800 + \1 + \2 * 32
+	ENDC
 ENDM
 
 MACRO load_tiles ; tile ptr, tile count, name

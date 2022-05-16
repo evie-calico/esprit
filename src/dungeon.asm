@@ -2,6 +2,7 @@ INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
+INCLUDE "item.inc"
 INCLUDE "res/charmap.inc"
 
 ; The dungeon renderer is hard-coded to use these 4 metatiles to draw floors and
@@ -45,32 +46,6 @@ InitDungeon::
 	ld [wDungeonMap + 32 + 30 * 64], a
 	ld a, 6 ; Item3
 	ld [wDungeonMap + 33 + 30 * 64], a
-
-	; Load item graphics
-	ld c, 64
-	ld de, $8000 + ITEM_METATILE_ID * 16
-	ld hl, xApple.gfx
-	ld a, BANK(xApple.gfx)
-	rst SwapBank
-	call VRAMCopySmall
-	ld c, 64
-	ld de, $8000 + ITEM_METATILE_ID * 16 + 64
-	ld hl, xGrapes.gfx
-	ld a, BANK(xGrapes.gfx)
-	rst SwapBank
-	call VRAMCopySmall
-	ld c, 64
-	ld de, $8000 + ITEM_METATILE_ID * 16 + 128
-	ld hl, xPepper.gfx
-	ld a, BANK(xPepper.gfx)
-	rst SwapBank
-	call VRAMCopySmall
-	ld c, 64
-	ld de, $8000 + ITEM_METATILE_ID * 16 + 192
-	ld hl, xScarf.gfx
-	ld a, BANK(xScarf.gfx)
-	rst SwapBank
-	call VRAMCopySmall
 
 	; Null out all entities.
 	FOR I, NB_ENTITIES
@@ -148,7 +123,7 @@ SwitchToDungeonState::
 	; Deref palette if on CGB
 	ldh a, [hSystem]
 	and a, a
-	jr z, .skipCGB
+	jp z, .skipCGB
 		; Set palettes
 		ld a, %11111111
 		ld [wBGPaletteMask], a
@@ -162,9 +137,129 @@ SwitchToDungeonState::
 		ld h, [hl]
 		ld l, a
 
-		ld bc, 7 * 12
+		push hl
+		ld c, 3
+		ld de, wBGPaletteBuffer + 3 * 12
+		call MemCopySmall
+		pop hl
+
+		push hl
+		ld c, 3
+		ld de, wBGPaletteBuffer + 4 * 12
+		call MemCopySmall
+		pop hl
+
+		push hl
+		ld c, 3
+		ld de, wBGPaletteBuffer + 5 * 12
+		call MemCopySmall
+		pop hl
+
+		push hl
+		ld c, 3
+		ld de, wBGPaletteBuffer + 6 * 12
+		call MemCopySmall
+		pop hl
+
+		; Load first 3 palettes
+		ld c, 3 * 12
 		ld de, wBGPaletteBuffer
-		call MemCopy
+		call MemCopySmall
+
+		ld hl, wActiveDungeon + 1
+		ld a, [hli]
+		ld h, [hl]
+		ld l, a
+		inc hl
+		inc hl
+		inc hl
+		inc hl
+		ASSERT Dungeon_Items == 4
+		; Push each item onto the stack :)
+		ld b, DUNGEON_ITEM_COUNT
+	.pushItems
+		ld a, [hli]
+		push af
+		ld a, [hli]
+		ld e, a
+		ld a, [hli]
+		ld d, a
+		push de
+		dec b
+		jr nz, .pushItems
+
+	.color
+		; Now pop each in order and load their palettes and graphics
+		ld b, DUNGEON_ITEM_COUNT
+		ld de, wBGPaletteBuffer + 6 * 12 + 3
+	.copyItemColor
+		pop hl
+		pop af
+		rst SwapBank
+		ASSERT Item_Palette == 0
+		ld a, [hli]
+		ld h, [hl]
+		ld l, a
+		ld c, 9
+		call MemCopySmall
+		ld a, e
+		sub a, 21
+		ld e, a
+		ld a, d
+		sbc a, 0
+		ld d, a
+		dec b
+		jr nz, .copyItemColor
+
+		ld hl, wActiveDungeon
+		ld a, [hli]
+		rst SwapBank
+		ld a, [hli]
+		ld h, [hl]
+		ld l, a
+		inc hl
+		inc hl
+		inc hl
+		inc hl
+		ASSERT Dungeon_Items == 4
+		; Push each item onto the stack :)
+		ld b, DUNGEON_ITEM_COUNT
+	.pushItems2
+		ld a, [hli]
+		push af
+		ld a, [hli]
+		ld e, a
+		ld a, [hli]
+		ld d, a
+		push de
+		dec b
+		jr nz, .pushItems2
+
+	.items
+		; And finally, copy the graphics
+		ld b, DUNGEON_ITEM_COUNT
+		ld de, $8000 + (ITEM_METATILE_ID + 3 * 4) * 16
+	.copyItemGfx
+		pop hl
+		pop af
+		rst SwapBank
+		inc hl
+		inc hl
+		ASSERT Item_Graphics == 2
+		ld a, [hli]
+		ld h, [hl]
+		ld l, a
+		ld c, 16 * 4
+		call VRAMCopySmall
+		ld a, e
+		sub a, 128
+		ld e, a
+		ld a, d
+		sbc a, 0
+		ld d, a
+		dec b
+		jr nz, .copyItemGfx
+
 .skipCGB
 	ld a, BANK(xFocusCamera)
 	rst SwapBank

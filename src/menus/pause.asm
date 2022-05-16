@@ -37,7 +37,10 @@ xDrawPauseMenu:
 	print_text 3, 7, "Save", 3
 	print_text 3, 9, "Options"
 	print_text 3, 11, "Escape!", 5
-	end_menu
+	end_dmg
+	set_background 0, 0, SCRN_VX_B, SCRN_VY_B, 0
+	end_cgb
+
 	; Custom vallocs must happen after the menu has been defined.
 	dtile vBlankTile
 	; Unused tiles reserved for submenus to draw text on.

@@ -5,6 +5,7 @@ INCLUDE "structs.inc"
 
 DEF DUNGEON_WIDTH EQU 64
 DEF DUNGEON_HEIGHT EQU 64
+DEF DUNGEON_ITEM_COUNT EQU 4
 
 RSRESET
 DEF TILE_CLEAR RB 1
@@ -13,6 +14,7 @@ DEF TILE_WALL RB 1
 	struct Dungeon
 		words 1, Tileset
 		words 1, Palette
+		bytes DUNGEON_ITEM_COUNT * 3, Items
 	end_struct
 
 ENDC
