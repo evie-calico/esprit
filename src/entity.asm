@@ -177,37 +177,48 @@ PlayerLogic:
 	ld c, a
 	bankcall xGetMapPosition
 	ld a, [de]
-	cp a, TILE_ITEMS
+	sub a, TILE_ITEMS
 	jr c, .noPickup
 	ASSERT TILE_CLEAR == 0
-	xor a, a
-	ld [de], a
-	push de
-	; Calculate the VRAM destination by (Camera >> 4) / 16 % 16 * 32
-	ld a, c
-	and a, %00001111
-	ld e, 0
-	srl a
-	rr e
-	rra
-	rr e
-	ld d, a
-	; hl = (Camera >> 8) & 15 << 4
-	ld hl, $9800
-	add hl, de ; Add to VRAM
+	push af
+		xor a, a
+		ld [de], a
+		push de
+			; Calculate the VRAM destination by (Camera >> 4) / 16 % 16 * 32
+			ld a, c
+			and a, %00001111
+			ld e, 0
+			srl a
+			rr e
+			rra
+			rr e
+			ld d, a
+			; hl = (Camera >> 8) & 15 << 4
+			ld hl, $9800
+			add hl, de ; Add to VRAM
+			ld a, b
+			and a, %00001111
+			add a, a
+			; Now we have the neccessary X index on the tilemap.
+			add a, l
+			ld l, a
+			adc a, h
+			sub a, l
+			ld h, a
+		pop de
+		bankcall xDrawTile
+	pop bc
+	ld b, b
+	call GetDungeonItem
+	inc hl
+	inc hl
+	inc hl
+	inc hl
 	ld a, b
-	and a, %00001111
-	add a, a
-	; Now we have the neccessary X index on the tilemap.
-	add a, l
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
 	ld l, a
-	adc a, h
-	sub a, l
-	ld h, a
-	pop de
-	bankcall xDrawTile
-
-	ld hl, .string
 	call PrintHUD
 .noPickup
 	; Then open the move window
@@ -276,8 +287,6 @@ PlayerLogic:
 	; If movement was successful, end the player's turn and process the next
 	; entity.
 	jp ProcessEntities.next
-
-.string db "Picked up an item", 0
 
 SECTION "Ally logic", ROM0
 ; @param a: Contains the value of wActiveEntity

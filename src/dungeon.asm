@@ -355,6 +355,38 @@ DungeonState::
 
 	jp UpdateAttackWindow
 
+SECTION "Get Item", ROM0
+; Get a dungeon item given an index in b
+; @param b: Item ID
+; @return b: Item bank
+; @return hl: Item pointer
+GetDungeonItem::
+	ld hl, wActiveDungeon
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ASSERT Dungeon_Items == 4
+	inc hl
+	inc hl
+	inc hl
+	inc hl
+	ld a, b
+	add a, b
+	add a, b
+	add a, l
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld a, [hli]
+	ld b, a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ret
+
 SECTION "Draw dungeon", ROMX
 xDrawDungeon:
 	call xGetCurrentVram

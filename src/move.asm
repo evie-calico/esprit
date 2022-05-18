@@ -132,7 +132,6 @@ UseMove::
 ; @param b: Entity pointer high byte
 ; @param de: Move pointer
 MoveActionAttack:
-	ld b, b
 	ld h, b ; Move the index to h; a more useful register.
 	ld a, b
 	ldh [hSaveUserIndex], a
