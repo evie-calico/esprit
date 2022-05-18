@@ -556,7 +556,7 @@ xGetMapPosition::
 
 ; Draw a tile pointed to by HL to VRAM at DE. The user is expected to reserve
 ; HL, but can rely on DE being incremented.
-xDrawTile:
+xDrawTile::
 	ldh a, [hSystem]
 	and a, a
 	jr z, :+
