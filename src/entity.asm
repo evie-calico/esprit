@@ -2,6 +2,7 @@ INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
+INCLUDE "text.inc"
 
 SECTION "Process entities", ROM0
 ; Iterate through the entities.
@@ -208,7 +209,6 @@ PlayerLogic:
 		pop de
 		bankcall xDrawTile
 	pop bc
-	ld b, b
 	call GetDungeonItem
 	inc hl
 	inc hl
@@ -216,9 +216,12 @@ PlayerLogic:
 	inc hl
 	ld a, b
 	rst SwapBank
+	ld [wGetItemFmt], a
 	ld a, [hli]
-	ld h, [hl]
-	ld l, a
+	ld [wGetItemFmt + 1], a
+	ld a, [hli]
+	ld [wGetItemFmt + 2], a
+	ld hl, .getItemString
 	call PrintHUD
 .noPickup
 	; Then open the move window
@@ -287,6 +290,14 @@ PlayerLogic:
 	; If movement was successful, end the player's turn and process the next
 	; entity.
 	jp ProcessEntities.next
+
+.getItemString
+	db "Picked up "
+	textcallptr wGetItemFmt
+	db ".", 0
+
+SECTION "Get Item fmt", WRAM0
+wGetItemFmt: ds 3
 
 SECTION "Ally logic", ROM0
 ; @param a: Contains the value of wActiveEntity
