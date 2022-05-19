@@ -1,9 +1,57 @@
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 
-DEF MOVEMENT_SPEED EQU 16
+SECTION "Load Entity Graphics", ROM0
+; Flag each entity as needing an update and reload their palettes.
+; @param h: high byte of entity pointer
+; @clobbers bank
+LoadEntityGraphics::
+	; Forcefully load entity graphics.
+	ld l, LOW(wEntity0_LastDirection)
+	ld [hl], -1
+
+	ldh a, [hSystem]
+	and a, a
+	ret z
+
+	push hl
+
+	ld a, h
+	sub a, HIGH(wEntity0)
+	ld b, a
+	ld l, LOW(wEntity0_Bank)
+
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ASSERT EntityData_Palette == 2
+	inc hl
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+
+	ld a, b
+	; An entire palette is 9 bytes
+	add a, a ; a * 2
+	add a, a ; a * 4
+	add a, a ; a * 8
+	add a, b ; a * 9
+	add a, LOW(wOBJPaletteBuffer)
+	ld e, a
+	adc a, HIGH(wOBJPaletteBuffer)
+	sub a, e
+	ld d, a
+	ld c, 9
+	call MemCopySmall
+
+	pop hl
+	ret
 
 SECTION "Update entity graphics", ROM0
+; Check each entity to see if their graphics must be updated.
 UpdateEntityGraphics::
 	ld h, HIGH(wEntity0)
 .loop
@@ -68,104 +116,9 @@ UpdateEntityGraphics::
 	jr nz, .loop
 	ret
 
-SECTION "Move entities", ROMX
-xMoveEntities::
-	xor a, a
-	ld [wMoveEntityCounter], a
-	ld h, HIGH(wEntity0)
-.loop
-	ld l, LOW(wEntity0_Bank)
-	ld a, [hli]
-	and a, a
-	jr z, .skip
-.yCheck
-	ld l, LOW(wEntity0_PosY)
-	ld d, [hl]
-	; DE: Target position in 12.4
-	; [HL]: Sprite position
-	; Compare the positions to check if they need to be interpolated.
-	ld l, LOW(wEntity0_SpriteY + 1)
-	ld a, [hld]
-	cp a, d
-	jr z, .yCheckLow
-	jr c, .yGreater
-	; Fallthrough to yLesser.
-.yLesser
-	ld l, LOW(wEntity0_SpriteY)
-	ld a, [hl]
-	sub a, MOVEMENT_SPEED
-	ld [hli], a
-	jr nc, .next
-	dec [hl]
-	jr .next
-.yCheckLow
-	ld a, [hl]
-	cp a, 0
-	jr z, .xCheck
-	jr nc, .yLesser
-	; Fallthrough to yGreater.
-.yGreater
-	ld l, LOW(wEntity0_SpriteY)
-	ld a, [hl]
-	add a, MOVEMENT_SPEED
-	ld [hli], a
-	jr nc, .next
-	inc [hl]
-	jr .next
-
-.xCheck
-	ld l, LOW(wEntity0_PosX)
-	ld d, [hl]
-	; DE: Target position in 12.4
-	; [HL]: Sprite position
-	; Compare the positions to check if they need to be interpolated.
-	ld l, LOW(wEntity0_SpriteX + 1)
-	ld a, [hld]
-	cp a, d
-	jr z, .xCheckLow
-	jr c, .xGreater
-	; Fallthrough to xLesser.
-.xLesser
-	ld l, LOW(wEntity0_SpriteX)
-	ld a, [hl]
-	sub a, MOVEMENT_SPEED
-	ld [hli], a
-	jr nc, .next
-	dec [hl]
-	jr .next
-.xCheckLow
-	ld a, [hl]
-	cp a, 0
-	jr z, .skip
-	jr nc, .xLesser
-	; Fallthrough to xGreater.
-.xGreater
-	ld l, LOW(wEntity0_SpriteX)
-	ld a, [hl]
-	add a, MOVEMENT_SPEED
-	ld [hli], a
-	jr nc, .next
-	inc [hl]
-
-.next
-	ld a, [wMoveEntityCounter]
-	inc a
-	ld [wMoveEntityCounter], a
-	ld a, 1
-	jr :+
-.skip
-	xor a, a
-:   ld l, LOW(wEntity0_Frame)
-	ld [hl], a
-	inc h
-	ld a, h
-	cp a, HIGH(wEntity0) + NB_ENTITIES
-	jr nz, .loop
-	ld a, [wMoveEntityCounter]
-	ld [wMovementQueued], a
-	ret
-
 SECTION "Render entities", ROMX
+; Render each on-screen entity to OAM.
+; TODO: hide entities which overlap the window.
 xRenderEntities::
 	; Load OAM pointer.
 	ld d, HIGH(wShadowOAM)
@@ -626,10 +579,6 @@ UpdateAnimationFrame:
 	rst SwapBank
 	pop hl
 	ret
-
-SECTION "Movement return", WRAM0
-; Set to 0 if all entities are done moving.
-wMoveEntityCounter:: db
 
 SECTION "Entity Animation", WRAM0
 wEntityAnimation::

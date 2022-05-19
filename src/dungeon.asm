@@ -3,7 +3,6 @@ INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 INCLUDE "item.inc"
-INCLUDE "res/charmap.inc"
 
 ; The dungeon renderer is hard-coded to use these 4 metatiles to draw floors and
 ; walls. Additional tiles should follow these metatiles.
@@ -17,10 +16,9 @@ DEF EXIT_METATILE_ID RB 4
 DEF ITEM_METATILE_ID RB 4 * 4
 
 SECTION "Init dungeon", ROM0
+; Switch to the dungeon state.
+; @clobbers: bank
 InitDungeon::
-	ld a, [hCurrentBank]
-	push af
-
 	; Value init
 	ld hl, wActiveDungeon
 	ld a, BANK(xForestDungeon)
@@ -34,6 +32,9 @@ InitDungeon::
 	xor a, a
 	ld c, 6
 	ld hl, wEntityAnimation
+	call MemSetSmall
+	ld c, SIZEOF("entity.asm BSS")
+	ld hl, STARTOF("entity.asm BSS")
 	call MemSetSmall
 
 	; Draw debug map
@@ -60,21 +61,9 @@ InitDungeon::
 	ld [wEntity0_Moves + 1], a
 	ld a, HIGH(xPounce)
 	ld [wEntity0_Moves + 2], a
-
-	call SwitchToDungeonState
-
-	ld b, BANK(.text)
-	ld hl, .text
-	call PrintHUD
-
-	jp BankReturn
-.text db "Hello, world!<END>"
-
-SECTION "Switch To Dungeon State", ROM0
+; Re-initializes some aspects of the dungeon, such as rendering the map.
+; @clobbers: bank
 SwitchToDungeonState::
-	ld a, [hCurrentBank]
-	push af
-
 	ld a, GAMESTATE_DUNGEON
 	ld [wGameState], a
 	xor a, a
@@ -270,9 +259,7 @@ SwitchToDungeonState::
 	ld [wLastDungeonCameraY], a
 	ld a, BANK(xDrawDungeon)
 	rst SwapBank
-	call xDrawDungeon
-
-	jp BankReturn
+	jp xDrawDungeon
 
 SECTION "Dungeon State", ROM0
 DungeonState::

@@ -4,6 +4,10 @@ INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 INCLUDE "text.inc"
 
+; How fast the entity should move during animations. Should be a power of two.
+DEF MOVEMENT_SPEED EQU 16
+DEF RUNNING_SPEED EQU 64
+
 SECTION "Process entities", ROM0
 ; Iterate through the entities.
 ; The individual logic functions can choose to return on their own to end logic
@@ -27,137 +31,6 @@ ProcessEntities::
 	xor a, a
 :   ld [wActiveEntity], a
 	jr .loop
-
-SECTION "Pathfind helpers", ROM0
-; @param a: direction
-; @param b: X
-; @param c: Y
-StepDir:
-	and a, a
-	jr z, .up
-	dec a
-	jr z, .right
-	dec a
-	jr z, .down
-.left
-	dec b
-	jr .correctX
-.down
-	inc c
-	jr .correctY
-.right
-	inc b
-	jr .correctX
-.up
-	dec c
-.correctY
-	ld a, c
-	cp a, $FF
-	jr nz, :+
-	inc c
-:	cp a, DUNGEON_WIDTH
-	ret nz
-	dec c
-	ret
-
-.correctX
-	ld a, b
-	cp a, $FF
-	jr nz, :+
-	inc b
-:	cp a, DUNGEON_HEIGHT
-	ret nz
-	dec b
-	ret
-
-; @param d: direction
-; @param h: entity high byte
-; @clobbers: a, bc, de, l
-; @return carry: set upon success.
-TryStep:
-	ld l, LOW(wEntity0_Direction)
-	ld a, d
-	add a, 2
-	and a, %11
-	cp a, [hl]
-	jr z, .fail
-
-	; Try to move
-	ld l, LOW(wEntity0_Direction)
-	ld [hl], d
-	ld a, d
-	call MoveEntity
-	and a, a
-	jr nz, .fail
-	scf
-	ret
-
-.fail
-	xor a, a
-	ret
-
-; @param b: X position
-; @param c: Y position
-; @clobbers l
-; @returns d: X distance
-; @returns e: Y distance
-; @returns h: Target high byte
-GetClosestAlly:
-	xor a, a
-	ld [wClosestAllyTemp], a
-	ld h, HIGH(wEntity0)
-	lb de, 64, 64 ; An impossible distance, but not too high.
-.loop
-	ld l, LOW(wEntity0_Bank)
-	ld a, [hli]
-	and a, a
-	jr z, .next
-	ld l, LOW(wEntity0_PosX)
-	; Compare total distances first.
-	ld a, [hli]
-	add a, [hl]
-	sub a, b
-	sub a, c
-	; abs a
-	bit 7, a
-	jr z, :+
-	cpl
-	inc a
-:
-	; a = abs((X + Y) - (TX - TY))
-	; Use l as a scratch register
-	ld l, a
-	ld a, d
-	add a, e
-	; abs a
-	bit 7, a
-	jr z, :+
-	cpl
-	inc a
-:
-	; a = abs(total distance)
-	cp a, l
-	jr c, .next ; If the new position is more steps away, don't switch to it.
-
-	; Set new distance
-	ld l, LOW(wEntity0_PosX)
-	ld a, [hli]
-	sub a, b
-	ld d, a
-	ld a, [hl]
-	sub a, c
-	ld e, a
-	ld a, h
-	ld [wClosestAllyTemp], a
-
-.next
-	inc h
-	ld a, h
-	cp a, HIGH(wEntity0) + NB_ALLIES
-	jp nz, .loop
-	ld a, [wClosestAllyTemp]
-	ld h, a
-	ret
 
 SECTION "Player logic", ROM0
 PlayerLogic:
@@ -395,6 +268,237 @@ EnemyLogic:
 	call TryStep
 	jp ProcessEntities.next
 
+SECTION "Move entities", ROMX
+xMoveEntities::
+	xor a, a
+	ld [wMoveEntityCounter], a
+	ld b, MOVEMENT_SPEED
+	ld h, HIGH(wEntity0)
+.loop
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	and a, a
+	jr z, .skip
+.yCheck
+	ld l, LOW(wEntity0_PosY)
+	ld d, [hl]
+	; DE: Target position in 12.4
+	; [HL]: Sprite position
+	; Compare the positions to check if they need to be interpolated.
+	ld l, LOW(wEntity0_SpriteY + 1)
+	ld a, [hld]
+	cp a, d
+	jr z, .yCheckLow
+	jr c, .yGreater
+	; Fallthrough to yLesser.
+.yLesser
+	ld l, LOW(wEntity0_SpriteY)
+	ld a, [hl]
+	sub a, b
+	ld [hli], a
+	jr nc, .next
+	dec [hl]
+	jr .next
+.yCheckLow
+	ld a, [hl]
+	cp a, 0
+	jr z, .xCheck
+	jr nc, .yLesser
+	; Fallthrough to yGreater.
+.yGreater
+	ld l, LOW(wEntity0_SpriteY)
+	ld a, [hl]
+	add a, b
+	ld [hli], a
+	jr nc, .next
+	inc [hl]
+	jr .next
+
+.xCheck
+	ld l, LOW(wEntity0_PosX)
+	ld d, [hl]
+	; DE: Target position in 12.4
+	; [HL]: Sprite position
+	; Compare the positions to check if they need to be interpolated.
+	ld l, LOW(wEntity0_SpriteX + 1)
+	ld a, [hld]
+	cp a, d
+	jr z, .xCheckLow
+	jr c, .xGreater
+	; Fallthrough to xLesser.
+.xLesser
+	ld l, LOW(wEntity0_SpriteX)
+	ld a, [hl]
+	sub a, b
+	ld [hli], a
+	jr nc, .next
+	dec [hl]
+	jr .next
+.xCheckLow
+	ld a, [hl]
+	cp a, 0
+	jr z, .skip
+	jr nc, .xLesser
+	; Fallthrough to xGreater.
+.xGreater
+	ld l, LOW(wEntity0_SpriteX)
+	ld a, [hl]
+	add a, b
+	ld [hli], a
+	jr nc, .next
+	inc [hl]
+
+.next
+	ld a, [wMoveEntityCounter]
+	inc a
+	ld [wMoveEntityCounter], a
+	ld a, 1
+	jr :+
+.skip
+	xor a, a
+:   ld l, LOW(wEntity0_Frame)
+	ld [hl], a
+	inc h
+	ld a, h
+	cp a, HIGH(wEntity0) + NB_ENTITIES
+	jr nz, .loop
+	ld a, [wMoveEntityCounter]
+	ld [wMovementQueued], a
+	ret
+
+SECTION "Step in direction", ROM0
+; @param a: direction
+; @param b: X
+; @param c: Y
+StepDir:
+	and a, a
+	jr z, .up
+	dec a
+	jr z, .right
+	dec a
+	jr z, .down
+.left
+	dec b
+	jr .correctX
+.down
+	inc c
+	jr .correctY
+.right
+	inc b
+	jr .correctX
+.up
+	dec c
+.correctY
+	ld a, c
+	cp a, $FF
+	jr nz, :+
+	inc c
+:	cp a, DUNGEON_WIDTH
+	ret nz
+	dec c
+	ret
+
+.correctX
+	ld a, b
+	cp a, $FF
+	jr nz, :+
+	inc b
+:	cp a, DUNGEON_HEIGHT
+	ret nz
+	dec b
+	ret
+
+SECTION "Try Step", ROM0
+; @param d: direction
+; @param h: entity high byte
+; @clobbers: a, bc, de, l
+; @return carry: set upon success.
+TryStep:
+	ld l, LOW(wEntity0_Direction)
+	ld a, d
+	add a, 2
+	and a, %11
+	cp a, [hl]
+	jr z, .fail
+
+	; Try to move
+	ld l, LOW(wEntity0_Direction)
+	ld [hl], d
+	ld a, d
+	call MoveEntity
+	and a, a
+	jr nz, .fail
+	scf
+	ret
+
+.fail
+	xor a, a
+	ret
+
+SECTION "Get Closest Ally", ROM0
+; @param b: X position
+; @param c: Y position
+; @clobbers l
+; @returns d: X distance
+; @returns e: Y distance
+; @returns h: Target high byte
+GetClosestAlly:
+	xor a, a
+	ld [wClosestAllyTemp], a
+	ld h, HIGH(wEntity0)
+	lb de, 64, 64 ; An impossible distance, but not too high.
+.loop
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	and a, a
+	jr z, .next
+	ld l, LOW(wEntity0_PosX)
+	; Compare total distances first.
+	ld a, [hli]
+	add a, [hl]
+	sub a, b
+	sub a, c
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	; a = abs((X + Y) - (TX - TY))
+	; Use l as a scratch register
+	ld l, a
+	ld a, d
+	add a, e
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	; a = abs(total distance)
+	cp a, l
+	jr c, .next ; If the new position is more steps away, don't switch to it.
+
+	; Set new distance
+	ld l, LOW(wEntity0_PosX)
+	ld a, [hli]
+	sub a, b
+	ld d, a
+	ld a, [hl]
+	sub a, c
+	ld e, a
+	ld a, h
+	ld [wClosestAllyTemp], a
+
+.next
+	inc h
+	ld a, h
+	cp a, HIGH(wEntity0) + NB_ALLIES
+	jp nz, .loop
+	ld a, [wClosestAllyTemp]
+	ld h, a
+	ret
+
 SECTION "Joypad to direction", ROM0
 ; Reads hCurrentKeys and returns the currently selected pad direction in A.
 ; If no direction is selected, sets the carry flag.
@@ -566,55 +670,7 @@ SpawnEntity::
 
 	jp BankReturn
 
-SECTION "Load Entity Graphics", ROM0
-; @param h: high byte of entity pointer
-; @clobbers bank
-LoadEntityGraphics::
-	; Forcefully load entity graphics.
-	ld l, LOW(wEntity0_LastDirection)
-	ld [hl], -1
-
-	ldh a, [hSystem]
-	and a, a
-	ret z
-
-	push hl
-
-	ld a, h
-	sub a, HIGH(wEntity0)
-	ld b, a
-	ld l, LOW(wEntity0_Bank)
-
-	ld a, [hli]
-	rst SwapBank
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	ASSERT EntityData_Palette == 2
-	inc hl
-	inc hl
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-
-	ld a, b
-	; An entire palette is 9 bytes
-	add a, a ; a * 2
-	add a, a ; a * 4
-	add a, a ; a * 8
-	add a, b ; a * 9
-	add a, LOW(wOBJPaletteBuffer)
-	ld e, a
-	adc a, HIGH(wOBJPaletteBuffer)
-	sub a, e
-	ld d, a
-	ld c, 9
-	call MemCopySmall
-
-	pop hl
-	ret
-
-SECTION "GetMaxHealth", ROM0
+SECTION "Get Max Health", ROM0
 ; This function encapsulates the maximum level formula, allowing it to
 ; be easily changed in the future.
 ; @param a: Level
@@ -633,6 +689,8 @@ GetMaxHealth::
 	ld h, a
 	ret
 
+; This loop creates page-aligned entity structures. This is a huge benefit to
+; the engine as it allows very quick structure seeking and access.
 FOR I, NB_ENTITIES
 	SECTION "Entity {I}", WRAM0[$C100 - sizeof_Entity + I * $100]
 	IF I == 0
@@ -643,13 +701,15 @@ wEnemies::
 		dstruct Entity, wEntity{d:I}
 ENDR
 
-SECTION "Active entity", WRAM0
+; This "BSS" section is used to 0-init private vars from another TU.
+SECTION "entity.asm BSS", WRAM0
 ; The next entity to be processed.
-wActiveEntity:: db
+wActiveEntity: db
+wMoveEntityCounter: db
 
 SECTION "Movement Queued", WRAM0
 ; nonzero if any entity is ready to move.
-wMovementQueued:: db
+wMovementQueued: db
 
 SECTION "Show Moves", WRAM0
 wShowMoves:: db

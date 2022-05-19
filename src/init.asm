@@ -66,8 +66,6 @@ Initialize::
 	ldh [hOAMIndex], a
 
 	; zero-init vars
-	ld [wActiveEntity], a
-	ld [wMoveEntityCounter], a
 	ld [wSTATTarget], a
 	ld [wSTATTarget + 1], a
 	ld [wTextCharset], a
