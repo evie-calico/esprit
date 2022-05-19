@@ -199,57 +199,56 @@ SwitchToDungeonState::
 		ld d, a
 		dec b
 		jr nz, .copyItemColor
-
-		ld hl, wActiveDungeon
-		ld a, [hli]
-		rst SwapBank
-		ld a, [hli]
-		ld h, [hl]
-		ld l, a
-		inc hl
-		inc hl
-		inc hl
-		inc hl
-		ASSERT Dungeon_Items == 4
-		; Push each item onto the stack :)
-		ld b, DUNGEON_ITEM_COUNT
-	.pushItems2
-		ld a, [hli]
-		push af
-		ld a, [hli]
-		ld e, a
-		ld a, [hli]
-		ld d, a
-		push de
-		dec b
-		jr nz, .pushItems2
-
-	.items
-		; And finally, copy the graphics
-		ld b, DUNGEON_ITEM_COUNT
-		ld de, $8000 + (ITEM_METATILE_ID + 3 * 4) * 16
-	.copyItemGfx
-		pop hl
-		pop af
-		rst SwapBank
-		inc hl
-		inc hl
-		ASSERT Item_Graphics == 2
-		ld a, [hli]
-		ld h, [hl]
-		ld l, a
-		ld c, 16 * 4
-		call VRAMCopySmall
-		ld a, e
-		sub a, 128
-		ld e, a
-		ld a, d
-		sbc a, 0
-		ld d, a
-		dec b
-		jr nz, .copyItemGfx
-
 .skipCGB
+	ld hl, wActiveDungeon
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	inc hl
+	inc hl
+	inc hl
+	ASSERT Dungeon_Items == 4
+	; Push each item onto the stack :)
+	ld b, DUNGEON_ITEM_COUNT
+.pushItems2
+	ld a, [hli]
+	push af
+	ld a, [hli]
+	ld e, a
+	ld a, [hli]
+	ld d, a
+	push de
+	dec b
+	jr nz, .pushItems2
+
+.items
+	; And finally, copy the graphics
+	ld b, DUNGEON_ITEM_COUNT
+	ld de, $8000 + (ITEM_METATILE_ID + 3 * 4) * 16
+.copyItemGfx
+	pop hl
+	pop af
+	rst SwapBank
+	inc hl
+	inc hl
+	ASSERT Item_Graphics == 2
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld c, 16 * 4
+	call VRAMCopySmall
+	ld a, e
+	sub a, 128
+	ld e, a
+	ld a, d
+	sbc a, 0
+	ld d, a
+	dec b
+	jr nz, .copyItemGfx
+
 	ld a, BANK(xFocusCamera)
 	rst SwapBank
 	call xFocusCamera
