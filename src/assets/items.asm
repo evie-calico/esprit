@@ -47,6 +47,6 @@ ENDM
 
 	item Scarf, "res/items/scarf.2bpp"
 	.palette
-		rgb 255, 255, 120
+		rgb 120, 120, 255
 		rgb  64,  64, 196
-		rgb   0,   0,  64
+		rgb   0,   0,  80
