@@ -1,10 +1,8 @@
 INCLUDE "defines.inc"
 INCLUDE "menu.inc"
 
-; TODO: It's not really appropriate for these to be in ROM0. Move them.
-
-; These two helper macros helpfully define the themes and palettes,
-; automatically turning them into a circular linked list. You're welcome :3
+; These two helper macros define the themes and palettes, automatically turning
+; them into a circular linked list. You're welcome :3
 
 MACRO themes
 	DEF FIRST_NAME EQUS "\1MenuTheme"
