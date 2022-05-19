@@ -56,6 +56,9 @@ InitUI::
 	ld hl, vBlankTile
 	call VRAMSetSmall
 
+	xor a, a
+	ld [wPrintString], a
+
 	lb bc, idof_vBlankTile, vHUD_Width - 2
 	ld hl, vHUD + 33
 	call VRAMSetSmall
@@ -140,12 +143,22 @@ InitUI::
 	jp BankReturn
 
 SECTION "Print HUD", ROM0
+; Sets a string to print.
 ; @param b:  Bank of string
 ; @param hl: String to print
 PrintHUD::
-	ldh a, [hCurrentBank]
-	push af
-	push bc
+	ld a, b
+	ld [wPrintString], a
+	ld a, l
+	ld [wPrintString + 1], a
+	ld a, h
+	ld [wPrintString + 2], a
+	ret
+
+; Draw a string to the HUD.
+; This is called during the game loop after rendering entities, to ensure they
+; do not fail to render if printing takes too long.
+DrawPrintString::
 	ld a, vTextbox_Width * 8
 	lb bc, idof_vTextboxTiles, idof_vTextboxTiles + vTextbox_Width * vTextbox_Height
 	lb de, vTextbox_Height, HIGH(vTextboxTiles) & $F0
@@ -154,7 +167,14 @@ PrintHUD::
 	xor a, a
 	ld [wTextLetterDelay], a
 
-	pop bc
+	ld hl, wPrintString
+	ld a, [hl]
+	ld b, a
+	ld [hl], 0
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
 	ld a, 1
 	call PrintVWFText
 
@@ -162,13 +182,11 @@ PrintHUD::
 	ld hl, vTextbox
 	call TextDefineBox
 	call ReaderClear
-	bankcall TextClear
-	call PrintVWFChar
-	call DrawVWFChars
-
-	pop af
+	ld a, BANK(TextClear)
 	rst SwapBank
-	ret
+	call TextClear
+	call PrintVWFChar
+	jp DrawVWFChars
 
 SECTION "Attack window", ROM0
 UpdateAttackWindow::
@@ -292,6 +310,9 @@ ShowTextBox:
 SECTION "Window effect bounce", WRAM0
 wWindowBounce: db
 wWindowSticky:: db
+
+SECTION "Print string", WRAM0
+wPrintString:: ds 3
 
 SECTION "Debug attacks", ROMX
 xDebugAttacks: db "One\nTwo\nThree\nFour<END>"

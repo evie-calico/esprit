@@ -340,6 +340,10 @@ DungeonState::
 	bankcall xRenderEntities
 	call UpdateEntityGraphics
 
+	ld a, [wPrintString]
+	and a, a
+	call nz, DrawPrintString
+
 	jp UpdateAttackWindow
 
 SECTION "Get Item", ROM0
