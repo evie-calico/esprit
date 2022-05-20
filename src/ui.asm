@@ -1,4 +1,5 @@
 INCLUDE "defines.inc"
+INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 INCLUDE "menu.inc"
 INCLUDE "text.inc"
@@ -199,7 +200,7 @@ UpdateAttackWindow::
 .open
 	ldh a, [hNewKeys]
 	bit PADB_A, a
-	jr z, .skipRedraw
+	jp z, .skipRedraw
 		xor a, a
 		ld [wWindowBounce], a
 :           ld a, [rSTAT]
@@ -236,15 +237,55 @@ UpdateAttackWindow::
 		xor a, a
 		ld [wTextLetterDelay], a
 
-		ld b, BANK(xDebugAttacks)
-		ld hl, xDebugAttacks
+		ld b, 4
+		ld de, wMoveWindowBuffer
+		ld hl, wEntity0_Moves
+	.copyMoves
+		ld a, [hli]
+		and a, a
+		jr nz, :+
+			inc hl
+			inc hl
+			jr .next
+:
+		rst SwapBank
+		ld a, [hli]
+		push hl
+		ld h, [hl]
+		ld l, a
+		ASSERT Move_Name == 1
+		inc hl
+		ld a, [hli]
+		ld h, [hl]
+		ld l, a
+	.strcpy
+		ld a, [hli]
+		and a, a
+		jr z, .doneCopy
+		ld [de], a
+		inc de
+		jr .strcpy
+	.doneCopy
+		ld a, "\n"
+		ld [de], a
+		inc de
+		pop hl
+		inc hl
+	.next
+		dec b
+		jr nz, .copyMoves
+	.finished
+		xor a, a
+		ld [de], a
+
+		ld hl, wMoveWindowBuffer
 		ld a, 1
 		call PrintVWFText
 
 		; Draw move names
 		ld a, vAttackText_Width * 8
 		lb bc, idof_vAttackTiles, idof_vAttackTiles + vAttackText_Width * vAttackText_Height
-		lb de, vAttackText_Height, HIGH(vAttackTiles) & $F0
+		lb de, vAttackText_Height + 2, HIGH(vAttackTiles) & $F0
 		call TextInit
 
 		lb de, vAttackText_Width, vAttackText_Height
@@ -313,6 +354,9 @@ wWindowSticky:: db
 
 SECTION "Print string", WRAM0
 wPrintString:: ds 3
+
+SECTION "Move Window Buffer", WRAM0
+wMoveWindowBuffer: ds 8 * 4
 
 SECTION "Debug attacks", ROMX
 xDebugAttacks: db "One\nTwo\nThree\nFour<END>"

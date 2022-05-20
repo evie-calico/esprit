@@ -1631,6 +1631,10 @@ TextDefineBox::
 	ld [wTextHeight], a
 	jp SetPenPosition
 
+Newline::
+	call TextNewline
+	jp ReaderNewline
+
 SECTION "Charset data", ROM0
 
 IF !DEF(NB_CHARSETS)
