@@ -9,7 +9,7 @@ DEF POPUP_SPEED EQU 8
 
 	dregion vHUD, 0, 28, 20, 4, $9C00
 	dregion vTextbox, 1, 29, 18, 3, $9C00
-	dregion vAttackWindow, 0, 0, 10, 5, $9C00
+	dregion vAttackWindow, 0, 0, 8, 5, $9C00
 	dregion vAttackText, 2, 1, 8, 4, $9C00
 	dtile_section $9000
 	dtile vBlankTile
@@ -316,12 +316,12 @@ UpdateAttackWindow::
 	ldh [hShadowWY], a
 	jp BankReturn
 .bounceEffect
-	cp a, 1
+	dec a
 	jr nz, .in
 	ldh a, [hShadowWX]
 	sub a, POPUP_SPEED / 2
 	ldh [hShadowWX], a
-	cp a, SCRN_X - vAttackWindow_Width * 8 - 16
+	cp a, SCRN_X - vAttackWindow_Width * 8 - 12
 	jp nz, BankReturn
 	ld [wWindowBounce], a
 	jp BankReturn
