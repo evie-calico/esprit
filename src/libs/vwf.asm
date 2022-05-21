@@ -1000,8 +1000,7 @@ ReaderCallPtr::
 ReaderU16::
 	push de
 	push hl
-
-	ld b, b
+	
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
