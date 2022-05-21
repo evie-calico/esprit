@@ -134,6 +134,7 @@ PlayerLogic:
 	ret c
 	ld b, HIGH(wEntity0)
 	call UseMove
+	ret z
 	xor a, a
 	ld [wShowMoves], a
 	; End the player's turn.

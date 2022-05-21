@@ -74,12 +74,6 @@ InitDungeon::
 	ld [hli], a
 	ld a, HIGH(xScratch)
 	ld [hli], a
-	ld a, BANK(xPounce)
-	ld [hli], a
-	ld a, LOW(xPounce)
-	ld [hli], a
-	ld a, HIGH(xPounce)
-	ld [hli], a
 ; Re-initializes some aspects of the dungeon, such as rendering the map.
 ; @clobbers: bank
 SwitchToDungeonState::

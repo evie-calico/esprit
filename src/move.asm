@@ -5,6 +5,7 @@ INCLUDE "text.inc"
 SECTION "Use Move", ROM0
 ; @param a: Move index
 ; @param b: Entity pointer high byte
+; @return z: set if failed
 UseMove::
 	; Each move pointer is 3 bytes.
 	ld c, a
@@ -19,7 +20,7 @@ UseMove::
 
 	ld a, [bc]
 	and a, a
-	ret z ; Exit if the move's bank is 0.
+	jr z, .fail ; Exit if the move's bank is 0.
 	inc bc
 	rst SwapBank
 	ld a, [bc]
@@ -95,6 +96,14 @@ UseMove::
 
 	pop af
 	rst SwapBank
+	xor a, a
+	inc a ; This sets the Z flag.
+	ret
+
+.fail
+	pop af
+	rst SwapBank
+	xor a, a
 	ret
 
 .dispatchMoveAction
