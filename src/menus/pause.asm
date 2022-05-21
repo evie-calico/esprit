@@ -4,6 +4,9 @@ INCLUDE "hardware.inc"
 INCLUDE "menu.inc"
 INCLUDE "structs.inc"
 
+DEF MAIN_CURSOR_X EQU 5
+DEF MAIN_CURSOR_Y EQU 4
+
 SECTION "Pause Menu", ROMX
 xPauseMenu::
 	db BANK(@)
@@ -31,6 +34,10 @@ xPauseMenu::
 
 ; Place this first to define certain constants.
 xDrawPauseMenu:
+	load_tiles .frame, 9, vFrame
+	DEF idof_vBlankTile EQU idof_vFrame + 4
+	dregion vTopMenu, 0, 0, 9, 14
+	set_frame vTopMenu, idof_vFrame
 	print_text 3, 1, "Return"
 	print_text 3, 3, "Items"
 	print_text 3, 5, "Party"
@@ -38,17 +45,16 @@ xDrawPauseMenu:
 	print_text 3, 9, "Options"
 	print_text 3, 11, "Escape!", 5
 	end_dmg
-	set_background 0, 0, SCRN_VX_B, SCRN_VY_B, 0
+	set_region 0, 0, SCRN_VX_B, SCRN_VY_B, 0
 	end_cgb
 
 	; Custom vallocs must happen after the menu has been defined.
-	dtile vBlankTile
 	; Unused tiles reserved for submenus to draw text on.
 	dtile vScratchRegion
 	dtile_section $8000
 	dtile vCursor, 4
 
-.blankTile ds 16, 0
+.frame INCBIN "res/ui/hud_frame.2bpp"
 
 xPauseMenuInit:
 	; Set scroll
@@ -59,9 +65,6 @@ xPauseMenuInit:
 	ld [wScrollInterp.y], a
 
 	; Clear background.
-	lb bc, 0, 16
-	ld hl, vBlankTile
-	call VRAMSetSmall
 	ld d, idof_vBlankTile
 	ld bc, $400
 	ld hl, $9800
@@ -85,8 +88,9 @@ xPauseMenuInit:
 
 	; Initialize cursors
 	ld hl, wPauseMenuCursor
-	ld a, 4
+	ld a, MAIN_CURSOR_X
 	ld [hli], a
+	ld a, MAIN_CURSOR_Y
 	ld [hli], a
 	ld a, idof_vCursor
 	ld [hli], a
@@ -115,9 +119,9 @@ xPauseMenuRedraw:
 	add a, a ; a * 4
 	add a, a ; a * 8
 	add a, a ; a * 16
-	add a, 4
+	add a, MAIN_CURSOR_Y
 	ld b, a
-	ld c, 4
+	ld c, MAIN_CURSOR_X
 	ld hl, wPauseMenuCursor
 	call DrawCursor
 	ld hl, wSubMenuCursor
@@ -303,6 +307,9 @@ xPartyMenuClose:
 	ld [wScrollInterp.y], a
 	ret
 
+DEF OPTIONS_CURSOR_X EQU SCRN_VX - SCRN_X + 69
+DEF OPTIONS_CURSOR_Y EQU 20
+
 xOptionsMenu::
 	db BANK(@)
 	dw xOptionsMenuInit
@@ -329,6 +336,8 @@ xOptionsMenu::
 
 xDrawOptionsMenu::
 	dtile_section vScratchRegion
+	dregion vOptionsMenu, 20, 0, 12, 13
+	set_frame vOptionsMenu, idof_vFrame
 	print_text 24, 1, "Options"
 	print_text 23, 3, "Theme:"
 	print_text 23, 6, "Color:"
@@ -342,9 +351,9 @@ xOptionsMenuInit:
 	xor a, a
 	ld [wScrollInterp.y], a
 	ld hl, wSubMenuCursor
-	ld a, SCRN_VX - SCRN_X + 68
+	ld a, OPTIONS_CURSOR_X
 	ld [hli], a
-	ld a, 20
+	ld a, OPTIONS_CURSOR_Y
 	ld [hli], a
 	ld a, idof_vCursor
 	ld [hli], a
@@ -369,9 +378,9 @@ xOptionsMenuRedraw:
 	ld b, a
 	add a, a ; a * 16
 	add a, b
-	add a, 20
+	add a, OPTIONS_CURSOR_Y
 	ld b, a
-	ld c, SCRN_VX - SCRN_X + 68
+	ld c, OPTIONS_CURSOR_X
 	ld hl, wSubMenuCursor
 	call DrawCursor
 	ld hl, wPauseMenuCursor

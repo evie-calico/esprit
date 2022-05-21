@@ -30,14 +30,29 @@ DEF end_menu EQUS "db MENUDRAW_END"
 DEF end_dmg  EQUS "db MENUDRAW_END_DMG"
 DEF end_cgb  EQUS "db MENUDRAW_END_CGB"
 
-MACRO set_background ; tile id
+MACRO set_region ; tile id
 	db MENUDRAW_SET_BACKGROUND
 	db \3, \4, \5
 	IF _NARG > 5
-		dw \6 + \1 + \2 * 32
+		dw (\6) + (\1) + (\2) * 32
 	ELSE
-		dw $9800 + \1 + \2 * 32
+		dw $9800 + (\1) + (\2) * 32
 	ENDC
+ENDM
+
+MACRO set_tile; tile id
+	set_region \1, \2, 1, 1, \3
+ENDM
+
+MACRO set_frame ; region, frame
+	set_tile \1_X, \1_Y, \2 ; Top left
+	set_region \1_X + 1, \1_Y, \1_Width - 2, 1, \2 + 1 ; Top
+	set_tile \1_X + \1_Width - 1, \1_Y, \2 + 2 ; Top right
+	set_region \1_X, \1_Y + 1, 1, \1_Height - 2, \2 + 3 ; Left
+	set_region \1_X + \1_Width - 1, \1_Y + 1, 1, \1_Height - 2, \2 + 5 ; Right
+	set_tile \1_X, \1_Y + \1_Height - 1, \2 + 6; Bottom left
+	set_region \1_X + 1, \1_Y + \1_Height - 1, \1_Width - 2, 1, \2 + 7 ; Bottom
+	set_tile \1_X + \1_Width - 1, \1_Y + \1_Height - 1, \2 + 8 ; Bottom right
 ENDM
 
 MACRO load_tiles ; tile ptr, tile count, name
