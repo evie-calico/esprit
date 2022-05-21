@@ -118,7 +118,6 @@ UpdateEntityGraphics::
 
 SECTION "Render entities", ROMX
 ; Render each on-screen entity to OAM.
-; TODO: hide entities which overlap the window.
 xRenderEntities::
 	; Load OAM pointer.
 	ld d, HIGH(wShadowOAM)
