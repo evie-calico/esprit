@@ -51,6 +51,13 @@ xDrawPauseMenu:
 .blankTile ds 16, 0
 
 xPauseMenuInit:
+	; Set scroll
+	xor a, a
+	ldh [hShadowSCX], a
+	ldh [hShadowSCY], a
+	ld [wScrollInterp.x], a
+	ld [wScrollInterp.y], a
+
 	; Clear background.
 	lb bc, 0, 16
 	ld hl, vBlankTile
@@ -93,13 +100,6 @@ xPauseMenuInit:
 	ld a, idof_vCursor
 	ld [hli], a
 	ld [hl], OAMF_PAL1
-
-	; Set scroll
-	xor a, a
-	ldh [hShadowSCX], a
-	ldh [hShadowSCY], a
-	ld [wScrollInterp.x], a
-	ld [wScrollInterp.y], a
 	ret
 
 xPauseMenuRedraw:

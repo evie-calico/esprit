@@ -269,6 +269,7 @@ SwitchToDungeonState::
 	ld [wLastDungeonCameraX], a
 	ld a, [wDungeonCameraY + 1]
 	ld [wLastDungeonCameraY], a
+	bankcall xUpdateScroll
 	ld a, BANK(xDrawDungeon)
 	rst SwapBank
 	jp xDrawDungeon
@@ -330,23 +331,7 @@ DungeonState::
 	; Scroll the map after moving entities.
 	bankcall xHandleMapScroll
 	bankcall xFocusCamera
-
-	ld a, [wDungeonCameraX + 1]
-	ld b, a
-	ld a, [wDungeonCameraX]
-	REPT 4
-		srl b
-		rra
-	ENDR
-	ldh [hShadowSCX], a
-	ld a, [wDungeonCameraY + 1]
-	ld b, a
-	ld a, [wDungeonCameraY]
-	REPT 4
-		srl b
-		rra
-	ENDR
-	ldh [hShadowSCY], a
+	bankcall xUpdateScroll
 
 	; Render entities after scrolling.
 	bankcall xRenderEntities
@@ -388,6 +373,65 @@ GetDungeonItem::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
+	ret
+
+SECTION "Focus Camera", ROMX
+xFocusCamera::
+	ld bc, wEntity0_SpriteY
+	ld a, [bc]
+	inc c
+	ld l, a
+	ld a, [bc]
+	inc c
+	ld h, a
+	ld de, (SCRN_Y - 50) / -2 << 4
+	add hl, de
+	bit 7, h
+	jr nz, :+
+	ld a, h
+	cp a, 64 - 9
+	jr nc, :+
+	ld a, l
+	ld [wDungeonCameraY], a
+	ld a, h
+	ld [wDungeonCameraY + 1], a
+:   ld a, [bc]
+	inc c
+	ld l, a
+	ld a, [bc]
+	inc c
+	ld h, a
+	ld de, (SCRN_X - 24) / -2 << 4
+	add hl, de
+	bit 7, h
+	ret nz
+	ld a, h
+	cp a, 64 - 10
+	ret nc
+	ld a, l
+	ld [wDungeonCameraX], a
+	ld a, h
+	ld [wDungeonCameraX + 1], a
+	ret
+
+SECTION "Update Scroll", ROMX
+xUpdateScroll:
+	ld a, [wDungeonCameraX + 1]
+	ld b, a
+	ld a, [wDungeonCameraX]
+	REPT 4
+		srl b
+		rra
+	ENDR
+	ldh [hShadowSCX], a
+	ld a, [wDungeonCameraY + 1]
+	ld b, a
+	ld a, [wDungeonCameraY]
+	REPT 4
+		srl b
+		rra
+	ENDR
+	ldh [hShadowSCY], a
 	ret
 
 SECTION "Draw dungeon", ROMX

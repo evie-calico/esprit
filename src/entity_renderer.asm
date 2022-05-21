@@ -255,45 +255,6 @@ xRenderEntities::
 	ldh [hOAMIndex], a
 	ret
 
-SECTION "Focus Camera", ROMX
-xFocusCamera::
-	ld bc, wEntity0_SpriteY
-	ld a, [bc]
-	inc c
-	ld l, a
-	ld a, [bc]
-	inc c
-	ld h, a
-	ld de, (SCRN_Y - 50) / -2 << 4
-	add hl, de
-	bit 7, h
-	jr nz, :+
-	ld a, h
-	cp a, 64 - 9
-	jr nc, :+
-	ld a, l
-	ld [wDungeonCameraY], a
-	ld a, h
-	ld [wDungeonCameraY + 1], a
-:   ld a, [bc]
-	inc c
-	ld l, a
-	ld a, [bc]
-	inc c
-	ld h, a
-	ld de, (SCRN_X - 24) / -2 << 4
-	add hl, de
-	bit 7, h
-	ret nz
-	ld a, h
-	cp a, 64 - 10
-	ret nc
-	ld a, l
-	ld [wDungeonCameraX], a
-	ld a, h
-	ld [wDungeonCameraX + 1], a
-	ret
-
 SECTION "Update animation", ROMX
 xUpdateAnimation::
 	ld a, [wEntityAnimation.timer]
