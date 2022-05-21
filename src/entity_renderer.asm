@@ -189,6 +189,16 @@ xRenderEntities::
 	sub a, c
 	ld b, a
 
+	ldh a, [rWX]
+	sub a, 4
+	cp a, b
+	jr nc, :+
+	ldh a, [hRenderTempByte]
+	ld c, a
+	ldh a, [rWY]
+	cp a, c
+	jr c, .next
+:
 	FOR I, 2
 		; The following is an unrolled loop which writes both halves of the sprite.
 		ldh a, [hRenderTempByte]
