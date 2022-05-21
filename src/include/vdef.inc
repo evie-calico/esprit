@@ -91,6 +91,8 @@ MACRO dregion ; Name, x, y, width, height, [address]
 	ELSE
 		ASSERT _NARG == 5 || _NARG == 6, "Expected 5 or 6 arguments!"
 	ENDC
+	DEF \1_X EQU \2
+	DEF \1_Y EQU \3
 	DEF \1_Width EQU \4
 	DEF \1_Height EQU \5
 ENDM
