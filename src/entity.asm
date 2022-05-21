@@ -132,10 +132,10 @@ PlayerLogic:
 	call PadToDir
 	; If no input is given, the player waits a frame to take its turn
 	ret c
-	xor a, a
-	ld [wShowMoves], a
 	ld b, HIGH(wEntity0)
 	call UseMove
+	xor a, a
+	ld [wShowMoves], a
 	; End the player's turn.
 	ld a, 1
 	ld [wActiveEntity], a
