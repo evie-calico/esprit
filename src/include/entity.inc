@@ -7,6 +7,8 @@ DEF NB_ALLIES EQU 3
 DEF NB_ENEMIES EQU 5
 DEF NB_ENTITIES EQU 8
 
+DEF ENTITY_MOVE_COUNT EQU 4
+
 DEF SPRITE_DIRECTION_SIZE EQU 128 * 3
 DEF ENTITY_FRAME_IDLE EQU 0
 DEF ENTITY_FRAME_STEP EQU 1
@@ -73,7 +75,7 @@ DEF ENTITY_ANIMATION_END RB 1
 		bytes 1, Frame
 		; Each of the entity's learned moves. If the bank is 0, the move does
 		; not exist.
-		bytes 3 * 4, Moves
+		bytes 3 * ENTITY_MOVE_COUNT, Moves
 		; Stats are very basic. There is no attack or defense stat, only a
 		; maximum health. This value is the same for all species, and is derived
 		; From the level. The main difference between species lies in their

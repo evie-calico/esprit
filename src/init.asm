@@ -97,6 +97,12 @@ Initialize::
 	ld c, $10 * 2
 	ld hl, wTextTileBuffer
 	rst MemSetSmall
+	ld c, 4 * 3 * 8
+	ld hl, wBGPaletteBuffer
+	rst MemSetSmall
+	ld c, 3 * 3 * 8
+	ld hl, wOBJPaletteBuffer
+	rst MemSetSmall
 
 	ld a, $FF
 	ld [wTextSrcPtr + 1], a

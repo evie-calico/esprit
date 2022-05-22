@@ -6,6 +6,10 @@ SECTION "Load Entity Graphics", ROM0
 ; @param h: high byte of entity pointer
 ; @clobbers bank
 LoadEntityGraphics::
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hl]
+	and a, a
+	ret z
 	; Forcefully load entity graphics.
 	ld l, LOW(wEntity0_LastDirection)
 	ld [hl], -1

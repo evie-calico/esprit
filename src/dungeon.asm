@@ -49,31 +49,21 @@ InitDungeon::
 	ld [wDungeonMap + 33 + 30 * 64], a
 
 	; Null out all entities.
+	ld hl, wEntity0
+	ld b, NB_ENTITIES
+	xor a, a
+.clearEntities
+	ld [hl], a
+	inc h
+	dec b
+	jr nz, .clearEntities
+	; Spawn a player and enemy
 	FOR I, NB_ENTITIES
 		lb bc, BANK(xLuvui), 5
 		ld de, xLuvui
 		ld h, HIGH(wEntity{d:I})
 		call SpawnEntity
 	ENDR
-	ld hl, wEntity0_Moves
-	ld a, BANK(xPounce)
-	ld [hli], a
-	ld a, LOW(xPounce)
-	ld [hli], a
-	ld a, HIGH(xPounce)
-	ld [hli], a
-	ld a, BANK(xBite)
-	ld [hli], a
-	ld a, LOW(xBite)
-	ld [hli], a
-	ld a, HIGH(xBite)
-	ld [hli], a
-	ld a, BANK(xScratch)
-	ld [hli], a
-	ld a, LOW(xScratch)
-	ld [hli], a
-	ld a, HIGH(xScratch)
-	ld [hli], a
 ; Re-initializes some aspects of the dungeon, such as rendering the map.
 ; @clobbers: bank
 SwitchToDungeonState::

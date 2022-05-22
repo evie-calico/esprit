@@ -13,16 +13,25 @@ SECTION "Process entities", ROM0
 ; The individual logic functions can choose to return on their own to end logic
 ; processing. This is used to queue up movements to occur simultaneuously.
 ProcessEntities::
+	ld a, BANK("Entity Logic")
+	rst SwapBank
 	ld a, [wMoveEntityCounter]
 	and a, a
 	ret nz
 	ld a, [wActiveEntity]
 .loop
+	add a, HIGH(wEntity0)
+	ld h, a
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hl]
 	and a, a
-	jp z, PlayerLogic
+	jr z, .next
+	ld a, [wActiveEntity]
+	and a, a
+	jp z, xPlayerLogic
 	cp a, NB_ALLIES
-	jp c, AllyLogic
-	jp EnemyLogic
+	jp c, xAllyLogic
+	jp xEnemyLogic
 .next
 	ld a, [wActiveEntity]
 	inc a
@@ -32,8 +41,8 @@ ProcessEntities::
 :   ld [wActiveEntity], a
 	jr .loop
 
-SECTION "Player logic", ROM0
-PlayerLogic:
+SECTION "Entity Logic", ROMX
+xPlayerLogic:
 	; If any movement is queued, the player should refuse to take its turn to
 	; allow all sprites to catch up.
 	ld a, [wMovementQueued]
@@ -44,6 +53,13 @@ PlayerLogic:
 	ret
 
 .noHide
+	call ItemCheck
+PUSHS
+SECTION "Item Check", ROM0
+ItemCheck:
+	ldh a, [hCurrentBank]
+	push af
+
 	; First, check if we're standing on an item.
 	ld a, [wEntity0_PosX]
 	ld b, a
@@ -52,7 +68,7 @@ PlayerLogic:
 	bankcall xGetMapPosition
 	ld a, [de]
 	sub a, TILE_ITEMS
-	jr c, .noPickup
+	ret c
 	ASSERT TILE_CLEAR == 0
 	push af
 		xor a, a
@@ -94,8 +110,11 @@ PlayerLogic:
 	ld [wGetItemFmt + 1], a
 	ld a, [hli]
 	ld [wGetItemFmt + 2], a
-	ld hl, .getItemString
+	ld b, BANK(GetItemString)
+	ld hl, GetItemString
 	call PrintHUD
+	jp BankReturn
+POPS
 .noPickup
 	; Then open the move window
 	ld a, [wWindowSticky]
@@ -165,25 +184,30 @@ PlayerLogic:
 	; entity.
 	jp ProcessEntities.next
 
-.getItemString
-	db "Picked up "
-	textcallptr wGetItemFmt
-	db ".", 0
-
-SECTION "Get Item fmt", WRAM0
-wGetItemFmt: ds 3
-
-SECTION "Ally logic", ROM0
 ; @param a: Contains the value of wActiveEntity
-AllyLogic:
+xAllyLogic:
 	; Stub to immediately spend turn.
 	jp ProcessEntities.next
 
-SECTION "Enemy logic", ROM0
 ; @param a: Contains the value of wActiveEntity
-EnemyLogic:
+xEnemyLogic:
 	add a, HIGH(wEntity0)
 	ld h, a
+	call TryMove
+	ld a, b
+	cp a, 2
+	ret z
+	and a, a
+	jr z, .fail
+	ld a, [wActiveEntity]
+	inc a
+	cp a, NB_ENTITIES
+	jr nz, :+
+	xor a, a
+:   ld [wActiveEntity], a
+	ret
+.fail
+
 	ld l, LOW(wEntity0_PosX)
 	ld a, [hli]
 	ld b, a
@@ -268,6 +292,164 @@ EnemyLogic:
 	ld d, a
 	call TryStep
 	jp ProcessEntities.next
+
+SECTION "Try Move", ROM0
+; @param h: high byte of entity pointer
+; @return b: 0 if failed, 1 if success, 2 if waiting
+; @preserves h
+TryMove:
+	ldh a, [hCurrentBank]
+	push af
+
+	ld l, LOW(wEntity0_PosX)
+	ld a, [hli]
+	ld b, a
+	ld c, [hl]
+
+	; Determine the distance to the target.
+	push hl
+	call GetClosestAlly
+	pop hl
+
+	; We can't be close enough for a move unless one of the distances is a 0
+	ld a, d
+	and a, a
+	jr z, :+
+	ld a, e
+	and a, a
+	ld b, 0
+	jp nz, BankReturn
+:
+
+	ld a, -1
+	ld [wStrongestValidMove], a
+	xor a, a
+	ld [wStrongestValidMove.strength], a
+	ld [hCurrentMoveCounter], a
+	ld l, LOW(wEntity0_Moves)
+.loop
+	ld a, [hli]
+	and a, a
+	jr nz, :+
+		inc hl
+		inc hl
+		jr .next
+:
+	rst SwapBank
+	ld a, [hli]
+	push hl
+	ld h, [hl]
+	ld l, a
+	ASSERT Move_Range == 4
+	inc hl
+	inc hl
+	inc hl
+	inc hl
+	; When comparing distances, use the absolute value.
+	ld a, d
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:	dec a
+	cp a, [hl]
+	jr c, .found
+	ld a, d
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:	dec a
+	cp a, [hl]
+	jr nc, .popNext
+.found
+	ld a, [wStrongestValidMove]
+	cp a, -1
+	jr z, .strongest
+	ld a, [wStrongestValidMove.strength]
+	inc hl
+	ASSERT Move_Range + 1 == Move_Power
+	cp a, [hl]
+	jr nc, .popNext ; If the move's power is greater, set it as the strongest move.
+.strongest
+	ldh a, [hCurrentMoveCounter]
+	ld [wStrongestValidMove], a
+	ld a, [hl]
+	ld [wStrongestValidMove.strength], a
+.popNext
+	pop hl
+	inc hl
+.next
+	ldh a, [hCurrentMoveCounter]
+	inc a
+	ldh [hCurrentMoveCounter], a
+	cp a, ENTITY_MOVE_COUNT
+	jr nz, .loop
+.done
+	ld a, [wStrongestValidMove]
+	inc a ; cp a, -1
+	ld b, a ; ld b, 0 (if a is zero, since the value of b only matters in that case)
+	jp z, BankReturn
+
+	; After doing all this work to find out if we can use a move in the first place...
+	; ...fail if there is a pending movement.
+	ld a, [wMovementQueued]
+	and a, a
+	ld b, 2
+	jp nz, BankReturn
+
+	ld l, LOW(wEntity0_Direction)
+	; Determine best directions
+	ld a, d
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	ld b, a
+	ld a, e
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	cp a, b
+	jr c, .xCloser
+.yCloser
+	bit 7, e
+	jr z, :+
+	xor a, a
+	jr .storeBestY
+:	ld a, DOWN
+.storeBestY
+	ld [hl], a
+	jr .useMove
+.xCloser
+	bit 7, d
+	jr z, :+
+	ld a, LEFT
+	jr .storeBestX
+:	ld a, RIGHT
+.storeBestX
+	ld [hl], a
+
+.useMove
+	ld a, [wStrongestValidMove]
+	ld b, h
+	call UseMove
+	ld b, 1
+	jp BankReturn
+
+SECTION "Get item String", ROMX
+GetItemString:
+	db "Picked up "
+	textcallptr wGetItemFmt
+	db ".", 0
+
+SECTION "Get Item fmt", WRAM0
+wGetItemFmt: ds 3
 
 SECTION "Move entities", ROMX
 xMoveEntities::
@@ -719,3 +901,8 @@ SECTION "Pathfinding vars", WRAM0
 wClosestAllyTemp: db
 wBestDir: db
 wNextBestDir: db
+wStrongestValidMove: db
+.strength: db
+
+SECTION "Volatile", HRAM
+hCurrentMoveCounter: db
