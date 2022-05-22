@@ -554,7 +554,7 @@ UpdateAnimationFrame:
 	pop hl
 	ret
 
-SECTION "Entity Animation", WRAM0
+SECTION FRAGMENT "dungeon BSS", WRAM0
 wEntityAnimation::
 .pointer:: dw
 .callback:: dw

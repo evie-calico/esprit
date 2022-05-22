@@ -53,10 +53,14 @@ xPlayerLogic:
 	ret
 
 .noHide
-	call ItemCheck
+	ld a, [wHasChecked]
+	and a, a
+	call z, ItemCheck
 PUSHS
 SECTION "Item Check", ROM0
 ItemCheck:
+	inc a
+	ld [wHasChecked], a
 	; First, check if we're standing on an item.
 	ld a, [wEntity0_PosX]
 	ld b, a
@@ -66,13 +70,19 @@ ItemCheck:
 	ld a, [de]
 	sub a, TILE_ITEMS
 	ret c
+	ld b, a
+	push de ; This address is needed in case the pickup succeeds.
+		call PickupItem
+	pop de
+	jr z, .full
 	ASSERT TILE_CLEAR == 0
-	push af
+	push bc
+	push hl
 		xor a, a
 		ld [de], a
 		push de
 			; Calculate the VRAM destination by (Camera >> 4) / 16 % 16 * 32
-			ld a, c
+			ld a, [wEntity0_PosY]
 			and a, %00001111
 			ld e, 0
 			srl a
@@ -83,7 +93,7 @@ ItemCheck:
 			; hl = (Camera >> 8) & 15 << 4
 			ld hl, $9800
 			add hl, de ; Add to VRAM
-			ld a, b
+			ld a, [wEntity0_PosX]
 			and a, %00001111
 			add a, a
 			; Now we have the neccessary X index on the tilemap.
@@ -94,8 +104,8 @@ ItemCheck:
 			ld h, a
 		pop de
 		bankcall xDrawTile
+	pop hl
 	pop bc
-	call GetDungeonItem
 	inc hl
 	inc hl
 	inc hl
@@ -113,6 +123,15 @@ ItemCheck:
 	ld a, BANK(xPlayerLogic)
 	rst SwapBank
 	ret
+
+.full
+	ld b, BANK(FullBagString)
+	ld hl, FullBagString
+	call PrintHUD
+	ld a, BANK(xPlayerLogic)
+	rst SwapBank
+	ret
+
 POPS
 .noPickup
 	; Then open the move window
@@ -181,6 +200,9 @@ POPS
 	ret z
 	; If movement was successful, end the player's turn and process the next
 	; entity.
+	; Signal that an item should be checked at the next opportunity.
+	xor a, a
+	ld [wHasChecked], a
 	jp ProcessEntities.next
 
 ; @param a: Contains the value of wActiveEntity
@@ -446,6 +468,9 @@ GetItemString:
 	db "Picked up "
 	textcallptr wGetItemFmt
 	db ".", 0
+
+SECTION "Full Bag", ROMX
+FullBagString: db "Your bag is full.", 0
 
 SECTION "Get Item fmt", WRAM0
 wGetItemFmt: ds 3
@@ -884,10 +909,12 @@ wEnemies::
 ENDR
 
 ; This "BSS" section is used to 0-init private vars from another TU.
-SECTION "entity.asm BSS", WRAM0
+SECTION FRAGMENT "dungeon BSS", WRAM0
 ; The next entity to be processed.
 wActiveEntity: db
 wMoveEntityCounter: db
+; True if the player has already checked for an item on this tile.
+wHasChecked: db
 
 SECTION "Movement Queued", WRAM0
 ; nonzero if any entity is ready to move.

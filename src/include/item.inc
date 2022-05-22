@@ -3,6 +3,8 @@ DEF ITEM_INC EQU 1
 
 INCLUDE "structs.inc"
 
+DEF INVENTORY_SIZE EQU 3
+
 RSRESET
 DEF ITEM_NULL RB 1 ; An item that cannot be used.
 DEF ITEM_HEAL RB 1 ; An item that restores health.

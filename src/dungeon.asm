@@ -30,12 +30,18 @@ InitDungeon::
 
 	; Null init
 	xor a, a
-	ld c, 6
-	ld hl, wEntityAnimation
+	ld c, SIZEOF("dungeon BSS")
+	ld hl, STARTOF("dungeon BSS")
 	call MemSetSmall
-	ld c, SIZEOF("entity.asm BSS")
-	ld hl, STARTOF("entity.asm BSS")
-	call MemSetSmall
+
+	; Null out all entities.
+	ld hl, wEntity0
+	ld b, NB_ENTITIES
+.clearEntities
+	ld [hl], a
+	inc h
+	dec b
+	jr nz, .clearEntities
 
 	; Draw debug map
 	bankcall xGenerateScraper
@@ -48,17 +54,8 @@ InitDungeon::
 	ld a, 6 ; Item3
 	ld [wDungeonMap + 33 + 30 * 64], a
 
-	; Null out all entities.
-	ld hl, wEntity0
-	ld b, NB_ENTITIES
-	xor a, a
-.clearEntities
-	ld [hl], a
-	inc h
-	dec b
-	jr nz, .clearEntities
 	; Spawn a player and enemy
-	FOR I, NB_ENTITIES
+	FOR I, 1
 		lb bc, BANK(xLuvui), 5
 		ld de, xLuvui
 		ld h, HIGH(wEntity{d:I})
@@ -345,6 +342,7 @@ SECTION "Get Item", ROM0
 ; @param b: Item ID
 ; @return b: Item bank
 ; @return hl: Item pointer
+; @clobbers bank
 GetDungeonItem::
 	ld hl, wActiveDungeon
 	ld a, [hli]
