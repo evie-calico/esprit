@@ -21,11 +21,11 @@ SECTION "Init dungeon", ROM0
 InitDungeon::
 	; Value init
 	ld hl, wActiveDungeon
-	ld a, BANK(xForestDungeon)
+	ld a, BANK(xForest)
 	ld [hli], a
-	ld a, LOW(xForestDungeon)
+	ld a, LOW(xForest)
 	ld [hli], a
-	ld a, HIGH(xForestDungeon)
+	ld a, HIGH(xForest)
 	ld [hli], a
 
 	; Null init
