@@ -57,9 +57,6 @@ xPlayerLogic:
 PUSHS
 SECTION "Item Check", ROM0
 ItemCheck:
-	ldh a, [hCurrentBank]
-	push af
-
 	; First, check if we're standing on an item.
 	ld a, [wEntity0_PosX]
 	ld b, a
@@ -113,7 +110,9 @@ ItemCheck:
 	ld b, BANK(GetItemString)
 	ld hl, GetItemString
 	call PrintHUD
-	jp BankReturn
+	ld a, BANK(xPlayerLogic)
+	rst SwapBank
+	ret
 POPS
 .noPickup
 	; Then open the move window

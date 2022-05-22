@@ -63,6 +63,13 @@ InitDungeon::
 		ld de, xLuvui
 		ld h, HIGH(wEntity{d:I})
 		call SpawnEntity
+		ld l, LOW(wEntity0_Moves)
+		ld a, BANK(xBite)
+		ld [hli], a
+		ld a, LOW(xBite)
+		ld [hli], a
+		ld a, HIGH(xBite)
+		ld [hli], a
 	ENDR
 ; Re-initializes some aspects of the dungeon, such as rendering the map.
 ; @clobbers: bank
