@@ -353,7 +353,7 @@ TryMove:
 :	dec a
 	cp a, [hl]
 	jr c, .found
-	ld a, d
+	ld a, e
 	bit 7, a
 	jr z, :+
 	cpl
