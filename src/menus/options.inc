@@ -26,6 +26,7 @@ xOptionsMenu::
 	dw xOptionsMenuClose
 
 xDrawOptionsMenu::
+	set_region 20, 0, SCRN_VX_B - 20, SCRN_VY_B, idof_vBlankTile
 	dtile_section vScratchRegion
 	dregion vOptionsMenu, 20, 0, 12, 13
 	set_frame vOptionsMenu, idof_vFrame

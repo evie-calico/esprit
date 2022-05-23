@@ -55,7 +55,7 @@ ENDM
 ; Begins a struct declaration.
 MACRO struct ; struct_name
 	IF DEF(STRUCT_NAME) || DEF(NB_FIELDS)
-		FAIL "Please close struct definitions using `end_struct`"
+		FAIL "Please close struct definitions using `end_struct`. {STRUCT_NAME} is unclosed."
 	ENDC
 
 	; Define two internal variables for field definitions

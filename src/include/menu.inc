@@ -73,5 +73,6 @@ ld l, a
 		words 1, Tiles
 		words 1, Map
 		bytes 1, Name
+	end_struct
 
 	ENDC

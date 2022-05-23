@@ -53,6 +53,7 @@ xDrawPauseMenu:
 	dtile vScratchRegion
 	dtile_section $8000
 	dtile vCursor, 4
+	dtile vItemCursor, 4
 
 .frame INCBIN "res/ui/hud_frame.2bpp"
 
@@ -187,125 +188,9 @@ xPauseMenuClose:
 	ld [hl], HIGH(SwitchToDungeonState)
 	ret
 
-xInventoryMenu::
-	db BANK(@)
-	dw xInventoryMenuInit
-	; Used Buttons
-	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
-	; Auto-repeat
-	db 1
-	; Button functions
-	; A, B, Sel, Start, Right, Left, Up, Down
-	dw null, null, null, null, null, null, null, null
-	db 0 ; Last selected item
-	; Allow wrapping
-	db 0
-	; Default selected item
-	db 0
-	; Number of items in the menu
-	db 8
-	; Redraw
-	dw xInventoryMenuRedraw
-	; Private Items Pointer
-	dw null
-	; Close Function
-	dw xInventoryMenuClose
-
-xInventoryMenuInit:
-	ld a, SCRN_VX - SCRN_X
-	ld [wScrollInterp.x], a
-	xor a, a
-	ld [wScrollInterp.y], a
-	ld hl, wSubMenuCursor
-	ld a, SCRN_VX - SCRN_X + 64
-	ld [hli], a
-	ld a, 4
-	ld [hli], a
-	ld a, idof_vCursor
-	ld [hli], a
-	ld [hl], OAMF_PAL1
-	ret
-
-xInventoryMenuRedraw:
-	ld hl, wSubMenuCursor
-	ld a, [hli]
-	ld c, a
-	ld a, [hld]
-	ld b, a
-	call DrawCursor
-	ld hl, wPauseMenuCursor
-	ld a, [hli]
-	ld c, a
-	ld a, [hld]
-	ld b, a
-	call DrawCursor
-	jp xScrollInterp
-
-xInventoryMenuClose:
-	xor a, a
-	ld [wScrollInterp.x], a
-	ld [wScrollInterp.y], a
-	ret
-
-xPartyMenu::
-	db BANK(@)
-	dw xPartyMenuInit
-	; Used Buttons
-	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
-	; Auto-repeat
-	db 1
-	; Button functions
-	; A, B, Sel, Start, Right, Left, Up, Down
-	dw null, null, null, null, null, null, null, null
-	db 0 ; Last selected item
-	; Allow wrapping
-	db 0
-	; Default selected item
-	db 0
-	; Number of items in the menu
-	db 4
-	; Redraw
-	dw xPartyMenuRedraw
-	; Private Items Pointer
-	dw null
-	; Close Function
-	dw xPartyMenuClose
-
-xPartyMenuInit:
-	ld a, SCRN_VX - SCRN_X
-	ld [wScrollInterp.x], a
-	xor a, a
-	ld [wScrollInterp.y], a
-	ld hl, wSubMenuCursor
-	ld a, SCRN_VX - SCRN_X + 4
-	ld [hli], a
-	ld a, 4
-	ld [hli], a
-	ld a, idof_vCursor
-	ld [hli], a
-	ld [hl], OAMF_PAL1
-	ret
-
-xPartyMenuRedraw:
-	ld hl, wSubMenuCursor
-	ld a, [hli]
-	ld c, a
-	ld a, [hld]
-	ld b, a
-	call DrawCursor
-	ld hl, wPauseMenuCursor
-	ld a, [hli]
-	ld c, a
-	ld a, [hld]
-	ld b, a
-	call DrawCursor
-	jp xScrollInterp
-
-xPartyMenuClose:
-	xor a, a
-	ld [wScrollInterp.x], a
-	ld [wScrollInterp.y], a
-	ret
+INCLUDE "menus/inventory.inc"
+INCLUDE "menus/party.inc"
+INCLUDE "menus/options.inc"
 
 ; Scroll towards a target position.
 xScrollInterp:
@@ -375,10 +260,7 @@ LoadPalettes:
 	ld [wOBJPaletteMask], a
 	jp BankReturn
 
-SECTION "Pause Menu Load Theme", ROM0
 LoadTheme:
-	ldh a, [hCurrentBank]
-	push af
 	; Load theme
 	ld hl, wActiveMenuTheme
 	ld a, [hli]
@@ -418,7 +300,9 @@ LoadTheme:
 	lb bc, 11, 10
 	ld de, $9909
 	call MapRegion
-	jp BankReturn
+	ld a, BANK("Pause Menu")
+	rst SwapBank
+	ret
 
 SECTION "Scroll interp vars", WRAM0
 wScrollInterp:

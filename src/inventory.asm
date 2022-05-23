@@ -42,3 +42,4 @@ PickupItem::
 SECTION FRAGMENT "dungeon BSS", WRAM0
 wInventory::
 	ds 3 * INVENTORY_SIZE
+.end::

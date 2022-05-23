@@ -45,14 +45,11 @@ InitDungeon::
 
 	; Draw debug map
 	bankcall xGenerateScraper
-	ld a, 3 ; Item0
-	ld [wDungeonMap + 30 + 30 * 64], a
-	ld a, 4 ; Item1
-	ld [wDungeonMap + 31 + 30 * 64], a
-	ld a, 5 ; Item2
-	ld [wDungeonMap + 32 + 30 * 64], a
-	ld a, 6 ; Item3
-	ld [wDungeonMap + 33 + 30 * 64], a
+	; Spawn a buncha items
+	FOR I, INVENTORY_SIZE
+		ld a, I % 4 + 3
+		ld [wDungeonMap + 30 + 30 * 64 + I], a
+	ENDR
 
 	; Spawn a player and enemy
 	FOR I, 1
