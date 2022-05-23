@@ -26,10 +26,10 @@ INCLUDE "hardware.inc"
 ; SOFTWARE.
 
 ; Config
-DEF SKIP_HELD_KEYS equ PADF_B
-DEF SKIP_PRESSED_KEYS equ PADF_A
+DEF SKIP_HELD_KEYS EQU PADF_B
+DEF SKIP_PRESSED_KEYS EQU PADF_A
 
-DEF CHARSET_0 equs "res/ui/optix.vwf"
+DEF CHARSET_0 EQUS "res/ui/optix.vwf"
 DEF NB_CHARSETS EQU 1
 
 DEF EXPORT_CONTROL_CHARS EQU 1
@@ -38,23 +38,19 @@ DEF PRINT_CHARMAP equ 1
 ; Number of elements the text stack has room for
 ; Having more will cause a soft crash
 ; This must not exceeed $7F, as the return logic discards bit 7 when checking for zero
-IF !DEF(TEXT_STACK_CAPACITY)
-TEXT_STACK_CAPACITY equ 8
-ENDC
+DEF TEXT_STACK_CAPACITY EQU 8
 
 ; IMPORTANT NOTE REGARDING NEWLINES!!!
 ; DO NOT PRINT MORE THAN THIS NEWLINES AT ONCE
 ; THIS **WILL** CAUSE A BUFFER OVERFLOW
-IF !DEF(TEXT_NEWLINE_CAPACITY)
-TEXT_NEWLINE_CAPACITY equ 10
-ENDC
+DEF TEXT_NEWLINE_CAPACITY EQU 16
 
 
 ; `wTextFlags` bits
-rsset 6
-text_flag: MACRO
-TEXTB_\1 rb 1
-TEXTF_\1 equ 1 << TEXTB_\1
+RSSET 6
+MACRO text_flag
+	DEF TEXTB_\1 rb 1
+	DEF TEXTF_\1 equ 1 << TEXTB_\1
 	EXPORT TEXTB_\1, TEXTF_\1
 ENDM
 	text_flag WAITBUTTON

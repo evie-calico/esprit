@@ -51,7 +51,7 @@ xInventoryMenuInit:
 	ld [hli], a
 	ld a, idof_vItemCursor
 	ld [hli], a
-	ld [hl], OAMF_PAL1
+	ld [hl], OAMF_PAL1 | 1
 	ld a, 1
 	ld [wInventoryRedrawDesc], a
 	ld hl, xDrawInventoryMenu
@@ -203,6 +203,26 @@ InventoryLoadItemSelection:
 	ld a, b
 	rst SwapBank
 	push bc
+		ldh a, [hSystem]
+		and a, a
+		jr z, .skipColor
+		push hl
+			ld a, [hli]
+			ld h, [hl]
+			ld l, a
+			ld de, wOBJPaletteBuffer + 3 * 4 ; Set second palette
+			ld c, 3 * 3
+			call MemCopySmall
+			ld a, $80
+			ld [wFadeAmount], a
+			ld a, 1
+			ld [wFadeSteps], a
+			ld a, -1
+			ld [wFadeDelta], a
+			ld a, %01000000
+			ld [wOBJPaletteMask], a
+		pop hl
+	.skipColor
 		ASSERT Item_Graphics == 2
 		inc hl
 		inc hl

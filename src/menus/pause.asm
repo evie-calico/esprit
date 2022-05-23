@@ -251,7 +251,7 @@ LoadPalettes:
 	inc hl
 	inc hl
 	ld de, wOBJPaletteBuffer
-	ld c, 12
+	ld c, 9
 	call MemCopySmall
 
 	ld a, %10000000
