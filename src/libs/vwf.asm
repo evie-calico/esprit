@@ -29,7 +29,7 @@ INCLUDE "hardware.inc"
 DEF SKIP_HELD_KEYS equ PADF_B
 DEF SKIP_PRESSED_KEYS equ PADF_A
 
-DEF CHARSET_0 equs "res/fonts/optix.vwf"
+DEF CHARSET_0 equs "res/ui/optix.vwf"
 DEF NB_CHARSETS EQU 1
 
 DEF EXPORT_CONTROL_CHARS EQU 1
