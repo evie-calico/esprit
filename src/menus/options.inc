@@ -200,7 +200,7 @@ xOptionsMenuDrawSelections:
 	ld b, a
 	ld a, [hli]
 	ld h, [hl]
-	add a, MenuPal_Name + 2
+	add a, MenuPal_Name
 	ld l, a
 	adc a, h
 	sub a, l
@@ -229,7 +229,7 @@ xOptionsMenuDrawSelections:
 	ld b, a
 	ld a, [hli]
 	ld h, [hl]
-	add a, MenuTheme_Name + 2
+	add a, MenuTheme_Name
 	ld l, a
 	adc a, h
 	sub a, l

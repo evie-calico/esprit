@@ -60,39 +60,39 @@ MACRO colors
 ENDM
 
 	themes \
-		Pawprint, "res/ui/paw_cursor.2bpp", res/ui/paw_emblem, \
-		Explorer, "res/ui/explorer_cursor.2bpp", res/ui/explorer_emblem, \
-		Heart, "res/ui/heart_cursor.2bpp", res/ui/heart_emblem, \
+Pawprint, "res/ui/paw_cursor.2bpp", res/ui/paw_emblem,\
+Explorer, "res/ui/explorer_cursor.2bpp", res/ui/explorer_emblem,\
+Heart, "res/ui/heart_cursor.2bpp", res/ui/heart_emblem,\
 
 	colors \
-		Pink,   255, 160, 255, \
-		        255,  24, 255, \
-		        128,   0, 128, \
-		          0,   0,   0, \
-		Red,    255, 160, 160, \
-		        255,  24,  24, \
-		        128,   0,   0, \
-		          0,   0,   0, \
-		Orange, 255, 238, 204, \
-		        230, 153,  16, \
-		        150, 102,   0, \
-		          0,   0,   0, \
-		Yellow, 255, 255, 160, \
-		        255, 255,  24, \
-		        128, 128,   0, \
-		          0,   0,   0, \
-		Green,  160, 255, 160, \
-		         24, 255,  24, \
-		          0, 128,   0, \
-		          0,   0,   0, \
-		Blue,   160, 160, 255, \
-		         24,  24, 255, \
-		          0,   0, 128, \
-		          0,   0,   0, \
-		Black,    0,   0,   0, \
-		         64,  64,  64, \
-		        128, 128, 128, \
-		        255, 255, 255, \
+Pink,   255, 160, 255,\
+        255,  24, 255,\
+        128,   0, 128,\
+          0,   0,   0,\
+Red,    255, 160, 160,\
+        255,  24,  24,\
+        128,   0,   0,\
+          0,   0,   0,\
+Orange, 255, 238, 204,\
+        230, 153,  16,\
+        150, 102,   0,\
+          0,   0,   0,\
+Yellow, 255, 255, 160,\
+        255, 255,  24,\
+        128, 128,   0,\
+          0,   0,   0,\
+Green,  160, 255, 160,\
+         24, 255,  24,\
+          0, 128,   0,\
+          0,   0,   0,\
+Blue,   160, 160, 255,\
+         24,  24, 255,\
+          0,   0, 128,\
+          0,   0,   0,\
+Black,    0,   0,   0,\
+         64,  64,  64,\
+        128, 128, 128,\
+        255, 255, 255,\
 
 SECTION "Active Theme", WRAM0
 wActiveMenuPalette:: ds 3
