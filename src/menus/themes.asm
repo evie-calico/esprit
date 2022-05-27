@@ -6,24 +6,24 @@ INCLUDE "menu.inc"
 
 MACRO themes
 	DEF FIRST_NAME EQUS "\1MenuTheme"
-	REPT _NARG / 3
+	REPT _NARG / 2
 		DEF CUR_NAME EQUS "\1"
 		SECTION "\1 Theme", ROMX
 		\1MenuTheme::
-			IF _NARG > 3
-				db BANK(\4MenuTheme)
-				dw \4MenuTheme
+			IF _NARG > 2
+				db BANK(\3MenuTheme)
+				dw \3MenuTheme
 			ELSE
 				db BANK(FIRST_NAME)
 				dw FIRST_NAME
 			ENDC
-			INCBIN \2
+			INCBIN "res/ui/\2_cursor.2bpp"
 			dw .end - .emblem, .emblem, .map
 			db "{CUR_NAME}", 0
-		.emblem INCBIN "\3.2bpp"
+		.emblem INCBIN "res/ui/\2_emblem.2bpp"
 		.end
-		.map INCBIN "\3.map"
-			SHIFT 3
+		.map INCBIN "res/ui/\2_emblem.map"
+			SHIFT 2
 		PURGE CUR_NAME
 	ENDR
 	PURGE FIRST_NAME
@@ -59,10 +59,7 @@ MACRO colors
 	PURGE FIRST_NAME
 ENDM
 
-	themes \
-Pawprint, "res/ui/paw_cursor.2bpp", res/ui/paw_emblem,\
-Explorer, "res/ui/explorer_cursor.2bpp", res/ui/explorer_emblem,\
-Heart, "res/ui/heart_cursor.2bpp", res/ui/heart_emblem,\
+	themes Pawprint, paw, Explorer, explorer, Heart, heart
 
 	colors \
 Pink,   255, 160, 255,\
