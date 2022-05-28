@@ -112,6 +112,14 @@ SECTION "Render Simple Sprite", ROM0
 ; @param e: Tile Attribute
 ; @clobbers: a, hl
 RenderSimpleSprite::
+	ld hl, hShadowSCX
+	ld a, c
+	sub a, [hl]
+	ld c, a
+	inc l
+	ld a, b
+	sub a, [hl]
+	ld b, a
 	ld h, HIGH(wShadowOAM)
 	ldh a, [hOAMIndex]
 	ld l, a

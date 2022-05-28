@@ -12,7 +12,7 @@ xInventoryMenu::
 	db 1
 	; Button functions
 	; A, B, Sel, Start, Right, Left, Up, Down
-	dw null, null, null, null, null, null, xInventoryMove, xInventoryMove
+	dw xInventoryA, null, null, null, null, null, xInventoryMove, xInventoryMove
 	db 0 ; Last selected item
 	; Allow wrapping
 	db 0
@@ -44,6 +44,7 @@ xInventoryMenuInit:
 	ld [wScrollInterp.x], a
 	xor a, a
 	ld [wScrollInterp.y], a
+
 	ld hl, wSubMenuCursor
 	ld a, INVENTORY_CURSOR_X
 	ld [hli], a
@@ -52,6 +53,16 @@ xInventoryMenuInit:
 	ld a, idof_vItemCursor
 	ld [hli], a
 	ld [hl], OAMF_PAL1 | 1
+
+	ld hl, wUseItemMenuCursor
+	ld a, SCRN_VX - SCRN_X + 4
+	ld [hli], a
+	ld a, SCRN_Y + 4
+	ld [hli], a
+	ld a, idof_vItemCursor
+	ld [hli], a
+	ld [hl], OAMF_PAL1 | 1
+
 	ld a, 1
 	ld [wInventoryRedrawDesc], a
 	ld hl, xDrawInventoryMenu
@@ -156,12 +167,12 @@ xInventoryMenuRedraw:
 	ld c, INVENTORY_CURSOR_X
 	ld hl, wSubMenuCursor
 	call DrawCursor
+	
 	ld hl, wPauseMenuCursor
-	ld a, [hli]
-	ld c, a
-	ld a, [hld]
-	ld b, a
-	call DrawCursor
+	call DrawCursorStatic
+
+	ld hl, wUseItemMenuCursor
+	call DrawCursorStatic
 	jp xScrollInterp
 
 xInventoryMenuClose:
@@ -169,6 +180,13 @@ xInventoryMenuClose:
 	ld [wScrollInterp.x], a
 	ld [wScrollInterp.y], a
 	ret
+
+xInventoryA:
+	xor a, a
+	ld [wMenuAction], a
+	ld de, xUseItemMenu
+	ld b, BANK(xUseItemMenu)
+	jp AddMenu
 
 xInventoryMove:
 	ld a, 1
@@ -210,17 +228,10 @@ InventoryLoadItemSelection:
 			ld a, [hli]
 			ld h, [hl]
 			ld l, a
-			ld de, wOBJPaletteBuffer + 3 * 4 ; Set second palette
+			ld de, wOBJPaletteBuffer + 3 * 3 ; Set second palette
 			ld c, 3 * 3
 			call MemCopySmall
-			ld a, $80
-			ld [wFadeAmount], a
-			ld a, 1
-			ld [wFadeSteps], a
-			ld a, -1
-			ld [wFadeDelta], a
-			ld a, %01000000
-			ld [wOBJPaletteMask], a
+			call ReloadColor
 		pop hl
 	.skipColor
 		ASSERT Item_Graphics == 2

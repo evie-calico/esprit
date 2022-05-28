@@ -178,6 +178,13 @@ MenuEndCGB:
 	ret
 
 SECTION "Cursor Renderer", ROM0
+
+; Draws a cursor without a target position
+DrawCursorStatic::
+	ld a, [hli]
+	ld c, a
+	jr DrawCursor.finishedY
+
 ; Draws a cursor and moves it towards a target.
 ; @param b: Target Y position
 ; @param c: Target X position
@@ -225,16 +232,9 @@ DrawCursor::
 	ld d, a
 	ld e, [hl]
 
-	ld hl, hShadowSCX
-	ld a, c
-	sub a, [hl]
-	ld c, a
-	inc l
-	ld a, b
-	sub a, [hl]
-	ld b, a
-
+	push bc
 	call RenderSimpleSprite
+	pop bc
 	inc d
 	inc d
 	ld a, c

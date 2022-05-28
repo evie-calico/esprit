@@ -51,9 +51,13 @@ xDrawPauseMenu:
 	; Custom vallocs must happen after the menu has been defined.
 	; Unused tiles reserved for submenus to draw text on.
 	dtile vScratchRegion
+	; Define sprites up here for convienience :)
 	dtile_section $8000
 	dtile vCursor, 4
 	dtile vItemCursor, 4
+	dtile vPlayer0, 8
+	dtile vPlayer1, 8
+	dtile vPlayer2, 8
 
 .frame INCBIN "res/ui/hud_frame.2bpp"
 
@@ -189,6 +193,7 @@ xPauseMenuClose:
 	ret
 
 INCLUDE "menus/inventory.inc"
+INCLUDE "menus/use_item.inc"
 INCLUDE "menus/party.inc"
 INCLUDE "menus/options.inc"
 
@@ -312,3 +317,4 @@ wScrollInterp:
 SECTION "Pause menu cursor", WRAM0
 	dstruct Cursor, wPauseMenuCursor
 	dstruct Cursor, wSubMenuCursor
+	dstruct Cursor, wUseItemMenuCursor

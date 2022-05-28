@@ -8,6 +8,21 @@ MACRO wait_vram
 	jr nz, :-
 ENDM
 
+; Reload current colors
+; @param a: Background palette mask
+; @param b: Object palette mask
+ReloadColor::
+	ld a, $FF
+	ld [wBGPaletteMask], a
+	ld [wOBJPaletteMask], a
+	ld a, $80
+	ld [wFadeAmount], a
+	ld a, 1
+	ld [wFadeSteps], a
+	ld a, -1
+	ld [wFadeDelta], a
+	ret
+
 FadeDMGToWhite:
 	ld c, LOW(hBGP)
 	ld hl, wBGP

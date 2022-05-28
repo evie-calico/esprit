@@ -52,7 +52,7 @@ InitDungeon::
 	ENDR
 
 	; Spawn a player and enemy
-	FOR I, 1
+	FOR I, 3
 		lb bc, BANK(xLuvui), 5
 		ld de, xLuvui
 		ld h, HIGH(wEntity{d:I})
