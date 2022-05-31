@@ -34,6 +34,7 @@ xPauseMenu::
 
 ; Place this first to define certain constants.
 xDrawPauseMenu:
+	set_region 0, 0, SCRN_VX_B, SCRN_VY_B, idof_vBlankTile
 	load_tiles .frame, 9, vFrame
 	DEF idof_vBlankTile EQU idof_vFrame + 4
 	dregion vTopMenu, 0, 0, 9, 14
@@ -69,21 +70,13 @@ xPauseMenuInit:
 	ld [wScrollInterp.x], a
 	ld [wScrollInterp.y], a
 
-	; Clear background.
-	ld d, idof_vBlankTile
-	ld bc, $400
-	ld hl, $9800
-	call VRAMSet
-
 	ld hl, xDrawPauseMenu
 	call DrawMenu
 	call LoadTheme
 	; Load palette
 	ldh a, [hSystem]
 	and a, a
-	jr z, .skipCGB
-	call LoadPalettes
-.skipCGB
+	call nz, LoadPalettes
 
 	; Set palettes
 	ld a, 20

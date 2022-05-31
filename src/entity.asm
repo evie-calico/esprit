@@ -896,6 +896,43 @@ GetMaxHealth::
 	ld h, a
 	ret
 
+SECTION "Heal Entity", ROM0
+; @param b: entity high byte
+; @param e: Heal amount
+HealEntity::
+	ld c, LOW(wEntity0_Level)
+	ld a, [bc]
+	call GetMaxHealth
+	ASSERT Entity_Level + 1 == Entity_Health
+	inc c
+	ld a, [bc]
+	inc c
+	add a, e
+	ld e, a
+	ld a, [bc]
+	adc a, 0
+	ld d, a
+	ld a, d
+	cp a, h
+	jr z, :+
+	jr nc, .hitMax
+:
+	ld a, e
+	cp a, l
+	jr z, .heal
+	jr nz, .hitMax
+.heal
+	ld a, d
+	ld [bc], a
+	dec c
+	ld a, e
+	ld [bc], a
+	ret
+.hitMax
+	ld d, h
+	ld e, l
+	jr .heal
+
 ; This loop creates page-aligned entity structures. This is a huge benefit to
 ; the engine as it allows very quick structure seeking and access.
 FOR I, NB_ENTITIES

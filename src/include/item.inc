@@ -8,6 +8,7 @@ DEF INVENTORY_SIZE EQU 8
 RSRESET
 DEF ITEM_NULL RB 1 ; An item that cannot be used.
 DEF ITEM_HEAL RB 1 ; An item that restores health.
+DEF ITEM_MAX RB 0
 
 	struct Item
 		words 1, Palette

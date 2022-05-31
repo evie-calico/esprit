@@ -323,8 +323,8 @@ xUsedText:
 
 SECTION "Dealt damage text", ROMX
 xDealtText:
-	db "Dealt <U16>"
-	dw wDealtDamage.value
+	db "Dealt "
+	print_u16 wDealtDamage.value
 	db " damage to "
 	textcallptr wDealtDamage.target
 	db "!<END>"

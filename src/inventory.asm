@@ -39,6 +39,33 @@ PickupItem::
 	inc a
 	ret
 
+SECTION "Item Handler Lookup", ROM0
+; @param b: User pointer high byte
+; @param hl: pointer to item type
+ItemHandlerLookup:
+	ld a, [hli]
+	add a, a
+	ret z
+	add a, LOW(.table - 2)
+	ld e, a
+	adc a, HIGH(.table - 2)
+	sub a, e
+	ld d, a
+	push de
+	ret
+.table
+	ASSERT ITEM_HEAL == 1
+	dw HealHandler
+	ASSERT ITEM_MAX == 2
+
+SECTION "Heal Handler", ROM0
+; @param b: User pointer high byte
+; @param hl: Heal data ptr
+HealHandler:
+	ASSERT HealItem_Strength - sizeof_Item == 0
+	ld e, [hl]
+	jp HealEntity
+
 SECTION FRAGMENT "dungeon BSS", WRAM0
 wInventory::
 	ds 3 * INVENTORY_SIZE
