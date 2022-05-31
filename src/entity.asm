@@ -912,7 +912,6 @@ HealEntity::
 	ld a, [bc]
 	adc a, 0
 	ld d, a
-	ld a, d
 	cp a, h
 	jr z, :+
 	jr nc, .hitMax
@@ -920,7 +919,7 @@ HealEntity::
 	ld a, e
 	cp a, l
 	jr z, .heal
-	jr nz, .hitMax
+	jr nc, .hitMax
 .heal
 	ld a, d
 	ld [bc], a

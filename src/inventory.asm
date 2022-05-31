@@ -39,18 +39,73 @@ PickupItem::
 	inc a
 	ret
 
-SECTION "Item Handler Lookup", ROM0
-; @param b: User pointer high byte
-; @param hl: pointer to item type
-ItemHandlerLookup:
+SECTION "Inventory Use Item", ROM0
+; @param a: Item index
+; @param b: Entity high byte
+InventoryUseItem::
+	ld c, a
+	add a, c
+	add a, c
+	add a, LOW(wInventory)
+	ld l, a
+	adc a, HIGH(wInventory)
+	sub a, l
+	ld h, a
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	ld d, [hl]
+	ld e, a
+	push bc
+	push de
+	ld d, h
+	ld e, l
+	dec de
+	dec de
+	inc hl
+	jr .moveCondition
+.move
+	ld a, [hli]
+	ld [de], a
+	inc de
+.moveCondition
+	ld a, l
+	cp a, LOW(wInventory + 3 * INVENTORY_SIZE)
+	jr nz, .move
+	ld a, h
+	cp a, HIGH(wInventory + 3 * INVENTORY_SIZE)
+	jr nz, .move
+	xor a, a
+	ld [de], a
+
+	pop hl
+	pop bc
+	ld a, [hCurrentBank]
+	push af
+	ld a, c
+	rst SwapBank
+	ld a, Item_Type
+	add a, l
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
 	ld a, [hli]
 	add a, a
-	ret z
+	jp z, BankReturn
+	ld de, BankReturn
+	push de ; Push a "return address" to restore the bank.
 	add a, LOW(.table - 2)
 	ld e, a
 	adc a, HIGH(.table - 2)
 	sub a, e
 	ld d, a
+	ld a, [de]
+	ld c, a
+	inc de
+	ld a, [de]
+	ld d, a
+	ld e, c
 	push de
 	ret
 .table

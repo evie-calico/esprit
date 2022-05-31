@@ -122,6 +122,13 @@ xUseItemMenuRedraw:
 	.idle
 		; Idle is where the item is actually used, so call its handler and then
 		; redraw stats.
+		push bc
+		ld a, b
+		add a, HIGH(wEntity0)
+		ld b, a
+		ld a, [wInventorySelection]		
+		call InventoryUseItem
+		pop bc
 		ld de, SPRITE_DIRECTION_SIZE * DOWN + ENTITY_FRAME_IDLE_OFFSET
 		jr .load
 	.begin

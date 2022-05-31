@@ -182,6 +182,13 @@ xInventoryMenuClose:
 	ret
 
 xInventoryA:
+	ld hl, sp+2
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	ld a, [hl]
+	ld [wInventorySelection], a
 	xor a, a
 	ld [wMenuAction], a
 	ld de, xUseItemMenu
@@ -280,4 +287,5 @@ InventoryLoadItemSelection:
 SECTION "Inventory Draw Position", WRAM0
 wInventoryDrawPosition: dw
 wInventoryRedrawDesc: db
+wInventorySelection: db
 POPS
