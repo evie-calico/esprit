@@ -19,6 +19,7 @@ xInventoryMenu::
 	; Default selected item
 	db 0
 	; Number of items in the menu
+	; This is overwritten each frame to match the size of the inventory.
 	db INVENTORY_SIZE
 	; Redraw
 	dw xInventoryMenuRedraw
@@ -28,7 +29,7 @@ xInventoryMenu::
 	dw xInventoryMenuClose
 
 xDrawInventoryMenu:
-	set_region 20, 0, SCRN_VX_B - 20, SCRN_VY_B, idof_vBlankTile
+	set_region 20, 0, SCRN_VX_B - 20, SCRN_Y_B, idof_vBlankTile
 	dtile_section vScratchRegion
 	dregion vInventoryMenu, 20, 0, 12, 4 + INVENTORY_SIZE
 	print_text 23, 1, "Inventory"
@@ -71,6 +72,8 @@ xInventoryMenuInit:
 	ret
 
 xInventoryDrawItemNames:
+	xor a, a
+	ld [wInventoryIsEmpty], a
 	; Text is already mostly initialized by the menu renderer.
 	xor a, a
 	ld [wTextLetterDelay], a
@@ -86,6 +89,19 @@ xInventoryDrawItemNames:
 	ld [hli], a
 	ld [hl], HIGH($9800 + 23 + 3 * 32 - 32)
 	ld hl, wInventory
+	ld a, [hl]
+	and a, a
+	jr nz, .next
+		ld a, 1
+		ld [wInventoryIsEmpty], a
+		ld b, BANK(.emptyString)
+		ld hl, .emptyString
+		call PrintVWFText
+		lb de, 8, 1
+		ld hl, $9800 + 23 + 3 * 32
+		call TextDefineBox
+		call PrintVWFChar
+		jp DrawVWFChars
 .next
 	ld a, [hli]
 	and a, a
@@ -141,13 +157,33 @@ xInventoryDrawItemNames:
 
 	ret
 
+.emptyString db "It's empty!", 0
+
 xInventoryMenuRedraw:
+	; Calculate the number of items in the inventory.
+	ld hl, wInventory - 2
+	ld b, INVENTORY_SIZE
+.countItems
+	inc hl
+	inc hl
+	ld a, [hli]
+	and a, a
+	jr z, .end
+	dec b
+	jr nz, .countItems
+.end
+	ld a, INVENTORY_SIZE
+	sub a, b
+	ld b, a
+
 	ld hl, sp+2
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	dec hl
 	dec hl ; Size
+	; Set the size of the menu to match the number of entries in the inventory
+	ld [hl], b
 	dec hl ; Selection
 	ld a, [wInventoryRedrawDesc]
 	and a, a
@@ -182,6 +218,9 @@ xInventoryMenuClose:
 	ret
 
 xInventoryA:
+	ld a, [wInventoryIsEmpty]
+	and a, a
+	ret nz
 	ld hl, sp+2
 	ld a, [hli]
 	ld h, [hl]
@@ -190,6 +229,7 @@ xInventoryA:
 	ld a, [hl]
 	ld [wInventorySelection], a
 	xor a, a
+	ld [hl], a
 	ld [wMenuAction], a
 	ld de, xUseItemMenu
 	ld b, BANK(xUseItemMenu)
@@ -202,6 +242,9 @@ xInventoryMove:
 
 xInventoryLoadItemSelection:
 	push af
+	ld a, [wInventoryIsEmpty]
+	and a, a
+	jr nz, .noCursor
 	lb bc, 10, 4
 	ld d, idof_vBlankTile
 	ld hl, $9800 + 21 + 13 * 32
@@ -221,6 +264,12 @@ xInventoryLoadItemSelection:
 	ld h, [hl]
 	ld l, a
 	jp InventoryLoadItemSelection
+.noCursor
+	pop af
+	xor a, a
+	ld hl, vItemCursor
+	lb c, 0, 64
+	jp VRAMSetSmall
 
 PUSHS
 SECTION "Load Inventory Item Graphic", ROM0
@@ -288,4 +337,5 @@ SECTION "Inventory Draw Position", WRAM0
 wInventoryDrawPosition: dw
 wInventoryRedrawDesc: db
 wInventorySelection: db
+wInventoryIsEmpty: db
 POPS

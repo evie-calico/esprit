@@ -196,6 +196,11 @@ xUseItemMenuClose:
 	ld [wScrollInterp.x], a
 	xor a, a
 	ld [wScrollInterp.y], a
+	ld a, 1
+	ld [wInventoryRedrawDesc], a
+	ld hl, xDrawInventoryMenu
+	call DrawMenu
+	call xInventoryDrawItemNames
 	ret
 
 xUseItemMenuA:
