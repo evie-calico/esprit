@@ -862,7 +862,7 @@ SpawnEntity::
 
 	; Set level
 	ld l, LOW(wEntity0_Level)
-	ld a, b
+	ld a, c
 	ld [hli], a
 
 	; Use level to determine health.
