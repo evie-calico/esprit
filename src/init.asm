@@ -129,8 +129,10 @@ Initialize::
 
 	call InitDungeon
 
-	; Initiallize OAM
+	; Initialize OAM
 	call InitSprObjLib
+	ld a, HIGH(wShadowOAM)
+	call hOAMDMA
 
 	ld c, BANK(dungeon_data)
 	ld de, dungeon_data
