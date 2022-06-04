@@ -103,8 +103,6 @@ InitUI::
 	ld a, HIGH(ShowTextBox)
 	ld [wSTATTarget + 1], a
 
-	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON | LCDCF_OBJ16 | LCDCF_WINON | LCDCF_WIN9C00
-	ldh [hShadowLCDC], a
 	ld a, 144 - 32 - 1
 	ldh [rLYC], a
 	; Hide the window offscreen.

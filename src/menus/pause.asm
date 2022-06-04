@@ -225,7 +225,7 @@ xScrollInterp:
 	ret
 
 SECTION "Pause Menu Load Palettes", ROM0
-LoadPalettes:
+LoadPalettes::
 	ldh a, [hCurrentBank]
 	push af
 	ld hl, wActiveMenuPalette
@@ -258,7 +258,9 @@ LoadPalettes:
 	ld [wOBJPaletteMask], a
 	jp BankReturn
 
-LoadTheme:
+LoadTheme::
+	ldh a, [hCurrentBank]
+	push af
 	; Load theme
 	ld hl, wActiveMenuTheme
 	ld a, [hli]
@@ -298,7 +300,7 @@ LoadTheme:
 	lb bc, 11, 10
 	ld de, $9909
 	call MapRegion
-	ld a, BANK("Pause Menu")
+	pop af
 	rst SwapBank
 	ret
 

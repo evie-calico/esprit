@@ -5,7 +5,7 @@ INCLUDE "hardware.inc"
 SECTION "Header", ROM0[$100]
 	di
 	jp InitializeSystem
-	ds $150 - $104, 0
+	ds $150 - @, 0
 
 SECTION "Initialize", ROM0
 ; Inits system value based off `a` and `b`. Do not jump to this!
@@ -126,7 +126,12 @@ Initialize::
 	ld a, %11010000
 	ld [wOBP0], a
 
-	call InitDungeon
+	ld b, BANK(xTitleScreen)
+	ld de, xTitleScreen
+	call AddMenu
+	ld a, GAMESTATE_MENU
+	ld [wGameState], a
+	;call InitDungeon
 
 	; Initialize OAM
 	call InitSprObjLib
@@ -147,6 +152,7 @@ Initialize::
 
 	; Turn on the screen.
 	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON | LCDCF_OBJ16 | LCDCF_WINON | LCDCF_WIN9C00
+	ldh [hShadowLCDC], a
 	ldh [rLCDC], a
 	ld a, SCRN_X
 	ldh [rWX], a

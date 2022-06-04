@@ -957,7 +957,7 @@ wDungeonCameraY:: dw
 wLastDungeonCameraX: db
 wLastDungeonCameraY: db
 ; A far pointer to the current dungeon. Bank, Low, High.
-wActiveDungeon: ds 3
+wActiveDungeon:: ds 3
 wIsDungeonFading:: db
 wDungeonCurrentFloor:: db
 

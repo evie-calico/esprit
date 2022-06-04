@@ -135,8 +135,21 @@ StandingCheck:
 	ret
 
 .nextFloor
+	ld hl, wActiveDungeon
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	add a, Dungeon_FloorCount
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld a, [hl]
 	ld hl, wDungeonCurrentFloor
 	inc [hl]
+	cp a, [hl]
+	jp z, Initialize
 	xor a, a
 	ld [wShowMoves], a
 	ld a, 1

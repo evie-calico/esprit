@@ -104,6 +104,8 @@ MenuPrint:
 		inc hl
 		inc hl
 		inc hl ; The string is placed after width, height, and address.
+		ld a, $80
+		ld [wTextLineLength], a
 		ld a, 1
 		call PrintVWFText
 
