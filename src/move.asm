@@ -208,6 +208,7 @@ MoveActionAttack:
 	inc de
 	; Damage target with move power.
 	ld a, [de]
+	ld [wDealtDamage.value], a
 	ld e, a ; Save the move power in e. We don't need de anymore.
 	ld l, LOW(wEntity0_Health)
 	ld a, [hl]
@@ -217,8 +218,6 @@ MoveActionAttack:
 	sbc a, 0
 	ld [hl], a
 	; Prepare for printing.
-	ld a, e
-	ld [wDealtDamage.value], a
 	ld l, LOW(wEntity0_Bank)
 	ld a, [hli]
 	ld [wDealtDamage.target], a

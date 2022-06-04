@@ -43,13 +43,17 @@ InitDungeon::
 	dec b
 	jr nz, .clearEntities
 
+	ld a, 1
+	ld [wDungeonCurrentFloor], a
 	; Draw debug map
-	bankcall xGenerateScraper
+	call DungeonGenerateFloor
 	; Spawn a buncha items
 	FOR I, INVENTORY_SIZE
-		ld a, I % 4 + 3
+		ld a, I % 4 + TILE_ITEMS
 		ld [wDungeonMap + 30 + 30 * 64 + I], a
 	ENDR
+	ld a, TILE_EXIT
+	ld [wDungeonMap + 31 + 32 * 64], a
 
 	; Spawn a player and enemy
 	FOR I, 3
@@ -275,15 +279,11 @@ DungeonState::
 	ld a, [wFadeSteps]
 	and a, a
 	jr nz, .dungeonRendering
-		ld b, BANK(xPauseMenu)
-		ld de, xPauseMenu
-		call AddMenu
-		ld a, GAMESTATE_MENU
-		ld [wGameState], a
-		xor a, a
-		ld [wSTATTarget], a
-		ld [wSTATTarget + 1], a
-		ret
+		ld hl, wDungeonFadeCallback
+		ld a, [hli]
+		ld h, [hl]
+		ld l, a
+		jp hl
 .notFading
 
 	; If only START is pressed, open pause menu.
@@ -294,6 +294,10 @@ DungeonState::
 		ld [wShowMoves], a
 		ld a, 1
 		ld [wIsDungeonFading], a
+		ld a, LOW(.openMenu)
+		ld [wDungeonFadeCallback], a
+		ld a, HIGH(.openMenu)
+		ld [wDungeonFadeCallback + 1], a
 		; Set palettes
 		ld a, %11111111
 		ld [wBGPaletteMask], a
@@ -333,6 +337,17 @@ DungeonState::
 	call nz, DrawPrintString
 
 	jp UpdateAttackWindow
+
+.openMenu
+	ld b, BANK(xPauseMenu)
+	ld de, xPauseMenu
+	call AddMenu
+	ld a, GAMESTATE_MENU
+	ld [wGameState], a
+	xor a, a
+	ld [wSTATTarget], a
+	ld [wSTATTarget + 1], a
+	ret
 
 SECTION "Get Item", ROM0
 ; Get a dungeon item given an index in b
@@ -406,6 +421,41 @@ xFocusCamera::
 	ld [wDungeonCameraX + 1], a
 	ret
 
+SECTION "Generate Floor", ROM0
+; Generate a new floor
+; @clobbers bank
+DungeonGenerateFloor::
+	ld hl, wActiveDungeon
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	add a, Dungeon_GenerationType
+	ld h, [hl]
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld a, [hl]
+	ld b, a
+	add a, b
+	add a, b
+	add a, LOW(.jumpTable)
+	ld l, a
+	adc a, HIGH(.jumpTable)
+	sub a, l
+	ld h, a
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	call CallHL
+	ret
+
+.jumpTable
+	ASSERT DUNGEON_TYPE_SCRAPER == 0
+	farptr xGenerateScraper
+
 SECTION "Update Scroll", ROMX
 xUpdateScroll:
 	ld a, [wDungeonCameraX + 1]
@@ -427,7 +477,7 @@ xUpdateScroll:
 	ret
 
 SECTION "Draw dungeon", ROMX
-xDrawDungeon:
+xDrawDungeon::
 	call xGetCurrentVram
 	push hl
 	; Now find the top-left corner of the map to begin drawing from.
@@ -826,7 +876,6 @@ xGenerateScraper::
 	ld [wMapgenLoopCounter], a
 	; Get a pointer to the center tile of the map.
 	lb bc, DUNGEON_WIDTH / 2, DUNGEON_HEIGHT / 2
-	ld hl, wDungeonMap + DUNGEON_WIDTH / 2 + DUNGEON_WIDTH * (DUNGEON_HEIGHT / 2)
 .loop
 	push bc
 	call Rand
@@ -890,9 +939,11 @@ xGenerateScraper::
 
 	ld [hl], TILE_CLEAR
 
-	ld hl, wMapgenLoopCounter
-	dec [hl]
+	ld a, [wMapgenLoopCounter]
+	dec a
+	ld [wMapgenLoopCounter], a
 	jr nz, .loop
+	ld [hl], TILE_EXIT
 	ret
 
 SECTION UNION "State variables", WRAM0, ALIGN[8]
@@ -907,9 +958,12 @@ wLastDungeonCameraX: db
 wLastDungeonCameraY: db
 ; A far pointer to the current dungeon. Bank, Low, High.
 wActiveDungeon: ds 3
-wIsDungeonFading: db
+wIsDungeonFading:: db
+wDungeonCurrentFloor:: db
 
 wMapgenLoopCounter: db
+
+wDungeonFadeCallback:: dw
 
 SECTION "Map drawing counters", HRAM
 hMapDrawX: db

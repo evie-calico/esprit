@@ -13,10 +13,15 @@ DEF TILE_WALL RB 1
 DEF TILE_EXIT RB 1
 DEF TILE_ITEMS RB 4
 
+RSRESET
+DEF DUNGEON_TYPE_SCRAPER RB 1
+
 	struct Dungeon
 		words 1, Tileset
 		words 1, Palette
 		bytes DUNGEON_ITEM_COUNT * 3, Items
+		bytes 1, GenerationType
+		bytes 1, FloorCount
 	end_struct
 
 ENDC

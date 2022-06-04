@@ -30,7 +30,7 @@ MACRO print_u16
 ENDM
 
 MACRO print_u8
-	db TEXT_U16
+	db TEXT_U8
 	dw \1
 ENDM
 

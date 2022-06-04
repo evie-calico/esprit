@@ -29,6 +29,10 @@ SECTION "Call HL", ROM0[$0008]
 CallHL::
 	jp hl
 
+SECTION "Crash", ROM0[$0038]
+	ld b, b
+	jr STARTOF("Crash")
+
 SECTION "Call DE", ROM0
 ; Calls the value in `de` by pushing it and returning
 CallDE::

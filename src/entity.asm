@@ -55,10 +55,10 @@ xPlayerLogic:
 .noHide
 	ld a, [wHasChecked]
 	and a, a
-	call z, ItemCheck
+	call z, StandingCheck
 PUSHS
-SECTION "Item Check", ROM0
-ItemCheck:
+SECTION "Standing Check", ROM0
+StandingCheck:
 	inc a
 	ld [wHasChecked], a
 	; First, check if we're standing on an item.
@@ -68,6 +68,8 @@ ItemCheck:
 	ld c, a
 	bankcall xGetMapPosition
 	ld a, [de]
+	cp a, TILE_EXIT
+	jr z, .nextFloor
 	sub a, TILE_ITEMS
 	ret c
 	ld b, a
@@ -131,6 +133,53 @@ ItemCheck:
 	ld a, BANK(xPlayerLogic)
 	rst SwapBank
 	ret
+
+.nextFloor
+	ld hl, wDungeonCurrentFloor
+	inc [hl]
+	xor a, a
+	ld [wShowMoves], a
+	ld a, 1
+	ld [wIsDungeonFading], a
+	ld a, LOW(.generateFloor)
+	ld [wDungeonFadeCallback], a
+	ld a, HIGH(.generateFloor)
+	ld [wDungeonFadeCallback + 1], a
+	; Set palettes
+	ld a, %11111111
+	ld [wBGPaletteMask], a
+	ld a, %11111111
+	ld [wOBJPaletteMask], a
+	ld a, 20
+	ld [wFadeSteps], a
+	ld a, $80
+	ld [wFadeAmount], a
+	ld a, 4
+	ld [wFadeDelta], a
+
+	ld a, BANK(xPlayerLogic)
+	rst SwapBank
+	ret
+
+.generateFloor
+	ld b, BANK(FoundExit)
+	ld hl, FoundExit
+	call PrintHUD
+
+	call DungeonGenerateFloor
+
+	xor a, a
+	ld [wIsDungeonFading], a
+	ld a, 20
+	ld [wFadeSteps], a
+	ld a, $80 + 20 * 4
+	ld [wFadeAmount], a
+	ld a, -4
+	ld [wFadeDelta], a
+
+	ld a, BANK(xDrawDungeon)
+	rst SwapBank
+	jp xDrawDungeon
 
 POPS
 .noPickup
@@ -462,18 +511,6 @@ TryMove:
 	call UseMove
 	ld b, 1
 	jp BankReturn
-
-SECTION "Get item String", ROMX
-GetItemString:
-	db "Picked up "
-	textcallptr wGetItemFmt
-	db ".", 0
-
-SECTION "Full Bag", ROMX
-FullBagString: db "Your bag is full.", 0
-
-SECTION "Get Item fmt", WRAM0
-wGetItemFmt: ds 3
 
 SECTION "Move entities", ROMX
 xMoveEntities::
@@ -931,6 +968,24 @@ HealEntity::
 	ld d, h
 	ld e, l
 	jr .heal
+
+SECTION "Get item String", ROMX
+GetItemString:
+	db "Picked up "
+	textcallptr wGetItemFmt
+	db ".", 0
+
+SECTION "Get Item fmt", WRAM0
+wGetItemFmt: ds 3
+
+SECTION "Full Bag", ROMX
+FullBagString: db "Your bag is full.", 0
+
+SECTION "Found exit", ROMX
+FoundExit:
+	db "Entered floor "
+	print_u8 wDungeonCurrentFloor
+	db ".", 0
 
 ; This loop creates page-aligned entity structures. This is a huge benefit to
 ; the engine as it allows very quick structure seeking and access.
