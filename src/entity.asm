@@ -157,6 +157,7 @@ StandingCheck:
 	ld a, 4
 	ld [wFadeDelta], a
 
+	pop af ; super return
 	ld a, BANK(xPlayerLogic)
 	rst SwapBank
 	ret
