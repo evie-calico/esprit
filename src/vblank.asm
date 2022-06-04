@@ -77,6 +77,10 @@ STAT:
 	pop hl
 	pop de
 	pop bc
+:
+	ld a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
 	pop af
 	reti
 
