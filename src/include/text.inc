@@ -29,4 +29,9 @@ MACRO print_u16
 	dw \1
 ENDM
 
+MACRO print_u8
+	db TEXT_U16
+	dw \1
+ENDM
+
 ENDC

@@ -219,8 +219,6 @@ MoveActionAttack:
 	; Prepare for printing.
 	ld a, e
 	ld [wDealtDamage.value], a
-	xor a, a
-	ld [wDealtDamage.value + 1], a
 	ld l, LOW(wEntity0_Bank)
 	ld a, [hli]
 	ld [wDealtDamage.target], a
@@ -324,7 +322,7 @@ xUsedText:
 SECTION "Dealt damage text", ROMX
 xDealtText:
 	db "Dealt "
-	print_u16 wDealtDamage.value
+	print_u8 wDealtDamage.value
 	db " damage to "
 	textcallptr wDealtDamage.target
 	db "!<END>"
@@ -345,7 +343,7 @@ wMissedMove:
 
 SECTION UNION "Move text variables", WRAM0
 wDealtDamage:
-.value dw
+.value db
 .target ds 3
 
 ; User to save the parameters of UseMove for animation callbacks.

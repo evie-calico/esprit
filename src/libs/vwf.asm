@@ -143,6 +143,7 @@ ENDM
 	reader_only_control_char FMT,          ReaderFormat
 	reader_only_control_char CALL_PTR,     ReaderCallPtr
 	reader_only_control_char U16,          ReaderU16
+	reader_only_control_char U8,           ReaderU8
 
 	; The base of the table is located at its end
 	; Unusual, I know, but it works better!
@@ -993,10 +994,22 @@ ReaderCallPtr::
 	pop de
 	ret
 
+ReaderU8::
+	push de
+	push hl
+
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld l, [hl]
+	ld h, 0
+	call bcd16
+	jr ReaderU16.skipLoad
+
 ReaderU16::
 	push de
 	push hl
-	
+
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -1004,6 +1017,7 @@ ReaderU16::
 	ld h, [hl]
 	ld l, a
 	call bcd16
+.skipLoad
 	; Value is returned in CDE
 	ld hl, wNumberBuffer
 	; Skip over all leading zeros
