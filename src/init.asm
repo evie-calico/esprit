@@ -39,7 +39,6 @@ InitializeSystem:
 	ldh [rIE], a
 	ld a, $30
 	ldh [rP1], a
-	di
 
 	ld a, 1
 	ldh [rKEY1], a
