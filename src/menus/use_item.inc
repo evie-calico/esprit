@@ -126,7 +126,7 @@ xUseItemMenuRedraw:
 		ld a, b
 		add a, HIGH(wEntity0)
 		ld b, a
-		ld a, [wInventorySelection]		
+		ld a, [wInventorySelection]
 		call InventoryUseItem
 		pop bc
 		ld de, SPRITE_DIRECTION_SIZE * DOWN + ENTITY_FRAME_IDLE_OFFSET
@@ -206,6 +206,20 @@ xUseItemMenuClose:
 xUseItemMenuA:
 	xor a, a
 	ld [wMenuAction], a
+
+	ld hl, sp+2
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	ld a, [hli]
+	add a, HIGH(wEntity0)
+	ld h, a
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hl]
+	and a, a
+	ret z
+
 	ld a, [wUseAnimationTimer]
 	and a, a
 	ret nz
@@ -261,6 +275,14 @@ UseItemLoadEntity:
 	ld a, [hli]
 	and a, a
 	jr nz, .exists
+		ld hl, wUseItemCurrentPalette
+		ld a, [hl]
+		add a, 9
+		ld [hli], a
+		ld a, [hl]
+		adc a, 0
+		ld [hl], a
+
 		ld h, d
 		ld l, e
 		lb bc, 0, 128
