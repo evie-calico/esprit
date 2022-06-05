@@ -109,12 +109,12 @@ res/%.2bpp res/%.map: res/%.map.png
 # Convert .png files into .h.2bpp files (-h flag).
 res/%.2bpp: res/%.h.png
 	@mkdir -p $(@D)
-	rgbgfx -h -o $@ $<
+	rgbgfx -Z -o $@ $<
 
 # Convert .png files into .h.1bpp files (-h flag).
 res/%.1bpp: res/%.h.png
 	@mkdir -p $(@D)
-	rgbgfx -h -d 1 -o $@ $<
+	rgbgfx -Z -d 1 -o $@ $<
 
 res/%.vwf: res/%.png $(MAKEFONT)
 	@mkdir -p $(@D)
