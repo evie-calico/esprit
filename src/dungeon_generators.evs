@@ -1,0 +1,39 @@
+env script {
+	use std;
+	def memset(const ptr, const u8, const u16);
+	def rand(u8);
+	def map_put_tile(u8, u8, const u8);
+	pool = 16;
+}
+
+asm "
+INCLUDE \"defines.inc\"
+INCLUDE \"dungeon.inc\"
+"
+
+script xGenerateScraper {
+	memset(wDungeonMap, TILE_WALL, 4096);
+
+	u8 x = 32;
+	u8 y = 32;
+
+	repeat 255 {
+		map_put_tile(x, y, TILE_CLEAR);
+
+		u8 dir;
+		rand(dir);
+		dir &= 3;
+
+		if dir == UP { y -= 1; }
+		else if dir == RIGHT { x += 1; }
+		else if dir == DOWN { y += 1; }
+		else if dir == LEFT { x -= 1; }
+
+		if x == 255 { x = 0; }
+		else if x == 64 { x = 63; }
+		if y == 255 { y = 0; }
+		else if y == 64 { y = 63; }
+	}
+
+	map_put_tile(x, y, TILE_EXIT);
+}

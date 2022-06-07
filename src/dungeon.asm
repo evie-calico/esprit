@@ -449,8 +449,8 @@ DungeonGenerateFloor::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	call CallHL
-	ret
+	ld de, wScriptPool
+	jp ExecuteScript
 
 .jumpTable
 	ASSERT DUNGEON_TYPE_SCRAPER == 0
@@ -864,93 +864,11 @@ xGetMapBelow:
 	ld a, 1
 	ret
 
-; A simple dungeon generator that works by randomly stepping around and clearing
-; tiles.
-xGenerateScraper::
-	ld a, TILE_WALL
-	ld bc, DUNGEON_WIDTH * DUNGEON_HEIGHT
-	ld hl, wDungeonMap
-	call MemSet
-
-	xor a, a
-	ld [wMapgenLoopCounter], a
-	; Get a pointer to the center tile of the map.
-	lb bc, DUNGEON_WIDTH / 2, DUNGEON_HEIGHT / 2
-.loop
-	push bc
-	call Rand
-	pop bc
-	and a, %11
-	ASSERT UP == 0
-	jr z, .up
-	ASSERT RIGHT == 1
-	dec a
-	jr z, .right
-	ASSERT DOWN == 2
-	dec a
-	jr z, .down
-	ASSERT LEFT == 3
-.left
-	dec b
-	jr .write
-.up
-	dec c
-	jr .write
-.right
-	inc b
-	jr .write
-.down
-	inc c
-.write
-	ld a, b
-	cp a, -1
-	jr nz, :+
-	inc b
-:	cp a, DUNGEON_WIDTH
-	jr nz, :+
-	dec b
-:	ld a, c
-	cp a, -1
-	jr nz, :+
-	inc c
-:	cp a, DUNGEON_HEIGHT
-	jr nz, :+
-	dec c
-:
-	ASSERT DUNGEON_WIDTH * 4 == 256
-	ld a, c
-	add a, a ; a * 2
-	add a, a ; a * 4
-	ld l, a
-	ld h, 0
-	add hl, hl ; a * 8
-	add hl, hl ; a * 16
-	add hl, hl ; a * 32
-	add hl, hl ; a * 64
-	ASSERT DUNGEON_WIDTH == 64
-	ld de, wDungeonMap
-	add hl, de
-	ld a, b
-	add a, l
-	ld l, a
-	adc a, h
-	sub a, l
-	ld h, a
-
-	ld [hl], TILE_CLEAR
-
-	ld a, [wMapgenLoopCounter]
-	dec a
-	ld [wMapgenLoopCounter], a
-	jr nz, .loop
-	ld [hl], TILE_EXIT
-	ret
-
 SECTION UNION "State variables", WRAM0, ALIGN[8]
 ; This map uses 4096 bytes of WRAM, but is only ever used in dungeons.
 ; If more RAM is needed for other game states, it should be unionized with this
 ; map.
-wDungeonMap: ds DUNGEON_WIDTH * DUNGEON_HEIGHT
+wDungeonMap:: ds DUNGEON_WIDTH * DUNGEON_HEIGHT
 wDungeonCameraX:: dw
 wDungeonCameraY:: dw
 ; Only the neccessarily info is saved; the high byte.

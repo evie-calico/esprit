@@ -66,3 +66,6 @@ wGameState:: db
 
 SECTION "Fade callback", WRAM0
 wFadeCallback:: dw
+
+SECTION "General Script Pool", WRAM0
+wScriptPool:: ds 16

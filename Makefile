@@ -20,6 +20,9 @@ FIXFLAGS = -p 0xFF -j -v -c -i "VUIG" -k "EV" -l 0x33 -m $(MBC) \
 GFXFLAGS = -c embedded
 
 SRCS := $(shell find src -name '*.asm')
+EVSS := $(shell find src -name '*.evs')
+OBJS := $(patsubst src/%.asm, obj/%.o, $(SRCS)) \
+        $(patsubst src/%.evs, obj/%.o, $(EVSS))
 
 ################################################
 #                                              #
@@ -56,7 +59,7 @@ release:
 ###############################################
 
 # How to build a ROM
-bin/%.gb bin/%.sym bin/%.map: $(patsubst src/%.asm, obj/%.o, $(SRCS))
+bin/%.gb bin/%.sym bin/%.map: $(OBJS)
 	@mkdir -p $(@D)
 	printf "SECTION \"Version\", ROM0\nVersion:: db \"Vuiiger version %s\\\\nBuilt on \", __ISO_8601_UTC__, \"\\\\nUsing RGBDS {__RGBDS_VERSION__}\", 0\n" `git describe --tags --always --dirty` \
 	| rgbasm $(ASFLAGS) -o obj/version.o -
@@ -74,6 +77,11 @@ obj/libs/vwf.o dep/libs/vwf.mk res/charmap.inc: src/libs/vwf.asm
 obj/%.o dep/%.mk: src/%.asm
 	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$*))
 	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o $<
+
+obj/%.o dep/%.mk: src/%.evs
+	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$*))
+	evscript -o obj/$*.asm $<
+	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o obj/$*.asm
 
 ifneq ($(MAKECMDGOALS),clean)
 -include $(patsubst src/%.asm, dep/%.mk, $(SRCS))
