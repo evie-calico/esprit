@@ -17,7 +17,7 @@ script xGenerateScraper {
 	u8 x = 32;
 	u8 y = 32;
 
-	repeat 255 {
+	repeat 2 { repeat 255 {
 		map_put_tile(x, y, TILE_CLEAR);
 
 		u8 dir;
@@ -29,11 +29,11 @@ script xGenerateScraper {
 		else if dir == DOWN { y += 1; }
 		else if dir == LEFT { x -= 1; }
 
-		if x == 255 { x = 0; }
-		else if x == 64 { x = 63; }
-		if y == 255 { y = 0; }
-		else if y == 64 { y = 63; }
-	}
+		if x == 0 { x = 1; }
+		else if x == 63 { x = 62; }
+		if y == 0 { y = 1; }
+		else if y == 61 { y = 60; }
+	}}
 
 	map_put_tile(x, y, TILE_EXIT);
 }
