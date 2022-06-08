@@ -180,6 +180,16 @@ StandingCheck:
 	ld hl, FoundExit
 	call PrintHUD
 
+	ASSERT DUNGEON_HEIGHT / 2 == DUNGEON_WIDTH / 2
+	ld a, DUNGEON_WIDTH / 2
+	ld hl, wEntity0_SpriteY + 1
+	ld [hli], a
+	inc l
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	bankcall xFocusCamera
+
 	call DungeonGenerateFloor
 
 	xor a, a
@@ -891,15 +901,14 @@ SpawnEntity::
 		ld c, sizeof_Entity
 		call MemSetSmall
 		dec h ; correct high byte (MemSet causes it to overflow)
+		ASSERT DUNGEON_HEIGHT / 2 == DUNGEON_WIDTH / 2
+		ld a, DUNGEON_WIDTH / 2
 		ld l, LOW(wEntity0_SpriteY + 1)
-		ld [hl], DUNGEON_HEIGHT / 2
+		ld [hli], a
 		inc l
-		inc l
-		ld [hl], DUNGEON_WIDTH / 2
-		inc l
-		ld [hl], DUNGEON_WIDTH / 2
-		inc l
-		ld [hl], DUNGEON_HEIGHT / 2
+		ld [hli], a
+		ld [hli], a
+		ld [hli], a
 		ld a, b
 		rst SwapBank
 		ld l, LOW(wEntity0_Bank)

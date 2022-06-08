@@ -28,7 +28,7 @@ MACRO dungeon_palette
 	ENDR
 ENDM
 
-	dungeon Forest, "res/tree_tiles.2bpp", DUNGEON_TYPE_SCRAPER, 3, \
+	dungeon Forest, "res/tree_tiles.2bpp", DUNGEON_TYPE_HALLS, 3, \
 	        xApple, xGrapes, xPepper, xScarf
 	dungeon_palette 128, 255, 144, \ ; Blank
 	                  0, 120,   0, \ ; Ground

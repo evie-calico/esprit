@@ -3,6 +3,7 @@ env script {
 	def memset(const ptr, const u8, const u16);
 	def rand(u8);
 	def map_put_tile(u8, u8, const u8);
+	def step_direction(u8, u8, u8);
 	pool = 16;
 }
 
@@ -12,28 +13,131 @@ INCLUDE \"dungeon.inc\"
 "
 
 script xGenerateScraper {
-	memset(wDungeonMap, TILE_WALL, 4096);
-
 	u8 x = 32;
 	u8 y = 32;
 
-	repeat 2 { repeat 255 {
-		map_put_tile(x, y, TILE_CLEAR);
-
+	repeat 255 {
 		u8 dir;
 		rand(dir);
 		dir &= 3;
 
-		if dir == UP { y -= 1; }
-		else if dir == RIGHT { x += 1; }
-		else if dir == DOWN { y += 1; }
-		else if dir == LEFT { x -= 1; }
+		step_direction(dir, x, y);
+		map_put_tile(x, y, TILE_CLEAR);
+	}
 
-		if x == 0 { x = 1; }
-		else if x == 63 { x = 62; }
-		if y == 0 { y = 1; }
-		else if y == 61 { y = 60; }
-	}}
+	map_put_tile(x, y, TILE_EXIT);
+}
+
+script xGenerateHalls {
+	u8 x = 32;
+	u8 y = 32;
+	u8 direction;
+	rand(direction);
+	direction &= 3;
+
+	u8 width;
+	rand(width);
+	width &= 3;
+	width += 3;
+	u8 height; 
+	rand(height);
+	height &= 3;
+	height += 3;
+
+	u8 start_offset;
+	rand(start_offset);
+	start_offset &= 3;
+	x -= start_offset;
+	rand(start_offset);
+	start_offset &= 3;
+	y -= start_offset;
+	purge start_offset;
+	
+	for u8 i = 0; i != height; i += 1 {
+		for u8 j = 0; j != width; j += 1 {
+			map_put_tile(x, y, TILE_CLEAR);
+			x += 1;
+		}
+		x -= width;
+		y += 1;
+	}
+
+	purge i;
+	purge j;
+
+	repeat 9 {
+		u8 hall_count;
+		rand(hall_count);
+		hall_count &= 1;
+		hall_count += 2;
+
+		while hall_count != 0 {
+			u8 length;
+			rand(length);
+			length &= 7;
+			length += 4;
+
+			while length != 0 {
+				map_put_tile(x, y, TILE_CLEAR);
+				step_direction(direction, x, y);
+				length -= 1;
+			}
+
+			u8 offset;
+			rand(offset);
+			// Set offset to either 2 or 0, then subtract 1 to get 1 or -1.
+			offset &= 2;
+			offset -= 1;
+			// Add this to the current direction.
+			direction += offset;
+			direction &= 3;
+			hall_count -= 1;
+			purge length;
+		}
+
+		purge hall_count;
+
+		u8 old_x = x;
+		u8 old_y = y;
+
+		rand(width);
+		width &= 3;
+		width += 3;
+		rand(height);
+		height &= 3;
+		height += 3;
+		
+		for u8 i = 0; i != height; i += 1 {
+			for u8 j = 0; j != width; j += 1 {
+				map_put_tile(x, y, TILE_CLEAR);
+				x += 1;
+			}
+			x -= width;
+			y += 1;
+		}
+
+		x = old_x;
+		y = old_y;
+		
+		purge i;
+		purge j;
+		purge old_x;
+		purge old_y;
+
+		if direction == UP {
+			y -= 1;
+		} else if direction == LEFT {
+			x += width;
+		} else if direction == DOWN {
+			x += width;
+			x -= 1;
+			y += height;
+		} else if direction == RIGHT {
+			y += height;
+			y -= 1;
+			x -= 1;
+		}
+	}
 
 	map_put_tile(x, y, TILE_EXIT);
 }

@@ -48,12 +48,10 @@ InitDungeon::
 	; Draw debug map
 	call DungeonGenerateFloor
 	; Spawn a buncha items
-	FOR I, INVENTORY_SIZE
-		ld a, I % 4 + TILE_ITEMS
-		ld [wDungeonMap + 30 + 30 * 64 + I], a
-	ENDR
-	ld a, TILE_EXIT
-	ld [wDungeonMap + 31 + 32 * 64], a
+	;FOR I, INVENTORY_SIZE
+	;	ld a, I % 4 + TILE_ITEMS
+	;	ld [wDungeonMap + 30 + 30 * 64 + I], a
+	;ENDR
 
 	; Spawn a player and enemy
 	FOR I, 3
@@ -425,6 +423,11 @@ SECTION "Generate Floor", ROM0
 ; Generate a new floor
 ; @clobbers bank
 DungeonGenerateFloor::
+	ld a, TILE_WALL
+	ld bc, DUNGEON_WIDTH * DUNGEON_HEIGHT
+	ld hl, wDungeonMap
+	call MemSet
+
 	ld hl, wActiveDungeon
 	ld a, [hli]
 	rst SwapBank
@@ -455,6 +458,8 @@ DungeonGenerateFloor::
 .jumpTable
 	ASSERT DUNGEON_TYPE_SCRAPER == 0
 	farptr xGenerateScraper
+	ASSERT DUNGEON_TYPE_HALLS == 1
+	farptr xGenerateHalls
 
 SECTION "Update Scroll", ROMX
 xUpdateScroll:

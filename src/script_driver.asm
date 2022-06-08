@@ -81,7 +81,9 @@ EVScriptBytecodeTable:
 	;
 	dw ScriptMemset
 	dw ScriptRand
+	; Mapgen Utilities
 	dw ScriptMapPutTile
+	dw ScriptMapStepDir
 
 SECTION "EVScript Return", ROM0
 StdReturn:
@@ -229,17 +231,14 @@ OperandPrologue:
 	sub a, c
 	ld b, a
 	; de is preserved & variable is pointed to by bc
-	push de
 	ld a, [hli]
-	add a, e
-	ld e, a
-	adc a, d
-	sub a, e
-	ld d, a
-	ld a, [de]
-	pop de
-	ld b, a
-	ld a, [bc]
+	push hl
+		ld l, a
+		ld h, 0
+		add hl, de
+		ld a, [bc]
+		ld b, [hl]
+	pop hl
 	ret
 
 StdAdd:
@@ -583,6 +582,48 @@ SECTION "EVScript ScriptMapPutTile", ROM0
 ScriptMapPutTile:
 	ld a, [hli]
 	push hl
+		ld l, a
+		ld h, 0
+		add hl, de
+		ld a, [hl]
+		and a, a
+		jr z, .oneX
+		bit 7, a
+		jr nz, .oneX
+		cp a, DUNGEON_WIDTH - 1
+		jr c, .nothingX
+	.farX
+		ld a, DUNGEON_WIDTH - 2
+		jr .storeX
+	.oneX
+		ld a, 1
+	.storeX
+		ld [hl], a
+	.nothingX
+	pop hl
+	ld a, [hld]
+	push hl
+		ld l, a
+		ld h, 0
+		add hl, de
+		ld a, [hl]
+		and a, a
+		jr z, .oneY
+		bit 7, a
+		jr nz, .oneY
+		cp a, DUNGEON_HEIGHT - 3
+		jr c, .nothingY
+	.farY
+		ld a, DUNGEON_HEIGHT - 4
+		jr .storeY
+	.oneY
+		ld a, 1
+	.storeY
+		ld [hl], a
+	.nothingY
+	pop hl
+	ld a, [hli]
+	push hl
 	ld h, d
 	ld l, e
 	ld c, a
@@ -619,4 +660,40 @@ ScriptMapPutTile:
 	pop hl
 	ld a, [hli]
 	ld [de], a
+	ret
+
+SECTION "EVScript ScriptMapStepDir", ROM0
+ScriptMapStepDir:
+	ld a, [hli]
+	push hl
+		ld l, a
+		ld h, 0
+		add hl, de
+		ld a, [hl]
+	pop hl
+	add a, a
+	add a, LOW(DirectionVectors)
+	ld c, a
+	adc a, HIGH(DirectionVectors)
+	sub a, c
+	ld b, a
+	ld a, [hli]
+	push hl
+		ld l, a
+		ld h, 0
+		add hl, de
+		ld a, [bc]
+		inc bc
+		add a, [hl]
+		ld [hl], a
+	pop hl
+	ld a, [hli]
+	push hl
+		ld l, a
+		ld h, 0
+		add hl, de
+		ld a, [bc]
+		add a, [hl]
+		ld [hl], a
+	pop hl
 	ret
