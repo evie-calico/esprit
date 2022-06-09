@@ -453,7 +453,8 @@ DungeonGenerateFloor::
 	ld h, [hl]
 	ld l, a
 	ld de, wScriptPool
-	jp ExecuteScript
+	call ExecuteScript
+
 
 .jumpTable
 	ASSERT DUNGEON_TYPE_SCRAPER == 0

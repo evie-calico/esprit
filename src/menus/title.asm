@@ -66,4 +66,6 @@ xTitleScreenClose:
 	ld a, LOW(InitDungeon)
 	ld [hli], a
 	ld [hl], HIGH(InitDungeon)
+	ldh a, [rDIV]
+	ld [randstate], a
 	ret
