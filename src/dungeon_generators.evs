@@ -51,7 +51,7 @@ script xGenerateHalls {
 	rand(start_offset);
 	start_offset &= 3;
 	y -= start_offset;
-	purge start_offset;
+	drop start_offset;
 	
 	for u8 i = 0; i != height; i += 1 {
 		for u8 j = 0; j != width; j += 1 {
@@ -62,8 +62,8 @@ script xGenerateHalls {
 		y += 1;
 	}
 
-	purge i;
-	purge j;
+	drop i;
+	drop j;
 
 	repeat 9 {
 		u8 hall_count;
@@ -92,10 +92,10 @@ script xGenerateHalls {
 			direction += offset;
 			direction &= 3;
 			hall_count -= 1;
-			purge length;
+			drop length;
 		}
 
-		purge hall_count;
+		drop hall_count;
 
 		u8 old_x = x;
 		u8 old_y = y;
@@ -119,10 +119,10 @@ script xGenerateHalls {
 		x = old_x;
 		y = old_y;
 		
-		purge i;
-		purge j;
-		purge old_x;
-		purge old_y;
+		drop i;
+		drop j;
+		drop old_x;
+		drop old_y;
 
 		if direction == UP {
 			y -= 1;
