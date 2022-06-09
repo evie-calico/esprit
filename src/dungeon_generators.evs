@@ -3,6 +3,7 @@ env script {
 	def memset(const ptr, const u8, const u16);
 	def rand(u8);
 	def map_put_tile(u8, u8, const u8);
+	def map_get_tile(u8, u8, u8);
 	def step_direction(u8, u8, u8);
 	pool = 16;
 }
@@ -140,4 +141,33 @@ script xGenerateHalls {
 	}
 
 	map_put_tile(x, y, TILE_EXIT);
+}
+
+script xGenerateItems {
+	do {
+		u8 x;
+		rand(x);
+		x &= 63;
+		u8 y;
+		rand(y);
+		y &= 63;
+		
+		u8 tile;
+		map_get_tile(x, y, tile);
+	} while tile != TILE_CLEAR
+
+	// The items are given a weight in the following order:
+	// ITEM0 - 6/16, 37.50% chance
+	// ITEM1 - 6/16, 37.50% chance
+	// ITEM2 - 3/16, 18.75% chance
+	// ITEM3 - 1/16,  6.25% chance
+
+	// Clamp the random number to (0, 15) and choose an item.
+	u8 item_id;
+	rand(item_id);
+	item_id &= 15;
+	if item_id < 6 { map_put_tile(x, y, TILE_ITEM0); }
+	else if item_id < 12 { map_put_tile(x, y, TILE_ITEM1); }
+	else if item_id < 15 { map_put_tile(x, y, TILE_ITEM2); }
+	else { map_put_tile(x, y, TILE_ITEM3); }
 }

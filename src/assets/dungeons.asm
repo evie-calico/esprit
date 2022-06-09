@@ -1,14 +1,14 @@
 INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 
-MACRO dungeon ; name, tileset, type, floors, item0, item1, item2, item3
+MACRO dungeon ; name, tileset, type, floors, item0, item1, item2, item3, items per floor
 	SECTION "\1 Dungeon", ROMX
 	x\1:: dw .tileset, .palette
 	farptr \5
 	farptr \6
 	farptr \7
 	farptr \8
-	db \3, \4
+	db DUNGEON_TYPE_\3, (\4) + 1, (\9)
 	.tileset INCBIN \2
 ENDM
 
@@ -28,8 +28,8 @@ MACRO dungeon_palette
 	ENDR
 ENDM
 
-	dungeon Forest, "res/tree_tiles.2bpp", DUNGEON_TYPE_HALLS, 3, \
-	        xApple, xGrapes, xPepper, xScarf
+	dungeon Forest, "res/tree_tiles.2bpp", HALLS, 3, \
+	        xApple, xGrapes, xPepper, xScarf, 4
 	dungeon_palette 128, 255, 144, \ ; Blank
 	                  0, 120,   0, \ ; Ground
 	                  0,  88,  24, \

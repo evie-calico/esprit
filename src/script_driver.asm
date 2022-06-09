@@ -6,6 +6,7 @@ SECTION "EVScript Driver", ROM0
 ; @param bank: Script bank
 ; @return hl: New script pointer. 0 after a return.
 ; @return bank: New script bank.
+; @preserves de
 ExecuteScript::
 	ld a, h
 	or a, l
@@ -83,6 +84,7 @@ EVScriptBytecodeTable:
 	dw ScriptRand
 	; Mapgen Utilities
 	dw ScriptMapPutTile
+	dw ScriptMapGetTile
 	dw ScriptMapStepDir
 
 SECTION "EVScript Return", ROM0
@@ -578,8 +580,8 @@ ScriptRand:
 	ld [de], a
 	ret
 
-SECTION "EVScript ScriptMapPutTile", ROM0
-ScriptMapPutTile:
+SECTION "Map Get/Put Prologue", ROM0
+MapGetPutPrologue:
 	ld a, [hli]
 	push hl
 		ld l, a
@@ -658,7 +660,29 @@ ScriptMapPutTile:
 		sub a, e
 		ld d, a
 	pop hl
+	ret
+
+SECTION "EVScript ScriptMapPutTile", ROM0
+ScriptMapPutTile:
+	call MapGetPutPrologue
 	ld a, [hli]
+	ld [de], a
+	ret
+
+SECTION "EVScript ScriptMapGetTile", ROM0
+ScriptMapGetTile:
+	push de
+	call MapGetPutPrologue
+	ld a, [de]
+	pop de
+	ld b, a
+	ld a, [hli]
+	add a, e
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+	ld a, b
 	ld [de], a
 	ret
 

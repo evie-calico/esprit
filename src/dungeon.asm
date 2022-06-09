@@ -454,7 +454,26 @@ DungeonGenerateFloor::
 	ld l, a
 	ld de, wScriptPool
 	call ExecuteScript
+	ld hl, wActiveDungeon
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld bc, Dungeon_ItemsPerFloor
+	add hl, bc
+	ld b, [hl]
 
+.loop
+	ld a, BANK(xGenerateItems)
+	rst SwapBank
+	ld hl, xGenerateItems
+	push bc
+		call ExecuteScript
+	pop bc
+	dec b
+	jr nz, .loop
+	ret
 
 .jumpTable
 	ASSERT DUNGEON_TYPE_SCRAPER == 0
