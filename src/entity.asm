@@ -255,6 +255,31 @@ POPS
 .movementCheck
 	xor a, a
 	ld [wShowMoves], a
+
+	ld a, [hCurrentKeys]
+	cp a, PADF_START
+	jr nz, :+
+		xor a, a
+		ld [wShowMoves], a
+		ld a, 1
+		ld [wIsDungeonFading], a
+		ld a, LOW(OpenPauseMenu)
+		ld [wDungeonFadeCallback], a
+		ld a, HIGH(OpenPauseMenu)
+		ld [wDungeonFadeCallback + 1], a
+		; Set palettes
+		ld a, %11111111
+		ld [wBGPaletteMask], a
+		ld a, %11111111
+		ld [wOBJPaletteMask], a
+		ld a, 20
+		ld [wFadeSteps], a
+		ld a, $80
+		ld [wFadeAmount], a
+		ld a, 4
+		ld [wFadeDelta], a
+		ret
+:
 	; Read the joypad to see if the player is attempting to move.
 	call PadToDir
 	; If no input is given, the player waits a frame to take its turn

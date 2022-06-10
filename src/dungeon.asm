@@ -275,32 +275,6 @@ DungeonState::
 		ld l, a
 		jp hl
 .notFading
-
-	; If only START is pressed, open pause menu.
-	ld a, [hCurrentKeys]
-	cp a, PADF_START
-	jr nz, :+
-		xor a, a
-		ld [wShowMoves], a
-		ld a, 1
-		ld [wIsDungeonFading], a
-		ld a, LOW(.openMenu)
-		ld [wDungeonFadeCallback], a
-		ld a, HIGH(.openMenu)
-		ld [wDungeonFadeCallback + 1], a
-		; Set palettes
-		ld a, %11111111
-		ld [wBGPaletteMask], a
-		ld a, %11111111
-		ld [wOBJPaletteMask], a
-		ld a, 20
-		ld [wFadeSteps], a
-		ld a, $80
-		ld [wFadeAmount], a
-		ld a, 4
-		ld [wFadeDelta], a
-:
-
 	ld hl, wEntityAnimation.pointer
 	ld a, [hli]
 	or a, [hl]
@@ -328,7 +302,7 @@ DungeonState::
 
 	jp UpdateAttackWindow
 
-.openMenu
+OpenPauseMenu::
 	ld b, BANK(xPauseMenu)
 	ld de, xPauseMenu
 	call AddMenu
