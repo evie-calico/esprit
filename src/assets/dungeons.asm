@@ -42,14 +42,14 @@ ENDM
 
 	dungeon Forest, "res/tree_tiles.2bpp", HALLS, 3, \
 	        xApple, xGrapes, xPepper, xScarf, 4, \
+	        xRat, 1, \
+	        xRat, 1, \
+	        xAris, 1, \
 	        xLuvui, 1, \
-	        xLuvui, 1, \
-	        xLuvui, 1, \
-	        xLuvui, 1, \
-	        xLuvui, 2, \
-	        xLuvui, 2, \
-	        xLuvui, 3, \
-	        xLuvui, 3
+	        xRat, 2, \
+	        xRat, 2, \
+	        xRat, 3, \
+	        xRat, 3
 	dungeon_palette 128, 255, 144, \ ; Blank
 	                  0, 120,   0, \ ; Ground
 	                  0,  88,  24, \

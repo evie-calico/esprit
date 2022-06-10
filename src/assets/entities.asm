@@ -1,3 +1,4 @@
+INCLUDE "defines.inc"
 INCLUDE "entity.inc"
 
 MACRO entity ; name, graphic
@@ -21,4 +22,24 @@ ENDM
 		level 1, xScratch
 		level 6, xBite
 		level 7, xPounce
+		db 0
+
+	entity Aris, "res/sprites/aris.2bpp"
+	.palette
+		rgb 255, 255, 128
+		rgb 32, 32, 176
+		rgb 0, 0, 32
+	.moveTable
+		level 1, xScratch
+		level 5, xBite
+		level 7, xPounce
+		db 0
+
+	entity Rat, "res/sprites/rat.2bpp"
+	.palette
+		rgb 144, 200, 112
+		rgb 80, 48, 16
+		rgb 16, 24, 0
+	.moveTable
+		level 1, xScratch
 		db 0
