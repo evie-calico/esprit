@@ -1,3 +1,4 @@
+INCLUDE "defines.inc"
 INCLUDE "draw_menu.inc"
 INCLUDE "hardware.inc"
 
@@ -32,16 +33,34 @@ xDrawTitleScreen:
 	DEF idof_vBlankTile EQU idof_vFrame + 4
 	dregion vTopMenu, 0, 0, SCRN_X_B, SCRN_Y_B
 	set_frame vTopMenu, idof_vFrame
-	print_text 1, 1, "Vuiiger"
 	end_dmg
 	set_region 0, 0, SCRN_X_B, SCRN_Y_B, 0
 	end_cgb
+	dtile vVersionText
 
 .frame INCBIN "res/ui/hud_frame.2bpp"
 
 xTitleScreenInit:
 	ld hl, xDrawTitleScreen
 	call DrawMenu
+
+	ld a, $80
+	ld e, a
+	ld d, SCRN_Y_B
+	ld a, SCRN_X
+	ld b, idof_vVersionText
+	ld c, $FF
+	call TextInit
+	lb de, 10, 10
+	ld hl, $9800 + 1 + 1 * 32
+	call TextDefineBox
+	ld a, 1
+	ld b, BANK(@)
+	ld hl, Version
+	call PrintVWFText
+	call PrintVWFChar
+	call DrawVWFChars
+
 	ld a, 20
 	ld [wFadeSteps], a
 	ld a, $80 + 20 * 4
