@@ -937,18 +937,147 @@ SpawnEntity::
 
 	jp BankReturn
 
+SECTION "Spawn Enemy", ROM0
+SpawnEnemy::
+	call Rand
+	and a, 63
+	ld b, a
+	ld a, e
+	and a, 63
+	ld c, a
+	ASSERT DUNGEON_WIDTH * 4 == 256
+	add a, a ; a * 2
+	add a, a ; a * 4
+	ld l, a
+	ld h, 0
+	add hl, hl ; a * 8
+	add hl, hl ; a * 16
+	add hl, hl ; a * 32
+	add hl, hl ; a * 64
+	ASSERT DUNGEON_WIDTH == 64
+	ld de, wDungeonMap
+	add hl, de
+	ld a, b
+	add a, l
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld a, [hl]
+	ASSERT TILE_CLEAR == 0
+	and a, a
+	jr nz, SpawnEnemy
+	; b = X
+	; c = Y
+
+	push bc
+		call Rand
+		and a, 7
+		ASSERT sizeof_SpawnEntityInfo == 4
+		add a, a
+		add a, a
+		add a, Dungeon_Entities
+		ASSERT sizeof_Dungeon < 256
+		ld b, a
+		ld hl, wActiveDungeon
+		ld a, [hli]
+		rst SwapBank
+		ld a, [hli]
+		ld h, [hl]
+		add a, b
+		ld l, a
+		adc a, h
+		sub a, l
+		ld h, a
+		ld a, [hli]
+		ld c, a
+		ld a, [hli]
+		ld b, a
+		ld a, [hli]
+		ld d, [hl]
+		ld e, a
+		; de = ptr
+		; b = bank
+		; c = level
+		ld h, HIGH(wEntity0) + NB_ALLIES
+	.loop
+		ld l, LOW(wEntity0_Bank)
+		ld a, [hli]
+		and a, a
+		jr z, .spawn
+		inc h
+		ld a, h
+		cp a, HIGH(wEntity0) + NB_ENTITIES
+		jr nz, .loop
+		jr .fail
+	.spawn
+		call SpawnEntity
+	pop bc
+	ld l, LOW(wEntity0_SpriteY + 1)
+	ld [hl], c
+	inc hl
+	inc hl
+	ld a, b
+	ld [hli], a
+	ld [hli], a
+	ld [hl], c
+	ld l, LOW(wEntity0_Level)
+	ld c, [hl]
+	inc c
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	add a, EntityData_MoveTable
+	ld e, a
+	adc a, [hl]
+	sub a, e
+	ld d, a
+	ld a, [de]
+	ld b, a
+	inc de
+	ld a, [de]
+	ld d, a
+	ld e, b
+	ld l, LOW(wEntity0_Moves)
+.populateMoves
+	ld a, [de]
+	and a, a
+	ret z
+	cp a, c
+	ret nc
+	inc de
+	ld a, [de]
+	inc de
+	ld [hli], a
+	ld a, [de]
+	inc de
+	ld [hli], a
+	ld a, [de]
+	inc de
+	ld [hli], a
+	ld a, LOW(wEntity0_Moves) + 3 * ENTITY_MOVE_COUNT
+	cp a, l
+	jr nz, .populateMoves
+	ld l, LOW(wEntity0_Moves)
+	jr .populateMoves
+
+.fail
+	pop bc
+	ret
+
 SECTION "Get Max Health", ROM0
 ; This function encapsulates the maximum level formula, allowing it to
 ; be easily changed in the future.
 ; @param a: Level
 ; @return hl: Max Health
 GetMaxHealth::
-	; The current formula is 10 + level * 4
+	; The current formula is 16 + level * 4
 	ld l, a
 	ld h, 0
 	add hl, hl
 	add hl, hl
-	ld a, 10
+	ld a, 16
 	add a, l
 	ld l, a
 	adc a, h

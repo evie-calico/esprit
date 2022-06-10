@@ -6,6 +6,7 @@ INCLUDE "structs.inc"
 DEF DUNGEON_WIDTH EQU 64
 DEF DUNGEON_HEIGHT EQU 64
 DEF DUNGEON_ITEM_COUNT EQU 4
+DEF DUNGEON_ENTITY_COUNT EQU 8
 
 RSRESET
 DEF TILE_CLEAR RB 1
@@ -21,6 +22,12 @@ RSRESET
 DEF DUNGEON_TYPE_SCRAPER RB 1
 DEF DUNGEON_TYPE_HALLS RB 1
 
+	struct SpawnEntityInfo
+		bytes 1, Level
+		bytes 1, Bank
+		words 1, Pointer
+	end_struct
+
 	struct Dungeon
 		words 1, Tileset
 		words 1, Palette
@@ -28,6 +35,7 @@ DEF DUNGEON_TYPE_HALLS RB 1
 		bytes 1, GenerationType
 		bytes 1, FloorCount
 		bytes 1, ItemsPerFloor
+		bytes sizeof_SpawnEntityInfo * DUNGEON_ENTITY_COUNT, Entities
 	end_struct
 
 ENDC

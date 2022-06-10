@@ -54,6 +54,9 @@ DEF ENTITY_ANIMATION_END RB 1
 		; TODO: find out an appropriate limit for entity names, considering how
 		; they appear in UI.
 		words 1, Name
+		; A list of levels and moves which are to be learned upon leveling up.
+		; Terminated by a level of 0.
+		words 1, MoveTable
 	end_struct
 
 	struct Entity

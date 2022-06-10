@@ -43,30 +43,22 @@ InitDungeon::
 	dec b
 	jr nz, .clearEntities
 
+	lb bc, BANK(xLuvui), 5
+	ld de, xLuvui
+	ld h, HIGH(wEntity0)
+	call SpawnEntity
+	ld l, LOW(wEntity0_Moves)
+	ld a, BANK(xBite)
+	ld [hli], a
+	ld a, LOW(xBite)
+	ld [hli], a
+	ld a, HIGH(xBite)
+	ld [hli], a
+
 	ld a, 1
 	ld [wDungeonCurrentFloor], a
 	; Draw debug map
 	call DungeonGenerateFloor
-	; Spawn a buncha items
-	;FOR I, INVENTORY_SIZE
-	;	ld a, I % 4 + TILE_ITEMS
-	;	ld [wDungeonMap + 30 + 30 * 64 + I], a
-	;ENDR
-
-	; Spawn a player and enemy
-	FOR I, 3
-		lb bc, BANK(xLuvui), 5
-		ld de, xLuvui
-		ld h, HIGH(wEntity{d:I})
-		call SpawnEntity
-		ld l, LOW(wEntity0_Moves)
-		ld a, BANK(xBite)
-		ld [hli], a
-		ld a, LOW(xBite)
-		ld [hli], a
-		ld a, HIGH(xBite)
-		ld [hli], a
-	ENDR
 ; Re-initializes some aspects of the dungeon, such as rendering the map.
 ; @clobbers: bank
 SwitchToDungeonState::
@@ -427,6 +419,14 @@ DungeonGenerateFloor::
 	ld bc, DUNGEON_WIDTH * DUNGEON_HEIGHT
 	ld hl, wDungeonMap
 	call MemSet
+	ld hl, wEntity{d:NB_ALLIES}
+	xor a, a
+	ld b, NB_ENEMIES
+.clearEnemies
+	ld [hl], a
+	inc h
+	dec b
+	jr nz, .clearEnemies
 
 	ld hl, wActiveDungeon
 	ld a, [hli]
@@ -464,7 +464,7 @@ DungeonGenerateFloor::
 	add hl, bc
 	ld b, [hl]
 
-.loop
+.generateItem
 	ld a, BANK(xGenerateItems)
 	rst SwapBank
 	ld hl, xGenerateItems
@@ -472,7 +472,14 @@ DungeonGenerateFloor::
 		call ExecuteScript
 	pop bc
 	dec b
-	jr nz, .loop
+	jr nz, .generateItem
+	ld a, NB_ENEMIES
+.spawnEnemies
+	push af
+	call SpawnEnemy
+	pop af
+	dec a
+	jr nz, .spawnEnemies
 	ret
 
 .jumpTable
