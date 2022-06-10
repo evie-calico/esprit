@@ -756,14 +756,20 @@ xDrawTile::
 	push de
 		call xGetMapAbove
 	pop de
-	and a, 1
-	rlca
-	ld b, a ; Store the 'above' bit in B
+	cp a, TILE_WALL
+	ld b, 0
+	jr nz, :+
+	ld b, %10
+:
 	push de
 		call xGetMapBelow
 	pop de
 	inc e
-	and a, 1
+	cp a, TILE_WALL
+	ld a, 0
+	jr nz, :+
+	ld a, 1
+:
 	or a, b
 	; a = %11 where %10 is a tile above and %01 is a tile below.
 	; If a is 0, however, this is a static, standalone tile.
