@@ -1179,7 +1179,7 @@ ENDR
 ; This "BSS" section is used to 0-init private vars from another TU.
 SECTION FRAGMENT "dungeon BSS", WRAM0
 ; The next entity to be processed.
-wActiveEntity: db
+wActiveEntity:: db
 wMoveEntityCounter: db
 ; True if the player has already checked for an item on this tile.
 wHasChecked: db

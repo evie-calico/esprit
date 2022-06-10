@@ -192,6 +192,9 @@ xUseItemMenuRedraw:
 	jp xScrollInterp
 
 xUseItemMenuClose:
+	ld a, [wActiveEntity]
+	dec a
+	jp z, UnwindMenus
 	ld a, SCRN_VX - SCRN_X
 	ld [wScrollInterp.x], a
 	xor a, a
@@ -225,6 +228,7 @@ xUseItemMenuA:
 	ret nz
 	inc a ; ld a, 1
 	ld [wUseAnimationTimer], a
+	ld [wActiveEntity], a
 	ret
 
 xUseItemBlockAction:

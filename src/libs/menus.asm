@@ -330,6 +330,18 @@ PreventMenuAction::
 	ld [wMenuAction], a
 	ret
 
+; Jump back to the first menu in the menu stack and execute its closing function.
+UnwindMenus::
+	ld a, 1
+	ld [wNbMenus], a
+	ld a, [wMenu0_Bank]
+	rst SwapBank
+	ld hl, wMenu0_ClosingFunc
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	jp hl
+
 SECTION "Menu system vars", WRAM0
 
 wNbMenus::
