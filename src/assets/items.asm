@@ -31,19 +31,19 @@ x\1::
 .gfx:: INCBIN \3
 ENDM
 
-	heal Apple, "A small red fruit. Eat it to restore your health.", "res/items/apple.2bpp", 10
+	heal Apple, "A small red fruit. Eat it to restore 10 health.", "res/items/apple.2bpp", 10
 	.palette 
 		rgb 255,   0,   0
 		rgb 128,   0,   0
 		rgb  64,   0,   0
 
-	heal Grapes, "A bunch of sweet, ripened grapes. Eat them to restore health.", "res/items/grapes.2bpp", 20
+	heal Grapes, "A bunch of ripened grapes. Eat them to restore 20 health.", "res/items/grapes.2bpp", 20
 	.palette
 		rgb 255,   0, 255
 		rgb 128,   0, 128
 		rgb  64,   0,  64
 
-	item Pepper, "A spicy little pepper!", "res/items/pepper.2bpp"
+	item Pepper, "A spicy little pepper! It doesn't seem to do anything...", "res/items/pepper.2bpp"
 	.palette
 		rgb 250, 173,  36
 		rgb 128,  64,  64
