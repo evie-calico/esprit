@@ -11,6 +11,7 @@ x\1::
 .name:: db "\1", 0
 ENDM
 
+	attack Nibble, 4, 1, 224
 	attack Bite, 8, 1, 224
 	attack Pounce, 6, 2, 224
 	attack Scratch, 6, 1, -1

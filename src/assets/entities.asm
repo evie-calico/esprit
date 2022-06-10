@@ -41,5 +41,5 @@ ENDM
 		rgb 80, 48, 16
 		rgb 16, 24, 0
 	.moveTable
-		level 1, xScratch
+		level 1, xNibble
 		db 0

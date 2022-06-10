@@ -39,11 +39,11 @@ script xGenerateHalls {
 	u8 width;
 	rand(width);
 	width &= 3;
-	width += 3;
+	width += 4;
 	u8 height; 
 	rand(height);
 	height &= 3;
-	height += 3;
+	height += 4;
 
 	u8 start_offset;
 	rand(start_offset);
