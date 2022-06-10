@@ -41,7 +41,7 @@ MACRO dungeon_palette
 ENDM
 
 	dungeon Forest, "res/tree_tiles.2bpp", HALLS, 3, \
-	        xApple, xGrapes, xPepper, xScarf, 255, \
+	        xApple, xGrapes, xPepper, xScarf, 4, \
 	        xRat, 1, \
 	        xRat, 1, \
 	        xAris, 1, \
@@ -57,6 +57,6 @@ ENDM
 	                144, 104,  72, \ ; Wall
 	                  0,  88,  24, \
 	                  0,  32,   0, \
-	                  0, 120,   0, \ ; Exit
-	                  0,  88,  24, \
-	                  0,  32,   0, \
+	                  0,   0, 255, \ ; Exit
+	                  0,   0, 128, \
+	                  0,   0,  64, \
