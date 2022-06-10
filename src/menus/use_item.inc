@@ -40,6 +40,15 @@ xUseItemMenu::
 	dw xUseItemMenuClose
 
 xUseItemMenuInit:
+	ld hl, wUseItemMenuCursor
+	ld a, SCRN_VX - SCRN_X + 4
+	ld [hli], a
+	ld a, SCRN_Y + 4
+	ld [hli], a
+	ld a, idof_vItemCursor
+	ld [hli], a
+	ld [hl], OAMF_PAL1 | 1
+
 	ld a, SCRN_VX - SCRN_X
 	ld [wScrollInterp.x], a
 	ld a, 12 * 8
@@ -203,8 +212,7 @@ xUseItemMenuClose:
 	ld [wInventoryRedrawDesc], a
 	ld hl, xDrawInventoryMenu
 	call DrawMenu
-	call xInventoryDrawItemNames
-	ret
+	jp xInventoryDrawItemNames
 
 xUseItemMenuA:
 	xor a, a

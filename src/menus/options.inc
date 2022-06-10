@@ -83,20 +83,6 @@ xOptionsMenuRedraw:
 	call DrawCursor
 	jp xScrollInterp
 
-	ld hl, wSubMenuCursor
-	ld a, [hli]
-	ld c, a
-	ld a, [hld]
-	ld b, a
-	call DrawCursor
-	ld hl, wPauseMenuCursor
-	ld a, [hli]
-	ld c, a
-	ld a, [hld]
-	ld b, a
-	call DrawCursor
-	jp xScrollInterp
-
 xOptionsMenuAPress:
 	ld hl, sp+2
 	ld a, [hli]

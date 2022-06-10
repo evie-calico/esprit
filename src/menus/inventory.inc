@@ -7,12 +7,12 @@ xInventoryMenu::
 	db BANK(@)
 	dw xInventoryMenuInit
 	; Used Buttons
-	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
+	db PADF_A | PADF_B | PADF_START | PADF_UP | PADF_DOWN
 	; Auto-repeat
 	db 1
 	; Button functions
 	; A, B, Sel, Start, Right, Left, Up, Down
-	dw xInventoryA, null, null, null, null, null, xInventoryMove, xInventoryMove
+	dw xInventoryA, null, null, xInventoryStart, null, null, xInventoryMove, xInventoryMove
 	db 0 ; Last selected item
 	; Allow wrapping
 	db 0
@@ -221,6 +221,79 @@ xInventoryA:
 	ld a, [wInventoryIsEmpty]
 	and a, a
 	ret nz
+	ld [wMenuAction], a
+	ld hl, sp+2
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	ld a, [hl]
+	add a, a ; a * 2
+	add a, [hl] ; a * 3
+	add a, LOW(wInventory)
+	ld e, a
+	adc a, HIGH(wInventory)
+	sub a, e
+	ld d, a
+	call InventoryUsableCheck
+PUSHS
+SECTION "Inventory Usable Check", ROM0
+InventoryUsableCheck:
+	ld a, [de]
+	inc de
+	rst SwapBank
+	ld a, [de]
+	inc de
+	ld b, a
+	ld a, [de]
+	ld d, a
+	ld a, Item_Type
+	add a, b
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+	ld a, [de]
+	and a, a
+	ld a, BANK(xInventoryA)
+	rst SwapBank
+	ret
+POPS
+	jr z, .cannotUse
+	ld a, [hl]
+	ld [wInventorySelection], a
+	dec a
+	cp a, -1
+	jr nz, :+
+	xor a, a
+:
+	ld [hl], a
+	ld de, xUseItemMenu
+	ld b, BANK(xUseItemMenu)
+	jp AddMenu
+
+.cannotUse
+	lb bc, 10, 4
+	ld d, idof_vBlankTile
+	ld hl, $9800 + 21 + 13 * 32
+	call FillRegion
+	lb bc, idof_vItemDesc, $FF
+	lb de, SCRN_Y_B, $80
+	ld a, 10 * 8
+	call TextInit
+	ld a, 1
+	ld b, BANK(.cannotUseString)
+	ld hl, .cannotUseString
+	call PrintVWFText
+	lb de, 10, 3
+	ld hl, $9800 + 21 + 13 * 32
+	call TextDefineBox
+	call PrintVWFChar
+	jp DrawVWFChars
+
+.cannotUseString db "You can't use this right now. Press START to toss.", 0
+
+xInventoryStart:
 	ld hl, sp+2
 	ld a, [hli]
 	ld h, [hl]
@@ -228,11 +301,8 @@ xInventoryA:
 	inc hl
 	ld a, [hl]
 	ld [wInventorySelection], a
-	xor a, a
-	ld [hl], a
-	ld [wMenuAction], a
-	ld de, xUseItemMenu
-	ld b, BANK(xUseItemMenu)
+	ld b, BANK(xTossItemMenu)
+	ld de, xTossItemMenu
 	jp AddMenu
 
 xInventoryMove:
@@ -268,7 +338,7 @@ xInventoryLoadItemSelection:
 	pop af
 	xor a, a
 	ld hl, vItemCursor
-	lb c, 0, 64
+	lb bc, 0, 64
 	jp VRAMSetSmall
 
 PUSHS
@@ -339,3 +409,129 @@ wInventoryRedrawDesc: db
 wInventorySelection: db
 wInventoryIsEmpty: db
 POPS
+
+xTossItemMenu:
+	db BANK(@)
+	dw xTossItemMenuInit
+	; Used Buttons
+	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
+	; Auto-repeat
+	db 1
+	; Button functions
+	; A, B, Sel, Start, Right, Left, Up, Down
+	dw xTossItemMenuA, null, null, null, null, null, null, null
+	db 0 ; Last selected item
+	; Allow wrapping
+	db 0
+	; Default selected item
+	db 0
+	; Number of items in the menu
+	db 2
+	; Redraw
+	dw xTossItemMenuRedraw
+	; Private Items Pointer
+	dw null
+	; Close Function
+	dw xTossItemMenuClose
+
+xTossItemMenuInit:
+	ld hl, wUseItemMenuCursor
+	ld a, 21 * 8
+	ld [hli], a
+	ld a, 14 * 8 + 4
+	ld [hli], a
+	ld a, idof_vCursor
+	ld [hli], a
+	ld [hl], OAMF_PAL1
+	lb bc, 10, 4
+	ld d, idof_vBlankTile
+	ld hl, $9800 + 21 + 13 * 32
+	call FillRegion
+	lb bc, idof_vItemDesc, $FF
+	lb de, SCRN_Y_B, $80
+	ld a, 10 * 8
+	call TextInit
+	ld a, 1
+	ld b, BANK(.tossString)
+	ld hl, .tossString
+	call PrintVWFText
+	lb de, 10, 3
+	ld hl, $9800 + 21 + 13 * 32
+	call TextDefineBox
+	call PrintVWFChar
+	jp DrawVWFChars
+
+.tossString db "Toss this item?\n\n      No\n      Yes", 0
+
+xTossItemMenuRedraw:
+	ld hl, sp+2
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	dec hl
+	dec hl ; Size
+	dec hl ; Selection
+	ld a, [hl]
+	dec a
+	jr nz, :+
+	ld a, 7
+:
+	inc a
+	add a, 14 * 8 + 4
+	ld b, a
+	ld c, 21 * 8
+	ld hl, wUseItemMenuCursor
+	call DrawCursor
+	ld hl, wSubMenuCursor
+	call DrawCursorStatic
+	ret
+
+xTossItemMenuA:
+	ld hl, sp+2
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	ld a, [hl]
+	dec a
+	ret nz
+
+	ld a, [wInventorySelection]
+	inc a
+	ld c, a
+	add a, c
+	add a, c
+	add a, LOW(wInventory)
+	ld l, a
+	adc a, HIGH(wInventory)
+	sub a, l
+	ld h, a
+	ld d, h
+	ld e, l
+	dec de
+	dec de
+	dec de
+	jr .moveCondition
+.move
+	ld a, [hli]
+	ld [de], a
+	inc de
+.moveCondition
+	ld a, l
+	cp a, LOW(wInventory + 3 * INVENTORY_SIZE)
+	jr nz, .move
+	ld a, h
+	cp a, HIGH(wInventory + 3 * INVENTORY_SIZE)
+	jr nz, .move
+	xor a, a
+	ld [de], a
+	ret
+
+xTossItemMenuClose:
+	ld a, 30 * 8
+	ld [wUseItemMenuCursor_Y], a
+	ld a, 1
+	ld [wInventoryRedrawDesc], a
+	ld hl, xDrawInventoryMenu
+	call DrawMenu
+	jp xInventoryDrawItemNames
