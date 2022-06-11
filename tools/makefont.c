@@ -7,11 +7,10 @@
 #define CHARACTER_WIDTH 9
 #define CHARACTER_HEIGHT 8
 
-#define error(...) { fprintf(stderr, __VA_ARGS__); exit(1); }
+#define error(...) do { fprintf(stderr, __VA_ARGS__); exit(1); } while (0);
 
 int main(int argc, char ** argv) {
-	if (argc != 3)
-		error("Usage:\n\t%s input_file output_file", argv[0]);
+	if (argc != 3) error("Usage:\n\t%s input_file output_file\n", argv[0]);
 
 	unsigned err;
 	struct plum_image * image = plum_load_image(

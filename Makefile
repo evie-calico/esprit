@@ -54,6 +54,7 @@ rebuild:
 release:
 	$(MAKE) clean
 	${MAKE} LDFLAGS="-p 0xFF -w"
+.PHONY: release
 
 ###############################################
 #                                             #
