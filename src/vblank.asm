@@ -49,14 +49,15 @@ VBlank:
 	ldh a, [hOBP1]
 	ldh [rOBP1], a
 
-	call gbt_update
-
 	ldh a, [hFrameCounter]
 	inc a
 	ldh [hFrameCounter], a
 
 	ld a, 1
 	ld [wWaitVBlankFlag], a
+
+	ei
+	call gbt_update
 
 	pop af
 	rst SwapBank
@@ -65,7 +66,7 @@ VBlank:
 	pop de
 	pop bc
 	pop af
-	reti
+	ret
 
 SECTION "STAT Handler", ROM0
 STAT:
@@ -78,7 +79,7 @@ STAT:
 	pop de
 	pop bc
 :
-	ld a, [rSTAT]
+	ldh a, [rSTAT]
 	and a, STATF_BUSY
 	jr nz, :-
 	pop af

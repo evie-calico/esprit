@@ -7,6 +7,7 @@ INCLUDE "vdef.inc"
 
 DEF POPUP_SPEED EQU 8
 
+	dregion vStatusBar, 0, 26, 20, 2, $9C00
 	dregion vHUD, 0, 28, 20, 4, $9C00
 	dregion vTextbox, 1, 29, 18, 3, $9C00
 	dregion vAttackWindow, 0, 0, 8, 5, $9C00
@@ -24,6 +25,8 @@ DEF POPUP_SPEED EQU 8
 	dtile vUIArrowRight
 	dtile vUIArrowDown
 	dtile vUIArrowLeft
+	dtile vUIFrameBottom
+	dtile vStatusBarTiles, vStatusBar_Width
 
 SECTION "User interface graphics", ROMX
 xUIFrame:
@@ -32,9 +35,8 @@ xUIFrame:
 	INCBIN "res/ui/hud_frame.2bpp", 80, 16 ; right
 	INCBIN "res/ui/hud_frame.2bpp",  0, 16 ; top left
 	INCBIN "res/ui/hud_frame.2bpp", 32, 16 ; top right
-.end
-xUIArrows:
 	INCBIN "res/ui/arrows.2bpp"
+	INCBIN "res/ui/hud_frame.2bpp", 112, 16 ; bottom
 .end
 
 SECTION "Initialize user interface", ROM0
@@ -47,10 +49,6 @@ InitUI::
 	ld c, xUIFrame.end - xUIFrame
 	ld de, vUIFrameTop
 	ld hl, xUIFrame
-	call VRAMCopySmall
-	ld c, xUIArrows.end - xUIArrows
-	ld de, vUIArrowUp
-	ld hl, xUIArrows
 	call VRAMCopySmall
 
 	lb bc, 0, 16
@@ -69,6 +67,7 @@ InitUI::
 	ld c, vHUD_Width - 2
 	ld hl, vHUD + 97
 	call VRAMSetSmall
+	call DrawStatusBar
 
 	lb bc, idof_vUIFrameTop, vHUD_Width - 2
 	ld hl, vHUD + 1
@@ -154,6 +153,7 @@ PrintHUD::
 	ld [wPrintString + 2], a
 	ret
 
+SECTION "Draw print string", ROM0
 ; Draw a string to the HUD.
 ; This is called during the game loop after rendering entities, to ensure they
 ; do not fail to render if printing takes too long.
@@ -187,6 +187,33 @@ DrawPrintString::
 	call PrintVWFChar
 	jp DrawVWFChars
 
+SECTION "Draw Status bar", ROM0
+DrawStatusBar:
+	ld a, vStatusBar_Width * 8
+	lb bc, idof_vStatusBarTiles, idof_vStatusBarTiles + vStatusBar_Width * vStatusBar_Height
+	lb de, vStatusBar_Height, HIGH(vStatusBarTiles) & $F0
+	call TextInit
+
+	xor a, a
+	ld [wTextLetterDelay], a
+
+	ld a, 1
+	ld b, BANK(DebugStatus)
+	ld hl, DebugStatus
+	call PrintVWFText
+
+	lb de, vStatusBar_Width, vStatusBar_Height
+	ld hl, vStatusBar
+	call TextDefineBox
+	call ReaderClear
+	ld a, BANK(TextClear)
+	rst SwapBank
+	call PrintVWFChar
+	jp DrawVWFChars
+
+SECTION "Debug String", ROMX
+DebugStatus: db "   Luvui: 65536/65536 HP\n   Aris: 65536/65536 HP", 0
+
 SECTION "Attack window", ROM0
 UpdateAttackWindow::
 	ldh a, [hCurrentBank]
@@ -201,7 +228,7 @@ UpdateAttackWindow::
 	jp z, .skipRedraw
 		xor a, a
 		ld [wWindowBounce], a
-:           ld a, [rSTAT]
+:           ldh a, [rSTAT]
 			and a, STATF_BUSY
 			jr nz, :-
 		ld a, idof_vUIFrameLeftCorner ; 2
@@ -215,7 +242,7 @@ UpdateAttackWindow::
 		; We actually have ~7 cycles coming out of this function.
 		ld a, idof_vUIFrameLeft ; 2
 		ld [vAttackWindow + 128], a ; 6
-:           ld a, [rSTAT]
+:           ldh a, [rSTAT]
 			and a, STATF_BUSY
 			jr nz, :-
 		ld a, idof_vUIArrowUp ; 2
@@ -224,7 +251,7 @@ UpdateAttackWindow::
 		ld [vAttackWindow + 1 + 64], a ; 11
 		inc a ; 12
 		ld [vAttackWindow + 1 + 96], a ; 16
-:           ld a, [rSTAT]
+:           ldh a, [rSTAT]
 			and a, STATF_BUSY
 			jr nz, :-
 		ld a, idof_vUIArrowLeft ; 2
@@ -333,17 +360,67 @@ UpdateAttackWindow::
 	ld [wWindowBounce], a
 	jp BankReturn
 
+SECTION "Show HP bar", ROM0
+ShowHPBar:
+	ld a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, ShowDungeonView
+	; Set view
+	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_BG9C00 | LCDCF_OBJ16
+	ldh [rLCDC], a
+	xor a, a
+	ldh [rSCX], a
+	ld a, 256 - 48
+	ldh [rSCY], a
+	; Prepare for next scanline effect
+	ld a, 16
+	ldh [rLYC], a
+	ld a, LOW(ShowDungeonView)
+	ld [wSTATTarget], a
+	ld a, HIGH(ShowDungeonView)
+	ld [wSTATTarget + 1], a
+	ret
+
+SECTION "Show dungeon", ROM0
+ShowDungeonView:
+	ld a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, ShowDungeonView
+	; Reset view
+	ldh a, [hShadowSCX]
+	ldh [rSCX], a
+	ldh a, [hShadowSCY]
+	ldh [rSCY], a
+	ldh a, [hShadowLCDC]
+	ldh [rLCDC], a
+	; Prepare for next scanline effect
+	ld a, 144 - 32 - 1
+	ldh [rLYC], a
+	ld a, LOW(ShowTextBox)
+	ld [wSTATTarget], a
+	ld a, HIGH(ShowTextBox)
+	ld [wSTATTarget + 1], a
+	ret
+
 SECTION "Show text box", ROM0
 ShowTextBox:
-:   ld a, [rSTAT]
+	ld a, [rSTAT]
 	and a, STATF_BUSY
-	jr nz, :-
+	jr nz, ShowTextBox
+	; Set view
 	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_BG9C00 | LCDCF_OBJ16
 	ldh [rLCDC], a
 	xor a, a
 	ldh [rSCX], a
 	ld a, 256 - 144
 	ldh [rSCY], a
+	; Prepare for next scanline effect
+	ld a, 145 ; A value over 144 means this will occur after the VBlank handler.
+	ldh [rLYC], a
+	ld a, LOW(ShowHPBar)
+	ld [wSTATTarget], a
+	ld a, HIGH(ShowHPBar)
+	ld [wSTATTarget + 1], a
 	ret
 
 SECTION "Window effect bounce", WRAM0
@@ -355,6 +432,3 @@ wPrintString:: ds 3
 
 SECTION "Move Window Buffer", WRAM0
 wMoveWindowBuffer: ds 8 * 4
-
-SECTION "Debug attacks", ROMX
-xDebugAttacks: db "One\nTwo\nThree\nFour<END>"
