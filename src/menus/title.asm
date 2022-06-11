@@ -47,7 +47,7 @@ xTitleScreenInit:
 	ld a, $80
 	ld e, a
 	ld d, SCRN_Y_B
-	ld a, SCRN_X
+	ld a, SCRN_X - 16
 	ld b, idof_vVersionText
 	ld c, $FF
 	call TextInit

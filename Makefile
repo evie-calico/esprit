@@ -65,7 +65,7 @@ release:
 # How to build a ROM
 bin/%.gb bin/%.sym bin/%.map: $(OBJS)
 	@mkdir -p $(@D)
-	printf "SECTION \"Version\", ROM0\nVersion:: db \"Vuiiger version %s\\\\nBuilt on \", __ISO_8601_UTC__, \"\\\\nUsing RGBDS {__RGBDS_VERSION__}\", 0\n" `git describe --tags --always --dirty` \
+	printf "SECTION \"Version\", ROM0\nVersion:: db \"Vuiiger v%s\\\\nBuilt on {d:__UTC_YEAR__}-{d:__UTC_MONTH__}-{d:__UTC_DAY__}\\\\nUsing RGBDS {__RGBDS_VERSION__}\", 0\n" `git describe --tags --always --dirty` \
 	| rgbasm $(ASFLAGS) -o obj/version.o -
 	rgblink $(LDFLAGS) -m bin/$*.map -n bin/$*.sym -o bin/$*.gb $^ obj/version.o  \
 	&& rgbfix $(FIXFLAGS) bin/$*.gb
