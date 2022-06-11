@@ -798,9 +798,9 @@ xDrawTile::
 	add a, BLANK_METATILE_ID + 8
 	ld b, a
 .drawSingle
-:   ld a, [rSTAT]
+	ldh a, [rSTAT]
 	and a, STATF_BUSY
-	jr nz, :-
+	jr nz, .drawSingle
 	; After a STAT check, we have 17.75 safe cycles. The following code takes
 	; 17 to write a metatile.
 	ld a, b
@@ -811,7 +811,8 @@ xDrawTile::
 	ld bc, $20 - 2
 	add hl, bc
 	ld b, a
-:   ld a, [rSTAT]
+:
+	ldh a, [rSTAT]
 	and a, STATF_BUSY
 	jr nz, :-
 	ld a, b
@@ -848,7 +849,8 @@ xDrawTile::
 	ld b, a
 	; Now it's time to draw both halves.
 	; Start with the top.
-:   ld a, [rSTAT]
+:
+	ldh a, [rSTAT]
 	and a, STATF_BUSY
 	jr nz, :-
 	; The following snippet takes at most 13/17 cycles.
@@ -857,7 +859,8 @@ xDrawTile::
 	bit 1, b
 	jr z, :+
 	ld a, FULL_METATILE_ID
-:   ld [hli], a
+:
+	ld [hli], a
 	inc a
 	ld [hli], a
 	; Jump to next row
@@ -866,7 +869,8 @@ xDrawTile::
 	add hl, bc
 	ld b, a
 	; Now draw the bottom.
-:   ld a, [rSTAT]
+:
+	ldh a, [rSTAT]
 	and a, STATF_BUSY
 	jr nz, :-
 	; The following snippet takes at most 13/17 cycles.
@@ -875,7 +879,8 @@ xDrawTile::
 	bit 0, b
 	jr z, :+
 	ld a, FULL_METATILE_ID + 2
-:   ld [hli], a
+:
+	ld [hli], a
 	inc a
 	ld [hli], a
 .exit

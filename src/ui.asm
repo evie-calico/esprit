@@ -448,7 +448,7 @@ UpdateAttackWindow::
 
 SECTION "Show HP bar", ROM0
 ShowHPBar:
-	ld a, [rSTAT]
+	ldh a, [rSTAT]
 	and a, STATF_BUSY
 	jr nz, ShowDungeonView
 	; Set view
@@ -469,7 +469,7 @@ ShowHPBar:
 
 SECTION "Show dungeon", ROM0
 ShowDungeonView:
-	ld a, [rSTAT]
+	ldh a, [rSTAT]
 	and a, STATF_BUSY
 	jr nz, ShowDungeonView
 	; Reset view
@@ -490,7 +490,7 @@ ShowDungeonView:
 
 SECTION "Show text box", ROM0
 ShowTextBox:
-	ld a, [rSTAT]
+	ldh a, [rSTAT]
 	and a, STATF_BUSY
 	jr nz, ShowTextBox
 	; Set view
