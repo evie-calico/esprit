@@ -309,110 +309,14 @@ wPrintStatus:
 .health dw
 
 SECTION "Attack window", ROM0
-UpdateAttackWindow::
-	ldh a, [hCurrentBank]
-	push af
-
+xUpdateAttackWindow::
 	ld a, [wShowMoves]
 	and a, a
 	jp z, .close
 .open
 	ldh a, [hNewKeys]
 	bit PADB_A, a
-	jp z, .skipRedraw
-		xor a, a
-		ld [wWindowBounce], a
-:           ldh a, [rSTAT]
-			and a, STATF_BUSY
-			jr nz, :-
-		ld a, idof_vUIFrameLeftCorner ; 2
-		ld [vAttackWindow], a ; 6
-		ld a, idof_vUIFrameLeft ; 8
-		ld [vAttackWindow + 32], a ; 12
-		ld [vAttackWindow + 64], a ; 16
-		lb bc, idof_vUIFrameTop, vAttackWindow_Width + 2
-		ld hl, vAttackWindow + 1
-		call VRAMSetSmall
-		; We actually have ~7 cycles coming out of this function.
-		ld a, idof_vUIFrameLeft ; 2
-		ld [vAttackWindow + 128], a ; 6
-:           ldh a, [rSTAT]
-			and a, STATF_BUSY
-			jr nz, :-
-		ld a, idof_vUIArrowUp ; 2
-		ld [vAttackWindow + 1 + 32], a ; 6
-		inc a ; 7
-		ld [vAttackWindow + 1 + 64], a ; 11
-		inc a ; 12
-		ld [vAttackWindow + 1 + 96], a ; 16
-:           ldh a, [rSTAT]
-			and a, STATF_BUSY
-			jr nz, :-
-		ld a, idof_vUIArrowLeft ; 2
-		ld [vAttackWindow + 1 + 128], a ; 6
-		ld a, idof_vUIFrameLeft ; 8
-		ld [vAttackWindow + 96], a ; 12
-
-		xor a, a
-		ld [wTextLetterDelay], a
-
-		ld b, 4
-		ld de, wMoveWindowBuffer
-		ld hl, wEntity0_Moves
-	.copyMoves
-		ld a, [hli]
-		and a, a
-		jr nz, :+
-			inc hl
-			inc hl
-			jr .next
-:
-		rst SwapBank
-		ld a, [hli]
-		push hl
-		ld h, [hl]
-		ld l, a
-		ASSERT Move_Name == 1
-		inc hl
-		ld a, [hli]
-		ld h, [hl]
-		ld l, a
-	.strcpy
-		ld a, [hli]
-		and a, a
-		jr z, .doneCopy
-		ld [de], a
-		inc de
-		jr .strcpy
-	.doneCopy
-		ld a, "\n"
-		ld [de], a
-		inc de
-		pop hl
-		inc hl
-	.next
-		dec b
-		jr nz, .copyMoves
-	.finished
-		xor a, a
-		ld [de], a
-
-		ld hl, wMoveWindowBuffer
-		ld a, 1
-		call PrintVWFText
-
-		; Draw move names
-		ld a, vAttackText_Width * 8
-		lb bc, idof_vAttackTiles, idof_vAttackTiles + vAttackText_Width * vAttackText_Height
-		lb de, vAttackText_Height + 2, HIGH(vAttackTiles) & $F0
-		call TextInit
-
-		lb de, vAttackText_Width, vAttackText_Height
-		ld hl, vAttackText
-		call TextDefineBox
-		call PrintVWFChar
-		call DrawVWFChars
-.skipRedraw
+	call nz, DrawAttackWindow
 	ld a, [wWindowBounce]
 	and a, a
 	jr nz, .bounceEffect
@@ -427,13 +331,15 @@ UpdateAttackWindow::
 	ld [wWindowBounce], a
 :   ld a, SCRN_Y - vAttackWindow_Height * 8 - 32
 	ldh [hShadowWY], a
-	jp BankReturn
+	ret
+
 .close
 	ld a, SCRN_X
 	ldh [hShadowWX], a
 	ld a, SCRN_Y
 	ldh [hShadowWY], a
-	jp BankReturn
+	ret
+
 .bounceEffect
 	dec a
 	jr nz, .in
@@ -441,17 +347,117 @@ UpdateAttackWindow::
 	sub a, POPUP_SPEED / 2
 	ldh [hShadowWX], a
 	cp a, SCRN_X - vAttackWindow_Width * 8 - 12
-	jp nz, BankReturn
+	ret nz
 	ld [wWindowBounce], a
-	jp BankReturn
+	ret
+
 .in
 	ldh a, [hShadowWX]
 	add a, POPUP_SPEED / 4
 	ldh [hShadowWX], a
 	cp a, SCRN_X - vAttackWindow_Width * 8
-	jp nz, BankReturn
+	ret nz
 	xor a, a
 	ld [wWindowBounce], a
+	ret
+
+SECTION "Draw attack window", ROM0
+DrawAttackWindow::
+	ldh a, [hCurrentBank]
+	push af
+
+	xor a, a
+	ld [wWindowBounce], a
+:           ldh a, [rSTAT]
+		and a, STATF_BUSY
+		jr nz, :-
+	ld a, idof_vUIFrameLeftCorner ; 2
+	ld [vAttackWindow], a ; 6
+	ld a, idof_vUIFrameLeft ; 8
+	ld [vAttackWindow + 32], a ; 12
+	ld [vAttackWindow + 64], a ; 16
+	lb bc, idof_vUIFrameTop, vAttackWindow_Width + 2
+	ld hl, vAttackWindow + 1
+	call VRAMSetSmall
+	; We actually have ~7 cycles coming out of this function.
+	ld a, idof_vUIFrameLeft ; 2
+	ld [vAttackWindow + 128], a ; 6
+:           ldh a, [rSTAT]
+		and a, STATF_BUSY
+		jr nz, :-
+	ld a, idof_vUIArrowUp ; 2
+	ld [vAttackWindow + 1 + 32], a ; 6
+	inc a ; 7
+	ld [vAttackWindow + 1 + 64], a ; 11
+	inc a ; 12
+	ld [vAttackWindow + 1 + 96], a ; 16
+:           ldh a, [rSTAT]
+		and a, STATF_BUSY
+		jr nz, :-
+	ld a, idof_vUIArrowLeft ; 2
+	ld [vAttackWindow + 1 + 128], a ; 6
+	ld a, idof_vUIFrameLeft ; 8
+	ld [vAttackWindow + 96], a ; 12
+
+	xor a, a
+	ld [wTextLetterDelay], a
+
+	ld b, 4
+	ld de, wMoveWindowBuffer
+	ld hl, wEntity0_Moves
+.copyMoves
+	ld a, [hli]
+	and a, a
+	jr nz, :+
+		inc hl
+		inc hl
+		jr .next
+:
+	rst SwapBank
+	ld a, [hli]
+	push hl
+	ld h, [hl]
+	ld l, a
+	ASSERT Move_Name == 1
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+.strcpy
+	ld a, [hli]
+	and a, a
+	jr z, .doneCopy
+	ld [de], a
+	inc de
+	jr .strcpy
+.doneCopy
+	ld a, "\n"
+	ld [de], a
+	inc de
+	pop hl
+	inc hl
+.next
+	dec b
+	jr nz, .copyMoves
+.finished
+	xor a, a
+	ld [de], a
+
+	ld hl, wMoveWindowBuffer
+	ld a, 1
+	call PrintVWFText
+
+	; Draw move names
+	ld a, vAttackText_Width * 8
+	lb bc, idof_vAttackTiles, idof_vAttackTiles + vAttackText_Width * vAttackText_Height
+	lb de, vAttackText_Height + 2, HIGH(vAttackTiles) & $F0
+	call TextInit
+
+	lb de, vAttackText_Width, vAttackText_Height
+	ld hl, vAttackText
+	call TextDefineBox
+	call PrintVWFChar
+	call DrawVWFChars
 	jp BankReturn
 
 SECTION "Show HP bar", ROM0

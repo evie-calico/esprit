@@ -283,6 +283,8 @@ SwitchToDungeonState::
 	ld a, [de]
 	ld [hli], a
 :
+	call DrawAttackWindow
+
 	ld a, BANK(xFocusCamera)
 	rst SwapBank
 	call xFocusCamera
@@ -395,8 +397,9 @@ DungeonState::
 	ld [hli], a
 :
 .skipUpdateStatus
-
-	jp UpdateAttackWindow
+	ld a, BANK(xUpdateAttackWindow)
+	rst SwapBank
+	jp xUpdateAttackWindow
 
 OpenPauseMenu::
 	ld b, BANK(xPauseMenu)
