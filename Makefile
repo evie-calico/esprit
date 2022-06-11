@@ -1,5 +1,7 @@
 .SUFFIXES:
 
+MAKEFLAGS += -sj
+
 ROM = bin/vuiiger.gb
 MOD2GBT = tools/bin/mod2gbt
 MAKEFONT = tools/bin/makefont
@@ -23,6 +25,7 @@ SRCS := $(shell find src -name '*.asm')
 EVSS := $(shell find src -name '*.evs')
 OBJS := $(patsubst src/%.asm, obj/%.o, $(SRCS)) \
         $(patsubst src/%.evs, obj/%.o, $(EVSS))
+.SECONDARY: $(OBJS)
 
 ################################################
 #                                              #
@@ -78,7 +81,7 @@ obj/%.o dep/%.mk: src/%.asm
 	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$*))
 	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o $<
 
-obj/%.o dep/%.mk: src/%.evs
+obj/%.o obj/%.asm dep/%.mk: src/%.evs
 	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$*))
 	evscript -o obj/$*.asm $<
 	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o obj/$*.asm
