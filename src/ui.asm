@@ -26,7 +26,8 @@ DEF POPUP_SPEED EQU 8
 	dtile vUIArrowDown
 	dtile vUIArrowLeft
 	dtile vUIFrameBottom
-	dtile vStatusBarTiles, vStatusBar_Width
+	dtile vPlayerStatus, 16
+	dtile vPartnerStatus, 16
 
 SECTION "User interface graphics", ROMX
 xUIFrame:
@@ -188,31 +189,116 @@ DrawPrintString::
 	jp DrawVWFChars
 
 SECTION "Draw Status bar", ROM0
-DrawStatusBar:
+; @clobbers bank
+DrawStatusBar::
+	ld hl, wEntity0
+	ld de, wPrintStatus
+	call .prepareFormatting
+
 	ld a, vStatusBar_Width * 8
-	lb bc, idof_vStatusBarTiles, idof_vStatusBarTiles + vStatusBar_Width * vStatusBar_Height
-	lb de, vStatusBar_Height, HIGH(vStatusBarTiles) & $F0
+	lb bc, idof_vPlayerStatus, idof_vPlayerStatus + vStatusBar_Width * vStatusBar_Height
+	lb de, vStatusBar_Height, HIGH(vPlayerStatus) & $F0
 	call TextInit
 
 	xor a, a
 	ld [wTextLetterDelay], a
 
 	ld a, 1
-	ld b, BANK(DebugStatus)
-	ld hl, DebugStatus
+	ld b, BANK(xStatusString)
+	ld hl, xStatusString
 	call PrintVWFText
 
 	lb de, vStatusBar_Width, vStatusBar_Height
-	ld hl, vStatusBar
+	ld hl, vStatusBar + 1
 	call TextDefineBox
 	call ReaderClear
 	ld a, BANK(TextClear)
 	rst SwapBank
 	call PrintVWFChar
+	call DrawVWFChars
+
+	ld hl, wEntity1
+	ld a, [hl]
+	and a, a
+	ret z
+	ld de, wPrintStatus
+	call .prepareFormatting
+
+	ld a, vStatusBar_Width * 8
+	lb bc, idof_vPartnerStatus, idof_vPartnerStatus + vStatusBar_Width * vStatusBar_Height
+	lb de, vStatusBar_Height, HIGH(vPartnerStatus) & $F0
+	call TextInit
+
+	xor a, a
+	ld [wTextLetterDelay], a
+
+	ld a, 1
+	ld b, BANK(xStatusString)
+	ld hl, xStatusString
+	call PrintVWFText
+
+	lb de, vStatusBar_Width, vStatusBar_Height
+	ld hl, vStatusBar + 33
+	call TextDefineBox
+	ld a, BANK(TextClear)
+	rst SwapBank
+	call PrintVWFChar
 	jp DrawVWFChars
 
-SECTION "Debug String", ROMX
-DebugStatus: db "   Luvui: 65536/65536 HP\n   Aris: 65536/65536 HP", 0
+.prepareFormatting
+	push hl
+		ld a, [hli]
+		ld [de], a
+		inc de
+		rst SwapBank
+		ld a, [hli]
+		ld h, [hl]
+		ld l, a
+		ASSERT EntityData_Name == 4
+		inc hl
+		inc hl
+		inc hl
+		inc hl
+		ld a, [hli]
+		ld [de], a
+		inc de
+		ld a, [hli]
+		ld [de], a
+		inc de
+	pop hl
+	ld l, LOW(wEntity0_Level)
+	ld a, [hli]
+	push hl
+		call GetMaxHealth
+		ld a, l
+		ld [de], a
+		inc de
+		ld a, h
+		ld [de], a
+		inc de
+	pop hl
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ret
+
+SECTION "Status String", ROMX
+xStatusString:
+	textcallptr wPrintStatus.name
+	db ": "
+	print_u16 wPrintStatus.health
+	db "/"
+	print_u16 wPrintStatus.maxHealth
+	db " HP", 0
+
+SECTION "Status Format", WRAM0
+wPrintStatus:
+.name ds 3
+.maxHealth dw
+.health dw
 
 SECTION "Attack window", ROM0
 UpdateAttackWindow::

@@ -55,6 +55,18 @@ InitDungeon::
 	ld a, HIGH(xBite)
 	ld [hli], a
 
+	lb bc, BANK(xAris), 5
+	ld de, xAris
+	ld h, HIGH(wEntity1)
+	call SpawnEntity
+	ld l, LOW(wEntity0_Moves)
+	ld a, BANK(xBite)
+	ld [hli], a
+	ld a, LOW(xBite)
+	ld [hli], a
+	ld a, HIGH(xBite)
+	ld [hli], a
+
 	ld a, 1
 	ld [wDungeonCurrentFloor], a
 	; Draw debug map
@@ -247,6 +259,30 @@ SwitchToDungeonState::
 	dec b
 	jr nz, .copyItemGfx
 
+	; Initialize previous health
+	ld hl, wPreviousHealth
+	ld de, wEntity0_Bank
+	ld a, [de]
+	and a, a
+	jr z, :+
+	ld e, LOW(wEntity0_Health)
+	ld a, [de]
+	inc e
+	ld [hli], a
+	ld a, [de]
+	ld [hli], a
+:
+	ld de, wEntity1_Bank
+	ld a, [de]
+	and a, a
+	jr z, :+
+	ld e, LOW(wEntity0_Health)
+	ld a, [de]
+	inc e
+	ld [hli], a
+	ld a, [de]
+	ld [hli], a
+:
 	ld a, BANK(xFocusCamera)
 	rst SwapBank
 	call xFocusCamera
@@ -254,7 +290,9 @@ SwitchToDungeonState::
 	ld [wLastDungeonCameraX], a
 	ld a, [wDungeonCameraY + 1]
 	ld [wLastDungeonCameraY], a
-	bankcall xUpdateScroll
+	ld a, BANK(xUpdateScroll)
+	rst SwapBank
+	call xUpdateScroll
 	ld a, BANK(xDrawDungeon)
 	rst SwapBank
 	jp xDrawDungeon
@@ -299,6 +337,64 @@ DungeonState::
 	ld a, [wPrintString]
 	and a, a
 	call nz, DrawPrintString
+
+	ld hl, wPreviousHealth
+	ld de, wEntity0_Bank
+	ld a, [de]
+	and a, a
+	jr z, :+
+	ld e, LOW(wEntity0_Health)
+	ld a, [de]
+	inc e
+	cp a, [hl]
+	jr nz, .updateStatus
+	inc hl
+	ld a, [de]
+	inc e
+	cp a, [hl]
+	jr nz, .updateStatus
+	inc hl
+:
+	ld de, wEntity1_Bank
+	ld a, [de]
+	and a, a
+	jr z, .skipUpdateStatus
+	ld e, LOW(wEntity0_Health)
+	ld a, [de]
+	inc e
+	cp a, [hl]
+	jr nz, .updateStatus
+	inc hl
+	ld a, [de]
+	cp a, [hl]
+	jr z, .skipUpdateStatus
+.updateStatus
+	call DrawStatusBar
+	; Update health cache
+	ld hl, wPreviousHealth
+	ld de, wEntity0_Bank
+	ld a, [de]
+	and a, a
+	jr z, :+
+	ld e, LOW(wEntity0_Health)
+	ld a, [de]
+	inc e
+	ld [hli], a
+	ld a, [de]
+	ld [hli], a
+:
+	ld de, wEntity1_Bank
+	ld a, [de]
+	and a, a
+	jr z, :+
+	ld e, LOW(wEntity0_Health)
+	ld a, [de]
+	inc e
+	ld [hli], a
+	ld a, [de]
+	ld [hli], a
+:
+.skipUpdateStatus
 
 	jp UpdateAttackWindow
 
@@ -894,6 +990,10 @@ wDungeonCurrentFloor:: db
 wMapgenLoopCounter: db
 
 wDungeonFadeCallback:: dw
+
+wPreviousHealth::
+.player dw
+.partner dw
 
 SECTION "Map drawing counters", HRAM
 hMapDrawX: db
