@@ -192,12 +192,11 @@ SECTION "Draw Status bar", ROM0
 ; @clobbers bank
 DrawStatusBar::
 	ld hl, wEntity0
-	ld de, wPrintStatus
 	call .prepareFormatting
 
 	ld a, vStatusBar_Width * 8
-	lb bc, idof_vPlayerStatus, idof_vPlayerStatus + vStatusBar_Width * vStatusBar_Height
-	lb de, vStatusBar_Height, HIGH(vPlayerStatus) & $F0
+	lb bc, idof_vPlayerStatus, idof_vPlayerStatus + vStatusBar_Width
+	lb de, 1, HIGH(vPlayerStatus) & $F0
 	call TextInit
 
 	xor a, a
@@ -208,24 +207,23 @@ DrawStatusBar::
 	ld hl, xStatusString
 	call PrintVWFText
 
-	lb de, vStatusBar_Width, vStatusBar_Height
+	lb de, vStatusBar_Width, 1
 	ld hl, vStatusBar + 1
 	call TextDefineBox
-	call ReaderClear
 	ld a, BANK(TextClear)
 	rst SwapBank
+	call TextClear
 	call PrintVWFChar
 	call DrawVWFChars
-
+.printPartner
 	ld hl, wEntity1
 	ld a, [hl]
 	and a, a
 	ret z
-	ld de, wPrintStatus
 	call .prepareFormatting
 
 	ld a, vStatusBar_Width * 8
-	lb bc, idof_vPartnerStatus, idof_vPartnerStatus + vStatusBar_Width * vStatusBar_Height
+	lb bc, idof_vPartnerStatus, idof_vPartnerStatus + vStatusBar_Width
 	lb de, vStatusBar_Height, HIGH(vPartnerStatus) & $F0
 	call TextInit
 
@@ -237,15 +235,17 @@ DrawStatusBar::
 	ld hl, xStatusString
 	call PrintVWFText
 
-	lb de, vStatusBar_Width, vStatusBar_Height
+	lb de, vStatusBar_Width, 1
 	ld hl, vStatusBar + 33
 	call TextDefineBox
 	ld a, BANK(TextClear)
 	rst SwapBank
+	call TextClear
 	call PrintVWFChar
 	jp DrawVWFChars
 
 .prepareFormatting
+	ld de, wPrintStatus
 	push hl
 		ld a, [hli]
 		ld [de], a
@@ -282,7 +282,15 @@ DrawStatusBar::
 	inc de
 	ld a, [hli]
 	ld [de], a
-	inc de
+	; If garbage is shown on the status bar after the partner dies, move this
+	; check outside this function and clear the text tiles.
+	bit 7, a
+	jr z, :+
+		xor a, a
+		ld [de], a
+		dec de
+		ld [de], a
+:
 	ret
 
 SECTION "Status String", ROMX

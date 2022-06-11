@@ -48,9 +48,11 @@ MACRO dtile ; Name, [Size in tiles]
 	ENDC
 	IF _NARG == 1
 		DEF \1 EQU _dtile_section
+		DEF sizeof_\1 EQU 16
 		REDEF _dtile_section = _dtile_section + 16
 	ELSE
 		DEF \1 EQU _dtile_section
+		DEF sizeof_\1 EQU (\2) * 16
 		REDEF _dtile_section = _dtile_section + (\2) * 16
 	ENDC
 ENDM
