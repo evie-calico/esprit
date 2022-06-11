@@ -188,22 +188,9 @@ StandingCheck:
 	ld [hli], a
 	ld [hli], a
 	ld [hli], a
-	bankcall xFocusCamera
 
 	call DungeonGenerateFloor
-
-	xor a, a
-	ld [wIsDungeonFading], a
-	ld a, 20
-	ld [wFadeSteps], a
-	ld a, $80 + 20 * 4
-	ld [wFadeAmount], a
-	ld a, -4
-	ld [wFadeDelta], a
-
-	ld a, BANK(xDrawDungeon)
-	rst SwapBank
-	jp xDrawDungeon
+	jp SwitchToDungeonState
 
 POPS
 .noPickup
