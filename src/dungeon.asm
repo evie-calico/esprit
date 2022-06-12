@@ -71,6 +71,10 @@ InitDungeon::
 	ld [wDungeonCurrentFloor], a
 	; Draw debug map
 	call DungeonGenerateFloor
+	xor a, a
+	FOR I, 32
+		ld [wDungeonMap + 32 * 64 + 32 + I], a
+	ENDR
 ; Re-initializes some aspects of the dungeon, such as rendering the map.
 ; @clobbers: bank
 SwitchToDungeonState::
@@ -583,6 +587,7 @@ xUpdateScroll:
 
 SECTION "Draw dungeon", ROMX
 xDrawDungeon::
+	ld b, b
 	call xGetCurrentVram
 	push hl
 	; Now find the top-left corner of the map to begin drawing from.
@@ -789,7 +794,7 @@ xDrawTile::
 	push hl
 :
 	ld a, [de]
-	inc e
+	inc de
 	cp a, 1
 	jr z, .wall
 	and a, a
@@ -826,7 +831,7 @@ xDrawTile::
 
 .wall
 	; Wall tiles are given special handling.
-	dec e ; Tempoarirly undo the previous inc e
+	dec de ; Tempoarirly undo the previous inc e
 	push de
 		call xGetMapAbove
 	pop de
@@ -838,11 +843,11 @@ xDrawTile::
 	push de
 		call xGetMapBelow
 	pop de
-	inc e
+	inc de
 	cp a, TILE_WALL
-	ld a, 0
-	jr nz, :+
 	ld a, 1
+	jr z, :+
+	dec a
 :
 	or a, b
 	; a = %11 where %10 is a tile above and %01 is a tile below.
@@ -903,9 +908,9 @@ xDrawTile::
 	and a, STATF_BUSY
 	jr nz, :-
 
-	dec e
+	dec de
 	ld a, [de]
-	inc e
+	inc de
 	ld [hli], a
 	ld [hli], a
 	add hl, bc
