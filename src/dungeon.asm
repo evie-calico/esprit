@@ -587,7 +587,6 @@ xUpdateScroll:
 
 SECTION "Draw dungeon", ROMX
 xDrawDungeon::
-	ld b, b
 	call xGetCurrentVram
 	push hl
 	; Now find the top-left corner of the map to begin drawing from.
