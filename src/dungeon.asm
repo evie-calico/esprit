@@ -69,12 +69,7 @@ InitDungeon::
 
 	ld a, 1
 	ld [wDungeonCurrentFloor], a
-	; Draw debug map
 	call DungeonGenerateFloor
-	xor a, a
-	FOR I, 32
-		ld [wDungeonMap + 32 * 64 + 32 + I], a
-	ENDR
 ; Re-initializes some aspects of the dungeon, such as rendering the map.
 ; @clobbers: bank
 SwitchToDungeonState::
