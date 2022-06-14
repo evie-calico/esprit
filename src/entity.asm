@@ -188,7 +188,19 @@ StandingCheck:
 	inc l
 	ld [hli], a
 	ld [hli], a
+	ld [hl], a
+	inc h
+	ld [hld], a
+	ld [hld], a
+	ld [hld], a
+	dec l
+	ld [hl], a
+	inc h
 	ld [hli], a
+	inc l
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
 
 	call DungeonGenerateFloor
 	jp SwitchToDungeonState
