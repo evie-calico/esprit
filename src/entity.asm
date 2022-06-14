@@ -7,6 +7,7 @@ INCLUDE "text.inc"
 ; How fast the entity should move during animations. Should be a power of two.
 DEF MOVEMENT_SPEED EQU 16
 DEF RUNNING_SPEED EQU 64
+DEF FOLLOWER_DISTANCE EQU 4
 
 SECTION "Process entities", ROM0
 ; Iterate through the entities.
@@ -295,19 +296,42 @@ POPS
 
 ; @param a: Contains the value of wActiveEntity
 xAllyLogic:
-	; Stub to immediately spend turn.
-	jp ProcessEntities.next
-
-; @param a: Contains the value of wActiveEntity
-xEnemyLogic:
 	add a, HIGH(wEntity0)
 	ld h, a
+	ld l, LOW(wEntity0_PosX)
+	ld a, [hli]
+	ld c, [hl]
+	ld b, a
+	ld h, HIGH(wEntity0) + NB_ALLIES
+	ld a, HIGH(wEntity0) + NB_ENTITIES
+	call xGetClosestOfEntities
+	ld a, d
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	ld b, a
+
+	ld a, e
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	add a, b
+	cp a, FOLLOWER_DISTANCE
+	jr nc, .followLeader
+	push hl
 	call TryMove
+	pop hl
 	ld a, b
 	cp a, 2
 	ret z
 	and a, a
-	jr z, .fail
+	jr z, xChaseTarget
 	ld a, [wActiveEntity]
 	inc a
 	cp a, NB_ENTITIES
@@ -315,14 +339,84 @@ xEnemyLogic:
 	xor a, a
 :   ld [wActiveEntity], a
 	ret
-.fail
 
+.followLeader
+	ld a, [wActiveEntity]
+	add a, HIGH(wEntity0)
+	ld h, a
 	ld l, LOW(wEntity0_PosX)
 	ld a, [hli]
-	ld b, a
+	ld d, a
+	ld e, [hl]
+	dec h ; Get the previous entity, and follow them.
+	ld l, LOW(wEntity0_Direction)
 	ld c, [hl]
-	; Determine the distance to the target and two best directions to move in.
-	call GetClosestAlly
+	ld a, c
+	ld b, 0
+	cp a, LEFT
+	jr nz, :+
+	inc b
+:
+	cp a, RIGHT
+	jr nz, :+
+	dec b
+:
+	ld l, LOW(wEntity0_PosX)
+	ld a, [hli]
+	add a, b
+	sub a, d
+	ld d, a
+
+	; now the Y axis
+	ld a, c
+	ld b, 0
+	cp a, UP
+	jr nz, :+
+	inc b
+:
+	cp a, DOWN
+	jr nz, :+
+	dec b
+:
+	ld a, [hl]
+	add a, b
+	sub a, e
+	ld e, a
+	; If we are on our target, stop moving.
+	add a, d
+	jp z, ProcessEntities.next
+	jp xChaseTarget
+
+; @param a: Contains the value of wActiveEntity
+xEnemyLogic:
+	add a, HIGH(wEntity0)
+	ld h, a
+	ld l, LOW(wEntity0_PosX)
+	ld a, [hli]
+	ld c, [hl]
+	ld b, a
+	ld h, HIGH(wEntity0)
+	ld a, HIGH(wEntity0) + NB_ALLIES
+	call xGetClosestOfEntities
+	push hl
+	call TryMove
+	pop hl
+	ld a, b
+	cp a, 2
+	ret z
+	and a, a
+	jr z, xChaseTarget
+	ld a, [wActiveEntity]
+	inc a
+	cp a, NB_ENTITIES
+	jr nz, :+
+	xor a, a
+:   ld [wActiveEntity], a
+	ret
+
+; @param d: X distance
+; @param e: Y distance
+xChaseTarget:
 	; Determine best directions
 	ld a, d
 	; abs a
@@ -402,24 +496,77 @@ xEnemyLogic:
 	call TryStep
 	jp ProcessEntities.next
 
-SECTION "Try Move", ROM0
-; @param h: high byte of entity pointer
-; @return b: 0 if failed, 1 if success, 2 if waiting
-; @preserves h
-TryMove:
-	ldh a, [hCurrentBank]
-	push af
+; @param a: High byte of final entity
+; @param b: X position
+; @param c: Y position
+; @param h: High byte of starting entity
+; @clobbers l
+; @returns d: X distance
+; @returns e: Y distance
+; @returns h: Target high byte
+xGetClosestOfEntities:
+	ldh [hClosestEntityFinal], a
+	xor a, a
+	ldh [hClosestEntityTarget], a
+	lb de, 64, 64 ; An impossible distance, but not too high.
+.loop
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	and a, a
+	jr z, .next
+	ld l, LOW(wEntity0_PosX)
+	; Compare total distances first.
+	ld a, [hli]
+	add a, [hl]
+	sub a, b
+	sub a, c
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	; a = abs((X + Y) - (TX - TY))
+	; Use l as a scratch register
+	ld l, a
+	ld a, d
+	add a, e
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	; a = abs(total distance)
+	cp a, l
+	jr c, .next ; If the new position is more steps away, don't switch to it.
 
+	; Set new distance
 	ld l, LOW(wEntity0_PosX)
 	ld a, [hli]
-	ld b, a
-	ld c, [hl]
+	sub a, b
+	ld d, a
+	ld a, [hl]
+	sub a, c
+	ld e, a
+	ld a, h
+	ldh [hClosestEntityTarget], a
+.next
+	inc h
+	ldh a, [hClosestEntityFinal]
+	cp a, h
+	jp nz, .loop
+	ldh a, [hClosestEntityTarget]
+	ld h, a
+	ret
 
-	; Determine the distance to the target.
-	push hl
-	call GetClosestAlly
-	pop hl
-
+SECTION "Try Move", ROM0
+; @param d: X distance
+; @param e: Y distance
+; @return b: 0 if failed, 1 if success, 2 if waiting
+; @clobbers h
+; @preserves de unless b==1
+TryMove:
 	; We can't be close enough for a move unless one of the distances is a 0
 	ld a, d
 	and a, a
@@ -427,14 +574,20 @@ TryMove:
 	ld a, e
 	and a, a
 	ld b, 0
-	jp nz, BankReturn
+	ret nz
 :
+
+	ldh a, [hCurrentBank]
+	push af
 
 	ld a, -1
 	ld [wStrongestValidMove], a
 	xor a, a
 	ld [wStrongestValidMove.strength], a
 	ld [hCurrentMoveCounter], a
+	ld a, [wActiveEntity]
+	add a, HIGH(wEntity0)
+	ld h, a
 	ld l, LOW(wEntity0_Moves)
 .loop
 	ld a, [hli]
@@ -716,70 +869,6 @@ TryStep:
 
 .fail
 	xor a, a
-	ret
-
-SECTION "Get Closest Ally", ROM0
-; @param b: X position
-; @param c: Y position
-; @clobbers l
-; @returns d: X distance
-; @returns e: Y distance
-; @returns h: Target high byte
-GetClosestAlly:
-	xor a, a
-	ld [wClosestAllyTemp], a
-	ld h, HIGH(wEntity0)
-	lb de, 64, 64 ; An impossible distance, but not too high.
-.loop
-	ld l, LOW(wEntity0_Bank)
-	ld a, [hli]
-	and a, a
-	jr z, .next
-	ld l, LOW(wEntity0_PosX)
-	; Compare total distances first.
-	ld a, [hli]
-	add a, [hl]
-	sub a, b
-	sub a, c
-	; abs a
-	bit 7, a
-	jr z, :+
-	cpl
-	inc a
-:
-	; a = abs((X + Y) - (TX - TY))
-	; Use l as a scratch register
-	ld l, a
-	ld a, d
-	add a, e
-	; abs a
-	bit 7, a
-	jr z, :+
-	cpl
-	inc a
-:
-	; a = abs(total distance)
-	cp a, l
-	jr c, .next ; If the new position is more steps away, don't switch to it.
-
-	; Set new distance
-	ld l, LOW(wEntity0_PosX)
-	ld a, [hli]
-	sub a, b
-	ld d, a
-	ld a, [hl]
-	sub a, c
-	ld e, a
-	ld a, h
-	ld [wClosestAllyTemp], a
-
-.next
-	inc h
-	ld a, h
-	cp a, HIGH(wEntity0) + NB_ALLIES
-	jp nz, .loop
-	ld a, [wClosestAllyTemp]
-	ld h, a
 	ret
 
 SECTION "Joypad to direction", ROM0
@@ -1187,6 +1276,10 @@ wBestDir: db
 wNextBestDir: db
 wStrongestValidMove: db
 .strength: db
+
+SECTION "Get closest entity HRAM", HRAM
+hClosestEntityTarget: db
+hClosestEntityFinal: db
 
 SECTION "Volatile", HRAM
 hCurrentMoveCounter: db

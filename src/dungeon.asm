@@ -60,11 +60,11 @@ InitDungeon::
 	ld h, HIGH(wEntity1)
 	call SpawnEntity
 	ld l, LOW(wEntity0_Moves)
-	ld a, BANK(xBite)
+	ld a, BANK(xPounce)
 	ld [hli], a
-	ld a, LOW(xBite)
+	ld a, LOW(xPounce)
 	ld [hli], a
-	ld a, HIGH(xBite)
+	ld a, HIGH(xPounce)
 	ld [hli], a
 
 	ld a, 1
