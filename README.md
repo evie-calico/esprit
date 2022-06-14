@@ -1,6 +1,6 @@
 # Vuiiger Engine
 
-## Dependancies.
+## Dependencies
 
 I use bleeding-edge RGBDS versions to help the maintainers test new features.
 You will likely need to compile the master branch of RGBDS manually to be able
