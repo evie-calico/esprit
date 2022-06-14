@@ -223,6 +223,9 @@ POPS
 	jr .movementCheck
 :
 .useMove
+	; Before attempting to use a move, set the move user's team.
+	xor a, a
+	ldh [hMoveUserTeam], a
 	ld a, [wShowMoves]
 	and a, a
 	jr z, .movementCheck
@@ -325,6 +328,8 @@ xAllyLogic:
 	cp a, FOLLOWER_DISTANCE
 	jr nc, .followLeader
 	push hl
+	xor a, a
+	ldh [hMoveUserTeam], a
 	call TryMove
 	pop hl
 	ld a, b
@@ -399,6 +404,8 @@ xEnemyLogic:
 	ld a, HIGH(wEntity0) + NB_ALLIES
 	call xGetClosestOfEntities
 	push hl
+	ld a, 1
+	ldh [hMoveUserTeam], a
 	call TryMove
 	pop hl
 	ld a, b
@@ -563,6 +570,7 @@ xGetClosestOfEntities:
 SECTION "Try Move", ROM0
 ; @param d: X distance
 ; @param e: Y distance
+; @param hMoveUserTeam: must be configured immediently before or after this call.
 ; @return b: 0 if failed, 1 if success, 2 if waiting
 ; @clobbers h
 ; @preserves de unless b==1
@@ -921,43 +929,57 @@ MoveEntity:
 	add a, [hl]
 	ld c, a
 	; bc now equals the target position. Let's check if it's valid!
-	push hl
-	bankcall xGetMapPosition
-	pop hl
-	ld a, [de]
-	cp a, TILE_WALL
-	jr z, .fail
-	push hl
-	bankcall xCheckForEntity
-	ld a, h
-	and a, a
-	pop hl
-	jr nz, .fail
-	; Move!
-	ld a, c
-	ld [hld], a
-	ASSERT Entity_PosY - 1 == Entity_PosX
-	ld a, b
-	ld [hl], a
-	ld a, 1
-	ld [wMovementQueued], a
+	ldh a, [hCurrentBank]
+	push af
+		push hl
+			ld a, BANK(xGetMapPosition)
+			rst SwapBank
+			call xGetMapPosition
+		pop hl
+		ld a, [de]
+		cp a, TILE_WALL
+		jr z, .fail
+		push hl
+			ld a, BANK(xCheckForEntity)
+			rst SwapBank
+			ld h, HIGH(wEntity0)
+			ld a, HIGH(wEntity0) + NB_ENTITIES
+			call xCheckForEntity
+			ld a, h
+			and a, a
+		pop hl
+		jr nz, .fail
+		; Move!
+		ld a, c
+		ld [hld], a
+		ASSERT Entity_PosY - 1 == Entity_PosX
+		ld a, b
+		ld [hl], a
+		ld a, 1
+		ld [wMovementQueued], a
+	pop af
+	rst SwapBank
 	xor a, a
 	ret
 .fail
+	pop af
+	rst SwapBank
 	ld a, 1
 	ret
 
 SECTION "Check for entity", ROMX
 ; Checks for an entity at a given position, returning its index if found.
 ; Otherwise, returns 0.
+; @param a: High byte of last entity
 ; @param b: X position
 ; @param c: Y position
+; @param h: High byte of first entity
 ; @return h: index, or 0 upon failure.
 ; @preserves b, c, d, e
 xCheckForEntity::
+	ldh [hClosestEntityFinal], a
 	xor a, a
 	ld [wMoveEntityCounter], a
-	ld h, HIGH(wEntity0)
 .loop
 	ld l, LOW(wEntity0_Bank)
 	ld a, [hli]
@@ -974,8 +996,8 @@ xCheckForEntity::
 	ret z
 .next
 	inc h
-	ld a, h
-	cp a, HIGH(wEntity0) + NB_ENTITIES
+	ldh a, [hClosestEntityFinal]
+	cp a, h
 	jp nz, .loop
 	ld h, 0
 	ret

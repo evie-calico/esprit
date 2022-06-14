@@ -5,6 +5,7 @@ INCLUDE "text.inc"
 SECTION "Use Move", ROM0
 ; @param a: Move index
 ; @param b: Entity pointer high byte
+; @param hMoveUserTeam: must be configured immediently before or after this call.
 ; @return z: set if failed
 UseMove::
 	; Each move pointer is 3 bytes.
@@ -191,7 +192,23 @@ MoveActionAttack:
 		ld c, a
 	pop de
 
-	bankcall xCheckForEntity
+	ldh a, [hCurrentBank]
+	push af
+		ld a, BANK(xCheckForEntity)
+		rst SwapBank
+		ldh a, [hMoveUserTeam]
+		and a, a
+		jr nz, .enemyTeam
+		ld h, HIGH(wEntity0) + NB_ALLIES
+		ld a, HIGH(wEntity0) + NB_ENTITIES
+		jr .entityCheck
+	.enemyTeam
+		ld h, HIGH(wEntity0)
+		ld a, HIGH(wEntity0) + NB_ALLIES
+	.entityCheck
+		call xCheckForEntity
+	pop af
+	rst SwapBank
 	ld a, h
 	and a, a
 	jr nz, .found
@@ -359,3 +376,7 @@ wDefeatCheckTarget: db
 SECTION "Attack range counter", HRAM
 hRangeCounter: db
 hSaveUserIndex: db
+
+SECTION "User Team", HRAM
+; 0 if current move is being used by allies, 1 if used by enemies
+hMoveUserTeam:: db
