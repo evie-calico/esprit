@@ -267,6 +267,9 @@ POPS
 		ld [wFadeDelta], a
 		ret
 :
+	; if the player is able to move, and presses select, skip their turn.
+	cp a, PADF_SELECT
+	jp z, ProcessEntities.next
 	; Read the joypad to see if the player is attempting to move.
 	call PadToDir
 	; If no input is given, the player waits a frame to take its turn
