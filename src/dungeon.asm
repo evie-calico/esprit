@@ -43,6 +43,8 @@ InitDungeon::
 	dec b
 	jr nz, .clearEntities
 
+	ld [wSkipAllyTurn], a
+
 	lb bc, BANK(xLuvui), 10
 	ld de, xLuvui
 	ld h, HIGH(wEntity0)
@@ -1013,6 +1015,8 @@ wDungeonFadeCallback:: dw
 wPreviousHealth::
 .player dw
 .partner dw
+
+wSkipAllyTurn:: db
 
 SECTION "Map drawing counters", HRAM
 hMapDrawX: db

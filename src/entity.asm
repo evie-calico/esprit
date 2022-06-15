@@ -299,9 +299,15 @@ POPS
 	ld a, [wEntity0_Direction]
 	ld h, HIGH(wEntity0)
 	call MoveEntity
+	ASSERT NB_ALLIES - 1 == 2
+	cp a, HIGH(wEntity1)
+	jr z, .swapWithAlly
+	cp a, HIGH(wEntity2)
+	jr z, .swapWithAlly
 	ld a, [wMovementQueued]
 	and a, a
 	ret z
+.endSwap
 	; If movement was successful, end the player's turn and process the next
 	; entity.
 	; Signal that an item should be checked at the next opportunity.
@@ -309,8 +315,41 @@ POPS
 	ld [wHasChecked], a
 	jp ProcessEntities.next
 
+.swapWithAlly
+	ld h, a
+	sub a, HIGH(wEntity0)
+	ld [wSkipAllyTurn], a
+	ld l, LOW(wEntity0_PosX)
+	ld de, wEntity0_PosX
+	ld b, [hl]
+	ld a, [de]
+	ld [hli], a
+	ld a, b
+	ld [de], a
+	inc e
+	ld b, [hl]
+	ld a, [de]
+	ld [hli], a
+	ld a, b
+	ld [de], a
+	ld l, LOW(wEntity0_Direction)
+	ld e, l
+	ld a, [de]
+	add a, 2
+	and a, 3
+	ld [hl], a
+	ld a, 1
+	ld [wMovementQueued], a
+	jr .endSwap
+
 ; @param a: Contains the value of wActiveEntity
 xAllyLogic:
+	ld hl, wSkipAllyTurn
+	cp a, [hl]
+	jr nz, :+
+		ld [hl], 0
+		jp ProcessEntities.next
+:
 	add a, HIGH(wEntity0)
 	ld h, a
 	ld l, LOW(wEntity0_PosX)
@@ -953,7 +992,7 @@ PadToDir::
 SECTION "Move entity", ROM0
 ; @param a: Direction to move in.
 ; @param h: High byte of entity.
-; @returns a: Nonzero if the movement failed.
+; @returns a: 0 upon success, 1 if blocked by wall, otherwise the entity blocking movement
 ; @clobbers: bc, de, l
 ; @preserves: h
 MoveEntity:
@@ -992,8 +1031,8 @@ MoveEntity:
 			call xCheckForEntity
 			ld a, h
 			and a, a
+			jr nz, .failEntity
 		pop hl
-		jr nz, .fail
 		; Move!
 		ld a, c
 		ld [hld], a
@@ -1010,6 +1049,13 @@ MoveEntity:
 	pop af
 	rst SwapBank
 	ld a, 1
+	ret
+
+.failEntity
+	pop af ; undo previous push hl
+	pop af
+	rst SwapBank
+	ld a, h
 	ret
 
 SECTION "Check for entity", ROMX
