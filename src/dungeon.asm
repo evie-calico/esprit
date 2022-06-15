@@ -43,7 +43,7 @@ InitDungeon::
 	dec b
 	jr nz, .clearEntities
 
-	lb bc, BANK(xLuvui), 5
+	lb bc, BANK(xLuvui), 10
 	ld de, xLuvui
 	ld h, HIGH(wEntity0)
 	call SpawnEntity
@@ -55,9 +55,21 @@ InitDungeon::
 	ld a, HIGH(xBite)
 	ld [hli], a
 
-	lb bc, BANK(xAris), 5
+	lb bc, BANK(xAris), 12
 	ld de, xAris
 	ld h, HIGH(wEntity1)
+	call SpawnEntity
+	ld l, LOW(wEntity0_Moves)
+	ld a, BANK(xPounce)
+	ld [hli], a
+	ld a, LOW(xPounce)
+	ld [hli], a
+	ld a, HIGH(xPounce)
+	ld [hli], a
+
+	lb bc, BANK(xRat), 12
+	ld de, xAris
+	ld h, HIGH(wEntity2)
 	call SpawnEntity
 	ld l, LOW(wEntity0_Moves)
 	ld a, BANK(xPounce)

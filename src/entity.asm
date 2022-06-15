@@ -348,7 +348,7 @@ xAllyLogic:
 	cp a, 2
 	ret z
 	and a, a
-	jr z, xChaseTarget
+	jr z, .chaseEnemy
 	ld a, [wActiveEntity]
 	inc a
 	cp a, NB_ENTITIES
@@ -356,6 +356,10 @@ xAllyLogic:
 	xor a, a
 :   ld [wActiveEntity], a
 	ret
+
+.chaseEnemy
+	call xChaseTarget
+	jp ProcessEntities.next
 
 .followLeader
 	ld a, [wActiveEntity]
@@ -402,7 +406,8 @@ xAllyLogic:
 	; If we are on our target, stop moving.
 	add a, d
 	jp z, ProcessEntities.next
-	jp xChaseTarget
+	call xChaseTarget
+	jp ProcessEntities.next
 
 ; @param a: Contains the value of wActiveEntity
 xEnemyLogic:
@@ -424,7 +429,7 @@ xEnemyLogic:
 	cp a, 2
 	ret z
 	and a, a
-	jr z, xChaseTarget
+	jr z, .fail
 	ld a, [wActiveEntity]
 	inc a
 	cp a, NB_ENTITIES
@@ -432,6 +437,24 @@ xEnemyLogic:
 	xor a, a
 :   ld [wActiveEntity], a
 	ret
+
+.fail
+	call xChaseTarget
+	jp ProcessEntities.next
+	; Enemies take some extra steps.
+	jp c, ProcessEntities.next
+	ld a, [wBestDir]
+	add a, 2
+	and a, %11
+	ld d, a
+	call TryStep
+	jp c, ProcessEntities.next
+	ld a, [wNextBestDir]
+	add a, 2
+	and a, %11
+	ld d, a
+	call TryStep
+	jp ProcessEntities.next
 
 ; @param d: X distance
 ; @param e: Y distance
@@ -497,23 +520,11 @@ xChaseTarget:
 	ld a, [wBestDir]
 	ld d, a
 	call TryStep
-	jp c, ProcessEntities.next
+	ret c
 	ld a, [wNextBestDir]
 	ld d, a
 	call TryStep
-	jp c, ProcessEntities.next
-	ld a, [wBestDir]
-	add a, 2
-	and a, %11
-	ld d, a
-	call TryStep
-	jp c, ProcessEntities.next
-	ld a, [wNextBestDir]
-	add a, 2
-	and a, %11
-	ld d, a
-	call TryStep
-	jp ProcessEntities.next
+	ret
 
 ; @param a: High byte of final entity
 ; @param b: X position
@@ -535,27 +546,49 @@ xGetClosestOfEntities:
 	jr z, .next
 	ld l, LOW(wEntity0_PosX)
 	; Compare total distances first.
+	; Calculate abs(TX - X) + abs(TY - Y)
 	ld a, [hli]
-	add a, [hl]
-	sub a, b
-	sub a, c
+	sub a, b ; TX - X
 	; abs a
 	bit 7, a
 	jr z, :+
 	cpl
 	inc a
 :
-	; a = abs((X + Y) - (TX - TY))
+	push af
+		ld a, [hl]
+		sub a, c ; TY - T
+		; abs a
+		bit 7, a
+		jr z, :+
+		cpl
+		inc a
+:
+		ld l, a
+	pop af
+	add a, l ; (TX - X) + (TY - Y)
+
 	; Use l as a scratch register
 	ld l, a
-	ld a, d
-	add a, e
-	; abs a
-	bit 7, a
-	jr z, :+
-	cpl
-	inc a
+	push hl
+		; Calculate abs(DX) + abs(DY)
+		ld a, d
+		; abs a
+		bit 7, a
+		jr z, :+
+		cpl
+		inc a
 :
+		ld l, a
+		ld a, e
+		; abs a
+		bit 7, a
+		jr z, :+
+		cpl
+		inc a
+:
+		add a, l
+	pop hl
 	; a = abs(total distance)
 	cp a, l
 	jr c, .next ; If the new position is more steps away, don't switch to it.
