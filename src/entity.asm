@@ -421,7 +421,7 @@ xAllyLogic:
 	sub a, d
 	ld d, a
 	ld a, [hl]
-	sub a, 
+	sub a, e
 	ld e, a
 	; If we are on our target, stop moving.
 	bit 7, a

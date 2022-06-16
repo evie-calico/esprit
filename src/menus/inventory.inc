@@ -185,6 +185,12 @@ xInventoryMenuRedraw:
 	; Set the size of the menu to match the number of entries in the inventory
 	ld [hl], b
 	dec hl ; Selection
+	ld a, b
+	cp a, [hl]
+	jr nz, :+
+	dec b
+	ld [hl], b
+:
 	ld a, [wInventoryRedrawDesc]
 	and a, a
 	ld a, [hl]
@@ -262,12 +268,6 @@ POPS
 	jr z, .cannotUse
 	ld a, [hl]
 	ld [wInventorySelection], a
-	dec a
-	cp a, -1
-	jr nz, :+
-	xor a, a
-:
-	ld [hl], a
 	ld de, xUseItemMenu
 	ld b, BANK(xUseItemMenu)
 	jp AddMenu
