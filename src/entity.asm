@@ -260,6 +260,16 @@ POPS
 	ld [wShowMoves], a
 
 	ld a, [hCurrentKeys]
+	cp a, PADF_SELECT
+	ld a, 1
+	jp nz, :+
+	; End the player's turn.
+	ld a, 1
+	ld [wActiveEntity], a
+	ret
+:
+
+	ld a, [hCurrentKeys]
 	cp a, PADF_START
 	jr nz, :+
 		xor a, a
@@ -284,8 +294,6 @@ POPS
 		ret
 :
 	; if the player is able to move, and presses select, skip their turn.
-	cp a, PADF_SELECT
-	jp z, ProcessEntities.next
 	; Read the joypad to see if the player is attempting to move.
 	call PadToDir
 	; If no input is given, the player waits a frame to take its turn
@@ -408,42 +416,28 @@ xAllyLogic:
 	ld a, [hli]
 	ld d, a
 	ld e, [hl]
-	dec h ; Get the previous entity, and follow them.
-	ld l, LOW(wEntity0_Direction)
-	ld c, [hl]
-	ld a, c
-	ld b, 0
-	cp a, LEFT
-	jr nz, :+
-	inc b
-:
-	cp a, RIGHT
-	jr nz, :+
-	dec b
-:
-	ld l, LOW(wEntity0_PosX)
+	ld hl, wEntity0_PosX ; Follow the player.
 	ld a, [hli]
-	add a, b
 	sub a, d
 	ld d, a
-
-	; now the Y axis
-	ld a, c
-	ld b, 0
-	cp a, UP
-	jr nz, :+
-	inc b
-:
-	cp a, DOWN
-	jr nz, :+
-	dec b
-:
 	ld a, [hl]
-	add a, b
-	sub a, e
+	sub a, 
 	ld e, a
 	; If we are on our target, stop moving.
-	add a, d
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	ld b, a
+	ld a, d
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	add a, b
+	dec a
 	jp z, ProcessEntities.next
 	call xChaseTarget
 	jp ProcessEntities.next
@@ -1052,10 +1046,11 @@ MoveEntity:
 	ret
 
 .failEntity
-	pop af ; undo previous push hl
+	pop bc ; undo previous push hl
 	pop af
 	rst SwapBank
 	ld a, h
+	ld h, b
 	ret
 
 SECTION "Check for entity", ROMX
