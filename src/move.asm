@@ -1,4 +1,5 @@
 INCLUDE "defines.inc"
+INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "text.inc"
 
@@ -194,6 +195,19 @@ MoveActionAttack:
 
 	ldh a, [hCurrentBank]
 	push af
+		; Check for a wall; basic attacks shouldn't go through them
+		push de
+			ld a, BANK(xGetMapPosition)
+			rst SwapBank
+			call xGetMapPosition
+			ld a, [de]
+		pop de
+		cp a, TILE_WALL
+		jr nz, :+
+		pop af
+		rst SwapBank
+		jr .miss
+:
 		ld a, BANK(xCheckForEntity)
 		rst SwapBank
 		ldh a, [hMoveUserTeam]

@@ -365,6 +365,8 @@ POPS
 	jr .endSwap
 
 ; @param a: Contains the value of wActiveEntity
+; TODO: Pathfinding should consider walls; we can afford the CPU time to make
+; allies smarter. (And possibly for all enemies)
 xAllyLogic:
 	ld hl, wSkipAllyTurn
 	cp a, [hl]
@@ -420,8 +422,7 @@ xAllyLogic:
 
 .chaseEnemy
 	call xChaseTarget
-	jp ProcessEntities.next
-
+	jp c, ProcessEntities.next
 .followLeader
 	ld a, [wActiveEntity]
 	add a, HIGH(wEntity0)
@@ -453,7 +454,77 @@ xAllyLogic:
 	add a, b
 	dec a
 	jp z, ProcessEntities.next
-	call xChaseTarget
+
+	; Determine best directions
+	ld a, d
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	ld b, a
+
+	ld a, e
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	cp a, b
+	jr c, .xCloser
+.yCloser
+	bit 7, e
+	jr z, :+
+	xor a, a
+	jr .storeBestY
+:	ld a, DOWN
+.storeBestY
+	ld [wBestDir], a
+	; Now check X, but store it as the second best.
+	bit 7, d
+	jr z, :+
+	ld a, LEFT
+	jr .store2ndBest
+:	ld a, RIGHT
+	jr .store2ndBest
+
+.xCloser
+	bit 7, d
+	jr z, :+
+	ld a, LEFT
+	jr .storeBestX
+:	ld a, RIGHT
+.storeBestX
+	ld [wBestDir], a
+	; Now check X, but store it as the second best.
+	bit 7, e
+	jr z, :+
+	xor a, a
+	jr .store2ndBest
+:	ld a, DOWN
+	jr .store2ndBest
+
+.store2ndBest
+	ld [wNextBestDir], a
+
+	; Now it's time to attempt movement.
+	ld a, [wActiveEntity]
+	add a, HIGH(wEntity0)
+	ld h, a
+	ld a, [wBestDir]
+	; Try to move
+	ld l, LOW(wEntity0_Direction)
+	ld [hl], a
+	call MoveEntity
+	and a, a
+	jp z, ProcessEntities.next
+	ld a, [wNextBestDir]
+	; Try to move
+	ld l, LOW(wEntity0_Direction)
+	ld [hl], a
+	call MoveEntity
 	jp ProcessEntities.next
 
 ; @param a: Contains the value of wActiveEntity

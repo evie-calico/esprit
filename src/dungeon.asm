@@ -69,18 +69,6 @@ InitDungeon::
 	ld a, HIGH(xPounce)
 	ld [hli], a
 
-	lb bc, BANK(xRat), 12
-	ld de, xAris
-	ld h, HIGH(wEntity2)
-	call SpawnEntity
-	ld l, LOW(wEntity0_Moves)
-	ld a, BANK(xPounce)
-	ld [hli], a
-	ld a, LOW(xPounce)
-	ld [hli], a
-	ld a, HIGH(xPounce)
-	ld [hli], a
-
 	ld a, 1
 	ld [wDungeonCurrentFloor], a
 	call DungeonGenerateFloor
