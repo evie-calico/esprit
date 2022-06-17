@@ -502,11 +502,12 @@ DrawAttackWindow::
 	push hl
 	ld h, [hl]
 	ld l, a
-	ASSERT Move_Name == 1
-	inc hl
-	ld a, [hli]
-	ld h, [hl]
+	ld a, Move_Name
+	add a, l
 	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
 .strcpy
 	ld a, [hli]
 	and a, a

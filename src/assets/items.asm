@@ -49,7 +49,7 @@ ENDM
 		rgb 128,   0, 128
 		rgb  64,   0,  64
 
-	item xPepper, "Pepper", "A spicy little pepper! It doesn't seem to do anything though", "res/items/pepper.2bpp"
+	item xPepper, "Pepper", "A spicy little pepper! It doesn't seem to do anything.", "res/items/pepper.2bpp"
 	.palette
 		rgb 250, 173,  36
 		rgb 128,  64,  64

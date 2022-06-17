@@ -102,7 +102,6 @@ DEF ENTITY_ANIMATION_END RB 1
 	struct Move
 		; The behavior of this move.
 		bytes 1, Action
-		words 1, Name
 		; The move succeeds if a randomly generated 8-bit integer is below this
 		; value.
 		bytes 1, Chance
@@ -111,6 +110,7 @@ DEF ENTITY_ANIMATION_END RB 1
 		; The strength of the move's effect, ussually damage. If 0, power is not
 		; displayed.
 		bytes 1, Power
+		bytes 0, Name
 	end_struct
 
 	; Wait a number of frames before continuing the script.

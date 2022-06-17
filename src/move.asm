@@ -43,14 +43,12 @@ UseMove::
 
 	; Load up printing variables
 	; First the move name
-	ASSERT Move_Name == 1
-	inc de
-	ld a, [de]
-	ld l, a
-	inc de
-	ld a, [de]
+	ld a, Move_Name
+	add a, e
+	ld e, a
+	adc a, d
+	sub a, e
 	ld d, a
-	ld e, l
 	ld hl, wUsedMove.move
 	ldh a, [hCurrentBank]
 	ld [hli], a
@@ -147,9 +145,7 @@ MoveActionAttack:
 	ld a, b
 	ldh [hSaveUserIndex], a
 
-	ASSERT Move_Chance == 3
-	inc de
-	inc de
+	ASSERT Move_Chance == 1
 	inc de
 	push de
 	push hl

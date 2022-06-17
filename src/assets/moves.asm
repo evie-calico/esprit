@@ -4,7 +4,6 @@ MACRO attack
 SECTION "\1 Move", ROMX
 x\1::
 	db MOVE_ACTION_ATTACK
-	dw .name
 	db \4
 	db \3
 	db \2

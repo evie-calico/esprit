@@ -773,9 +773,7 @@ TryMove:
 	push hl
 	ld h, [hl]
 	ld l, a
-	ASSERT Move_Range == 4
-	inc hl
-	inc hl
+	ASSERT Move_Range == 2
 	inc hl
 	inc hl
 	; When comparing distances, use the absolute value.
@@ -1232,6 +1230,10 @@ SpawnEntity::
 	ld [hli], a
 	ld [hl], b
 
+	push hl
+		call UpdateMoves
+	pop hl
+
 	jp BankReturn
 
 SECTION "Spawn Enemy", ROM0
@@ -1306,7 +1308,9 @@ SpawnEnemy::
 		ld a, h
 		cp a, HIGH(wEntity0) + NB_ENTITIES
 		jr nz, .loop
-		jr .fail
+		pop bc
+		ret
+
 	.spawn
 		call SpawnEntity
 	pop bc
@@ -1318,49 +1322,6 @@ SpawnEnemy::
 	ld [hli], a
 	ld [hli], a
 	ld [hl], c
-	ld l, LOW(wEntity0_Level)
-	ld c, [hl]
-	inc c
-	ld l, LOW(wEntity0_Bank)
-	ld a, [hli]
-	rst SwapBank
-	ld a, [hli]
-	add a, EntityData_MoveTable
-	ld e, a
-	adc a, [hl]
-	sub a, e
-	ld d, a
-	ld a, [de]
-	ld b, a
-	inc de
-	ld a, [de]
-	ld d, a
-	ld e, b
-	ld l, LOW(wEntity0_Moves)
-.populateMoves
-	ld a, [de]
-	and a, a
-	ret z
-	cp a, c
-	ret nc
-	inc de
-	ld a, [de]
-	inc de
-	ld [hli], a
-	ld a, [de]
-	inc de
-	ld [hli], a
-	ld a, [de]
-	inc de
-	ld [hli], a
-	ld a, LOW(wEntity0_Moves) + 3 * ENTITY_MOVE_COUNT
-	cp a, l
-	jr nz, .populateMoves
-	ld l, LOW(wEntity0_Moves)
-	jr .populateMoves
-
-.fail
-	pop bc
 	ret
 
 SECTION "Get Max Health", ROM0
@@ -1456,11 +1417,99 @@ xCheckForLevelUp::
 	ld [wLevelUpText.target], a
 	ld a, [hl]
 	ld [wLevelUpText.level], a
+	push bc
+		call UpdateMoves
+	pop bc
+
+	ld a, c
+	and a, a
+	jr z, .noNewMoves
+	dec e
+	dec e
+	dec e
+	ld a, e
+	cp a, LOW(wEntity0_Moves) - 3
+	jr nz, :+
+	ld e, LOW(wEntity0_Moves) + (ENTITY_MOVE_COUNT - 1) * 3
+:
+	ld hl, wLevelUpText.moveName
+	ld a, [de]
+	ld [hli], a
+	inc e
+	ld a, [de]
+	ld b, a
+	inc e
+	ld a, [de]
+	ld d, a
+	ld a, b
+	add a, Move_Name
+	ld [hli], a
+	ld e, a
+	adc a, d
+	sub a, e
+	ld [hli], a
+
 	ld a, 1
+.noNewMoves
 	ld [wLevelUpText.newMove], a
 	ld b, BANK(xLeveledUpText)
 	ld hl, xLeveledUpText
 	jp PrintHUD
+
+SECTION "Check for new moves", ROM0
+; @param h: Entity high byte
+; @return c: Set if any moves were new to the current level.
+; @return de: pointer to last move slot, subtract 4 and account for wrapping to get the new move.
+; @clobbers b, de, hl
+; @preserves bank
+UpdateMoves::
+	ldh a, [hCurrentBank]
+	push af
+
+	; Iterate through each of the entity's moves and learn every move up to the
+	; current level.
+	ld d, h
+	ld l, LOW(wEntity0_Level)
+	ld b, [hl]
+	inc b
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	add a, EntityData_MoveTable
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld e, LOW(wEntity0_Moves)
+	ld c, 0
+.loop
+	ld a, [hli]
+	and a, a 
+	jp z, BankReturn
+	cp a, b
+	jp nc, BankReturn
+	jr nz, :+
+	ld c, 1
+:
+	ld a, [hli]
+	ld [de], a
+	inc e
+	ld a, [hli]
+	ld [de], a
+	inc e
+	ld a, [hli]
+	ld [de], a
+	inc e
+	ld a, LOW(wEntity0_Moves) + ENTITY_MOVE_COUNT * 3
+	cp a, e
+	jr nz, .loop
+	ld e, LOW(wEntity0_Moves)
+	jp .loop
 
 SECTION "Heal Entity", ROM0
 ; @param b: entity high byte
@@ -1526,13 +1575,16 @@ xLeveledUpText:
 .newMove
 	db " "
 	print_entity wLevelUpText.target
-	db " learned Pounce. You can find it in the Party menu.", 0
+	db " learned "
+	textcallptr wLevelUpText.moveName
+	db ".", 0
 
 SECTION "Leveled up fmt", WRAM0
 wLevelUpText:
 .target db
 .level db
 .newMove db
+.moveName ds 3
 
 ; This loop creates page-aligned entity structures. This is a huge benefit to
 ; the engine as it allows very quick structure seeking and access.

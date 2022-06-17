@@ -44,12 +44,12 @@ ENDM
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xRat, 1, \
 	        xRat, 1, \
-	        xAris, 1, \
-	        xLuvui, 1, \
 	        xRat, 2, \
 	        xRat, 2, \
 	        xRat, 3, \
-	        xRat, 3
+	        xRat, 3, \
+	        xRat, 4, \
+	        xRat, 5
 	dungeon_palette 128, 255, 144, \ ; Blank
 	                  0, 120,   0, \ ; Ground
 	                  0,  88,  24, \

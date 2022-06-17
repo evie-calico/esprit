@@ -49,25 +49,11 @@ InitDungeon::
 	ld de, xLuvui
 	ld h, HIGH(wEntity0)
 	call SpawnEntity
-	ld l, LOW(wEntity0_Moves)
-	ld a, BANK(xBite)
-	ld [hli], a
-	ld a, LOW(xBite)
-	ld [hli], a
-	ld a, HIGH(xBite)
-	ld [hli], a
 
 	lb bc, BANK(xAris), 6
 	ld de, xAris
 	ld h, HIGH(wEntity1)
 	call SpawnEntity
-	ld l, LOW(wEntity0_Moves)
-	ld a, BANK(xPounce)
-	ld [hli], a
-	ld a, LOW(xPounce)
-	ld [hli], a
-	ld a, HIGH(xPounce)
-	ld [hli], a
 
 	ld a, 1
 	ld [wDungeonCurrentFloor], a
@@ -429,9 +415,11 @@ DungeonState::
 	; If XP has changed, check if we can level up
 	ld a, BANK(xCheckForLevelUp)
 	rst SwapBank
-	push de
-		call xCheckForLevelUp
-	pop de
+	push hl
+		push de
+			call xCheckForLevelUp
+		pop de
+	pop hl
 	ld a, c
 	and a, a
 	jr z, .levelUpNext
