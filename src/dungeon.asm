@@ -91,6 +91,9 @@ SwitchToDungeonState::
 	ld [wGameState], a
 	xor a, a
 	ld [wIsDungeonFading], a
+	ld hl, wWindowMode
+	ld [hli], a
+	ld [hli], a
 
 	call InitUI
 

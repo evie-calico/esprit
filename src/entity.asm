@@ -50,7 +50,7 @@ xPlayerLogic:
 	and a, a
 	jr z, .noHide
 	xor a, a
-	ld [wShowMoves], a
+	ld [wWindowMode], a
 	ret
 
 .noHide
@@ -151,8 +151,6 @@ StandingCheck:
 	inc [hl]
 	cp a, [hl]
 	jp z, Initialize
-	xor a, a
-	ld [wShowMoves], a
 	ld a, 1
 	ld [wIsDungeonFading], a
 	ld a, LOW(.generateFloor)
@@ -214,31 +212,40 @@ POPS
 .loose
 	; First, check for buttons to see if the player is selecting a move.
 	ldh a, [hCurrentKeys]
+	and a, PADF_A | PADF_B
+	cp a, PADF_A | PADF_B
+	jr nz, .notTurning
+	ld a, WINDOW_TURNING
+	ld [wWindowMode], a
+	jr .turning
+
+.notTurning
+	ldh a, [hCurrentKeys]
 	bit PADB_A, a
 	jr z, .movementCheck
-	ld a, 1
-	ld [wShowMoves], a
+	ld a, WINDOW_SHOW_MOVES
+	ld [wWindowMode], a
 	jr .useMove
 
 .sticky
 	ldh a, [hCurrentKeys]
 	bit PADB_A, a
 	jr z, :+
-	ld a, 1
-	ld [wShowMoves], a
+	ld a, WINDOW_SHOW_MOVES
+	ld [wWindowMode], a
 	ldh a, [hCurrentKeys]
 :
 	bit PADB_B, a
 	jr z, :+
 	xor a, a
-	ld [wShowMoves], a
+	ld [wWindowMode], a
 	jr .movementCheck
 :
 .useMove
 	; Before attempting to use a move, set the move user's team.
 	xor a, a
 	ldh [hMoveUserTeam], a
-	ld a, [wShowMoves]
+	ld a, [wWindowMode]
 	and a, a
 	jr z, .movementCheck
 	; Read the joypad to see if the player is attempting to use a move.
@@ -249,15 +256,22 @@ POPS
 	call UseMove
 	ret z
 	xor a, a
-	ld [wShowMoves], a
+	ld [wWindowMode], a
 	; End the player's turn.
 	ld a, 1
 	ld [wActiveEntity], a
 	ret
 
+.turning
+	call PadToDir
+	ret c
+	ld [wEntity0_Direction], a
+	ret
+
 .movementCheck
 	xor a, a
-	ld [wShowMoves], a
+	ld [wWindowMode], a
+	ld [wWindowMode], a
 
 	ld a, [hCurrentKeys]
 	cp a, PADF_SELECT
@@ -273,7 +287,7 @@ POPS
 	cp a, PADF_START
 	jr nz, :+
 		xor a, a
-		ld [wShowMoves], a
+		ld [wWindowMode], a
 		ld a, 1
 		ld [wIsDungeonFading], a
 		ld a, LOW(OpenPauseMenu)
@@ -1374,9 +1388,6 @@ wHasChecked: db
 SECTION "Movement Queued", WRAM0
 ; nonzero if any entity is ready to move.
 wMovementQueued: db
-
-SECTION "Show Moves", WRAM0
-wShowMoves:: db
 
 SECTION "Pathfinding vars", WRAM0
 wClosestAllyTemp: db

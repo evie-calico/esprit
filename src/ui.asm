@@ -1,4 +1,5 @@
 INCLUDE "defines.inc"
+INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 INCLUDE "menu.inc"
@@ -308,15 +309,37 @@ wPrintStatus:
 .maxHealth dw
 .health dw
 
-SECTION "Attack window", ROM0
+SECTION "Attack window", ROMX
+; TODO: make this more modular, akin to menu.asm, even if we only have 2.
+; Add redraw, init, and target positions for the bounce animation
 xUpdateAttackWindow::
-	ld a, [wShowMoves]
+	ld a, [wWindowMode]
 	and a, a
-	jp z, .close
+	jr z, .close
+	ld b, a
+	ld a, [wWindowMode.last]
+	cp a, b
+	jr z, .open
+	ld a, b
+	ld [wWindowMode.last], a
+	cp a, WINDOW_SHOW_MOVES
+	call z, DrawAttackWindow
+	ld a, [wWindowMode]
+	cp a, WINDOW_TURNING
+	call z, xDrawTurningWindow
 .open
-	ldh a, [hNewKeys]
-	bit PADB_A, a
-	call nz, DrawAttackWindow
+	ld a, [wWindowMode]
+	cp a, WINDOW_TURNING
+	jr nz, .noDirection
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+	ld a, [wEntity0_Direction]
+	add a, idof_vUIArrowUp
+	ld [vAttackWindow + 64 + 4], a
+.noDirection
+
 	ld a, [wWindowBounce]
 	and a, a
 	jr nz, .bounceEffect
@@ -334,6 +357,8 @@ xUpdateAttackWindow::
 	ret
 
 .close
+	xor a, a
+	ld [wWindowMode.last], a
 	ld a, SCRN_X
 	ldh [hShadowWX], a
 	ld a, SCRN_Y
@@ -361,16 +386,19 @@ xUpdateAttackWindow::
 	ld [wWindowBounce], a
 	ret
 
-SECTION "Draw attack window", ROM0
-DrawAttackWindow::
-	ldh a, [hCurrentBank]
-	push af
-
+xDrawTurningWindow:
 	xor a, a
 	ld [wWindowBounce], a
-:           ldh a, [rSTAT]
-		and a, STATF_BUSY
-		jr nz, :-
+	ld a, SCRN_X
+	ldh [hShadowWX], a
+	ldh [rWX], a
+	ld a, SCRN_Y
+	ldh [hShadowWY], a
+	ldh [rWY], a
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
 	ld a, idof_vUIFrameLeftCorner ; 2
 	ld [vAttackWindow], a ; 6
 	ld a, idof_vUIFrameLeft ; 8
@@ -382,18 +410,74 @@ DrawAttackWindow::
 	; We actually have ~7 cycles coming out of this function.
 	ld a, idof_vUIFrameLeft ; 2
 	ld [vAttackWindow + 128], a ; 6
-:           ldh a, [rSTAT]
-		and a, STATF_BUSY
-		jr nz, :-
+	lb bc, vAttackWindow_Width - 1, vAttackWindow_Height - 1
+	ld d, idof_vBlankTile
+	ld hl, vAttackWindow + 33
+	call FillRegion
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+	ld a, idof_vUIArrowUp
+	ld [vAttackWindow + 32 + 4], a
+	ld a, idof_vUIArrowLeft
+	ld [vAttackWindow + 64 + 3], a
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+	ld a, idof_vUIArrowRight
+	ld [vAttackWindow + 64 + 5], a
+	ld a, idof_vUIArrowDown
+	ld [vAttackWindow + 96 + 4], a
+	ret
+
+SECTION "Draw attack window", ROM0
+DrawAttackWindow::
+	ldh a, [hCurrentBank]
+	push af
+
+	xor a, a
+	ld [wWindowBounce], a
+	ld a, SCRN_X
+	ldh [hShadowWX], a
+	ldh [rWX], a
+	ld a, SCRN_Y
+	ldh [hShadowWY], a
+	ldh [rWY], a
+	lb bc, vAttackWindow_Width - 1, vAttackWindow_Height - 1
+	ld d, idof_vBlankTile
+	ld hl, vAttackWindow + 33
+	call FillRegion
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+	ld a, idof_vUIFrameLeftCorner ; 2
+	ld [vAttackWindow], a ; 6
+	ld a, idof_vUIFrameLeft ; 8
+	ld [vAttackWindow + 32], a ; 12
+	ld [vAttackWindow + 64], a ; 16
+	lb bc, idof_vUIFrameTop, vAttackWindow_Width + 2
+	ld hl, vAttackWindow + 1
+	call VRAMSetSmall
+	; We actually have ~7 cycles coming out of this function.
+	ld a, idof_vUIFrameLeft ; 2
+	ld [vAttackWindow + 128], a ; 6
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
 	ld a, idof_vUIArrowUp ; 2
 	ld [vAttackWindow + 1 + 32], a ; 6
 	inc a ; 7
 	ld [vAttackWindow + 1 + 64], a ; 11
 	inc a ; 12
 	ld [vAttackWindow + 1 + 96], a ; 16
-:           ldh a, [rSTAT]
-		and a, STATF_BUSY
-		jr nz, :-
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
 	ld a, idof_vUIArrowLeft ; 2
 	ld [vAttackWindow + 1 + 128], a ; 6
 	ld a, idof_vUIFrameLeft ; 8
@@ -522,6 +606,10 @@ ShowTextBox:
 	ld a, HIGH(ShowHPBar)
 	ld [wSTATTarget + 1], a
 	ret
+
+SECTION "Show Moves", WRAM0
+wWindowMode:: db
+.last db
 
 SECTION "Window effect bounce", WRAM0
 wWindowBounce: db
