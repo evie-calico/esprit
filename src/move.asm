@@ -332,7 +332,59 @@ DefeatCheck::
 	ld a, HIGH(.final)
 	ld [hli], a
 	ld [hl], b
-	ret
+	ldh a, [hSaveUserIndex]
+	cp a, HIGH(wEntity0) + NB_ALLIES
+	ret nc
+	; Now reward XP to the party and print message
+	ld h, b
+	ld l, LOW(wEntity0_Level)
+	ld a, [hl]
+	call GetXpReward
+	ld b, a
+	ld [wDefeatText.reward], a
+	ldh a, [hCurrentBank]
+	push af
+		ld l, LOW(wEntity0_Bank)
+		ld a, [hli]
+		ld [wDefeatText.target], a
+		rst SwapBank
+		ld a, [hli]
+		ld h, [hl]
+		ld l, a
+		ASSERT EntityData_Name == 4
+		inc hl
+		inc hl
+		inc hl
+		inc hl
+		ld a, [hli]
+		ld [wDefeatText.target + 1], a
+		ld a, [hli]
+		ld [wDefeatText.target + 2], a
+	pop af
+
+	ld hl, wEntity0
+.rewardParty
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hl]
+	and a, a
+	jr z, .next
+	ld l, LOW(wEntity0_Experience)
+	ld a, [hli]
+	add a, b
+	ld c, a
+	adc a, [hl]
+	sub a, c
+	ld [hld], a
+	ld [hl], c
+.next
+	inc h
+	ld a, h
+	cp a, HIGH(wEntity0) + NB_ALLIES
+	jr nz, .rewardParty
+
+	ld b, BANK(xDefeatText)
+	ld hl, xDefeatText
+	jp PrintHUD
 
 .final
 	ld a, [wDefeatCheckTarget]
@@ -357,6 +409,14 @@ xDealtText:
 	textcallptr wDealtDamage.target
 	db "!<END>"
 
+SECTION "Defeated enemy text", ROMX
+xDefeatText:
+	db "Defeated "
+	textcallptr wDefeatText.target
+	db ". Gained "
+	print_u8 wDefeatText.reward
+	db " xp.", 0
+
 SECTION "Missed move text", ROMX
 xMissedText:
 	textcallptr wMissedMove.user
@@ -375,6 +435,11 @@ SECTION UNION "Move text variables", WRAM0
 wDealtDamage:
 .value db
 .target ds 3
+
+SECTION UNION "Move text variables", WRAM0
+wDefeatText:
+.target ds 3
+.reward db
 
 ; User to save the parameters of UseMove for animation callbacks.
 SECTION "Move state", WRAM0

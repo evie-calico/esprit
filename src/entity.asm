@@ -1382,6 +1382,86 @@ GetMaxHealth::
 	ld h, a
 	ret
 
+SECTION "Get Experience Target", ROM0
+; This function encapsulates the experience target formula, allowing it to
+; be easily changed in the future.
+; @param a: Level
+; @return hl: Max Health
+; @clobbers bc
+GetXpTarget::
+	; The current formula is 12 * level * level
+	ld b, 0
+	ld c, a
+	ld hl, 0
+.square
+	add hl, bc
+	dec a
+	jr nz, .square
+	ld b, h
+	ld c, l
+	add hl, hl ; hl * 2
+	add hl, bc ; hl * 3
+	add hl, hl ; hl * 6
+	add hl, hl ; hl * 12
+	ret
+
+SECTION "Get Experience Reward", ROM0
+; This function encapsulates the experience reward formula, allowing it to
+; be easily changed in the future.
+; @param a: Level
+; @return a: Reward
+GetXpReward::
+	ld b, a
+	; The current formula is 15 + 8 * level
+	add a, a ; a * 2
+	add a, a ; a * 4
+	add a, b ; a * 5
+	add a, a ; a * 10
+	add a, 15
+	ret
+
+SECTION "Check for Level Up", ROMX
+; @param h: Entity high byte
+; @param c: Set if check succeeded
+xCheckForLevelUp::
+	ld c, 0
+	ld l, LOW(wEntity0_Level)
+	ld a, [hl]
+	push hl
+		call GetXpTarget
+		ld d, h
+		ld e, l
+	pop hl
+	ld l, LOW(wEntity0_Experience + 1)
+	ld a, d
+	cp a, [hl]
+	jr c, .levelUp
+	ret nz
+	dec hl
+	ld a, e
+	cp a, [hl]
+	ret nc
+.levelUp
+	ld l, LOW(wEntity0_Experience)
+	xor a, a
+	ld [hli], a
+	ld [hl], a
+	ld l, LOW(wEntity0_Level)
+	ld a, [hl]
+	cp a, ENTITY_MAXIMUM_LEVEL
+	ret z
+	inc c ; ld c, 1
+	inc [hl]
+	ld a, h
+	ld [wLevelUpText.target], a
+	ld a, [hl]
+	ld [wLevelUpText.level], a
+	ld a, 1
+	ld [wLevelUpText.newMove], a
+	ld b, BANK(xLeveledUpText)
+	ld hl, xLeveledUpText
+	jp PrintHUD
+
 SECTION "Heal Entity", ROM0
 ; @param b: entity high byte
 ; @param e: Heal amount
@@ -1435,6 +1515,24 @@ FoundExit:
 	db "Entered floor "
 	print_u8 wDungeonCurrentFloor
 	db ".", 0
+
+SECTION "Leveled up", ROMX
+xLeveledUpText:
+	print_entity wLevelUpText.target
+	db "'s level increased to "
+	print_u8 wLevelUpText.level
+	db "!"
+	textcondition wLevelUpText.newMove
+.newMove
+	db " "
+	print_entity wLevelUpText.target
+	db " learned Pounce. You can find it in the Party menu.", 0
+
+SECTION "Leveled up fmt", WRAM0
+wLevelUpText:
+.target db
+.level db
+.newMove db
 
 ; This loop creates page-aligned entity structures. This is a huge benefit to
 ; the engine as it allows very quick structure seeking and access.

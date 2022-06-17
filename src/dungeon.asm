@@ -45,7 +45,7 @@ InitDungeon::
 
 	ld [wSkipAllyTurn], a
 
-	lb bc, BANK(xLuvui), 10
+	lb bc, BANK(xLuvui), 5
 	ld de, xLuvui
 	ld h, HIGH(wEntity0)
 	call SpawnEntity
@@ -57,7 +57,7 @@ InitDungeon::
 	ld a, HIGH(xBite)
 	ld [hli], a
 
-	lb bc, BANK(xAris), 12
+	lb bc, BANK(xAris), 6
 	ld de, xAris
 	ld h, HIGH(wEntity1)
 	call SpawnEntity
@@ -378,17 +378,13 @@ DungeonState::
 	call DrawStatusBar
 	; Update health cache
 	ld hl, wPreviousHealth
-	ld de, wEntity0_Bank
-	ld a, [de]
-	and a, a
-	jr z, :+
-	ld e, LOW(wEntity0_Health)
+	ld de, wEntity0_Health
 	ld a, [de]
 	inc e
 	ld [hli], a
 	ld a, [de]
 	ld [hli], a
-:
+
 	ld de, wEntity1_Bank
 	ld a, [de]
 	and a, a
@@ -401,6 +397,62 @@ DungeonState::
 	ld [hli], a
 :
 .skipUpdateStatus
+
+	; Wait after a level up for the next check.
+	ld a, [wLevelUpMessageLifetime]
+	and a, a
+	jr z, .checkForLevelUp
+	dec a
+	ld [wLevelUpMessageLifetime], a
+	jr .skipLevelUp
+
+.checkForLevelUp
+	; Iterate through each party member to check if their XP has changed.
+	ld de, wPartyLastXp
+	ld h, HIGH(wEntity0)
+.levelUpLoop
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hl]
+	and a, a
+	jr z, .levelUpNext
+	ld l, LOW(wEntity0_Experience)
+	ld a, [de]
+	cp a, [hl]
+	jr nz, .callCheck
+	inc de
+	inc l
+	ld a, [de]
+	dec de
+	cp a, [hl]
+	jr z, .levelUpNext
+.callCheck
+	; If XP has changed, check if we can level up
+	ld a, BANK(xCheckForLevelUp)
+	rst SwapBank
+	push de
+		call xCheckForLevelUp
+	pop de
+	ld a, c
+	and a, a
+	jr z, .levelUpNext
+	; If we leveled up, delay the next check
+	ld a, 255
+	ld [wLevelUpMessageLifetime], a
+	ld hl, wPreviousHealth
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	jr .skipLevelUp
+
+.levelUpNext
+	inc de
+	inc de
+	inc h
+	ld a, h
+	cp a, HIGH(wEntity0) + NB_ALLIES
+	jr nz, .levelUpLoop
+.skipLevelUp
 	ld a, BANK(xUpdateAttackWindow)
 	rst SwapBank
 	jp xUpdateAttackWindow
@@ -1008,6 +1060,11 @@ wPreviousHealth::
 .partner dw
 
 wSkipAllyTurn:: db
+
+SECTION FRAGMENT "dungeon BSS", WRAM0
+wPartyLastXp: ds 6
+; Ticks remaining to show levelup menu.
+wLevelUpMessageLifetime: db
 
 SECTION "Map drawing counters", HRAM
 hMapDrawX: db

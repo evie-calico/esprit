@@ -8,6 +8,7 @@ DEF NB_ENEMIES EQU 5
 DEF NB_ENTITIES EQU 8
 
 DEF ENTITY_MOVE_COUNT EQU 4
+DEF ENTITY_MAXIMUM_LEVEL EQU 20
 
 DEF SPRITE_DIRECTION_SIZE EQU 128 * 3
 DEF ENTITY_FRAME_IDLE EQU 0
@@ -95,6 +96,7 @@ DEF ENTITY_ANIMATION_END RB 1
 		; callback. Damage checks should be scheduled to happen after damage has
 		; been taken, using the damage animation's callback function.
 		words 1, Health
+		words 1, Experience
 	end_struct
 
 	struct Move

@@ -31,25 +31,25 @@ SECTION "\1 Item", ROMX
 .gfx:: INCBIN \4
 ENDM
 
-	heal xRedApple, "Apple", "A small red fruit. Eat it to restore 10 health.", "res/items/apple.2bpp", 10
+	heal xRedApple, "Apple", "A small red fruit. Eat it to restore 20 health.", "res/items/apple.2bpp", 20
 	.palette 
 		rgb 255,   0,   0
 		rgb 128,   0,   0
 		rgb  64,   0,   0
 
-	heal xGreenApple, "Apple", "A small green fruit. Eat it to restore 12 health.", "res/items/apple.2bpp", 10
+	heal xGreenApple, "Apple", "A small green fruit. Eat it to restore 24 health.", "res/items/apple.2bpp", 24
 	.palette 
 		rgb  80, 255,   0
 		rgb  40, 128,   0
 		rgb   0,  64,   0
 
-	heal xGrapes, "Grapes", "A bunch of ripened grapes. Eat them to restore 20 health.", "res/items/grapes.2bpp", 20
+	heal xGrapes, "Grapes", "A bunch of ripened grapes. Eat them to restore 40 health.", "res/items/grapes.2bpp", 40
 	.palette
 		rgb 255,   0, 255
 		rgb 128,   0, 128
 		rgb  64,   0,  64
 
-	item xPepper, "Pepper", "A spicy little pepper! It doesn't seem to do anything...", "res/items/pepper.2bpp"
+	item xPepper, "Pepper", "A spicy little pepper! It doesn't seem to do anything though", "res/items/pepper.2bpp"
 	.palette
 		rgb 250, 173,  36
 		rgb 128,  64,  64
