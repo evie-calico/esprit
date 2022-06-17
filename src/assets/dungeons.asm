@@ -40,8 +40,8 @@ MACRO dungeon_palette
 	ENDR
 ENDM
 
-	dungeon Forest, "res/tree_tiles.2bpp", HALLS, 3, \
-	        xRedApple, xGreenApple, xGrapes, xPepper, 4, \
+	dungeon Forest, "res/tree_tiles.2bpp", HALLS, 5, \
+	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xRat, 1, \
 	        xRat, 1, \
 	        xAris, 1, \
