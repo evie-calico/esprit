@@ -1,5 +1,6 @@
 
 INCLUDE "hardware.inc"
+INCLUDE "entity.inc"
 
 ; SPDX-License-Identifier: MIT
 ;
@@ -144,6 +145,9 @@ ENDM
 	reader_only_control_char CALL_PTR,     ReaderCallPtr
 	reader_only_control_char U16,          ReaderU16
 	reader_only_control_char U8,           ReaderU8
+	reader_only_control_char ENTITY_NAME,  ReaderEntityName
+	reader_only_control_char JUMP_PTR,     ReaderJumpToPointer
+	reader_only_control_char RET_FALSE,    ReaderReturnIfFalse
 
 	; The base of the table is located at its end
 	; Unusual, I know, but it works better!
@@ -825,6 +829,32 @@ ReaderJumpTo:
 	ld [rROMB0], a
 	ret
 
+; Sets text ptr to given location
+ReaderJumpToPointer:
+	; Load WRAM pointer
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	; And load destination from that.
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ret
+
+; Sets text ptr to given location
+ReaderReturnIfFalse:
+	; Load WRAM pointer
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	ld b, a
+	; And test that value.
+	ld a, [bc]
+	and a, a
+	ret nz
+	ld hl, 0
+	ret
+
 ; Start printing a new string, then keep writing this one
 ; NOTE: avoids corruption by preventing too much recursion, but this shouldn't happen at all
 ReaderCall:
@@ -992,6 +1022,62 @@ ReaderCallPtr::
 
 	; Perform bankswitch now that all bytecode has been read
 	pop de
+	ret
+
+ReaderEntityName::
+	ld a, [wTextStackSize]
+	IF DEF(STACK_OVERFLOW_HANDLER)
+		cp TEXT_STACK_CAPACITY
+		call nc, STACK_OVERFLOW_HANDLER
+	ENDC
+
+	; Read target ptr
+	inc a ; Increase stack size
+	ld [wTextStackSize], a
+
+	; Get ptr to end of 1st empty entry
+	ld b, a
+	add a, a
+	add a, b
+	add a, LOW(wTextStack - 1)
+	ld c, a
+	adc a, HIGH(wTextStack - 1)
+	sub c
+	ld b, a
+	; Save ROM bank immediately, as we're gonna bankswitch
+	ldh a, [hCurrentBank]
+	ld [bc], a
+	dec bc
+
+	inc hl
+	inc hl
+	; Save src ptr now
+	ld a, h
+	ld [bc], a
+	dec bc
+	ld a, l
+	ld [bc], a
+	; Read new src ptr
+	dec hl
+	dec hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld h, [hl]
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ASSERT EntityData_Name == 4
+	inc hl
+	inc hl
+	inc hl
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
 	ret
 
 ReaderU8::

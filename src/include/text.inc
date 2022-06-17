@@ -34,4 +34,19 @@ MACRO print_u8
 	dw \1
 ENDM
 
+MACRO print_entity
+	db TEXT_ENTITY_NAME
+	dw \1
+ENDM
+
+MACRO textjumpptr ; dest
+	db TEXT_JUMP_PTR
+	dw \1
+ENDM
+
+MACRO textcondition ; dest
+	db TEXT_RET_FALSE
+	dw \1
+ENDM
+
 ENDC
