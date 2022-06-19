@@ -58,6 +58,9 @@ VBlank:
 
 	ei
 	call gbt_update
+	ld a, BANK("Sound Effects")
+	rst SwapBank
+	call audio_update
 
 	pop af
 	rst SwapBank

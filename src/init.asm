@@ -142,6 +142,7 @@ Initialize::
 	ld de, dungeon_data
 	ld a, 0
 	call gbt_play
+	call audio_init
 
 	; Enable interrupts
 	ld a, IEF_VBLANK | IEF_STAT
