@@ -1385,7 +1385,6 @@ SECTION "Check for Level Up", ROMX
 ; @param h: Entity high byte
 ; @param c: Set if check succeeded
 xCheckForLevelUp::
-	ld c, 0
 	ld l, LOW(wEntity0_Level)
 	ld a, [hl]
 	push hl
@@ -1393,6 +1392,7 @@ xCheckForLevelUp::
 		ld d, h
 		ld e, l
 	pop hl
+	ld c, 0
 	ld l, LOW(wEntity0_Experience + 1)
 	ld a, d
 	cp a, [hl]
