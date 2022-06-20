@@ -18,6 +18,17 @@ DEF TILE_ITEM1 RB 1
 DEF TILE_ITEM2 RB 1
 DEF TILE_ITEM3 RB 1
 
+; The dungeon renderer is hard-coded to use these 4 metatiles to draw floors and
+; walls. Additional tiles should follow these metatiles.
+; For example, stairs, which use an ID of 2, should be placed at $90.
+RSSET $80
+DEF BLANK_METATILE_ID RB 4
+DEF STANDALONE_METATILE_ID RB 4
+DEF TERMINAL_METATILE_ID RB 4
+DEF FULL_METATILE_ID RB 4
+DEF EXIT_METATILE_ID RB 4
+DEF ITEM_METATILE_ID RB 4 * 4
+
 RSRESET
 DEF DUNGEON_TYPE_SCRAPER RB 1
 DEF DUNGEON_TYPE_HALLS RB 1
