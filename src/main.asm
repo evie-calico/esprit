@@ -59,6 +59,7 @@ Main::
 .stateTable
 	dw DungeonState
 	dw ProcessMenus
+	dw MapState
 
 SECTION "Game State", WRAM0
 ; The current process to run within the main loop.

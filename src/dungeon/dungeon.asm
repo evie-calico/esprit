@@ -614,6 +614,11 @@ xUpdateScroll:
 	ldh [hShadowSCY], a
 	ret
 
+; Variables which must be accessible from all states.
+SECTION "dungeon globals", WRAM0
+; A far pointer to the current dungeon. Bank, Low, High.
+wActiveDungeon:: ds 3
+
 SECTION UNION "State variables", WRAM0, ALIGN[8]
 ; This map uses 4096 bytes of WRAM, but is only ever used in dungeons.
 ; If more RAM is needed for other game states, it should be unionized with this
@@ -624,8 +629,6 @@ wDungeonCameraY:: dw
 ; Only the neccessarily info is saved; the high byte.
 wLastDungeonCameraX:: db
 wLastDungeonCameraY:: db
-; A far pointer to the current dungeon. Bank, Low, High.
-wActiveDungeon:: ds 3
 wIsDungeonFading:: db
 wDungeonCurrentFloor:: db
 

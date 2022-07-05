@@ -235,12 +235,12 @@ POPS
 .movementCheck
 	xor a, a
 	ld [wWindowMode], a
-	ld [wWindowMode], a
 
 	ld a, [hCurrentKeys]
 	cp a, PADF_SELECT
-	ld a, 1
-	jp nz, :+
+	jr nz, :+
+	; DEBUG: switch to map state.
+	jp InitMap
 	; End the player's turn.
 	ld a, 1
 	ld [wActiveEntity], a

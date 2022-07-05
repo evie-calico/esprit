@@ -13,6 +13,7 @@ DEF SYSTEM_AGB EQU 2
 RSRESET
 DEF GAMESTATE_DUNGEON RB 1
 DEF GAMESTATE_MENU RB 1
+DEF GAMESTATE_MAP RB 1
 
 ; Call a function in a foreign bank. Preserves the current bank, but can only
 ; be used from ROM0
