@@ -8,15 +8,6 @@ SECTION "Init dungeon", ROM0
 ; Switch to the dungeon state.
 ; @clobbers: bank
 InitDungeon::
-	; Value init
-	ld hl, wActiveDungeon
-	ld a, BANK(xForest)
-	ld [hli], a
-	ld a, LOW(xForest)
-	ld [hli], a
-	ld a, HIGH(xForest)
-	ld [hli], a
-
 	; Null init
 	xor a, a
 	ld c, SIZEOF("dungeon BSS")

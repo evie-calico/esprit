@@ -81,6 +81,15 @@ xTitleScreenClose:
 	ld [wFadeAmount], a
 	ld a, 4
 	ld [wFadeDelta], a
+
+	ld hl, wActiveDungeon
+	ld a, BANK(xForest)
+	ld [hli], a
+	ld a, LOW(xForest)
+	ld [hli], a
+	ld a, HIGH(xForest)
+	ld [hli], a
+
 	ld hl, wFadeCallback
 	ld a, LOW(InitDungeon)
 	ld [hli], a

@@ -131,7 +131,6 @@ Initialize::
 	call AddMenu
 	ld a, GAMESTATE_MENU
 	ld [wGameState], a
-	;call InitDungeon
 
 	; Initialize OAM
 	call InitSprObjLib
