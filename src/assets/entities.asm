@@ -43,3 +43,12 @@ ENDM
 	.moveTable
 		level 1, xNibble
 		db 0
+
+	entity Platypus, "res/sprites/platypus.2bpp"
+	.palette
+		rgb 88, 216, 152
+		rgb 96, 48, 16
+		rgb 0, 16, 16
+	.moveTable
+		level 1, xNibble
+		db 0
