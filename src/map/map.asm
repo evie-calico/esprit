@@ -15,10 +15,11 @@ INCLUDE "structs.inc"
 	end_struct
 
 RSRESET
-DEF MAP_NODE_NONE RB 1
-DEF MAP_NODE_MOVE RB 1
-DEF MAP_NODE_DUNGEON RB 1
-DEF MAP_NODE_TOWN RB 1
+DEF MAP_NODE_NONE RB 1    ; No action; the default
+DEF MAP_NODE_MOVE RB 1    ; Move to another node
+DEF MAP_NODE_LOCK RB 1    ; Move to another node if FLAG is set
+DEF MAP_NODE_DUNGEON RB 1 ; Enter a dungeon
+DEF MAP_NODE_TOWN RB 1    ; Enter a town
 
 MACRO _node_dir
 	REDEF _NODE_\1_TYPE     EQU MAP_NODE_NONE
@@ -41,7 +42,13 @@ ENDM
 
 MACRO _node_entry
 	REDEF _NODE_\1_TYPE EQU MAP_NODE_\2
-	REDEF _NODE_\1_ARG0 EQUS "BANK(\3)"
+	; For MOVE, the bank is redundant.
+	; Because of this it is repurposed for LOCK to be a flag ID.
+	IF !STRCMP("LOCK", "\2")
+		REDEF _NODE_\1_ARG0 EQUS "FLAG_\4"
+	ELSE
+		REDEF _NODE_\1_ARG0 EQUS "BANK(\3)"
+	ENDC
 	REDEF _NODE_\1_ARG1 EQUS "LOW(\3)"
 	REDEF _NODE_\1_ARG2 EQUS "HIGH(\3)"
 ENDM
@@ -57,7 +64,6 @@ MACRO _node_define
 ENDM
 
 MACRO end_node
-	SECTION "{_NODE_IDENTIFIER} map node", ROMX
 	{_NODE_IDENTIFIER}:
 		_node_define UP
 		_node_define RIGHT
@@ -67,21 +73,49 @@ MACRO end_node
 		db _NODE_X, _NODE_Y, "{_NODE_NAME}", 0
 ENDM
 
-	node xCenterNode, "Forest Dungeon", 1, 1
-		left MOVE, xLeftNode
-		press DUNGEON, xForest
+SECTION "World map nodes", ROMX
+	node xBeginningHouse, "----'s House", 5, 6
+		left MOVE, xVillageNode
 	end_node
-	EXPORT xCenterNode
+	EXPORT xBeginningHouse
 
-	node xLeftNode, "", 0, 1
-		right MOVE, xCenterNode
+	node xVillageNode, "The Village", 3, 6
+		left MOVE, xForestNode
+		right MOVE, xBeginningHouse
+	end_node
+
+	node xForestNode, "Forest", 1, 6
+		right MOVE, xVillageNode
+		up LOCK, xFieldsNode, FOREST_COMPLETE
 		press DUNGEON, xForest
 	end_node
+
+	node xFieldsNode, "Fields", 1, 2
+		down MOVE, xForestNode
+	end_node
+
+SECTION "World Map", ROMX
+xWorldMap:
+.tiles INCBIN "res/crater.2bpp"
+.map INCBIN "res/crater.map"
 
 SECTION "Map State Init", ROM0
 InitMap::
 	ldh a, [hCurrentBank]
 	push af
+
+	ld a, BANK(xWorldMap)
+	rst SwapBank
+	ld hl, xWorldMap.tiles
+	ld de, $9000
+	ld bc, xWorldMap.map - xWorldMap.tiles
+	call VRAMCopy
+
+	lb bc, SCRN_X_B, SCRN_Y_B
+	ld de, $9800
+	ld hl, xWorldMap.map
+	call MapRegion
+
 	ld hl, wActiveMapNode
 	ld de, wEntity0_SpriteY
 	ld a, [hli]
@@ -104,8 +138,6 @@ InitMap::
 	inc e
 	ld a, [hl]
 	ld [de], a
-	pop af
-	rst SwapBank
 
 	ld a, 20
 	ld [wFadeSteps], a
@@ -118,27 +150,17 @@ InitMap::
 	xor a, a
 	ld [hli], a
 	ld [hli], a
+	ldh [hShadowSCX], a
+	ldh [hShadowSCY], a
 
 	ld a, GAMESTATE_MAP
 	ld [wGameState], a
-	ret
+	jp BankReturn
 
 SECTION "Map State", ROM0
 MapState::
-	call UpdateMapNode
-
-	ld hl, wActiveMapNode
-	ld a, [hli]
-	rst SwapBank
-	ld a, [hli]
-	ld h, [hl]
-	add a, MapNode_X
-	ld l, a
-	adc a, h
-	sub a, l
-	ld h, a
-
 	call MapMovement
+	call c, UpdateMapNode
 	; The player and partner entities are always accessible, as entities are not
 	; within the state union. This means the entity struct and entity renderer
 	; can be reused for the map and town states.
@@ -150,6 +172,7 @@ MapState::
 	ret
 
 SECTION "Map Movement", ROM0
+; @return carry: Set if not moving
 MapMovement:
 	FOR Y, 2
 		IF Y
@@ -217,6 +240,7 @@ MapMovement:
 		inc e
 		ld a, h
 		ld [de], a
+		xor a, a
 		ret
 	ENDR
 .noMovement
@@ -224,6 +248,7 @@ MapMovement:
 	ld [wEntity0_Direction], a
 	ld a, ENTITY_FRAME_IDLE
 	ld [wEntity0_Frame], a
+	scf
 	ret
 
 SECTION "Update Map Node", ROM0
@@ -263,10 +288,13 @@ UpdateMapNode:
 	ASSERT MAP_NODE_MOVE == 1
 	dec a
 	jr z, MapNodeMove
-	ASSERT MAP_NODE_DUNGEON == 2
+	ASSERT MAP_NODE_LOCK == 2
+	dec a
+	jr z, MapNodeLock
+	ASSERT MAP_NODE_DUNGEON == 3
 	dec a
 	jr z, MapNodeDungeon
-	ASSERT MAP_NODE_TOWN == 3
+	ASSERT MAP_NODE_TOWN == 4
 	jr MapNodeTown
 
 MapNodeMove:
@@ -274,6 +302,23 @@ MapNodeMove:
 	ld a, [hli]
 	ld [de], a
 	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	ret
+
+MapNodeLock:
+	ld a, [hli]
+	push hl
+	ld c, a
+	call GetFlag
+	and a, [hl]
+	pop hl
+	ret z
+	; We skip bank for lock, since it's redundant anyways and used for the flag ID
+	ld de, wActiveMapNode + 1
 	ld a, [hli]
 	ld [de], a
 	inc de

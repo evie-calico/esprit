@@ -102,6 +102,9 @@ Initialize::
 	ld c, 3 * 3 * 8
 	ld hl, wOBJPaletteBuffer
 	rst MemSetSmall
+	ld c, 256 / 8
+	ld hl, wFlags
+	rst MemSetSmall
 
 	ld a, $FF
 	ld [wTextSrcPtr + 1], a
