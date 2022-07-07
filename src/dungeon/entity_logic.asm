@@ -240,7 +240,19 @@ POPS
 	cp a, PADF_SELECT
 	jr nz, :+
 	; DEBUG: switch to map state.
-	jp InitMap
+	ld a, 20
+	ld [wFadeSteps], a
+	ld a, $80
+	ld [wFadeAmount], a
+	ld a, 4
+	ld [wFadeDelta], a
+
+	ld hl, wFadeCallback
+	ld a, LOW(InitMap)
+	ld [hli], a
+	ld [hl], HIGH(InitMap)
+	ret
+
 	; End the player's turn.
 	ld a, 1
 	ld [wActiveEntity], a

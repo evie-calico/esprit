@@ -198,6 +198,45 @@ xRenderEntities::
 	cp a, c
 	jr c, .next
 :
+	call xRenderEntity.customArgs
+.next
+	inc h
+	ld a, h
+	cp a, HIGH(wEntity0) + NB_ENTITIES
+	jp nz, .loop
+	; Store final OAM index.
+	ld a, e
+	ldh [hOAMIndex], a
+	ret
+
+; @param h: Entity pointer high byte
+xRenderEntity::
+	ld l, LOW(wEntity0_SpriteY)
+	ld a, [hli]
+	ld b, [hl]
+	REPT 4
+		rr b
+		rra
+	ENDR
+	add a, 16
+	ldh [hRenderTempByte], a
+	inc l
+	ld a, [hli]
+	ld b, [hl]
+	REPT 4
+		rr b
+		rra
+	ENDR
+	add a, 8
+	ld b, a
+	ldh a, [hOAMIndex]
+	ld e, a
+	ld d, HIGH(wShadowOAM)
+; @param b: X
+; @param de: OAM pointer
+; @param h: Entity pointer high byte
+; @param hRenderTempByte: Y
+.customArgs
 	FOR I, 2
 		; The following is an unrolled loop which writes both halves of the sprite.
 		ldh a, [hRenderTempByte]
@@ -245,14 +284,6 @@ xRenderEntities::
 		ld [de], a
 		inc e
 	ENDR
-.next
-	inc h
-	ld a, h
-	cp a, HIGH(wEntity0) + NB_ENTITIES
-	jp nz, .loop
-	; Store final OAM index.
-	ld a, e
-	ldh [hOAMIndex], a
 	ret
 
 SECTION "Update animation", ROMX
@@ -558,4 +589,4 @@ wEntityAnimation::
 .timer db
 
 SECTION "Render Temp", HRAM
-hRenderTempByte: db
+hRenderTempByte:: db
