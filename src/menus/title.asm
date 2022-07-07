@@ -90,6 +90,14 @@ xTitleScreenClose:
 	ld a, HIGH(xForest)
 	ld [hli], a
 
+	ld hl, wActiveMapNode
+	ld a, BANK(xCenterNode)
+	ld [hli], a
+	ld a, LOW(xCenterNode)
+	ld [hli], a
+	ld a, HIGH(xCenterNode)
+	ld [hli], a
+
 	ld hl, wFadeCallback
 	ld a, LOW(InitDungeon)
 	ld [hli], a

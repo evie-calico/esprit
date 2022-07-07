@@ -71,27 +71,41 @@ ENDM
 		left MOVE, xLeftNode
 		press DUNGEON, xForest
 	end_node
+	EXPORT xCenterNode
 
 	node xLeftNode, "", 0, 1
 		right MOVE, xCenterNode
+		press DUNGEON, xForest
 	end_node
 
 SECTION "Map State Init", ROM0
 InitMap::
+	ldh a, [hCurrentBank]
+	push af
 	ld hl, wActiveMapNode
-	ld a, BANK(xCenterNode)
-	ld [hli], a
-	ld a, LOW(xCenterNode)
-	ld [hli], a
-	ld a, HIGH(xCenterNode)
-	ld [hli], a
-
+	ld de, wEntity0_SpriteY
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	add a, MapNode_Y
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
 	xor a, a
-	ld hl, wEntity0_SpriteY
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
+	ld [de], a
+	inc e
+	ld a, [hld]
+	ld [de], a
+	inc e
+	xor a, a
+	ld [de], a
+	inc e
+	ld a, [hl]
+	ld [de], a
+	pop af
+	rst SwapBank
 
 	ld a, 20
 	ld [wFadeSteps], a
