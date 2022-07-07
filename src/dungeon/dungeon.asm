@@ -436,6 +436,36 @@ OpenPauseMenu::
 	ld [wSTATTarget + 1], a
 	ret
 
+SECTION "Dungeon complete!", ROM0
+DungeonComplete::
+	ld hl, wActiveDungeon
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	add a, Dungeon_CompletionFlag
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld c, [hl]
+	call GetFlag
+	or a, [hl]
+	ld [hl], a
+
+	ld a, 20
+	ld [wFadeSteps], a
+	ld a, $80
+	ld [wFadeAmount], a
+	ld a, 4
+	ld [wFadeDelta], a
+
+	ld hl, wFadeCallback
+	ld a, LOW(InitMap)
+	ld [hli], a
+	ld [hl], HIGH(InitMap)
+	ret
+
 SECTION "Get Item", ROM0
 ; Get a dungeon item given an index in b
 ; @param b: Item ID

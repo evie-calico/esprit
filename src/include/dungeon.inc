@@ -52,6 +52,7 @@ DEF WINDOW_TURNING RB 1
 		bytes 1, FloorCount
 		bytes 1, ItemsPerFloor
 		bytes sizeof_SpawnEntityInfo * DUNGEON_ENTITY_COUNT, Entities
+		bytes 1, CompletionFlag
 	end_struct
 
 ENDC

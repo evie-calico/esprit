@@ -1,27 +1,36 @@
 INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 
-; name, tileset, type, floors,
+; name, tileset, type, floors, completion flag
 ; item0, item1, item2, item3, items per floor,
 ; (entity ptr, entity level) * DUNGEON_ENTITY_COUNT
 MACRO dungeon
-	SECTION "\1 Dungeon", ROMX
-	x\1:: dw .tileset, .palette
-	farptr \5
-	farptr \6
-	farptr \7
-	farptr \8
-	db DUNGEON_TYPE_\3, (\4) + 1, (\9)
-	DEF DUNGEON_TILESET EQUS "\2"
-	SHIFT 7
+	REDEF NAME EQUS "\1"
+	REDEF TILESET EQUS "\2"
+	REDEF TYPE EQUS "\3"
+	REDEF FLOORS EQUS "\4"
+	REDEF FLAG EQUS "\5"
+	SECTION "{NAME} Dungeon", ROMX
+	x{NAME}:: dw .tileset, .palette
+
+	SHIFT 5
+	farptr \1
+	farptr \2
+	farptr \3
+	farptr \4
+	db DUNGEON_TYPE_{TYPE}, (FLOORS) + 1, (\5)
+
+	SHIFT 5 - 2
 	REPT DUNGEON_ENTITY_COUNT
 		SHIFT 2
 		db \2
 		farptr \1
 	ENDR
-	ASSERT sizeof_Dungeon == 51
-	.tileset INCBIN {DUNGEON_TILESET}
-	PURGE DUNGEON_TILESET
+
+	db FLAG_{FLAG}
+
+	ASSERT sizeof_Dungeon == 52
+	.tileset INCBIN {TILESET}
 ENDM
 
 MACRO dungeon_palette
@@ -40,7 +49,7 @@ MACRO dungeon_palette
 	ENDR
 ENDM
 
-	dungeon Forest, "res/tree_tiles.2bpp", HALLS, 5, \
+	dungeon Forest, "res/tree_tiles.2bpp", HALLS, 5, FOREST_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xRat, 1, \
 	        xRat, 1, \
