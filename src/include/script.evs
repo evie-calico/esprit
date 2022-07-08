@@ -1,0 +1,10 @@
+env script {
+	use std;
+	def memset(const ptr, const u8, const u16);
+	def rand(u8);
+	def map_put_tile(u8, u8, const u8);
+	def map_get_tile(u8, u8, u8);
+	def step_direction(u8, u8, u8);
+	def draw_sprite(u8); // This "u8" should really be a struct.
+	pool = 16;
+}

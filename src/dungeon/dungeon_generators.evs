@@ -1,17 +1,9 @@
-env script {
-	use std;
-	def memset(const ptr, const u8, const u16);
-	def rand(u8);
-	def map_put_tile(u8, u8, const u8);
-	def map_get_tile(u8, u8, u8);
-	def step_direction(u8, u8, u8);
-	pool = 16;
-}
-
 asm "
 INCLUDE \"defines.inc\"
 INCLUDE \"dungeon.inc\"
 "
+
+include "../include/script.evs";
 
 script xGenerateScraper {
 	u8 x = 32;

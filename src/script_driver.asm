@@ -86,6 +86,8 @@ EVScriptBytecodeTable:
 	dw ScriptMapPutTile
 	dw ScriptMapGetTile
 	dw ScriptMapStepDir
+	; Sprite drawing
+	dw ScriptDrawSprite
 
 SECTION "EVScript Return", ROM0
 StdReturn:
@@ -719,5 +721,27 @@ ScriptMapStepDir:
 		ld a, [bc]
 		add a, [hl]
 		ld [hl], a
+	pop hl
+	ret
+
+SECTION "EVScript ScriptDrawSprite", ROM0
+ScriptDrawSprite:
+	; TODO: this would be a good application for structs in evscript.
+	; We know these 4 variables are always going to exist in a group, so we
+	; *should* load them as such. It would be faster and save space.
+	ld a, [hli]
+	push hl
+		ld l, a
+		ld h, 0
+		add hl, de
+		ld a, [hli]
+		ld c, a
+		ld a, [hli]
+		ld b, a
+		ld a, [hli]
+		ld d, a
+		ld a, [hli]
+		ld e, a
+		call RenderSimpleSprite
 	pop hl
 	ret

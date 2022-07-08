@@ -204,9 +204,6 @@ xRenderEntities::
 	ld a, h
 	cp a, HIGH(wEntity0) + NB_ENTITIES
 	jp nz, .loop
-	; Store final OAM index.
-	ld a, e
-	ldh [hOAMIndex], a
 	ret
 
 ; @param h: Entity pointer high byte
@@ -284,6 +281,9 @@ xRenderEntity::
 		ld [de], a
 		inc e
 	ENDR
+	; Store final OAM index.
+	ld a, e
+	ldh [hOAMIndex], a
 	ret
 
 SECTION "Update animation", ROMX

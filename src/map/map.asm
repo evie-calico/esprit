@@ -73,6 +73,10 @@ MACRO end_node
 		db _NODE_X, _NODE_Y, "{_NODE_NAME}", 0
 ENDM
 
+DEF NB_DROPLETS EQU 16
+DEF NB_DUCKS EQU 1
+DEF NB_EFFECTS EQU NB_DROPLETS + NB_DUCKS
+
 SECTION "World map nodes", ROMX
 	node xBeginningHouse, "----'s House", 76, 88
 		left MOVE, xVillageNode
@@ -98,6 +102,8 @@ SECTION "World Map", ROMX
 xWorldMap:
 .tiles INCBIN "res/crater.2bpp"
 .map INCBIN "res/crater.map"
+.droplet INCBIN "res/droplet.2bpp"
+.duck INCBIN "res/duck.2bpp"
 
 SECTION "Map State Init", ROM0
 InitMap::
@@ -106,6 +112,7 @@ InitMap::
 
 	ld a, BANK(xWorldMap)
 	rst SwapBank
+
 	ld hl, xWorldMap.tiles
 	ld de, $8800
 	ld bc, xWorldMap.map - xWorldMap.tiles
@@ -115,6 +122,43 @@ InitMap::
 	ld de, $9800
 	ld hl, xWorldMap.map
 	call MapRegion
+
+	ld hl, xWorldMap.droplet
+	ld de, $8000 + $7E * 16
+	ld c, 16
+	call VRAMCopySmall
+	lb bc, 0, 16
+	ld h, d
+	ld l, e
+	call VRAMSetSmall
+
+	ld hl, xWorldMap.duck
+	ld de, $8000 + $7C * 16
+	ld c, 16
+	call VRAMCopySmall
+	lb bc, 0, 16
+	ld h, d
+	ld l, e
+	call VRAMSetSmall
+
+	FOR I, NB_DROPLETS
+		ld hl, wEffects + 19 * I
+		ld a, BANK(xDropletEffect)
+		ld [hli], a
+		ld a, LOW(xDropletEffect)
+		ld [hli], a
+		ld a, HIGH(xDropletEffect)
+		ld [hli], a
+	ENDR
+
+	ld hl, wEffects + 19 * NB_DROPLETS
+	ld a, BANK(xDuckEffect)
+	ld [hli], a
+	ld a, LOW(xDuckEffect)
+	ld [hli], a
+	ld a, HIGH(xDuckEffect)
+	ld [hli], a
+
 
 	call InitUI
 
@@ -172,14 +216,36 @@ SECTION "Map State", ROM0
 MapState::
 	call MapMovement
 	call c, UpdateMapNode
+
 	; The player and partner entities are always accessible, as entities are not
 	; within the state union. This means the entity struct and entity renderer
 	; can be reused for the map and town states.
 	call UpdateEntityGraphics
+
 	ld a, BANK(xRenderEntity)
 	rst SwapBank
 	ld h, HIGH(wEntity0)
 	call xRenderEntity
+
+	FOR I, NB_EFFECTS
+		ld de, wEffects + 19 * I
+		ld a, [de]
+		inc de
+		rst SwapBank
+		ld a, [de]
+		inc de
+		ld l, a
+		ld a, [de]
+		inc de
+		ld h, a
+		call ExecuteScript
+		dec de
+		ld a, h
+		ld [de], a
+		dec de
+		ld a, l
+		ld [de], a
+	ENDR
 	ret
 
 SECTION "Map Movement", ROM0
@@ -377,3 +443,6 @@ MapNodeTown:
 
 SECTION "map globals", WRAM0
 wActiveMapNode:: ds 3
+
+SECTION UNION "State variables", WRAM0
+wEffects: ds (3 + 16) * NB_EFFECTS

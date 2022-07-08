@@ -1,0 +1,126 @@
+include "../include/script.evs";
+
+script xDropletEffect {
+	u8 x = 58; u8 y = 24; u8 id = 126; u8 attr = 1;
+
+	loop {
+		u8 offset;
+		rand(offset);
+		offset &= 127;
+		while offset != 0 {
+			offset -= 1;
+			yield;
+		}
+
+		x = 59;
+		rand(offset);
+		offset &= 1;
+		x += offset;
+		y = 24;
+
+		draw_sprite(x);
+		yield;
+		yield;
+
+		x = 60;
+		rand(offset);
+		offset &= 1;
+		x += offset;
+
+		repeat 8 {
+			y += 1;
+			draw_sprite(x);
+			yield;
+			yield;
+		}
+
+		x = 59;
+		rand(offset);
+		offset &= 1;
+		x += offset;
+
+		repeat 4 {
+			y += 1;
+			draw_sprite(x);
+			yield;
+			yield;
+		}
+
+		x = 58;
+		rand(offset);
+		offset &= 1;
+		x += offset;
+
+		repeat 2 {
+			y += 1;
+			draw_sprite(x);
+			yield;
+			yield;
+		}
+
+		x = 57;
+		rand(offset);
+		offset &= 1;
+		x += offset;
+
+		repeat 4 {
+			y += 1;
+			draw_sprite(x);
+			yield;
+			yield;
+		}
+
+		repeat 4 {
+			y += 1;
+			draw_sprite(x);
+			yield;
+			yield;
+			yield;
+		}
+
+		repeat 4 {
+			y += 1;
+			draw_sprite(x);
+			yield;
+			yield;
+			yield;
+			yield;
+		}
+	}
+}
+
+script xDuckEffect {
+	u8 x = 46; u8 y = 60; u8 id = 124; u8 attr;
+
+	loop {
+		attr = 2;
+
+		repeat 4 {
+			repeat 4 {
+				x += 1;
+				repeat 20 {
+					draw_sprite(x);
+					yield;	
+				}
+			}
+			y += 1;
+		}
+
+		repeat 255 { draw_sprite(x); yield; }
+
+		attr = 34;
+
+		repeat 4 {
+			repeat 4 {
+				x -= 1;
+				repeat 20 {
+					draw_sprite(x);
+					yield;	
+				}
+			}
+			y -= 1;
+		}
+
+		repeat 255 { draw_sprite(x); yield; }
+	}
+}

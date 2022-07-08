@@ -113,6 +113,11 @@ res/%.2bpp: res/%.png
 	@mkdir -p $(@D)
 	rgbgfx $(GFXFLAGS) -o $@ $<
 
+# Convert .png files into .pal files.
+res/%.pal: res/%.png
+	@mkdir -p $(@D)
+	rgbgfx $(GFXFLAGS) -p $@ $<
+
 # Convert .png files into .1bpp files.
 res/%.1bpp: res/%.png
 	@mkdir -p $(@D)
