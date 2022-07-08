@@ -74,23 +74,23 @@ MACRO end_node
 ENDM
 
 SECTION "World map nodes", ROMX
-	node xBeginningHouse, "----'s House", 5, 6
+	node xBeginningHouse, "----'s House", 76, 88
 		left MOVE, xVillageNode
 	end_node
 	EXPORT xBeginningHouse
 
-	node xVillageNode, "The Village", 3, 6
+	node xVillageNode, "Crater Village", 48, 88
 		left MOVE, xForestNode
 		right MOVE, xBeginningHouse
 	end_node
 
-	node xForestNode, "Forest", 1, 6
+	node xForestNode, "Crater Forest", 12, 88
 		right MOVE, xVillageNode
 		up LOCK, xFieldsNode, FOREST_COMPLETE
 		press DUNGEON, xForest
 	end_node
 
-	node xFieldsNode, "Fields", 1, 2
+	node xFieldsNode, "Crater Fields", 12, 32
 		down MOVE, xForestNode
 	end_node
 
@@ -116,30 +116,37 @@ InitMap::
 	ld hl, xWorldMap.map
 	call MapRegion
 
+	call InitUI
+
 	ld hl, wActiveMapNode
-	ld de, wEntity0_SpriteY
+	ld de, wEntity0_SpriteX + 1
 	ld a, [hli]
 	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
-	add a, MapNode_Y
+	add a, MapNode_X
 	ld l, a
 	adc a, h
 	sub a, l
 	ld h, a
+	ld a, [hli]
+	ld [de], a
+	dec e
 	xor a, a
 	ld [de], a
-	inc e
-	ld a, [hld]
+	dec e
+	ASSERT Entity_SpriteX - 2 == Entity_SpriteY
+	ASSERT MapNode_X + 1 == MapNode_Y
+	ld a, [hli]
 	ld [de], a
-	inc e
+	dec e
 	xor a, a
 	ld [de], a
-	inc e
-	ld a, [hl]
-	ld [de], a
-
-	call InitUI
+	ASSERT MapNode_Y + 1 == MapNode_Name
+	ldh a, [hCurrentBank]
+	ld b, a
+	call PrintHUD
+	call DrawPrintString
 
 	ld a, 20
 	ld [wFadeSteps], a
@@ -197,10 +204,14 @@ MapMovement:
 		ld b, a
 		ld de, wEntity0_SpriteX - Y * 2
 		ld a, [de]
+		ld c, a
 		inc e
-		and a, a
-		jr nz, :+
 		ld a, [de]
+		REPT 4
+			rra
+			rr c
+		ENDR
+		ld a, c
 		cp a, b
 		IF Y
 			; If Y matches, set the player to face foward and stand still.
@@ -210,7 +221,7 @@ MapMovement:
 			jr z, .yCheck
 		ENDC
 	:
-		ld a, [de]
+		ld a, c
 		cp a, b
 		; If they do not match, animate the player. This does NOT clobber flags!
 		ld a, ENTITY_FRAME_STEP
@@ -257,6 +268,10 @@ MapMovement:
 
 SECTION "Update Map Node", ROM0
 UpdateMapNode:
+	ld a, [wPrintString]
+	and a, a
+	call nz, DrawPrintString
+
 	ld hl, wActiveMapNode
 	ld a, [hli]
 	rst SwapBank
@@ -302,16 +317,25 @@ UpdateMapNode:
 	jr MapNodeTown
 
 MapNodeMove:
-	ld de, wActiveMapNode
+	inc hl
+.noInc
+	ld de, wActiveMapNode + 1
 	ld a, [hli]
 	ld [de], a
+	ld c, a
 	inc de
 	ld a, [hli]
 	ld [de], a
-	inc de
-	ld a, [hli]
-	ld [de], a
-	ret
+	ld b, a
+	ld a, c
+	add a, MapNode_Name
+	ld l, a
+	adc a, b
+	sub a, l
+	ld h, a
+	ldh a, [hCurrentBank]
+	ld b, a
+	jp PrintHUD
 
 MapNodeLock:
 	ld a, [hli]
@@ -321,14 +345,7 @@ MapNodeLock:
 	and a, [hl]
 	pop hl
 	ret z
-	; We skip bank for lock, since it's redundant anyways and used for the flag ID
-	ld de, wActiveMapNode + 1
-	ld a, [hli]
-	ld [de], a
-	inc de
-	ld a, [hli]
-	ld [de], a
-	ret
+	jr MapNodeMove.noInc
 
 MapNodeDungeon:
 	ld de, wActiveDungeon
