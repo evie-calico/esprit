@@ -608,6 +608,47 @@ ShowTextBox:
 	ld [wSTATTarget + 1], a
 	ret
 
+SECTION "Show only text box", ROM0
+ShowOnlyTextBox::
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, ShowOnlyTextBox
+	; Set view
+	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_BG9C00 | LCDCF_OBJ16
+	ldh [rLCDC], a
+	xor a, a
+	ldh [rSCX], a
+	ld a, 256 - 144
+	ldh [rSCY], a
+	ld a, 145 ; A value over 144 means this will occur after the VBlank handler.
+	ldh [rLYC], a
+	ld a, LOW(ResetView)
+	ld [wSTATTarget], a
+	ld a, HIGH(ResetView)
+	ld [wSTATTarget + 1], a
+	ret
+
+SECTION "Reset view", ROM0
+ResetView:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, ResetView
+	; Reset view
+	ldh a, [hShadowSCX]
+	ldh [rSCX], a
+	ldh a, [hShadowSCY]
+	ldh [rSCY], a
+	ldh a, [hShadowLCDC]
+	ldh [rLCDC], a
+	; Prepare for next scanline effect
+	ld a, 144 - 32 - 1
+	ldh [rLYC], a
+	ld a, LOW(ShowOnlyTextBox)
+	ld [wSTATTarget], a
+	ld a, HIGH(ShowOnlyTextBox)
+	ld [wSTATTarget + 1], a
+	ret
+
 SECTION "Show Moves", WRAM0
 wWindowMode:: db
 .last db

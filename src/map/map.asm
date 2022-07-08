@@ -107,7 +107,7 @@ InitMap::
 	ld a, BANK(xWorldMap)
 	rst SwapBank
 	ld hl, xWorldMap.tiles
-	ld de, $9000
+	ld de, $8800
 	ld bc, xWorldMap.map - xWorldMap.tiles
 	call VRAMCopy
 
@@ -139,6 +139,8 @@ InitMap::
 	ld a, [hl]
 	ld [de], a
 
+	call InitUI
+
 	ld a, 20
 	ld [wFadeSteps], a
 	ld a, $80 + 20 * 4
@@ -147,9 +149,11 @@ InitMap::
 	ld [wFadeDelta], a
 
 	ld hl, wSTATTarget
+	ld a, LOW(ShowOnlyTextBox)
+	ld [hli], a
+	ld a, HIGH(ShowOnlyTextBox)
+	ld [hli], a
 	xor a, a
-	ld [hli], a
-	ld [hli], a
 	ldh [hShadowSCX], a
 	ldh [hShadowSCY], a
 

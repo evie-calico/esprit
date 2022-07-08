@@ -103,6 +103,11 @@ endif
 # "Source" assets can thus be safely stored there without `make clean` removing them
 VPATH := src
 
+# Convert .png files using custom atfile arguments
+res/%.2bpp res/%.map: res/%.arg res/%.png
+	@mkdir -p $(@D)
+	rgbgfx $(GFXFLAGS) @$^
+
 # Convert .png files into .2bpp files.
 res/%.2bpp: res/%.png
 	@mkdir -p $(@D)

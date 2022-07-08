@@ -1,0 +1,4 @@
+-b 0x80
+-t res/crater.map
+-o res/crater.2bpp
+-u
