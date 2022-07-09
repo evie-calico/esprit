@@ -491,9 +491,9 @@ xCheckForLevelUp::
 	ld [wLevelUpText.level], a
 	push bc
 		call UpdateMoves
+		ld a, c
 	pop bc
 
-	ld a, c
 	and a, a
 	jr z, .noNewMoves
 	dec e
@@ -526,7 +526,9 @@ xCheckForLevelUp::
 	ld [wLevelUpText.newMove], a
 	ld b, BANK(xLeveledUpText)
 	ld hl, xLeveledUpText
-	jp PrintHUD
+	call PrintHUD
+	ld a, SFX_COMPLETE
+	jp audio_play_fx
 
 SECTION "Check for new moves", ROM0
 ; @param h: Entity high byte
@@ -565,6 +567,8 @@ UpdateMoves::
 	jp z, BankReturn
 	cp a, b
 	jp nc, BankReturn
+	inc a
+	cp a, b
 	jr nz, :+
 	ld c, 1
 :

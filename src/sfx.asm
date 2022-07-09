@@ -52,6 +52,7 @@ MACRO sound
     db \3, \4
     dw \1
     DEF \2 RB 1
+    EXPORT \2
 ENDM
 
 SECTION "Sound Effects", ROMX, ALIGN[4]
