@@ -95,6 +95,7 @@ SECTION "World map nodes", ROMX
 	end_node
 
 	node xFieldsNode, "Crater Fields", 12, 32
+		press DUNGEON, xField
 		down MOVE, xForestNode
 		up LOCK, xRemoteHouse, FIELDS_COMPLETE
 		right LOCK, xLakeNode, FIELDS_COMPLETE

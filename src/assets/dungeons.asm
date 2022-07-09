@@ -35,9 +35,9 @@ ENDM
 
 MACRO dungeon_palette
 .palette
-	DEF BACKGROUND_RED EQU \1
-	DEF BACKGROUND_GREEN EQU \2
-	DEF BACKGROUND_BLUE EQU \3
+	REDEF BACKGROUND_RED EQU \1
+	REDEF BACKGROUND_GREEN EQU \2
+	REDEF BACKGROUND_BLUE EQU \3
 	REPT 3
 		rgb BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE
 		SHIFT 3
@@ -69,3 +69,24 @@ ENDM
 	                  0,   0, 255, \ ; Exit
 	                  0,   0, 128, \
 	                  0,   0,  64, \
+
+	dungeon Field, "res/field_tiles.2bpp", HALLS, 5, FOREST_COMPLETE, \
+	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
+	        xRat, 1, \
+	        xRat, 1, \
+	        xRat, 2, \
+	        xRat, 2, \
+	        xRat, 3, \
+	        xRat, 3, \
+	        xRat, 4, \
+	        xRat, 5
+	dungeon_palette 120, 192,  96, \ ; Blank
+	                 32, 120,   0, \ ; Ground
+	                 24,  64,  24, \
+	                  0,  32,   0, \
+	                 64, 120,   0, \ ; Wall
+	                  0,  64,   0, \
+	                  0,   8,   0, \
+	                 96,  80,   0, \ ; Exit
+	                 64,  48,   0, \
+	                 32,  24,   0, \
