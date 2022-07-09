@@ -17,6 +17,8 @@ DEF GAMESTATE_MAP RB
 
 RSRESET
 DEF FLAG_FOREST_COMPLETE RB
+DEF FLAG_FIELDS_COMPLETE RB
+DEF FLAG_LAKE_COMPLETE RB
 
 ; Call a function in a foreign bank. Preserves the current bank, but can only
 ; be used from ROM0

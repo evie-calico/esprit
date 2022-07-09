@@ -96,6 +96,16 @@ SECTION "World map nodes", ROMX
 
 	node xFieldsNode, "Crater Fields", 12, 32
 		down MOVE, xForestNode
+		up LOCK, xRemoteHouse, FIELDS_COMPLETE
+		right LOCK, xLakeNode, FIELDS_COMPLETE
+	end_node
+
+	node xRemoteHouse, "Remote house", 12, 16
+		down MOVE, xFieldsNode
+	end_node
+
+	node xLakeNode, "Crystal Lake", 45, 32
+		left MOVE, xFieldsNode
 	end_node
 
 SECTION "World Map", ROMX
