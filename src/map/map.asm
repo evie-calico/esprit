@@ -225,29 +225,42 @@ InitMap::
 	call InitUI
 
 	ld hl, wActiveMapNode
-	ld de, wEntity0_SpriteX + 1
+	ld de, wEntity0_SpriteY
 	ld a, [hli]
 	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
-	add a, MapNode_X
+	add a, MapNode_Y
 	ld l, a
 	adc a, h
 	sub a, l
 	ld h, a
-	ld a, [hli]
-	ld [de], a
-	dec e
 	xor a, a
+	ld b, a ; clear flags and set b
+	ld a, [hld]
+	REPT 4
+		rla
+		rl b
+	ENDR
 	ld [de], a
-	dec e
-	ASSERT Entity_SpriteX - 2 == Entity_SpriteY
-	ASSERT MapNode_X + 1 == MapNode_Y
-	ld a, [hli]
+	inc e
+	ld a, b
 	ld [de], a
-	dec e
+	inc e
+	ASSERT Entity_SpriteY + 2 == Entity_SpriteX
+	ASSERT MapNode_Y - 1 == MapNode_X
 	xor a, a
+	ld b, a ; clear flags and set b
+	ld a, [hli]
+	REPT 4
+		rla
+		rl b
+	ENDR
 	ld [de], a
+	inc e
+	ld a, b
+	ld [de], a
+	inc l
 	ASSERT MapNode_Y + 1 == MapNode_Name
 	ldh a, [hCurrentBank]
 	ld b, a
