@@ -70,7 +70,7 @@ ENDM
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon Field, "res/field_tiles.2bpp", HALLS, 5, FOREST_COMPLETE, \
+	dungeon Field, "res/field_tiles.2bpp", HALLS, 5, FIELDS_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xRat, 1, \
 	        xRat, 1, \
