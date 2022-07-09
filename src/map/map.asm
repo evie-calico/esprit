@@ -100,10 +100,14 @@ SECTION "World map nodes", ROMX
 
 SECTION "World Map", ROMX
 xWorldMap:
-.tiles INCBIN "res/crater.2bpp"
-.map INCBIN "res/crater.map"
-.droplet INCBIN "res/droplet.2bpp"
-.duck INCBIN "res/duck.2bpp"
+.tiles INCBIN "res/worldmap/crater.2bpp"
+.map INCBIN "res/worldmap/crater.map"
+.colors INCBIN "res/worldmap/crater.pal8"
+.colormap INCBIN "res/worldmap/crater.pmap"
+.dmgtiles INCBIN "res/worldmap/crater-dmg.2bpp"
+.dmgmap INCBIN "res/worldmap/crater-dmg.map"
+.droplet INCBIN "res/worldmap/droplet.2bpp"
+.duck INCBIN "res/worldmap/duck.2bpp"
 
 SECTION "Map State Init", ROM0
 InitMap::
@@ -112,6 +116,24 @@ InitMap::
 
 	ld a, BANK(xWorldMap)
 	rst SwapBank
+
+	ldh a, [hSystem]
+	and a, a
+	jr z, .dmg
+.cgb
+	ld de, wBGPaletteBuffer
+	ld hl, xWorldMap.colors
+	ld c, 7 * 3 * 4
+	call MemCopySmall
+
+	ld a, 1
+	ldh [rVBK], a
+	lb bc, SCRN_X_B, SCRN_Y_B
+	ld de, $9800
+	ld hl, xWorldMap.colormap
+	call MapRegion
+	xor a, a
+	ldh [rVBK], a
 
 	ld hl, xWorldMap.tiles
 	ld de, $8800
@@ -122,6 +144,20 @@ InitMap::
 	ld de, $9800
 	ld hl, xWorldMap.map
 	call MapRegion
+	jr .noDmg
+
+.dmg
+	ld hl, xWorldMap.dmgtiles
+	ld de, $8800
+	ld bc, xWorldMap.map - xWorldMap.tiles
+	call VRAMCopy
+
+	lb bc, SCRN_X_B, SCRN_Y_B
+	ld de, $9800
+	ld hl, xWorldMap.dmgmap
+	call MapRegion
+
+.noDmg
 
 	ld hl, xWorldMap.droplet
 	ld de, $8000 + $7E * 16
@@ -141,15 +177,23 @@ InitMap::
 	ld l, e
 	call VRAMSetSmall
 
-	FOR I, NB_DROPLETS
-		ld hl, wEffects + 19 * I
-		ld a, BANK(xDropletEffect)
-		ld [hli], a
-		ld a, LOW(xDropletEffect)
-		ld [hli], a
-		ld a, HIGH(xDropletEffect)
-		ld [hli], a
-	ENDR
+	ld b, NB_DROPLETS
+	ld hl, wEffects
+.initDroplets
+	ld a, BANK(xDropletEffect)
+	ld [hli], a
+	ld a, LOW(xDropletEffect)
+	ld [hli], a
+	ld a, HIGH(xDropletEffect)
+	ld [hli], a
+	ld a, l
+	add a, 16
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	dec b
+	jr nz, .initDroplets
 
 	ld hl, wEffects + 19 * NB_DROPLETS
 	ld a, BANK(xDuckEffect)
@@ -214,9 +258,6 @@ InitMap::
 
 SECTION "Map State", ROM0
 MapState::
-	call MapMovement
-	call c, UpdateMapNode
-
 	; The player and partner entities are always accessible, as entities are not
 	; within the state union. This means the entity struct and entity renderer
 	; can be reused for the map and town states.
@@ -227,25 +268,39 @@ MapState::
 	ld h, HIGH(wEntity0)
 	call xRenderEntity
 
-	FOR I, NB_EFFECTS
-		ld de, wEffects + 19 * I
-		ld a, [de]
-		inc de
-		rst SwapBank
-		ld a, [de]
-		inc de
-		ld l, a
-		ld a, [de]
-		inc de
-		ld h, a
-		call ExecuteScript
-		dec de
-		ld a, h
-		ld [de], a
-		dec de
-		ld a, l
-		ld [de], a
-	ENDR
+	ld de, wEffects
+	ld a, NB_EFFECTS
+.runEffects
+	push af
+	ld a, [de]
+	inc de
+	rst SwapBank
+	ld a, [de]
+	inc de
+	ld l, a
+	ld a, [de]
+	inc de
+	ld h, a
+	call ExecuteScript
+	dec de
+	ld a, h
+	ld [de], a
+	dec de
+	ld a, l
+	ld [de], a
+	ld a, e
+	add a, 18
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+	pop af
+	dec a
+	jr nz, .runEffects
+
+	call MapMovement
+	call c, UpdateMapNode
+
 	ret
 
 SECTION "Map Movement", ROM0

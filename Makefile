@@ -5,6 +5,7 @@ MAKEFLAGS += -sj
 ROM = bin/vuiiger.gb
 MOD2GBT = tools/bin/mod2gbt
 MAKEFONT = tools/bin/makefont
+PALCONV = tools/bin/palconv
 
 # 0x1B is MBC5 with RAM + Battery
 MBC := 0x1B
@@ -106,7 +107,7 @@ VPATH := src
 # Convert .png files using custom atfile arguments
 res/%.2bpp res/%.map: res/%.arg res/%.png
 	@mkdir -p $(@D)
-	rgbgfx $(GFXFLAGS) @$^
+	rgbgfx @$^
 
 # Convert .png files into .2bpp files.
 res/%.2bpp: res/%.png
@@ -140,11 +141,16 @@ res/%.1bpp: res/%.h.png
 
 res/%.vwf: res/%.png $(MAKEFONT)
 	@mkdir -p $(@D)
-	./tools/bin/makefont $< $@
+	$(MAKEFONT) $< $@
 
 res/%.asm: res/%.mod $(MOD2GBT)
 	@mkdir -p $(@D)
-	./tools/bin/mod2gbt $< $@ $(patsubst res/music/%.asm, %, $@)
+	$(MOD2GBT) $< $@ $(patsubst res/music/%.asm, %, $@)
+
+# Adjust .pal files to rgb888 instead of rgb555.
+res/%.pal8: res/%.pal $(PALCONV)
+	@mkdir -p $(@D)
+	$(PALCONV) $@ $<
 
 ################################################
 #                                              #
@@ -157,6 +163,10 @@ $(MAKEFONT): tools/makefont.c tools/libplum.c
 	$(CC) -o $@ $^
 
 $(MOD2GBT): tools/mod2gbt.c
+	@mkdir -p $(@D)
+	$(CC) -o $@ $<
+
+$(PALCONV): tools/palconv.c
 	@mkdir -p $(@D)
 	$(CC) -o $@ $<
 
