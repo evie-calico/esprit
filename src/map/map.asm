@@ -106,8 +106,10 @@ xWorldMap:
 .colormap INCBIN "res/worldmap/crater.pmap"
 .dmgtiles INCBIN "res/worldmap/crater-dmg.2bpp"
 .dmgmap INCBIN "res/worldmap/crater-dmg.map"
-.droplet INCBIN "res/worldmap/droplet.2bpp"
 .duck INCBIN "res/worldmap/duck.2bpp"
+.droplet INCBIN "res/worldmap/droplet.2bpp"
+.dropletPalette INCBIN "res/worldmap/droplet.pal8", 3
+.duckPalette INCBIN "res/worldmap/duck.pal8", 3
 
 SECTION "Map State Init", ROM0
 InitMap::
@@ -124,6 +126,11 @@ InitMap::
 	ld de, wBGPaletteBuffer
 	ld hl, xWorldMap.colors
 	ld c, 7 * 3 * 4
+	call MemCopySmall
+
+	ld de, wOBJPaletteBuffer + 3 * 3
+	ld hl, xWorldMap.dropletPalette
+	ld c, 3 * 3 * 2
 	call MemCopySmall
 
 	ld a, 1
