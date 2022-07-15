@@ -5,7 +5,7 @@ SECTION "Pickup Item", ROM0
 ; @param b: Item ID
 ; @return b: Item bank
 ; @return hl: Item pointer
-; @return z: true on success
+; @return z: reset on success
 ; @clobbers bank
 PickupItem::
 	call GetDungeonItem
