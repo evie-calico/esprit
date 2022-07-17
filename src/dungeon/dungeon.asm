@@ -82,12 +82,7 @@ SwitchToDungeonState::
 		call VRAMCopy
 	pop hl
 
-	ld a, 20
-	ld [wFadeSteps], a
-	ld a, $80 + 20 * 4
-	ld [wFadeAmount], a
-	ld a, -4
-	ld [wFadeDelta], a
+	call FadeIn
 
 	; Deref palette if on CGB
 	ldh a, [hSystem]
@@ -453,12 +448,7 @@ DungeonComplete::
 	or a, [hl]
 	ld [hl], a
 
-	ld a, 20
-	ld [wFadeSteps], a
-	ld a, $80
-	ld [wFadeAmount], a
-	ld a, 4
-	ld [wFadeDelta], a
+	call FadeToWhite
 
 	ld hl, wFadeCallback
 	ld a, LOW(InitMap)

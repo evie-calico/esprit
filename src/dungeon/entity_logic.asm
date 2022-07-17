@@ -126,12 +126,7 @@ StandingCheck:
 	ld [wBGPaletteMask], a
 	ld a, %11111111
 	ld [wOBJPaletteMask], a
-	ld a, 20
-	ld [wFadeSteps], a
-	ld a, $80
-	ld [wFadeAmount], a
-	ld a, 4
-	ld [wFadeDelta], a
+	call FadeToWhite
 
 	pop af ; super return
 	ld a, BANK(xPlayerLogic)
@@ -269,13 +264,7 @@ POPS
 		ld [wBGPaletteMask], a
 		ld a, %11111111
 		ld [wOBJPaletteMask], a
-		ld a, 20
-		ld [wFadeSteps], a
-		ld a, $80
-		ld [wFadeAmount], a
-		ld a, 4
-		ld [wFadeDelta], a
-		ret
+		jp FadeToWhite
 :
 	; if the player is able to move, and presses select, skip their turn.
 	; Read the joypad to see if the player is attempting to move.

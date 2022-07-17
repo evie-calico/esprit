@@ -61,12 +61,9 @@ xTitleScreenInit:
 	call PrintVWFChar
 	call DrawVWFChars
 
-	ld a, 20
-	ld [wFadeSteps], a
-	ld a, $80 + 20 * 4
-	ld [wFadeAmount], a
-	ld a, -4
-	ld [wFadeDelta], a
+	xor a, a
+	ld [wFadeDelta], a ; Initialize this value to fade in from white
+	call FadeIn
 	jp LoadPalettes
 
 xTitleScreenClose:
@@ -75,12 +72,7 @@ xTitleScreenClose:
 	ld [wBGPaletteMask], a
 	ld a, %11111111
 	ld [wOBJPaletteMask], a
-	ld a, 20
-	ld [wFadeSteps], a
-	ld a, $80
-	ld [wFadeAmount], a
-	ld a, 4
-	ld [wFadeDelta], a
+	call FadeToBlack
 
 	ld hl, wActiveDungeon
 	ld a, BANK(xForest)

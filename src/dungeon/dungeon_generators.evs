@@ -1,9 +1,6 @@
-asm "
-INCLUDE \"defines.inc\"
-INCLUDE \"dungeon.inc\"
-"
-
 include "../include/script.evs";
+include asm "defines.inc";
+include asm "dungeon.inc";
 
 script xGenerateScraper {
 	u8 x = 32;

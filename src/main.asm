@@ -60,6 +60,53 @@ Main::
 	dw DungeonState
 	dw ProcessMenus
 	dw MapState
+	dw SceneState
+
+FadeToWhite::
+	ld a, $20
+	ld [wFadeSteps], a
+	ld a, $80
+	ld [wFadeAmount], a
+	ld a, 4
+	ld [wFadeDelta], a
+	ret
+
+FadeToBlack::
+	ld a, $20
+	ld [wFadeSteps], a
+	ld a, $80
+	ld [wFadeAmount], a
+	ld a, -4
+	ld [wFadeDelta], a
+	ret
+
+FadeIn::
+	ld a, $1F
+	ld [wFadeSteps], a
+	ld a, [wFadeDelta]
+	bit 7, a
+	jr z, .down
+	ld a, 4
+	ld [wFadeDelta], a
+	ld a, $80 - $1F * 4
+	ld [wFadeAmount], a
+	ret
+
+.down
+	ld a, -4
+	ld [wFadeDelta], a
+	ld a, $80 + $1F * 4
+	ld [wFadeAmount], a
+	ret
+
+ReloadPalettes::
+	ld a, 1
+	ld [wFadeSteps], a
+	ld a, $80 + 1
+	ld [wFadeAmount], a
+	ld a, -1
+	ld [wFadeDelta], a
+	ret
 
 SECTION "Game State", WRAM0
 ; The current process to run within the main loop.

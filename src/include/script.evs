@@ -7,4 +7,5 @@ env script {
 	def step_direction(u8, u8, u8);
 	def draw_sprite(u8); // This "u8" should really be a struct.
 	pool = 16;
+	terminator = 0;
 }

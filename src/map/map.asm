@@ -19,7 +19,7 @@ DEF MAP_NODE_NONE RB 1    ; No action; the default
 DEF MAP_NODE_MOVE RB 1    ; Move to another node
 DEF MAP_NODE_LOCK RB 1    ; Move to another node if FLAG is set
 DEF MAP_NODE_DUNGEON RB 1 ; Enter a dungeon
-DEF MAP_NODE_TOWN RB 1    ; Enter a town
+DEF MAP_NODE_SCENE RB 1    ; Enter a town
 
 MACRO _node_dir
 	REDEF _NODE_\1_TYPE     EQU MAP_NODE_NONE
@@ -86,6 +86,7 @@ SECTION "World map nodes", ROMX
 	node xVillageNode, "Crater Village", 48, 88
 		left MOVE, xForestNode
 		right MOVE, xBeginningHouse
+		press SCENE, xDebugScene
 	end_node
 
 	node xForestNode, "Crater Forest", 12, 88
@@ -267,12 +268,7 @@ InitMap::
 	call PrintHUD
 	call DrawPrintString
 
-	ld a, 20
-	ld [wFadeSteps], a
-	ld a, $80 + 20 * 4
-	ld [wFadeAmount], a
-	ld a, -4
-	ld [wFadeDelta], a
+	call FadeIn
 
 	ld hl, wSTATTarget
 	ld a, LOW(ShowOnlyTextBox)
@@ -465,8 +461,8 @@ UpdateMapNode:
 	ASSERT MAP_NODE_DUNGEON == 3
 	dec a
 	jr z, MapNodeDungeon
-	ASSERT MAP_NODE_TOWN == 4
-	jr MapNodeTown
+	ASSERT MAP_NODE_SCENE == 4
+	jr MapNodeScene
 
 MapNodeMove:
 	inc hl
@@ -510,12 +506,7 @@ MapNodeDungeon:
 	ld a, [hli]
 	ld [de], a
 
-	ld a, 20
-	ld [wFadeSteps], a
-	ld a, $80
-	ld [wFadeAmount], a
-	ld a, 4
-	ld [wFadeDelta], a
+	call FadeToWhite
 
 	ld hl, wFadeCallback
 	ld a, LOW(InitDungeon)
@@ -524,7 +515,23 @@ MapNodeDungeon:
 
 	ret
 
-MapNodeTown:
+MapNodeScene:
+	ld de, wActiveScene
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+
+	call FadeToWhite
+
+	ld hl, wFadeCallback
+	ld a, LOW(InitScene)
+	ld [hli], a
+	ld [hl], HIGH(InitScene)
 	ret
 
 SECTION "map globals", WRAM0

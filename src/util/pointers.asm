@@ -22,6 +22,7 @@
 SECTION "Null", ROM0[$0000]
 null::
 	db 0
+Stub::
 	ret
 
 SECTION "Call HL", ROM0[$0008]

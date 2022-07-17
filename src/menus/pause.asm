@@ -79,10 +79,7 @@ xPauseMenuInit:
 	call nz, LoadPalettes
 
 	; Set palettes
-	ld a, 20
-	ld [wFadeSteps], a
-	ld a, -4
-	ld [wFadeDelta], a
+	call FadeIn
 
 	; Initialize cursors
 	ld hl, wPauseMenuCursor
@@ -173,12 +170,7 @@ xPauseMenuClose:
 	ld [wBGPaletteMask], a
 	ld a, %11111111
 	ld [wOBJPaletteMask], a
-	ld a, 20
-	ld [wFadeSteps], a
-	ld a, $80
-	ld [wFadeAmount], a
-	ld a, 4
-	ld [wFadeDelta], a
+	call FadeToWhite
 	ld hl, wFadeCallback
 	ld a, LOW(SwitchToDungeonState)
 	ld [hli], a

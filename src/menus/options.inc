@@ -134,12 +134,7 @@ POPS
 	and a, a
 	jr z, xOptionsMenuDrawSelections
 	call LoadPalettes
-	ld a, $81
-	ld [wFadeAmount], a
-	ld a, 1
-	ld [wFadeSteps], a
-	ld a, -1
-	ld [wFadeDelta], a
+	call ReloadPalettes
 	jr xOptionsMenuDrawSelections
 
 .changeTheme
