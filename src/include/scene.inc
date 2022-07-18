@@ -39,7 +39,7 @@ DEF SCENE_HEIGHT EQU 32
 		bytes 1, Height
 		longs 1, Seed
 		bytes 3, IntroScript
-		bytes 0, DrawInfo
+		alias DrawInfo
 	end_struct
 
 ; A scene is map up of two maps; one for collision and one for tiles.

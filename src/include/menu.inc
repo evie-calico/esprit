@@ -54,7 +54,7 @@ ld l, a
 		words 1, ItemsPtr ; Pointer where the menu's items are located (might be anything, that's left for the redraw function to decide)
 		words 1, ClosingFunc ; Function to be called when the menu is closed
 
-		dunion ROMSize ; Number of bytes to copy. Replaced by RepeatPressCounter when in RAM.
+		alias ROMSize ; Number of bytes to copy. Replaced by RepeatPressCounter when in RAM.
 		; Work memory, not stored in ROM
 		bytes 1, RepeatPressCounter ; Tracks for how many frames RepeatPress has been in effect (loops between 30 and 31, though) Every time the counter hits 32, it's reset to 31 and the button is "pressed"
 		bytes 2, MiscState ; The struct is allowed to do anything with this (frame counter, state, etc.)

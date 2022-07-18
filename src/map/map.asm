@@ -11,7 +11,7 @@ INCLUDE "structs.inc"
 		bytes 4, Press
 		bytes 1, X
 		bytes 1, Y
-		bytes 0, Name
+		alias Name
 	end_struct
 
 RSRESET

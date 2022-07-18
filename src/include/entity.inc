@@ -110,7 +110,7 @@ DEF ENTITY_ANIMATION_END RB 1
 		; The strength of the move's effect, ussually damage. If 0, power is not
 		; displayed.
 		bytes 1, Power
-		bytes 0, Name
+		alias Name
 	end_struct
 
 	; Wait a number of frames before continuing the script.
