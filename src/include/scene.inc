@@ -35,8 +35,8 @@ DEF SCENE_HEIGHT EQU 32
 
 	struct Scene
 		words 8, Entrances
-		words 1, Width
-		words 1, Height
+		bytes 1, Width
+		bytes 1, Height
 		longs 1, Seed
 		bytes 3, IntroScript
 		bytes 0, DrawInfo
@@ -92,7 +92,8 @@ MACRO scene ; (entrance x/y) * 4, width, height, seed, initial script
 	; Begin with an array of 4 positions, corresponding to each direction
 	dw \1, \2, \3, \4, \5, \6, \7, \8
 	SHIFT 8
-	dw \1 << 4, \2 << 4 ; width/height in pixels
+	ASSERT \1 <= 512 && \2 <= 256, "Scenes are limited to a 512x256 area"
+	db ((\1) - SCRN_X) / 16, ((\2) - SCRN_Y + 32) / 16 ; width/height divided by 16
 	SHIFT 2
 	; The seed ensures maps always appear the same.
 	; You can generate 4 bytes for a seed here:

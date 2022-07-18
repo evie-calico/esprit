@@ -188,22 +188,22 @@ SECTION "Joypad to direction", ROM0
 PadToDir::
 	xor a, a ; Clear carry flag
 	ldh a, [hCurrentKeys]
-	bit PADB_UP, a
+	bit PADB_LEFT, a
 	jr z, :+
-	ASSERT UP == 0
-	xor a, a
+	ld a, LEFT
 	ret
 :	bit PADB_RIGHT, a
 	jr z, :+
-	ld a, 1
+	ld a, RIGHT
 	ret
 :	bit PADB_DOWN, a
 	jr z, :+
-	ld a, 2
+	ld a, DOWN
 	ret
-:	bit PADB_LEFT, a
+:	bit PADB_UP, a
 	jr z, :+
-	ld a, 3
+	ASSERT UP == 0
+	xor a, a
 	ret
 :	scf
 	ret

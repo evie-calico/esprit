@@ -61,6 +61,8 @@ xTitleScreenInit:
 	call PrintVWFChar
 	call DrawVWFChars
 
+	call Rand
+
 	xor a, a
 	ld [wFadeDelta], a ; Initialize this value to fade in from white
 	call FadeIn
@@ -94,6 +96,4 @@ xTitleScreenClose:
 	ld a, LOW(InitDungeon)
 	ld [hli], a
 	ld [hl], HIGH(InitDungeon)
-	ldh a, [rDIV]
-	ld [randstate], a
 	ret

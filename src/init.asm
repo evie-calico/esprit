@@ -69,10 +69,6 @@ Initialize::
 	ld [wSTATTarget + 1], a
 	ld [wTextCharset], a
 	ld [wTextCurPixel], a
-	ld [randstate], a
-	ld [randstate + 1], a
-	ld [randstate + 2], a
-	ld [randstate + 3], a
 	ld [wNbMenus], a
 	ld [wFadeCallback], a
 	ld [wFadeCallback + 1], a
@@ -121,6 +117,11 @@ Initialize::
 	ld [wActiveMenuTheme + 1], a
 	ld a, HIGH(PawprintMenuTheme)
 	ld [wActiveMenuTheme + 2], a
+	ld a, 42
+	ld [randstate], a
+	ld [randstate + 1], a
+	ld [randstate + 2], a
+	ld [randstate + 3], a
 	; Set palettes.
 	; These never change for the whole course of the program.
 	ld a, %11100100

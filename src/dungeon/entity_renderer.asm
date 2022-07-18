@@ -233,7 +233,7 @@ xRenderEntity::
 ; @param de: OAM pointer
 ; @param h: Entity pointer high byte
 ; @param hRenderTempByte: Y
-.customArgs
+.customArgs::
 	FOR I, 2
 		; The following is an unrolled loop which writes both halves of the sprite.
 		ldh a, [hRenderTempByte]
