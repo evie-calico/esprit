@@ -17,10 +17,10 @@ DEF DRAWSCENE_SETCOLOR RB    ; Assign an attribute to a tile id
 RSRESET
 DEF SCENETILE_CLEAR RB
 DEF SCENETILE_WALL RB
-DEF SCENETILE_EXIT_UP RB
-DEF SCENETILE_EXIT_RIGHT RB
 DEF SCENETILE_EXIT_DOWN RB
 DEF SCENETILE_EXIT_LEFT RB
+DEF SCENETILE_EXIT_UP RB
+DEF SCENETILE_EXIT_RIGHT RB
 DEF SCENETILE_DOOR0 RB
 DEF SCENETILE_DOOR1 RB
 DEF SCENETILE_DOOR2 RB
@@ -90,8 +90,10 @@ MACRO scene ; (entrance x/y) * 4, width, height, seed, initial script
 	DEF BG_COLOR_ID = 0
 	DEF OB_COLOR_ID = 0
 	; Begin with an array of 4 positions, corresponding to each direction
-	dw \1, \2, \3, \4, \5, \6, \7, \8
-	SHIFT 8
+	REPT 4
+		dw (\2) * 8 << 4, (\1) * 8 << 4
+		SHIFT 2
+	ENDR
 	ASSERT \1 <= 512 && \2 <= 256, "Scenes are limited to a 512x256 area"
 	db ((\1) - SCRN_X) / 16, ((\2) - SCRN_Y + 32) / 16 ; width/height divided by 16
 	SHIFT 2

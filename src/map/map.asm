@@ -465,6 +465,8 @@ UpdateMapNode:
 	jr MapNodeScene
 
 MapNodeMove:
+	ld a, b
+	ld [wMapLastDirectionMoved], a
 	inc hl
 .noInc
 	ld de, wActiveMapNode + 1
@@ -536,6 +538,8 @@ MapNodeScene:
 
 SECTION "map globals", WRAM0
 wActiveMapNode:: ds 3
+; Used for determining what side of a scene the player should start out on.
+wMapLastDirectionMoved:: db
 
 SECTION UNION "State variables", WRAM0
 wEffects: ds (3 + 16) * NB_EFFECTS

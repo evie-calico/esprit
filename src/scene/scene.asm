@@ -11,7 +11,11 @@ SECTION "Debug Scene", ROMX
 	scene_background Grass, "res/scenes/grass_bkg.2bpp"
 	scene_detail Bush, "res/scenes/bush_detail.2bpp", "res/scenes/bush_detail.map", 3, 2, SCENETILE_WALL
 
-	xDebugScene:: scene 64, 64, 64, 64, 64, 64, 64, 64, \
+	xDebugScene:: scene \
+			32, 30, \ ; down
+			 1, 16, \ ; left
+			32,  1, \ ; up
+			62, 16, \ ; right
 			512, 256, \ ; width and height
 			$EA751B27, \ ; Seed
 			null ; Initial script
@@ -22,7 +26,10 @@ SECTION "Debug Scene", ROMX
 		draw_bkg Grass
 		scatter_details_row 0, 3, SCENE_WIDTH - 3, 6, 4, 8, Bush
 		scatter_details_row 0, 10, SCENE_WIDTH - 3, 13, 4, 8, Bush
-		register_exit LEFT, 0, 5, 1, 8
+		register_exit LEFT,   0,  0,  1, 32
+		register_exit RIGHT, 63,  0,  1, 32
+		register_exit UP,     0,  0, 64,  1
+		register_exit DOWN,   0, 31, 64,  1
 	end_scene
 
 SECTION "Scene State Init", ROM0
@@ -35,18 +42,6 @@ InitScene::
 	ld a, HIGH(xDebugScene)
 	ld [hli], a
 
-	ld hl, wSceneCamera
-	xor a, a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld hl, wEntity0_SpriteY
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
-	ld [hli], a
 
 	; Push the RNG state onto the stack and restore it later.
 	; This ensures that the static seed of the scene doesn't create a
@@ -82,6 +77,7 @@ InitScene::
 	ld a, [hli]
 	ld [wSceneBoundary.y], a
 	ASSERT Scene_Width + 2 == Scene_Seed
+	ld de, randstate
 	ld a, [hli]
 	ld [de], a
 	inc de
@@ -93,6 +89,84 @@ InitScene::
 	inc de
 	ld a, [hli]
 	ld [de], a
+
+	; load initial position based on the direction we came from on the map.
+	ld hl, wActiveScene + 1
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, [wMapLastDirectionMoved]
+	ld [wEntity0_Direction], a
+	add a, a
+	add a, a
+	add a, l
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld de, wEntity0_SpriteY
+	ld a, [hli]
+	ld [de], a
+	inc e
+	ld a, [hli]
+	ld [de], a
+	inc e
+	ld a, [hli]
+	ld [de], a
+	inc e
+	ld a, [hli]
+	ld [de], a
+
+	ld a, [de]
+	ld h, a
+	dec e
+	ld a, [de]
+	ld l, a
+	ld bc, -SCRN_X / 2 << 4
+	add hl, bc
+	bit 7, h
+	jr z, :+
+	ld hl, 0
+:
+	ld a, [wSceneBoundary.x]
+	cp a, h
+	jr nc, :+
+	ld h, a
+	ld l, 0
+:
+	ld a, l
+	ld [wSceneCamera.x], a
+	ld a, h
+	ld [wSceneCamera.x + 1], a
+	REPT 7
+		rra
+		rr l
+	ENDR
+	ld a, l
+	ld [wSceneCamera.lastX], a
+
+	dec e
+	ld a, [de]
+	ld h, a
+	dec e
+	ld a, [de]
+	ld l, a
+	ld bc, -(SCRN_Y - 32) / 2 << 4
+	add hl, bc
+	bit 7, h
+	jr z, :+
+	ld hl, 0
+:
+	ld a, [wSceneBoundary.y]
+	cp a, h
+	jr nc, :+
+	ld h, a
+	ld l, 0
+:
+	ld a, l
+	ld [wSceneCamera.y], a
+	ld a, h
+	ld [wSceneCamera.y + 1], a
 
 	call FadeIn
 
@@ -183,7 +257,7 @@ xHandleSceneMovement:
 	ld a, [wFadeSteps]
 	and a, a
 	ret nz
-	
+
 	xor a, a
 	ld [wEntity0_Frame], a
 	call PadToDir
@@ -318,11 +392,13 @@ xHandleSceneMovement:
 	dec a
 	ret z
 	dec a
-	cp a, SCENETILE_EXIT_LEFT - SCENETILE_EXIT_UP + 1
+	cp a, SCENETILE_EXIT_RIGHT - SCENETILE_EXIT_DOWN + 1
 	jr c, .exit
 	ret
 
 .exit
+	; Set the last direction to match this exit.
+	ld [wMapLastDirectionMoved], a
 	call FadeToBlack
 
 	ld hl, wFadeCallback
@@ -588,7 +664,7 @@ xRenderScene:
 	ld hl, wSceneCamera.x
 	ld a, [hli]
 	ld h, [hl]
-	REPT 4
+	REPT 7
 		srl h
 		rra
 	ENDR
