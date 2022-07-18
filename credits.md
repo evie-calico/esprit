@@ -18,7 +18,7 @@
   - [vwf.asm](https://github.com/ISSOtm/gb-vwf)
   - [pal_fade_dmgcgb.asm](https://gist.github.com/ISSOtm/9f960cf08b8d4d4a9bd9c3397c57b79d)
 
-- [Antonio D.]
+- [Antonio D.](https://github.com/AntonioND)
   - [GBT Player](https://github.com/AntonioND/gbt-player)
 
 Special Thanks:
