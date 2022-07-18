@@ -7,6 +7,9 @@
 - Benjamin "Mojius" D.
   - Music composition.
 
+- [Henry "Tachytaenius" F.T.](https://github.com/wolfboyft)
+  - [platypus.png](src/res/sprites/platypus.h.png)
+
 - [Damian "PinoBatch" Y.](https://github.com/pinobatch)
   - [input.asm](https://github.com/pinobatch/libbet/blob/master/src/pads.z80)
   - [audio.asm](https://github.com/pinobatch/libbet/blob/master/src/audio.z80)
