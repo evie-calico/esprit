@@ -291,7 +291,7 @@ ENDM
 
 MACRO fill_collision
 	db DRAWSCENE_FILL
-	dw wSceneMap + (\2) + (\3) * SCENE_WIDTH
+	dw wSceneCollision + (\2) + (\3) * SCENE_WIDTH
 	db \4, \5
 	db \1
 ENDM

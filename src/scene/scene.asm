@@ -9,7 +9,7 @@ DEF SCROLL_PADDING_RIGHT EQU SCRN_X - 56
 
 SECTION "Debug Scene", ROMX
 	scene_background Grass, "res/scenes/grass_bkg.2bpp"
-	scene_detail Bush, "res/scenes/bush_detail.2bpp", "res/scenes/bush_detail.map", 3, 2, 1
+	scene_detail Bush, "res/scenes/bush_detail.2bpp", "res/scenes/bush_detail.map", 3, 2, SCENETILE_WALL
 
 	xDebugScene:: scene 64, 64, 64, 64, 64, 64, 64, 64, \
 			512, 256, \ ; width and height
@@ -18,8 +18,10 @@ SECTION "Debug Scene", ROMX
 		load_background_palette GrassGreen, "res/scenes/grass_bkg.pal8"
 		load_tiles Grass, GrassGreen
 		load_tiles Bush, GrassGreen
+		fill_collision SCENETILE_CLEAR, 0, 0, SCENE_WIDTH, SCENE_HEIGHT
 		draw_bkg Grass
-		scatter_details_row 0, 0, SCENE_WIDTH - 3, 3, 4, 8, Bush
+		scatter_details_row 0, 3, SCENE_WIDTH - 3, 6, 4, 8, Bush
+		scatter_details_row 0, 10, SCENE_WIDTH - 3, 13, 4, 8, Bush
 	end_scene
 
 SECTION "Scene State Init", ROM0
@@ -196,35 +198,112 @@ xHandleSceneMovement:
 	bit PADB_UP, a
 	ret z
 .up
-	ld bc, -1 << 4
-	ld de, wEntity0_SpriteY
+	lb bc, 0, -1 << 4
 	jr .finish
 
 .left
-	ld bc, -1 << 4
-	ld de, wEntity0_SpriteX
+	lb bc, -1 << 4, 0
 	jr .finish
 
 .right
-	ld bc, 1 << 4
-	ld de, wEntity0_SpriteX
+	lb bc, 1 << 4, 0
 	jr .finish
 
 .down
-	ld bc, 1 << 4
-	ld de, wEntity0_SpriteY
+	lb bc, 0, 1 << 4
 .finish
-	ld a, [de]
-	inc e
+	; b = X offset
+	; c = Y offset
+	ld hl, wEntity0_SpriteX
+	ld a, [hli]
+	ld h, [hl]
 	ld l, a
-	ld a, [de]
-	ld h, a
+	ld e, b
+	ld d, 0
+	bit 7, e
+	jr z, :+
+	dec d
+:
+	add hl, de
+	ld d, h
+	ld e, l
+	; de = target X
+	ld hl, wEntity0_SpriteY
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld b, 0
+	bit 7, c
+	jr z, :+
+	dec b
+:
 	add hl, bc
-	ld a, h
-	ld [de], a
-	dec e
+	; hl = target Y
+	; Get the tile this would end up on in bc and check for collision
+	ld b, h
 	ld a, l
-	ld [de], a
+	add a, 15 << 4
+	ld c, a
+	adc a, b
+	sub a, c
+	ld b, a
+	ld a, c
+	and a, $80 ; The tile component is implicitly multiplied by 128
+	; and clears carry and upper two bits of b are reset
+	rr b ; Y * 64
+	rra
+	ld c, a
+	ASSERT !LOW(wSceneCollision)
+	ld a, b
+	add a, HIGH(wSceneCollision)
+	ld b, a
+
+	; Now adjust and add the X component
+	push de
+		ld a, e
+		add a, 7 << 4
+		ld e, a
+		adc a, d
+		sub a, e
+		REPT 7 ; adjust to an integer and then divide by 8
+			rra
+			rr e
+		ENDR
+		ld a, e
+	pop de
+	add a, c
+	ld c, a
+	adc a, b
+	sub a, c
+	ld b, a
+
+	; finally, check collision
+	ld a, [bc]
+	and a, a
+	ret nz ; check for special collision here in the future.
+	ld a, c
+	sub a, SCENE_WIDTH
+	ld c, a
+	ld a, b
+	sbc a, 0
+	ld b, a
+	ld a, [bc]
+	and a, a
+	ret nz ; check for special collision here in the future.
+
+	ld bc, wEntity0_SpriteY
+	ld a, l
+	ld [bc], a
+	inc c
+	ld a, h
+	ld [bc], a
+	inc c
+	ld a, e
+	ld [bc], a
+	inc c
+	ld a, d
+	ld [bc], a
+	inc c
 	ld a, 1
 	ld [wEntity0_Frame], a
 	ret
@@ -234,13 +313,19 @@ xHandleSceneCamera:
 	; Loosely follow the player, stopping at the edges of the screen.
 	; check if (entity.y <= camera.y + padding)
 	ld hl, wEntity0_SpriteY
+	; The value of de will be negative, often ending up in the OAM range.
+	; Because of this, an inc is not sufficient on DMG; we must manually add 1.
+	; Luckily cpl does not touch the carry flag.
 	ld a, [hli]
+	add a, 1
 	cpl
 	ld e, a
 	ld a, [hl]
 	cpl
 	ld d, a
-	inc de
+	jr nc, :+
+	inc d
+:
 	ld hl, wSceneCamera.y
 	ld a, [hli]
 	ld h, [hl]
@@ -269,13 +354,19 @@ xHandleSceneCamera:
 .down
 	; check if (entity.y > camera.y + SCRN_Y - 32 - padding)
 	ld hl, wEntity0_SpriteY
+	; The value of de will be negative, often ending up in the OAM range.
+	; Because of this, an inc is not sufficient on DMG; we must manually add 1.
+	; Luckily cpl does not touch the carry flag.
 	ld a, [hli]
+	add a, 1
 	cpl
 	ld e, a
 	ld a, [hl]
 	cpl
 	ld d, a
-	inc de
+	jr nc, :+
+	inc d
+:
 	ld hl, wSceneCamera.y
 	ld a, [hli]
 	ld h, [hl]
@@ -305,13 +396,19 @@ xHandleSceneCamera:
 .left
 	; check if (entity.x <= camera.x + padding)
 	ld hl, wEntity0_SpriteX
+	; The value of de will be negative, often ending up in the OAM range.
+	; Because of this, an inc is not sufficient on DMG; we must manually add 1.
+	; Luckily cpl does not touch the carry flag.
 	ld a, [hli]
+	add a, 1
 	cpl
 	ld e, a
 	ld a, [hl]
 	cpl
 	ld d, a
-	inc de
+	jr nc, :+
+	inc d
+:
 	ld hl, wSceneCamera.x
 	ld a, [hli]
 	ld h, [hl]
@@ -340,13 +437,19 @@ xHandleSceneCamera:
 .right
 	; check if (entity.x <= camera.x + padding)
 	ld hl, wEntity0_SpriteX
+	; The value of de will be negative, often ending up in the OAM range.
+	; Because of this, an inc is not sufficient on DMG; we must manually add 1.
+	; Luckily cpl does not touch the carry flag.
 	ld a, [hli]
+	add a, 1
 	cpl
 	ld e, a
 	ld a, [hl]
 	cpl
 	ld d, a
-	inc de
+	jr nc, :+
+	inc d
+:
 	ld hl, wSceneCamera.x
 	ld a, [hli]
 	ld h, [hl]
@@ -406,6 +509,7 @@ xHandleSceneCamera:
 
 ; @input a: column of camera
 ; @input carry: set if moving right
+; @preserves e
 xRenderColumn:
 	; Depending on the carry input, determine an offset for the column
 	jr nc, :+
@@ -425,6 +529,22 @@ xRenderColumn:
 	jr nz, .loop
 	ld a, [bc]
 	ld [hl], a
+	ldh a, [hSystem]
+	and a, a
+	jr z, .noCgb
+	ld a, 1
+	ldh [rVBK], a
+	ld a, [bc]
+	push bc
+	sub a, $80
+	ld c, a
+	ld b, HIGH(wSceneTileAttributes)
+	ld a, [bc]
+	pop bc
+	ld [hl], a
+	xor a, a
+	ldh [rVBK], a
+.noCgb
 	ld a, SCRN_VX_B
 	add a, l
 	ld l, a
@@ -441,70 +561,24 @@ xRenderColumn:
 	jr nz, .loop
 	ret
 
-SECTION "Render scene", ROMX
 xRenderScene:
-	ld hl, wSceneMap
-	ld de, $9800
-	ld b, SCRN_VY_B
-:
-	ld c, SCRN_X_B
-	call VRAMCopySmall
-	dec b
-	jr z, .attributes
-	ld a, SCENE_WIDTH - SCRN_X_B
-	add a, l
-	ld l, a
-	adc a, h
-	sub a, l
-	ld h, a
-	ld a, SCRN_VX_B - SCRN_X_B
-	add a, e
-	ld e, a
-	adc a, d
-	sub a, e
-	ld d, a
-	jr :-
-
-.attributes
-	ldh a, [hSystem]
-	and a, a
-	ret z
-	ld a, 1
-	ldh [rVBK], a
-	ld hl, wSceneMap
-	ld de, $9800
-	ld b, SCRN_VY_B
-:
-	ld c, SCRN_VX_B
-.copy
-	ldh a, [rSTAT]
-	and a, STATF_BUSY
-	jr nz, .copy
+	ld hl, wSceneCamera.x
 	ld a, [hli]
-	push de
-	ld d, HIGH(wSceneTileAttributes)
-	sub a, $80
+	ld h, [hl]
+	REPT 4
+		srl h
+		rra
+	ENDR
 	ld e, a
-	ld a, [de]
-	pop de
-	ld [de], a
-	inc de
-	dec c
-	jr nz, .copy
-	dec b
-	jr z, .done
-	ld a, SCENE_WIDTH - SCRN_VX_B
-	add a, l
-	ld l, a
-	adc a, h
-	sub a, l
-	ld h, a
-	jr :-
-
-.done
-	xor a, a
-	ldh [rVBK], a
-	ret
+	REPT SCRN_X_B - 1
+		xor a, a ; clear carry
+		ld a, e
+		call xRenderColumn
+		inc e
+	ENDR
+	xor a, a ; clear carry
+	ld a, e
+	jp xRenderColumn
 
 SECTION "Draw scene", ROM0
 DrawScene:
@@ -716,11 +790,41 @@ DrawSceneSpawnEffect:
 	ret
 
 DrawSceneFill:
-	inc hl
-	inc hl
-	inc hl
-	inc hl
-	inc hl
+	ld a, [hli]
+	ld e, a
+	ld a, [hli]
+	ld d, a
+	ld a, [hli]
+	ld b, a
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	push hl
+	ld h, d
+	ld l, e
+	ld d, a
+	ld a, b
+	push af
+.copy
+	ld a, d
+	ld [hli], a
+	dec b
+	jr nz, .copy
+	pop af
+	dec c
+	jr z, .done
+	push af
+	ld b, a
+	ld a, SCENE_WIDTH
+	sub a, b
+	add a, l
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	jr .copy
+.done
+	pop hl
 	ret
 
 DrawSceneSetDoor:
