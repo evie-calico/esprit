@@ -22,6 +22,7 @@ SECTION "Debug Scene", ROMX
 		draw_bkg Grass
 		scatter_details_row 0, 3, SCENE_WIDTH - 3, 6, 4, 8, Bush
 		scatter_details_row 0, 10, SCENE_WIDTH - 3, 13, 4, 8, Bush
+		register_exit LEFT, 0, 5, 1, 8
 	end_scene
 
 SECTION "Scene State Init", ROM0
@@ -178,6 +179,11 @@ SceneState::
 
 SECTION "Scene Movement", ROMX
 xHandleSceneMovement:
+	; Do not allow movement during fades.
+	ld a, [wFadeSteps]
+	and a, a
+	ret nz
+	
 	xor a, a
 	ld [wEntity0_Frame], a
 	call PadToDir
@@ -280,7 +286,7 @@ xHandleSceneMovement:
 	; finally, check collision
 	ld a, [bc]
 	and a, a
-	ret nz ; check for special collision here in the future.
+	jr nz, .handleCollision
 	ld a, c
 	sub a, SCENE_WIDTH
 	ld c, a
@@ -289,7 +295,7 @@ xHandleSceneMovement:
 	ld b, a
 	ld a, [bc]
 	and a, a
-	ret nz ; check for special collision here in the future.
+	jr nz, .handleCollision
 
 	ld bc, wEntity0_SpriteY
 	ld a, l
@@ -306,6 +312,23 @@ xHandleSceneMovement:
 	inc c
 	ld a, 1
 	ld [wEntity0_Frame], a
+	ret
+
+.handleCollision
+	dec a
+	ret z
+	dec a
+	cp a, SCENETILE_EXIT_LEFT - SCENETILE_EXIT_UP + 1
+	jr c, .exit
+	ret
+
+.exit
+	call FadeToBlack
+
+	ld hl, wFadeCallback
+	ld a, LOW(InitMap)
+	ld [hli], a
+	ld [hl], HIGH(InitMap)
 	ret
 
 SECTION "Handle scene scrolling", ROMX
