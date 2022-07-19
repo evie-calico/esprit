@@ -9,7 +9,7 @@ DEF DRAWSCENE_END RB         ; End drawing.
 DEF DRAWSCENE_VRAMCOPY RB    ; Copy data to VRAM
 DEF DRAWSCENE_BKG RB         ; Fill in an area of the map with three ground tiles.
 DEF DRAWSCENE_PLACEDETAIL RB ; Place a small tilemap somewhere on the map.
-DEF DRAWSCENE_SPAWNEFFECT RB ; Allocate space for a script-controlled effect and assign it a position.
+DEF DRAWSCENE_SPAWNNPC RB    ; Allocate space for an NPC and assign it a position.
 DEF DRAWSCENE_FILL RB        ; Fill an area of the scene
 DEF DRAWSCENE_SETDOOR RB     ; Define a door pointing to another scene.
 DEF DRAWSCENE_MEMCOPY RB     ; Copy data
@@ -90,6 +90,7 @@ MACRO scene ; (entrance x/y) * 4, width, height, seed, initial script
 	DEF TILE_ID = $80
 	DEF BG_COLOR_ID = 0
 	DEF OB_COLOR_ID = 0
+	DEF ENTITY_ID = 2
 
 	DEF SCENE_BOUNDARY_X = 512
 	DEF SCENE_BOUNDARY_Y = 256
@@ -267,14 +268,22 @@ MACRO scatter_details_row ; x, y, x boundry, y boundry, x spacing min, x spacing
 	ENDR
 ENDM
 
-; Spawn a script in a given position.
-MACRO spawn_effect
-	ASSERT DEF(\1_EFFECT), "\1 is not marked as an effect object"
-	db DRAWSCENE_SPAWNEFFECT
-	db BANK(\1_SCRIPT)
-	dw \1_SCRIPT ; Script pointer
-	dw \2, \3 ; x/y fixed-point positions
-	db \1_ID ; starting id for tiles
+; Spawn an NPC in a given position.
+MACRO npc
+	db DRAWSCENE_SPAWNNPC
+	IF ENTITY_ID >= 8
+		FAIL "Out of NPCs, only 6 NPCs may exist in a single scene."
+	ENDC
+	db HIGH(wEntity0) + ENTITY_ID
+	DEF ENTITY_ID += 1
+	db BANK(\1)
+	dw \1 ; NPC's entity base (source of graphics)
+	dw \3 << 4, \2 << 4 ; x/y fixed-point positions
+	db \4
+	db BANK(\5) ; Idle Script
+	dw \5
+	db BANK(\6) ; Interation Script
+	dw \6
 ENDM
 
 ; Register an area with exit tiles. There are 4 tiles for each potentential exit,

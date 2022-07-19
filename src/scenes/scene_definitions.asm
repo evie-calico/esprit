@@ -1,3 +1,4 @@
+INCLUDE "defines.inc"
 INCLUDE "scene.inc"
 
 	scene_background Grass, "res/scenes/grass_bkg.2bpp"
@@ -15,4 +16,6 @@ xVillageScene::
 		draw_bkg Grass
 		scatter_details_row 0, 3, SCENE_WIDTH - 3, 6, 4, 8, Bush
 		scatter_details_row 0, 10, SCENE_WIDTH - 3, 13, 4, 8, Bush
+
+		npc xPlatypus, 64, 64, RIGHT, null, null
 	end_scene

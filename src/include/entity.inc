@@ -82,9 +82,17 @@ DEF ENTITY_ANIMATION_END RB 1
 		; Determines what the latter 8 tiles should be. These tiles are only
 		; used if the frame is non-zero.
 		bytes 1, Frame
+		; The following pointers are used as scripts within scenes, and moves
+		; within a dungeon.
 		; Each of the entity's learned moves. If the bank is 0, the move does
 		; not exist.
-		bytes 3 * ENTITY_MOVE_COUNT, Moves
+		alias Moves
+		alias IdleScript ; Executed each frame when movement is not locked.
+		bytes 3, Move0
+		alias InteractionScript ; Executed when the player interacts with this entity.
+		bytes 3, Move1
+		bytes 3, Move2
+		bytes 3, Move3
 		; Stats are very basic. There is no attack or defense stat, only a
 		; maximum health. This value is the same for all species, and is derived
 		; From the level. The main difference between species lies in their

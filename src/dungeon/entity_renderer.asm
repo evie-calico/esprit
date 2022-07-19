@@ -206,6 +206,75 @@ xRenderEntities::
 	jp nz, .loop
 	ret
 
+; Similar to xRenderEntities, but for the scene state.
+xRenderNPCs::
+	ld h, HIGH(wEntity0)
+.loop
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	and a, a
+	jp z, .next
+
+	; Check if the entity is within the camera bounds
+	ld l, LOW(wEntity0_SpriteX) + 1
+	ld a, [wSceneCamera.x + 1]
+	cp a, [hl]
+	jr z, :+
+	jr nc, .next
+:   add a, 11
+	cp a, [hl]
+	jr c, .next
+
+	ld bc, wSceneCamera.x
+	ld a, [bc]
+	inc bc
+	ld d, a
+	ld a, [bc]
+	inc bc
+	REPT 4
+		rra
+		rr d
+	ENDR
+	ld a, [bc]
+	inc bc
+	ld e, a
+	ld a, [bc]
+	inc bc
+	REPT 4
+		rra
+		rr e
+	ENDR
+	ld l, LOW(wEntity0_SpriteY)
+	ld a, [hli]
+	ld b, [hl]
+	REPT 4
+		rr b
+		rra
+	ENDR
+	add a, 16
+	sub a, e
+	ldh [hRenderTempByte], a
+	inc l
+	ld a, [hli]
+	ld b, [hl]
+	REPT 4
+		rr b
+		rra
+	ENDR
+	add a, 8
+	sub a, d
+	ld b, a
+	ldh a, [hOAMIndex]
+	ld e, a
+	ld d, HIGH(wShadowOAM)
+	call xRenderEntity.customArgs
+.next
+	inc h
+	ld a, h
+	cp a, HIGH(wEntity0) + NB_ENTITIES
+	jp nz, .loop
+	ret
+
 ; @param h: Entity pointer high byte
 xRenderEntity::
 	ld l, LOW(wEntity0_SpriteY)

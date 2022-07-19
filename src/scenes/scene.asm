@@ -1,4 +1,5 @@
 INCLUDE "defines.inc"
+INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 INCLUDE "scene.inc"
 
@@ -9,6 +10,15 @@ DEF SCROLL_PADDING_RIGHT EQU SCRN_X - 56
 
 SECTION "Scene State Init", ROM0
 InitScene::
+	; Reset all NPC banks
+	xor a, a
+	ld hl, wEntity2_Bank
+	REPT NB_ENTITIES - 2
+		ld [hl], a
+		inc h
+	ENDR
+	; TODO: we'll need to load the player and ally from the save file here.
+
 	; Push the RNG state onto the stack and restore it later.
 	; This ensures that the static seed of the scene doesn't create a
 	; predictable RNG state that players can abuse.
@@ -173,51 +183,9 @@ SceneState::
 	rst SwapBank
 	call xHandleSceneCamera
 
-	ld hl, wSceneCamera.x
-	ld a, [hli]
-	ld d, a
-	ld a, [hli]
-	REPT 4
-		rra
-		rr d
-	ENDR
-	ld a, [hli]
-	ld e, a
-	ld a, [hli]
-	REPT 4
-		rra
-		rr e
-	ENDR
-	ld hl, wEntity0_SpriteY
-	ld a, [hli]
-	ld b, [hl]
-	REPT 4
-		rr b
-		rra
-	ENDR
-	add a, 16
-	sub a, e
-	ldh [hRenderTempByte], a
-	inc l
-	ld a, [hli]
-	ld b, [hl]
-	REPT 4
-		rr b
-		rra
-	ENDR
-	add a, 8
-	sub a, d
-	ld b, a
-	ldh a, [hOAMIndex]
-	ld e, a
-	ld d, HIGH(wShadowOAM)
-; @param b: X
-; @param de: OAM pointer
-; @param h: Entity pointer high byte
-; @param hRenderTempByte: Y
-	ld a, BANK(xRenderEntity)
+	ld a, BANK(xRenderNPCs)
 	rst SwapBank
-	call xRenderEntity.customArgs
+	call xRenderNPCs
 	jp UpdateEntityGraphics
 
 SECTION "Scene Movement", ROMX
@@ -688,8 +656,8 @@ DrawScene:
 	dw DrawSceneBackground
 	ASSERT DRAWSCENE_PLACEDETAIL == 3
 	dw DrawScenePlaceDetail
-	ASSERT DRAWSCENE_SPAWNEFFECT == 4
-	dw DrawSceneSpawnEffect
+	ASSERT DRAWSCENE_SPAWNNPC == 4
+	dw DrawSceneSpawnNpc
 	ASSERT DRAWSCENE_FILL == 5
 	dw DrawSceneFill
 	ASSERT DRAWSCENE_SETDOOR == 6
@@ -854,7 +822,31 @@ DrawScenePlaceDetail:
 	rst SwapBank
 	ret
 
-DrawSceneSpawnEffect:
+DrawSceneSpawnNpc:
+	ld a, [hli]
+	ld d, a
+	; Copy data pointer
+	ld e, LOW(wEntity0_Bank)
+	ld c, 3
+	rst MemCopySmall
+	; Copy initial position
+	ld e, LOW(wEntity0_SpriteY)
+	ld c, 4
+	rst MemCopySmall
+	; Force-load graphics
+	ld e, LOW(wEntity0_Direction)
+	ld a, [hli]
+	ld [de], a
+	inc e
+	ld a, -1
+	ld [de], a
+	inc e
+	xor a, a
+	ld [de], a
+	; Copy Scripts
+	ld e, LOW(wEntity0_IdleScript)
+	ld c, 6
+	rst MemCopySmall
 	ret
 
 DrawSceneFill:
@@ -955,10 +947,10 @@ ASSERT !LOW(@)
 wSceneTileAttributes:: ds 128
 
 wSceneCamera::
-.x dw
-.y dw
+.x:: dw
+.y:: dw
 .lastX db
-wSceneBoundary::
+wSceneBoundary:
 .x db
 .y db
 
