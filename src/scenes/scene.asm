@@ -635,7 +635,7 @@ xRenderScene:
 		rra
 	ENDR
 	ld e, a
-	REPT SCRN_X_B - 1
+	REPT SCRN_X_B
 		xor a, a ; clear carry
 		ld a, e
 		call xRenderColumn
