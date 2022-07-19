@@ -448,7 +448,7 @@ DungeonComplete::
 	or a, [hl]
 	ld [hl], a
 
-	call FadeToWhite
+	call FadeToBlack
 
 	ld hl, wFadeCallback
 	ld a, LOW(InitMap)

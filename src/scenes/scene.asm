@@ -156,6 +156,9 @@ InitScene::
 	ld a, b
 	ld [de], a
 
+	xor a, a
+	ld [wSceneMovementLocked], a
+
 	ld a, BANK(xRenderScene)
 	rst SwapBank
 	jp xRenderScene
@@ -219,8 +222,7 @@ SceneState::
 
 SECTION "Scene Movement", ROMX
 xHandleSceneMovement:
-	; Do not allow movement during fades.
-	ld a, [wFadeSteps]
+	ld a, [wSceneMovementLocked]
 	and a, a
 	ret nz
 
@@ -366,7 +368,8 @@ xHandleSceneMovement:
 	; Set the last direction to match this exit.
 	ld [wMapLastDirectionMoved], a
 	call FadeToBlack
-
+	ld a, 1
+	ld [wSceneMovementLocked], a
 	ld hl, wFadeCallback
 	ld a, LOW(InitMap)
 	ld [hli], a
@@ -958,6 +961,8 @@ wSceneCamera::
 wSceneBoundary::
 .x db
 .y db
+
+wSceneMovementLocked:: db
 
 SECTION "Scene Loop counter", HRAM
 hSceneLoopCounter: db

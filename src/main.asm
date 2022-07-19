@@ -62,6 +62,7 @@ Main::
 	dw MapState
 	dw SceneState
 
+; Fade to white is used when transitioning between menus, like when pausing.
 FadeToWhite::
 	ld a, $20
 	ld [wFadeSteps], a
@@ -71,6 +72,8 @@ FadeToWhite::
 	ld [wFadeDelta], a
 	ret
 
+; Fade to black is used when transitioning between areas, such as entering or
+; leaving a dungeon or scene.
 FadeToBlack::
 	ld a, $20
 	ld [wFadeSteps], a

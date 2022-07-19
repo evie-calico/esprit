@@ -128,6 +128,9 @@ InitMap::
 	ldh a, [hCurrentBank]
 	push af
 
+	xor a, a
+	ld [wMapLockInput], a
+
 	ld a, BANK(xWorldMap)
 	rst SwapBank
 
@@ -221,7 +224,6 @@ InitMap::
 	ld [hli], a
 	ld a, HIGH(xDuckEffect)
 	ld [hli], a
-
 
 	call InitUI
 
@@ -420,6 +422,10 @@ UpdateMapNode:
 	and a, a
 	call nz, DrawPrintString
 
+	ld a, [wMapLockInput]
+	and a, a
+	ret nz
+
 	ld hl, wActiveMapNode
 	ld a, [hli]
 	rst SwapBank
@@ -508,7 +514,10 @@ MapNodeDungeon:
 	ld a, [hli]
 	ld [de], a
 
-	call FadeToWhite
+	ld a, 1
+	ld [wMapLockInput], a
+
+	call FadeToBlack
 
 	ld hl, wFadeCallback
 	ld a, LOW(InitDungeon)
@@ -528,7 +537,7 @@ MapNodeScene:
 	ld a, [hli]
 	ld [de], a
 
-	call FadeToWhite
+	call FadeToBlack
 
 	ld hl, wFadeCallback
 	ld a, LOW(InitScene)
@@ -543,3 +552,5 @@ wMapLastDirectionMoved:: db
 
 SECTION UNION "State variables", WRAM0
 wEffects: ds (3 + 16) * NB_EFFECTS
+
+wMapLockInput: db
