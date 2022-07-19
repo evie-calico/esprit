@@ -86,7 +86,7 @@ SECTION "World map nodes", ROMX
 	node xVillageNode, "Crater Village", 48, 88
 		left MOVE, xForestNode
 		right MOVE, xBeginningHouse
-		press SCENE, xDebugScene
+		press SCENE, xVillageScene
 	end_node
 
 	node xForestNode, "Crater Forest", 12, 88

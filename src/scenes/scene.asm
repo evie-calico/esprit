@@ -7,42 +7,8 @@ DEF SCROLL_PADDING_BOTTOM EQU SCRN_Y - 40 - 40
 DEF SCROLL_PADDING_LEFT EQU 40
 DEF SCROLL_PADDING_RIGHT EQU SCRN_X - 56
 
-SECTION "Debug Scene", ROMX
-	scene_background Grass, "res/scenes/grass_bkg.2bpp"
-	scene_detail Bush, "res/scenes/bush_detail.2bpp", "res/scenes/bush_detail.map", 3, 2, SCENETILE_WALL
-
-	xDebugScene:: scene \
-			32, 30, \ ; down
-			 1, 16, \ ; left
-			32,  1, \ ; up
-			62, 16, \ ; right
-			512, 256, \ ; width and height
-			$EA751B27, \ ; Seed
-			null ; Initial script
-		load_background_palette GrassGreen, "res/scenes/grass_bkg.pal8"
-		load_tiles Grass, GrassGreen
-		load_tiles Bush, GrassGreen
-		fill_collision SCENETILE_CLEAR, 0, 0, SCENE_WIDTH, SCENE_HEIGHT
-		draw_bkg Grass
-		scatter_details_row 0, 3, SCENE_WIDTH - 3, 6, 4, 8, Bush
-		scatter_details_row 0, 10, SCENE_WIDTH - 3, 13, 4, 8, Bush
-		register_exit LEFT,   0,  0,  1, 32
-		register_exit RIGHT, 63,  0,  1, 32
-		register_exit UP,     0,  0, 64,  1
-		register_exit DOWN,   0, 31, 64,  1
-	end_scene
-
 SECTION "Scene State Init", ROM0
 InitScene::
-	ld hl, wActiveScene
-	ld a, BANK(xDebugScene)
-	ld [hli], a
-	ld a, LOW(xDebugScene)
-	ld [hli], a
-	ld a, HIGH(xDebugScene)
-	ld [hli], a
-
-
 	; Push the RNG state onto the stack and restore it later.
 	; This ensures that the static seed of the scene doesn't create a
 	; predictable RNG state that players can abuse.

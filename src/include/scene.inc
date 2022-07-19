@@ -1,6 +1,7 @@
 IF !DEF(SCENE_INC)
 DEF SCENE_INC EQU 1
 
+INCLUDE "hardware.inc"
 INCLUDE "structs.inc"
 
 RSRESET
@@ -89,24 +90,38 @@ MACRO scene ; (entrance x/y) * 4, width, height, seed, initial script
 	DEF TILE_ID = $80
 	DEF BG_COLOR_ID = 0
 	DEF OB_COLOR_ID = 0
+
+	DEF SCENE_BOUNDARY_X = 512
+	DEF SCENE_BOUNDARY_Y = 256
+	DEF SCENE_TOP_ENTRANCE_X = 32
+	DEF SCENE_TOP_ENTRANCE_Y = 0
+	DEF SCENE_RIGHT_ENTRANCE_X = 62
+	DEF SCENE_RIGHT_ENTRANCE_Y = 16
+	DEF SCENE_LEFT_ENTRANCE_X = 0
+	DEF SCENE_LEFT_ENTRANCE_Y = 16
+	DEF SCENE_BOTTOM_ENTRANCE_X = 32
+	DEF SCENE_BOTTOM_ENTRANCE_Y = 29
+	REDEF SCENE_ENTRANCE_SCRIPT EQUS "null"
+ENDM
+
+MACRO begin_draw
 	; Begin with an array of 4 positions, corresponding to each direction
-	REPT 4
-		dw (\2) * 8 << 4, (\1) * 8 << 4
-		SHIFT 2
-	ENDR
-	ASSERT \1 <= 512 && \2 <= 256, "Scenes are limited to a 512x256 area"
-	db ((\1) - SCRN_X) / 16, ((\2) - SCRN_Y + 32) / 16 ; width/height divided by 16
-	SHIFT 2
+	dw SCENE_BOTTOM_ENTRANCE_Y * 8 << 4, SCENE_BOTTOM_ENTRANCE_X * 8 << 4
+	dw SCENE_LEFT_ENTRANCE_Y * 8 << 4, (SCENE_LEFT_ENTRANCE_X * 8 + 1) << 4
+	dw (SCENE_TOP_ENTRANCE_Y * 8 + 1) << 4, SCENE_TOP_ENTRANCE_X * 8 << 4
+	dw SCENE_RIGHT_ENTRANCE_Y * 8 << 4, SCENE_RIGHT_ENTRANCE_X * 8 << 4
+	ASSERT SCENE_BOUNDARY_X <= 512 && SCENE_BOUNDARY_Y <= 256, "Scenes are limited to a 512x256 area"
+	db (SCENE_BOUNDARY_X - SCRN_X) / 16, (SCENE_BOUNDARY_Y - SCRN_Y + 32) / 16 ; width/height divided by 16
 	; The seed ensures maps always appear the same.
 	; You can generate 4 bytes for a seed here:
 	; https://www.random.org/bytes/
-	dl \1
-	DEF random = \1 ; Also use this for the buildtime PRNG.
-	SHIFT 1
-	db BANK(\1)
-	dw \1
+	dl random
+	db BANK(SCENE_ENTRANCE_SCRIPT)
+	dw SCENE_ENTRANCE_SCRIPT
 .drawInfo
 	; The drawing information imediately follows.
+		fill_collision SCENETILE_CLEAR, 0, 0, SCENE_BOUNDARY_X / 8, SCENE_BOUNDARY_Y / 8
+		register_exits
 ENDM
 
 DEF end_scene EQUS "db DRAWSCENE_END"
@@ -265,11 +280,11 @@ ENDM
 ; Register an area with exit tiles. There are 4 tiles for each potentential exit,
 ; which determines where you will end up if the scene is re-rentered. This is
 ; seperate from a door, which is direct a link between scenes.
-MACRO register_exit
-	db DRAWSCENE_FILL
-	dw wSceneCollision + (\2) + (\3) * SCENE_WIDTH
-	db \4, \5
-	db SCENETILE_EXIT_\1
+MACRO register_exits
+	fill_collision SCENETILE_EXIT_LEFT, 0, 0, 1, SCENE_BOUNDARY_Y / 8
+	fill_collision SCENETILE_EXIT_RIGHT, SCENE_BOUNDARY_X / 8 - 1, 0, 1, SCENE_BOUNDARY_Y / 8
+	fill_collision SCENETILE_EXIT_UP, 0, 0, SCENE_BOUNDARY_X / 8, 1
+	fill_collision SCENETILE_EXIT_DOWN, 0, SCENE_BOUNDARY_Y / 8 - 1, SCENE_BOUNDARY_X / 8, 1
 ENDM
 
 MACRO register_door
