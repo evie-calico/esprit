@@ -8,6 +8,9 @@ DEF SCROLL_PADDING_BOTTOM EQU SCRN_Y - 40 - 40
 DEF SCROLL_PADDING_LEFT EQU 40
 DEF SCROLL_PADDING_RIGHT EQU SCRN_X - 56
 
+DEF NB_NPCS EQU 6
+DEF NPC_SCRIPT_POOL_SIZE EQU 8
+
 SECTION "Scene State Init", ROM0
 InitScene::
 	; Reset all NPC banks
@@ -178,6 +181,14 @@ SceneState::
 	ld a, BANK(xHandleSceneMovement)
 	rst SwapBank
 	call xHandleSceneMovement
+
+	ld a, [wPrintString]
+	and a, a
+	call nz, DrawPrintString.customDelay
+	call PrintVWFChar
+	call DrawVWFChars
+
+	call ExecuteIdleScripts
 	
 	ld a, BANK(xHandleSceneCamera)
 	rst SwapBank
@@ -187,6 +198,48 @@ SceneState::
 	rst SwapBank
 	call xRenderNPCs
 	jp UpdateEntityGraphics
+
+SECTION "Scene Run Idle Scripts", ROM0
+ExecuteIdleScripts:
+	ld h, HIGH(wEntity2)
+	ld de, wSceneNPCIdleScriptVariables
+.loop
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	and a, a
+	jr z, .next
+	ld a, h
+	ld [wActiveEntity], a
+	ld l, LOW(wEntity0_IdleScript)
+	push hl
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	call ExecuteScript
+	ld b, h
+	ld c, l
+	pop hl
+	ldh a, [hCurrentBank]
+	ld [hli], a
+	ld a, c
+	ld [hli], a
+	ld [hl], b
+.next
+	ld a, NPC_SCRIPT_POOL_SIZE
+	add a, e
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+
+	inc h
+	ld a, h
+	cp a, HIGH(wEntity0) + NB_ENTITIES
+	jr nz, .loop
+	ret
+
 
 SECTION "Scene Movement", ROMX
 xHandleSceneMovement:
@@ -955,6 +1008,9 @@ wSceneBoundary:
 .y db
 
 wSceneMovementLocked:: db
+
+wSceneNPCIdleScriptVariables:: ds NPC_SCRIPT_POOL_SIZE * NB_NPCS
+wSceneNPCDialogueScriptVariables:: ds NPC_SCRIPT_POOL_SIZE * NB_NPCS
 
 SECTION "Scene Loop counter", HRAM
 hSceneLoopCounter: db

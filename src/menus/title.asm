@@ -41,6 +41,8 @@ xDrawTitleScreen:
 .frame INCBIN "res/ui/hud_frame.2bpp"
 
 xTitleScreenInit:
+	xor a, a
+	ld [wTextLetterDelay], a
 	ld hl, xDrawTitleScreen
 	call DrawMenu
 

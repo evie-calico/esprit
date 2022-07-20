@@ -160,13 +160,14 @@ SECTION "Draw print string", ROM0
 ; This is called during the game loop after rendering entities, to ensure they
 ; do not fail to render if printing takes too long.
 DrawPrintString::
+	xor a, a
+	ld [wTextLetterDelay], a
+.customDelay::
+
 	ld a, vTextbox_Width * 8
 	lb bc, idof_vTextboxTiles, idof_vTextboxTiles + vTextbox_Width * vTextbox_Height
 	lb de, vTextbox_Height, HIGH(vTextboxTiles) & $F0
 	call TextInit
-
-	xor a, a
-	ld [wTextLetterDelay], a
 
 	ld hl, wPrintString
 	ld a, [hl]

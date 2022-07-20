@@ -2,10 +2,31 @@ env script {
 	use std;
 	def memset(const ptr, const u8, const u16);
 	def rand(u8);
+	def print(const ptr);
+	// Same as print, but sets a delay on each letter.
+	// The delay only works within scenes.
+	def say(const ptr);
+	// Wait until text printing is done.
+	def print_wait();
 	def map_put_tile(u8, u8, const u8);
 	def map_get_tile(u8, u8, u8);
 	def step_direction(u8, u8, u8);
-	def draw_sprite(u8); // This "u8" should really be a struct.
+	def draw_sprite(u8); // TODO: This "u8" should really be a struct.
+	def npc_move(const u16, const u16);
+	def npc_set_frame(const u8);
+	def npc_lock();
+
 	pool = 16;
 	terminator = 0;
+}
+
+env npc {
+	use script;
+	// Define a more terse name for this command and reverse the arguments
+	// to be in x, y order.
+	mac move(const u16, const u16) = npc_move($2, $1);
+	mac set_frame(const u8) = npc_set_frame($1);
+	mac lock() = npc_lock();
+	mac wait() = print_wait();
+	pool = 8;
 }

@@ -1540,10 +1540,10 @@ PrintNextCharInstant:
 
 
 TextWaitButtonScroll:
-	;call TextWaitButton
+	call TextWaitButton
 	;; The function returns with a = 0 iff the user has input something
-	;and a
-	;ret nz
+	and a
+	ret nz
 	; fallthrough
 
 TextScroll:
@@ -1710,7 +1710,6 @@ TextInit::
 	xor a ; ld a, 0
 	ld [wTextStackSize], a
 	ld [wTextFlags], a
-	ld [wTextLetterDelay], a
 	ld a, e
 	ld [wTextTileBlock], a
 	ret

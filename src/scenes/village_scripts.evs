@@ -1,0 +1,26 @@
+include "../include/script.evs";
+include asm "res/charmap.inc";
+
+npc xWalkAround {
+	lock();
+	say("Hello, World!<WAITBTN>");
+	wait();
+	set_frame(1);
+	repeat 60 {
+		move(16, 0);
+		yield;
+	}
+	set_frame(0);
+	repeat 60 {
+		yield;
+	}
+	set_frame(1);
+	repeat 60 {
+		move(65520, 0);
+		yield;
+	}
+	set_frame(0);
+	say("Bye!<WAITBTN><CLEAR>");
+	wait();
+	lock();
+}

@@ -82,12 +82,19 @@ EVScriptBytecodeTable:
 	;
 	dw ScriptMemset
 	dw ScriptRand
+	dw ScriptPrint
+	dw ScriptSay
+	dw ScriptPrintWait
 	; Mapgen Utilities
 	dw ScriptMapPutTile
 	dw ScriptMapGetTile
 	dw ScriptMapStepDir
 	; Sprite drawing
 	dw ScriptDrawSprite
+	; NPC commands
+	dw ScriptNPCWalk
+	dw ScriptNPCSetFrame
+	dw ScriptNPCLockPlayer
 
 SECTION "EVScript Return", ROM0
 StdReturn:
@@ -582,6 +589,30 @@ ScriptRand:
 	ld [de], a
 	ret
 
+SECTION "EVScript ScriptPrint", ROM0
+ScriptSay:
+	ld a, 2
+	ld [wTextLetterDelay], a
+ScriptPrint:
+	ld de, wPrintString
+	ldh a, [hCurrentBank]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	jp StdYield
+
+SECTION "EVScript ScriptPrintWait", ROM0
+ScriptPrintWait:
+	ld a, [wTextSrcPtr + 1]
+	inc a
+	ret z
+	dec hl
+	jp StdYield
+
 SECTION "Map Get/Put Prologue", ROM0
 MapGetPutPrologue:
 	ld a, [hli]
@@ -729,6 +760,7 @@ ScriptDrawSprite:
 	; TODO: this would be a good application for structs in evscript.
 	; We know these 4 variables are always going to exist in a group, so we
 	; *should* load them as such. It would be faster and save space.
+	; This current solution is fragile compared to proper structure support.
 	ld a, [hli]
 	push hl
 		ld l, a
@@ -744,4 +776,60 @@ ScriptDrawSprite:
 		ld e, a
 		call RenderSimpleSprite
 	pop hl
+	ret
+
+SECTION "EVScript ScriptNPCWalk", ROM0
+ScriptNPCWalk:
+	; TODO: Most NPC operations are simply manipulating data in memory. This would be a good application for pointers, arrays, and function support.
+	; For now, we use this bytecode instead.
+	ld a, [wActiveEntity]
+	ld d, a
+	ld e, LOW(wEntity0_SpriteY)
+	ld a, [de]
+	ld c, a
+	inc e
+	ld a, [de]
+	ld b, a
+	ld a, [hli]
+	add a, c
+	ld c, a
+	ld a, [hli]
+	adc a, b
+	ld [de], a
+	dec e
+	ld a, c
+	ld [de], a
+	inc e
+	inc e
+	ld a, [de]
+	ld c, a
+	inc e
+	ld a, [de]
+	ld b, a
+	ld a, [hli]
+	add a, c
+	ld c, a
+	ld a, [hli]
+	adc a, b
+	ld [de], a
+	dec e
+	ld a, c
+	ld [de], a
+	ret
+
+SECTION "EVScript ScriptNPCSetFrame", ROM0
+ScriptNPCSetFrame:
+	; TODO: This is a particularly egrigious example of a situation in which pointer support is needed.
+	ld a, [wActiveEntity]
+	ld d, a
+	ld e, LOW(wEntity0_Frame)
+	ld a, [hli]
+	ld [de], a
+	ret
+
+SECTION "EVScript ScriptNPCLockPlayer", ROM0
+ScriptNPCLockPlayer:
+	ld a, [wSceneMovementLocked]
+	xor a, 1
+	ld [wSceneMovementLocked], a
 	ret
