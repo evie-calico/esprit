@@ -782,7 +782,11 @@ SECTION "EVScript ScriptNPCWalk", ROM0
 ScriptNPCWalk:
 	; TODO: Most NPC operations are simply manipulating data in memory. This would be a good application for pointers, arrays, and function support.
 	; For now, we use this bytecode instead.
+	ld a, [hli]
+	add a, HIGH(wEntity0)
+	jr nc, :+
 	ld a, [wActiveEntity]
+:
 	ld d, a
 	ld e, LOW(wEntity0_SpriteY)
 	ld a, [de]
@@ -820,7 +824,11 @@ ScriptNPCWalk:
 SECTION "EVScript ScriptNPCSetFrame", ROM0
 ScriptNPCSetFrame:
 	; TODO: This is a particularly egrigious example of a situation in which pointer support is needed.
+	ld a, [hli]
+	add a, HIGH(wEntity0)
+	jr nc, :+
 	ld a, [wActiveEntity]
+:
 	ld d, a
 	ld e, LOW(wEntity0_Frame)
 	ld a, [hli]

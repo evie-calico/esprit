@@ -1,25 +1,26 @@
 include "../include/script.evs";
 include asm "res/charmap.inc";
+include asm "entity.inc";
 
 npc xWalkAround {
 	lock();
 	say("Hello, World!<WAITBTN>");
 	wait();
-	set_frame(1);
+	set_frame("self", ENTITY_FRAME_STEP);
 	repeat 60 {
-		move(16, 0);
+		move("self", 12, 0);
 		yield;
 	}
-	set_frame(0);
+	set_frame("self", ENTITY_FRAME_IDLE);
 	repeat 60 {
 		yield;
 	}
-	set_frame(1);
+	set_frame("self", ENTITY_FRAME_STEP);
 	repeat 60 {
-		move(65520, 0);
+		move("self", -12, 0);
 		yield;
 	}
-	set_frame(0);
+	set_frame("self", ENTITY_FRAME_IDLE);
 	say("Bye!<WAITBTN><CLEAR>");
 	wait();
 	lock();

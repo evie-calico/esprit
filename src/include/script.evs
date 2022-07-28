@@ -1,3 +1,7 @@
+include asm "script.inc";
+
+typedef ptr = u16;
+
 env script {
 	use std;
 	def memset(const ptr, const u8, const u16);
@@ -12,8 +16,8 @@ env script {
 	def map_get_tile(u8, u8, u8);
 	def step_direction(u8, u8, u8);
 	def draw_sprite(u8); // TODO: This "u8" should really be a struct.
-	def npc_move(const u16, const u16);
-	def npc_set_frame(const u8);
+	def npc_move(const u8, const u16, const u16);
+	def npc_set_frame(const u8, const u8);
 	def npc_lock();
 
 	pool = 16;
@@ -24,8 +28,8 @@ env npc {
 	use script;
 	// Define a more terse name for this command and reverse the arguments
 	// to be in x, y order.
-	mac move(const u16, const u16) = npc_move($2, $1);
-	mac set_frame(const u8) = npc_set_frame($1);
+	mac move(...) = npc_move;
+	mac set_frame(...) = npc_set_frame;
 	mac lock() = npc_lock();
 	mac wait() = print_wait();
 	pool = 8;

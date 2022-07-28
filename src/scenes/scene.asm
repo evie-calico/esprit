@@ -171,6 +171,9 @@ InitScene::
 
 	xor a, a
 	ld [wSceneMovementLocked], a
+	ld hl, wSceneNPCDialogue.pointer
+	ld c, 3
+	rst MemSetSmall
 
 	ld a, BANK(xRenderScene)
 	rst SwapBank
@@ -178,26 +181,54 @@ InitScene::
 
 SECTION "Scene State", ROM0
 SceneState::
+	ld a, [wSceneMovementLocked]
+	and a, a
+	jr nz, .skipLocked
+
 	ld a, BANK(xHandleSceneMovement)
 	rst SwapBank
 	call xHandleSceneMovement
+
+	ld a, BANK(xSceneCheckInteraction)
+	rst SwapBank
+	call xSceneCheckInteraction
+
+.skipLocked
+
+	call ExecuteIdleScripts
+
+	ld hl, wSceneNPCDialogue.pointer
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld de, wSceneNPCDialogue.scriptVariables
+	call ExecuteScript
+	ld de, wSceneNPCDialogue.pointer
+	ldh a, [hCurrentBank]
+	ld [de], a
+	inc de
+	ld a, l
+	ld [de], a
+	inc de
+	ld a, h
+	ld [de], a
+
+	ld a, BANK(xRenderNPCs)
+	rst SwapBank
+	call xRenderNPCs
+	call UpdateEntityGraphics
 
 	ld a, [wPrintString]
 	and a, a
 	call nz, DrawPrintString.customDelay
 	call PrintVWFChar
 	call DrawVWFChars
-
-	call ExecuteIdleScripts
 	
 	ld a, BANK(xHandleSceneCamera)
 	rst SwapBank
-	call xHandleSceneCamera
-
-	ld a, BANK(xRenderNPCs)
-	rst SwapBank
-	call xRenderNPCs
-	jp UpdateEntityGraphics
+	jp xHandleSceneCamera
 
 SECTION "Scene Run Idle Scripts", ROM0
 ExecuteIdleScripts:
@@ -243,10 +274,6 @@ ExecuteIdleScripts:
 
 SECTION "Scene Movement", ROMX
 xHandleSceneMovement:
-	ld a, [wSceneMovementLocked]
-	and a, a
-	ret nz
-
 	xor a, a
 	ld [wEntity0_Frame], a
 	call PadToDir
@@ -395,6 +422,119 @@ xHandleSceneMovement:
 	ld a, LOW(InitMap)
 	ld [hli], a
 	ld [hl], HIGH(InitMap)
+	ret
+
+SECTION "Scene check for NPCs", ROMX
+xSceneCheckInteraction:
+	ldh a, [hNewKeys]
+	bit PADB_A, a
+	ret z
+
+	; Comparing positions like this is a bit difficult due to the register
+	; pressure. However, we know that the Y position is limited to 256 and thus
+	; fits in a byte, allowing us to avoid spilling. We leave hl for the NPC's
+	; position so that it can do a direct deref with hl.
+
+	ld hl, wEntity0_SpriteY
+	ld a, [hli]
+	add a, 8 << 4
+	ld c, a
+	ld a, [hli]
+	adc a, 0
+	ld b, a
+	; bc = Y (fixed-point)
+	; We'll shift Y later after adding the direction vector.
+	ld a, [hli]
+	add a, 8 << 4
+	ld e, a
+	ld a, [hli]
+	adc a, 0
+	ld d, a
+	; de = X (fixed-point)
+
+	; Offset the adjusted position according to the player's direction.
+	ld l, LOW(wEntity0_Direction)
+	ld a, [hl]
+	add a, a
+	add a, LOW(DirectionVectors)
+	ld l, a
+	adc a, HIGH(DirectionVectors)
+	sub a, l
+	ld h, a
+
+	ld a, [hli]
+	add a, d
+	ld d, a
+
+	ld a, [hli]
+	add a, b
+	; The Y position now needs to be shifted down so that it may fit into a byte.
+	REPT 4
+		rra
+		rr c
+	ENDR
+	; c = Y (integer)
+	ld h, HIGH(wEntity2)
+.loop
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	and a, a
+	jr z, .next
+
+	; Compare this NPC's position to the player's.
+	; position > target && position < target + 16
+	; or
+	; position - target > 0 && position - target - 16 < 0
+
+	ld l, LOW(wEntity0_SpriteY)
+	ld a, [hli]
+	ld b, a
+	ld a, [hli]
+	REPT 4
+		rra
+		rr b
+	ENDR
+	; position - target
+	ld a, c
+	sub a, b
+	; if < 0 exit
+	jr c, .next
+	sub a, 16
+	jr nc, .next
+
+	; -target
+	ld a, [hli]
+	cpl
+	ld b, a
+	push hl
+		ld a, [hl]
+		cpl
+		ld h, a
+		ld l, b
+		inc hl
+		; -target + position
+		add hl, de
+		ld a, h
+		pop hl
+		inc hl
+	bit 7, a
+	jr nz, .next
+	sub a, 1
+	jr nc, .next
+	xor a, a
+	ld [wEntity0_Frame], a
+	ld [wEntity1_Frame], a
+	ld l, LOW(wEntity0_InteractionScript)
+	ld de, wSceneNPCDialogue.pointer
+	ld c, 3
+	rst MemCopySmall
+	ret
+
+.next
+	inc h
+	ld a, h
+	cp a, HIGH(wEntity0) + NB_ENTITIES
+	jr nz, .loop
 	ret
 
 SECTION "Handle scene scrolling", ROMX
@@ -1010,7 +1150,11 @@ wSceneBoundary:
 wSceneMovementLocked:: db
 
 wSceneNPCIdleScriptVariables:: ds NPC_SCRIPT_POOL_SIZE * NB_NPCS
-wSceneNPCDialogueScriptVariables:: ds NPC_SCRIPT_POOL_SIZE * NB_NPCS
+
+wSceneNPCDialogue:
+.pointer ds 3
+.scriptVariables:: ds NPC_SCRIPT_POOL_SIZE * 2
+
 
 SECTION "Scene Loop counter", HRAM
 hSceneLoopCounter: db
