@@ -51,14 +51,14 @@ ENDM
 
 	dungeon Forest, "res/tree_tiles.2bpp", HALLS, 5, FOREST_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
-	        xRat, 1, \
-	        xRat, 1, \
-	        xRat, 2, \
-	        xRat, 2, \
-	        xRat, 3, \
-	        xRat, 3, \
-	        xRat, 4, \
-	        xRat, 5
+	        xForestRat, 1, \
+	        xForestRat, 1, \
+	        xForestRat, 2, \
+	        xForestRat, 2, \
+	        xForestRat, 3, \
+	        xFieldRat, 3, \
+	        xForestRat, 4, \
+	        xForestRat, 5
 	dungeon_palette 128, 255, 144, \ ; Blank
 	                  0, 120,   0, \ ; Ground
 	                  0,  88,  24, \
@@ -72,14 +72,14 @@ ENDM
 
 	dungeon Field, "res/field_tiles.2bpp", HALLS, 5, FIELDS_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
-	        xRat, 1, \
-	        xRat, 1, \
-	        xRat, 2, \
-	        xRat, 2, \
-	        xRat, 3, \
-	        xRat, 3, \
-	        xRat, 4, \
-	        xRat, 5
+	        xFieldRat, 2, \
+	        xForestRat, 3, \
+	        xForestRat, 3, \
+	        xFieldRat, 3, \
+	        xFieldRat, 4, \
+	        xFieldRat, 5, \
+	        xFieldRat, 6, \
+	        xFieldRat, 6
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
 	                 24,  64,  24, \
