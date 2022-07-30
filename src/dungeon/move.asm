@@ -231,10 +231,20 @@ MoveActionAttack:
 
 .found
 	push hl
+	push de
+	call Rand
+	pop de
+	pop hl
+	push hl
 	ASSERT Move_Range + 1 == Move_Power
 	inc de
+	; TODO: Reuse the existing Rand call
+	; TODO sign-extend this value so that it can be -1, 2 instead of 0, 3 (or don't)
+	and a, 3
+	ld b, a
 	; Damage target with move power.
 	ld a, [de]
+	add a, b
 	ld [wDealtDamage.value], a
 	ld e, a ; Save the move power in e. We don't need de anymore.
 	ld l, LOW(wEntity0_Health)
