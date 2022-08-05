@@ -12,6 +12,7 @@ env script {
 	def say(const ptr);
 	// Wait until text printing is done.
 	def print_wait();
+	def get_flag(const u8, u8);
 	def map_put_tile(u8, u8, const u8);
 	def map_get_tile(u8, u8, u8);
 	def step_direction(u8, u8, u8);

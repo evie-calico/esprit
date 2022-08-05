@@ -75,8 +75,7 @@ MACRO end_node
 ENDM
 
 DEF NB_DROPLETS EQU 16
-DEF NB_DUCKS EQU 1
-DEF NB_EFFECTS EQU NB_DROPLETS + NB_DUCKS
+DEF NB_EFFECTS EQU NB_DROPLETS + 3
 
 SECTION "World map nodes", ROMX
 	node xBeginningHouse, "----'s House", 76, 88
@@ -170,8 +169,13 @@ xWorldMap:
 .dmgmap INCBIN "res/worldmap/crater-dmg.map"
 .duck INCBIN "res/worldmap/duck.2bpp"
 .droplet INCBIN "res/worldmap/droplet.2bpp"
+.hoof INCBIN "res/worldmap/hoofprint.2bpp"
+.haze INCBIN "res/worldmap/haze1.2bpp"
+      INCBIN "res/worldmap/haze2.2bpp"
 .dropletPalette INCBIN "res/worldmap/droplet.pal8", 3
 .duckPalette INCBIN "res/worldmap/duck.pal8", 3
+.hoofPalette INCBIN "res/worldmap/hoofprint.pal8", 3
+.hazePalette INCBIN "res/worldmap/haze1.pal8", 3
 
 SECTION "Map State Init", ROM0
 InitMap::
@@ -195,7 +199,7 @@ InitMap::
 
 	ld de, wOBJPaletteBuffer + 3 * 3
 	ld hl, xWorldMap.dropletPalette
-	ld c, 3 * 3 * 2
+	ld c, 3 * 3 * 4
 	call MemCopySmall
 
 	ld a, 1
@@ -249,6 +253,20 @@ InitMap::
 	ld l, e
 	call VRAMSetSmall
 
+	ld hl, xWorldMap.hoof
+	ld de, $8000 + $7A * 16
+	ld c, 16
+	call VRAMCopySmall
+	lb bc, 0, 16
+	ld h, d
+	ld l, e
+	call VRAMSetSmall
+
+	ld hl, xWorldMap.haze
+	ld de, $8000 + $6E * 16
+	ld c, 16 * 12
+	call VRAMCopySmall
+
 	ld b, NB_DROPLETS
 	ld hl, wEffects
 .initDroplets
@@ -273,6 +291,22 @@ InitMap::
 	ld a, LOW(xDuckEffect)
 	ld [hli], a
 	ld a, HIGH(xDuckEffect)
+	ld [hli], a
+
+	ld hl, wEffects + 19 * (NB_DROPLETS + 1)
+	ld a, BANK(xHoofprintsEffect)
+	ld [hli], a
+	ld a, LOW(xHoofprintsEffect)
+	ld [hli], a
+	ld a, HIGH(xHoofprintsEffect)
+	ld [hli], a
+
+	ld hl, wEffects + 19 * (NB_DROPLETS + 2)
+	ld a, BANK(xHazeEffect)
+	ld [hli], a
+	ld a, LOW(xHazeEffect)
+	ld [hli], a
+	ld a, HIGH(xHazeEffect)
 	ld [hli], a
 
 	call InitUI

@@ -85,6 +85,7 @@ EVScriptBytecodeTable:
 	dw ScriptPrint
 	dw ScriptSay
 	dw ScriptPrintWait
+	dw ScriptGetFlag
 	; Mapgen Utilities
 	dw ScriptMapPutTile
 	dw ScriptMapGetTile
@@ -612,6 +613,27 @@ ScriptPrintWait:
 	ret z
 	dec hl
 	jp StdYield
+
+SECTION "EVScript ScriptGetFlag", ROM0
+ScriptGetFlag:
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	add a, e
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+	push hl
+		call GetFlag
+		and a, [hl]
+	pop hl
+	ld a, 0
+	jr z, :+
+	inc a
+:
+	ld [de], a
+	ret
 
 SECTION "Map Get/Put Prologue", ROM0
 MapGetPutPrologue:
