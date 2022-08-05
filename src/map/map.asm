@@ -107,6 +107,7 @@ SECTION "World map nodes", ROMX
 	end_node
 
 	node xLakeNode, "Crystal Lake", 45, 32
+		press DUNGEON, xLake
 		left MOVE, xFieldsNode
 	end_node
 

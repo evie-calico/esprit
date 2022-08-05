@@ -90,3 +90,45 @@ ENDM
 	                 96,  80,   0, \ ; Exit
 	                 64,  48,   0, \
 	                 32,  24,   0, \
+
+	dungeon Lake, "res/lake_tiles.2bpp", HALLS, 5, LAKE_COMPLETE, \
+	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
+	        xFieldRat, 2, \
+	        xForestRat, 3, \
+	        xForestRat, 3, \
+	        xFieldRat, 3, \
+	        xFieldRat, 4, \
+	        xFieldRat, 5, \
+	        xFieldRat, 6, \
+	        xFieldRat, 6
+	dungeon_palette 255, 255,  128, \ ; Blank
+	                160, 160,  80, \ ; Ground
+	                 48,  48, 176, \
+	                 16,  16, 128, \
+	                 48,  48, 176, \ ; Wall
+	                 16,  16, 128, \
+	                  0,   8,   0, \
+	                255,   0,   0, \ ; Exit
+	                128,   0,   0, \
+	                 64,   0,   0, \
+
+	dungeon GemstoneWoods, "res/gemtree_tiles.2bpp", HALLS, 5, FOREST_COMPLETE, \
+	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
+	        xForestRat, 1, \
+	        xForestRat, 1, \
+	        xForestRat, 2, \
+	        xForestRat, 2, \
+	        xForestRat, 3, \
+	        xFieldRat, 3, \
+	        xForestRat, 4, \
+	        xForestRat, 5
+	dungeon_palette 248, 136, 112, \ ; Blank
+	                176,  32,  64,  \ ; Ground
+	                  0, 120,   0, \ 
+	                  0,  32,   0, \
+	                192,  72, 112, \ ; Wall
+	                128,   0,  64, \
+	                 32,   0,  32, \
+	                  0,   0, 255, \ ; Exit
+	                  0,   0, 128, \
+	                  0,   0,  64, \
