@@ -27,7 +27,7 @@ MACRO dungeon
 		farptr \1
 	ENDR
 
-	db FLAG_{FLAG}
+	db {FLAG}
 
 	ASSERT sizeof_Dungeon == 52
 	.tileset INCBIN {TILESET}
@@ -49,7 +49,7 @@ MACRO dungeon_palette
 	ENDR
 ENDM
 
-	dungeon Forest, "res/tree_tiles.2bpp", HALLS, 5, FOREST_COMPLETE, \
+	dungeon Forest, "res/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
@@ -70,7 +70,7 @@ ENDM
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon Field, "res/field_tiles.2bpp", HALLS, 5, FIELDS_COMPLETE, \
+	dungeon Field, "res/field_tiles.2bpp", HALLS, 5, FLAG_FIELDS_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat, 2, \
 	        xForestRat, 3, \
@@ -91,7 +91,7 @@ ENDM
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon Lake, "res/lake_tiles.2bpp", HALLS, 5, LAKE_COMPLETE, \
+	dungeon Lake, "res/lake_tiles.2bpp", HALLS, 5, FLAG_LAKE_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat, 2, \
 	        xForestRat, 3, \
@@ -112,7 +112,49 @@ ENDM
 	                128,   0,   0, \
 	                 64,   0,   0, \
 
-	dungeon GemstoneWoods, "res/gemtree_tiles.2bpp", HALLS, 5, FOREST_COMPLETE, \
+	dungeon Plains, "res/field_tiles.2bpp", HALLS, 5, FLAG_PLAINS_COMPLETE, \
+	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
+	        xFieldRat, 2, \
+	        xForestRat, 3, \
+	        xForestRat, 3, \
+	        xFieldRat, 3, \
+	        xFieldRat, 4, \
+	        xFieldRat, 5, \
+	        xFieldRat, 6, \
+	        xFieldRat, 6
+	dungeon_palette 120, 192,  96, \ ; Blank
+	                 32, 120,   0, \ ; Ground
+	                 24,  64,  24, \
+	                  0,  32,   0, \
+	                 64, 120,   0, \ ; Wall
+	                  0,  64,   0, \
+	                  0,   8,   0, \
+	                 96,  80,   0, \ ; Exit
+	                 64,  48,   0, \
+	                 32,  24,   0, \
+
+	dungeon Caves, "res/tree_tiles.2bpp", HALLS, 5, FLAG_CAVES_COMPLETE, \
+	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
+	        xForestRat, 1, \
+	        xForestRat, 1, \
+	        xForestRat, 2, \
+	        xForestRat, 2, \
+	        xForestRat, 3, \
+	        xFieldRat, 3, \
+	        xForestRat, 4, \
+	        xForestRat, 5
+	dungeon_palette 128, 255, 144, \ ; Blank
+	                  0, 120,   0, \ ; Ground
+	                  0,  88,  24, \
+	                  0,  32,   0, \
+	                144, 104,  72, \ ; Wall
+	                  0,  88,  24, \
+	                  0,  32,   0, \
+	                  0,   0, 255, \ ; Exit
+	                  0,   0, 128, \
+	                  0,   0,  64, \
+
+	dungeon GemstoneWoods, "res/gemtree_tiles.2bpp", HALLS, 5, FLAG_GEMTREE_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \

@@ -15,11 +15,12 @@ INCLUDE "structs.inc"
 	end_struct
 
 RSRESET
-DEF MAP_NODE_NONE RB 1    ; No action; the default
-DEF MAP_NODE_MOVE RB 1    ; Move to another node
-DEF MAP_NODE_LOCK RB 1    ; Move to another node if FLAG is set
-DEF MAP_NODE_DUNGEON RB 1 ; Enter a dungeon
-DEF MAP_NODE_SCENE RB 1    ; Enter a town
+DEF MAP_NODE_NONE RB     ; No action; the default
+DEF MAP_NODE_MOVE RB     ; Move to another node
+DEF MAP_NODE_LOCK RB     ; Move to another node if FLAG is set
+DEF MAP_NODE_DUNGEON RB  ; Enter a dungeon
+DEF MAP_NODE_SCENE RB    ; Enter a town
+DEF MAP_NODE_AUTOMOVE RB ; Automatically progress to the next node; do not draw name.
 
 MACRO _node_dir
 	REDEF _NODE_\1_TYPE     EQU MAP_NODE_NONE
@@ -109,6 +110,54 @@ SECTION "World map nodes", ROMX
 	node xLakeNode, "Crystal Lake", 45, 32
 		press DUNGEON, xLake
 		left MOVE, xFieldsNode
+		right LOCK, xTurn0, LAKE_COMPLETE
+	end_node
+
+	node xTurn0, "", 69, 32
+		press AUTOMOVE, null
+		down MOVE, xTurn1
+		left MOVE, xLakeNode
+	end_node
+
+	node xTurn1, "", 69, 56
+		press AUTOMOVE, null
+		right MOVE, xBlazingPlains
+		up MOVE, xTurn0
+	end_node
+
+	node xBlazingPlains, "Blazing Plains", 101, 56
+		press DUNGEON, xPlains
+		left MOVE, xTurn1
+		up LOCK, xTurn2, PLAINS_COMPLETE
+		down LOCK, xGemstoneWoodsNode, CAVES_COMPLETE
+	end_node
+
+	node xTurn2, "", 101, 24
+		press AUTOMOVE, null
+		down MOVE, xBlazingPlains
+		left MOVE, xTurn3
+	end_node
+
+	node xTurn3, "", 85, 24
+		press AUTOMOVE, null
+		right MOVE, xTurn2
+		up MOVE, xTurn4
+	end_node
+
+	node xTurn4, "", 85, 8
+		press AUTOMOVE, null
+		down MOVE, xTurn3
+		right MOVE, xCraterCaverns
+	end_node
+
+	node xCraterCaverns, "Crater Caverns", 101, 8
+		press DUNGEON, xCaves
+		left MOVE, xTurn4
+	end_node
+
+	node xGemstoneWoodsNode, "Gemstone Woods", 101, 80
+		press DUNGEON, xGemstoneWoods
+		up MOVE, xBlazingPlains
 	end_node
 
 SECTION "World Map", ROMX
@@ -419,6 +468,77 @@ MapMovement:
 
 SECTION "Update Map Node", ROM0
 UpdateMapNode:
+	ld hl, wActiveMapNode
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	add a, MapNode_Press
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld a, [hl]
+	cp a, MAP_NODE_AUTOMOVE
+	jr nz, .noAutomove
+
+	; Find the first direction containing MOVE that is not equal to the current direction.
+	ld a, [wEntity0_LastDirection]
+	ld b, a
+	ASSERT MapNode_Press - 4 == MapNode_Left
+	dec hl
+	dec hl
+	dec hl
+	dec hl
+	ld a, [hli]
+	dec a
+	jr nz, :+
+	ld a, RIGHT
+	cp a, b
+	jp nz, MapNodeMove
+:
+	ASSERT MapNode_Left - 4 == MapNode_Down
+	dec hl
+	dec hl
+	dec hl
+	dec hl
+	dec hl
+	ld a, [hli]
+	dec a
+	jr nz, :+
+	ld a, UP
+	cp a, b
+	jp nz, MapNodeMove
+:
+	ASSERT MapNode_Down - 4 == MapNode_Right
+	dec hl
+	dec hl
+	dec hl
+	dec hl
+	dec hl
+	ld a, [hli]
+	dec a
+	jr nz, :+
+	ld a, LEFT
+	cp a, b
+	jp nz, MapNodeMove
+:
+	ASSERT MapNode_Right - 4 == MapNode_Up
+	dec hl
+	dec hl
+	dec hl
+	dec hl
+	dec hl
+	ld a, [hli]
+	dec a
+	jr nz, :+
+	ld a, DOWN
+	cp a, b
+	jp nz, MapNodeMove
+:
+
+.noAutomove
+
 	ld a, [wPrintString]
 	and a, a
 	call nz, DrawPrintString
@@ -472,10 +592,10 @@ UpdateMapNode:
 	jr MapNodeScene
 
 MapNodeMove:
-	ld a, b
-	ld [wMapLastDirectionMoved], a
 	inc hl
 .noInc
+	ld a, b
+	ld [wMapLastDirectionMoved], a
 	ld de, wActiveMapNode + 1
 	ld a, [hli]
 	ld [de], a
