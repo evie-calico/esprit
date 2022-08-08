@@ -49,7 +49,7 @@ MACRO dungeon_palette
 	ENDR
 ENDM
 
-	dungeon Forest, "res/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, \
+	dungeon Forest, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
@@ -70,7 +70,7 @@ ENDM
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon Field, "res/field_tiles.2bpp", HALLS, 5, FLAG_FIELDS_COMPLETE, \
+	dungeon Field, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_FIELDS_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat, 2, \
 	        xForestRat, 3, \
@@ -91,7 +91,7 @@ ENDM
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon Lake, "res/lake_tiles.2bpp", HALLS, 5, FLAG_LAKE_COMPLETE, \
+	dungeon Lake, "res/dungeons/lake_tiles.2bpp", HALLS, 5, FLAG_LAKE_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat, 2, \
 	        xForestRat, 3, \
@@ -112,7 +112,7 @@ ENDM
 	                128,   0,   0, \
 	                 64,   0,   0, \
 
-	dungeon Plains, "res/field_tiles.2bpp", HALLS, 5, FLAG_PLAINS_COMPLETE, \
+	dungeon Plains, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_PLAINS_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat, 2, \
 	        xForestRat, 3, \
@@ -133,7 +133,7 @@ ENDM
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon Caves, "res/tree_tiles.2bpp", HALLS, 5, FLAG_CAVES_COMPLETE, \
+	dungeon Caves, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_CAVES_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
@@ -154,7 +154,7 @@ ENDM
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon GemstoneWoods, "res/gemtree_tiles.2bpp", HALLS, 5, FLAG_GEMTREE_COMPLETE, \
+	dungeon GemstoneWoods, "res/dungeons/gemtree_tiles.2bpp", HALLS, 5, FLAG_GEMTREE_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \

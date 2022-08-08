@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Converts a 555 palette produced by RGBGFX into a 888 palette.
+
 int main(int argc, char ** argv) {
 	if (argc != 3) {
 		fputs("Expected two arguments", stderr);
