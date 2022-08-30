@@ -58,7 +58,9 @@ release:
 .PHONY: release
 
 test: $(ROM)
-	evunit --config test.toml --symfile bin/vuiiger.sym --silent $<
+	bash test-config-generator.bash | \
+	cat test-config.toml - | \
+	evunit --config /dev/stdin --symfile bin/vuiiger.sym --silent $<
 
 ###############################################
 #                                             #
