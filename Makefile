@@ -57,6 +57,9 @@ release:
 	${MAKE} LDFLAGS="-p 0xFF -w"
 .PHONY: release
 
+test: $(ROM)
+	evunit --config test.toml --symfile bin/vuiiger.sym --silent $<
+
 ###############################################
 #                                             #
 #                 COMPILATION                 #

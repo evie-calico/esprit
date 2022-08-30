@@ -1,0 +1,51 @@
+crash = 0x38
+enable-breakpoints = true
+sp = "wStack.top"
+
+# param a: Level
+# return a: Reward
+[GetXpReward]
+pc = "GetXpReward"
+a = 1
+[GetXpReward.result]
+a = 25
+
+# param a: bit
+# return a: mask
+GetBitA_0 = { pc = "GetBitA", a = 0, result = { a = 1 } }
+
+[GetBitA_1]
+pc = "GetBitA"
+a = 1
+[GetBitA_1.result]
+a = 2
+[GetBitA_2]
+pc = "GetBitA"
+a = 2
+[GetBitA_2.result]
+a = 4
+[GetBitA_3]
+pc = "GetBitA"
+a = 3
+[GetBitA_3.result]
+a = 8
+[GetBitA_4]
+pc = "GetBitA"
+a = 4
+[GetBitA_4.result]
+a = 16
+[GetBitA_5]
+pc = "GetBitA"
+a = 5
+[GetBitA_5.result]
+a = 32
+[GetBitA_6]
+pc = "GetBitA"
+a = 6
+[GetBitA_6.result]
+a = 64
+[GetBitA_7]
+pc = "GetBitA"
+a = 7
+[GetBitA_7.result]
+a = 128
