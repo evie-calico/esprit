@@ -574,11 +574,7 @@ ScriptMemset:
 
 SECTION "EVScript ScriptRand", ROM0
 ScriptRand:
-	push de
-	push hl
-	call Rand
-	pop hl
-	pop de
+	rst Rand8
 	ld b, a
 	ld a, [hli]
 	add a, e

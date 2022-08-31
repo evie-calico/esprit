@@ -915,11 +915,7 @@ DrawSceneBackground:
 		; l = base tile
 		; h = width counter
 		push bc
-		push de
-		push hl
-		call Rand
-		pop hl
-		pop de
+		rst Rand8
 		pop bc
 		and a, 15 ; 1/16 chance
 		jr z, .four

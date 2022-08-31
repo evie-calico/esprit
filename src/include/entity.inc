@@ -25,6 +25,8 @@ DEF ENTITY_FRAME_HURT_OFFSET RB 64
 RSRESET
 ; A simple attack, dealing damage to an enemy in front of the user.
 DEF MOVE_ACTION_ATTACK RB 1
+; Heals an ally in front of the user
+DEF MOVE_ACTION_HEAL RB 1
 
 ; Animation bytecode
 RSRESET

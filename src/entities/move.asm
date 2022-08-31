@@ -113,6 +113,7 @@ UseMove::
 	ld hl, wMoveState
 	ASSERT wMoveState.userIndex + 1 == wMoveState.moveBank
 	ld a, [hli]
+	ld [hSaveUserIndex], a
 	ld b, a
 	ld a, [hli]
 	rst SwapBank
@@ -135,33 +136,68 @@ UseMove::
 .moveActions
 	ASSERT MOVE_ACTION_ATTACK == 0
 	dw MoveActionAttack
+	ASSERT MOVE_ACTION_HEAL == 1
+	dw MoveActionHeal
 
 ; Basic attack. Check <range> tiles in front of <entity>, and attack the first
-; entity seen. Deals <power> damage and has a <chance> chance of succeeding.
+; enemy seen. Deals <power> damage and has a <chance> chance of succeeding.
 ; @param b: Entity pointer high byte
 ; @param de: Move pointer
 MoveActionAttack:
-	ld h, b ; Move the index to h; a more useful register.
-	ld a, b
-	ldh [hSaveUserIndex], a
+	call CheckMoveAccuracy
+	call ScanForEntities
+	rst Rand8
+	and a, 3
+	ld b, a
+	jp DealDamage
 
+; Basic healing move. Check <range> tiles in front of <entity>, and heal the first
+; ally seen. Heals <power> health and has a <chance> chance of succeeding.
+; @param b: Entity pointer high byte
+; @param de: Move pointer
+MoveActionHeal:
+	call CheckMoveAccuracy
+	ldh a, [hMoveUserTeam]
+	xor a, 1 ; Flip the team to check around
+	ldh [hMoveUserTeam], a
+	call ScanForEntities
+	rst Rand8
+	and a, 3
+	ld b, a
+	jp HealDamage
+
+SECTION "Check move accuracy", ROM0
+; Jumps to PrintMissed if the move missed.
+; Skips over caller.
+; @param de: move pointer
+; @return carry: true if missed
+; @return de: Move_Chance
+; @preserves b, hl
+; @clobbers c
+CheckMoveAccuracy:
 	ASSERT Move_Chance == 1
 	inc de
-	push de
-	push hl
-	call Rand
-	pop hl
-	pop de
+	rst Rand8
 	ld c, a
 	ld a, [de]
 	cp a, c
-	jp c, .miss
+	ret nc
+	pop af
+	jp PrintMissed
 
-	ASSERT Move_Chance + 1 == Move_Range
+SECTION "Scan for entities", ROM0
+; Jumps to PrintMissed if no entity is found or a wall is hit.
+; @param de: Move_Chance
+; @param hSaveUserIndex: User index
+; @return de: Move_Chance
+; @preserves de
+ScanForEntities:
 	inc de
 	ld a, [de] ; Load range and store for later.
 	ldh [hRangeCounter], a
 
+	ldh a, [hSaveUserIndex]
+	ld h, a
 	ld l, LOW(wEntity0_PosX)
 	ld a, [hli]
 	ld b, a
@@ -221,7 +257,7 @@ MoveActionAttack:
 	rst SwapBank
 	ld a, h
 	and a, a
-	jr nz, .found
+	ret nz
 	; if not found, keep searching for each unit of range.
 	ldh a, [hRangeCounter]
 	dec a
@@ -229,19 +265,18 @@ MoveActionAttack:
 	ldh [hRangeCounter], a
 	jr .offsetDirection
 
-.found
-	push hl
-	push de
-	call Rand
-	pop de
-	pop hl
-	push hl
+.miss
+	pop af
+	jp PrintMissed
+
+SECTION "Deal damage", ROM0
+; @param b: damage offset
+; @param de: Move_Range
+; @param h: target entity
+DealDamage:
 	ASSERT Move_Range + 1 == Move_Power
 	inc de
-	; TODO: Reuse the existing Rand call
-	; TODO sign-extend this value so that it can be -1, 2 instead of 0, 3 (or don't)
-	and a, 3
-	ld b, a
+	push hl
 	; Damage target with move power.
 	ld a, [de]
 	add a, b
@@ -292,7 +327,58 @@ MoveActionAttack:
 	ld [wDefeatCheckTarget], a
 	ret
 
-.miss
+SECTION "Heal damage", ROM0
+; @param b: damage offset
+; @param de: Move_Range
+; @param h: target entity
+HealDamage:
+	ASSERT Move_Range + 1 == Move_Power
+	inc de
+	; Damage target with move power.
+	ld a, [de]
+	add a, b
+	ld [wHealedDamage.value], a
+	ld e, a ; Save the move power in e. We don't need de anymore.
+	ld b, h
+	call HealEntity
+
+	; Prepare for printing.
+	ld h, b
+	ld l, LOW(wEntity0_Bank)
+	ld a, [hli]
+	ld [wHealedDamage.target], a
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	inc hl
+	inc hl
+	inc hl
+	ld a, [hli]
+	ld [wHealedDamage.target + 1], a
+	ld a, [hl]
+	ld [wHealedDamage.target + 2], a
+
+	ld b, BANK(xHealedText)
+	ld hl, xHealedText
+	call PrintHUD
+
+	ld hl, wEntityAnimation
+	ld a, LOW(EntityDelayAnimation)
+	ld [hli], a
+	ld a, HIGH(EntityDelayAnimation)
+	ld [hli], a
+	xor a, a
+	ld [hli], a
+	ld [hli], a
+	ld a, [wHealedDamage.target + 2]
+	ld [hl], a
+	ret
+
+SECTION "Print missed text", ROM0
+; @hSaveUserIndex: user index
+PrintMissed:
 	ldh a, [hSaveUserIndex]
 	ld h, a
 	ld l, LOW(wEntity0_Bank)
@@ -314,7 +400,19 @@ MoveActionAttack:
 
 	ld b, BANK(xMissedText)
 	ld hl, xMissedText
-	jp PrintHUD
+	call PrintHUD
+
+	ld hl, wEntityAnimation
+	ld a, LOW(EntityDelayAnimation)
+	ld [hli], a
+	ld a, HIGH(EntityDelayAnimation)
+	ld [hli], a
+	xor a, a
+	ld [hli], a
+	ld [hli], a
+	ld a, [wMissedMove.user + 2]
+	ld [hl], a
+	ret
 
 SECTION "Defeat check", ROM0
 DefeatCheck::
@@ -415,6 +513,13 @@ xDealtText:
 	textcallptr wDealtDamage.target
 	db "!<END>"
 
+SECTION "Healed damage text", ROMX
+xHealedText:
+	textcallptr wHealedDamage.target
+	db " healed "
+	print_u8 wHealedDamage.value
+	db " HP.<END>"
+
 SECTION "Defeated enemy text", ROMX
 xDefeatText:
 	db "Defeated "
@@ -439,6 +544,11 @@ wMissedMove:
 
 SECTION UNION "Move text variables", WRAM0
 wDealtDamage:
+.value db
+.target ds 3
+
+SECTION UNION "Move text variables", WRAM0
+wHealedDamage:
 .value db
 .target ds 3
 

@@ -20,6 +20,7 @@ ENDM
 		rgb 32, 0, 0
 	.moveTable
 		level 1, xScratch
+		level 1, xHeal
 		level 6, xBite
 		level 7, xPounce
 		db 0

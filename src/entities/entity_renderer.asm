@@ -570,6 +570,10 @@ EntityDefeatAnimation::
 	ENDR
 	ea_end
 
+EntityDelayAnimation::
+	ea_wait 16
+	ea_end
+
 SECTION "Entity animation graphics update", ROM0
 UpdateAnimationFrame:
 	push hl

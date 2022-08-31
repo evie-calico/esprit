@@ -19,21 +19,6 @@
 ;    misrepresented as being the original software.
 ; 3. This notice may not be removed or altered from any source distribution.
 
-SECTION "Null", ROM0[$0000]
-null::
-	db 0
-Stub::
-	ret
-
-SECTION "Call HL", ROM0[$0008]
-; Used to call the address pointed to by `hl`. Mapped to `rst $08` or `rst CallHL`
-CallHL::
-	jp hl
-
-SECTION "Crash", ROM0[$0038]
-	ld b, b
-	jr STARTOF("Crash")
-
 SECTION "Call DE", ROM0
 ; Calls the value in `de` by pushing it and returning
 CallDE::
