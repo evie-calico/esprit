@@ -19,7 +19,13 @@ to build this project.
 - A C compiler
 - [evscript](https://github.com/eievui5/evscript)
 
-Windows is not supported by any means. Use [WSL](https://docs.microsoft.com/en-us/windows/wsl/install).
+To run unit tests (optional, for development), additional dependancies are required.
+
+- [Bash](https://www.gnu.org/software/make/), or a similar software which can run bash scripts.
+- [evunit](https://github.com/eievui5/evunit)
+
+Windows is not supported.
+Use a POSIX environment like [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) or [MSYS2](https://www.msys2.org/).
 
 ## Building
 
