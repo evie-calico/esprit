@@ -1,7 +1,6 @@
 INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
-INCLUDE "text.inc"
 
 RSRESET
 DEF SCAN_ENTITY RB

@@ -3,7 +3,6 @@ INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
 INCLUDE "menu.inc"
-INCLUDE "text.inc"
 INCLUDE "vdef.inc"
 
 DEF POPUP_SPEED EQU 8

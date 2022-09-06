@@ -1,4 +1,4 @@
-INCLUDE "text.inc"
+INCLUDE "format.inc"
 
 ; Contains all formatted text in a central location
 

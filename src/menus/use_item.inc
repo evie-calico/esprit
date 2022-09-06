@@ -1,5 +1,4 @@
 INCLUDE "entity.inc"
-INCLUDE "text.inc"
 
 DEF PLAYER_SPACING EQU 24
 

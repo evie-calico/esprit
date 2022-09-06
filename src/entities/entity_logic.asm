@@ -2,7 +2,6 @@ INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
-INCLUDE "text.inc"
 
 DEF FOLLOWER_DISTANCE EQU 4
 

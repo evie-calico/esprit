@@ -2,7 +2,6 @@ INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "hardware.inc"
-INCLUDE "text.inc"
 
 ; How fast the entity should move during animations. Should be a power of two.
 DEF MOVEMENT_SPEED EQU 16
