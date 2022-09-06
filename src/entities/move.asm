@@ -3,6 +3,11 @@ INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
 INCLUDE "text.inc"
 
+RSRESET
+DEF SCAN_ENTITY RB
+DEF SCAN_WALL RB
+DEF SCAN_NONE RB
+
 SECTION "Use Move", ROM0
 ; @param a: Move index
 ; @param b: Entity pointer high byte
@@ -145,7 +150,11 @@ UseMove::
 ; @param de: Move pointer
 MoveActionAttack:
 	call CheckMoveAccuracy
+	jp c, PrintMissed
 	call ScanForEntities
+	ASSERT SCAN_ENTITY == 0
+	and a, a
+	jp nz, PrintMissed
 	rst Rand8
 	and a, 3
 	ld b, a
@@ -157,10 +166,18 @@ MoveActionAttack:
 ; @param de: Move pointer
 MoveActionHeal:
 	call CheckMoveAccuracy
+	jp c, PrintMissed
 	ldh a, [hMoveUserTeam]
 	xor a, 1 ; Flip the team to check around
 	ldh [hMoveUserTeam], a
 	call ScanForEntities
+	ASSERT SCAN_ENTITY == 0
+	and a, a
+	; If an entity was not found, heal ourself
+	jr z, :+
+		ldh a, [hSaveUserIndex]
+		ld h, a
+:
 	rst Rand8
 	and a, 3
 	ld b, a
@@ -181,14 +198,13 @@ CheckMoveAccuracy:
 	ld c, a
 	ld a, [de]
 	cp a, c
-	ret nc
-	pop af
-	jp PrintMissed
+	ret
 
 SECTION "Scan for entities", ROM0
 ; Jumps to PrintMissed if no entity is found or a wall is hit.
 ; @param de: Move_Chance
 ; @param hSaveUserIndex: User index
+; @return a: SCAN_ENTITY, SCAN_WALL, SCAN_NONE
 ; @return de: Move_Chance
 ; @preserves de
 ScanForEntities:
@@ -238,7 +254,8 @@ ScanForEntities:
 		jr nz, :+
 		pop af
 		rst SwapBank
-		jr .miss
+		ld a, SCAN_WALL
+		ret
 :
 		ld a, BANK(xCheckForEntity)
 		rst SwapBank
@@ -257,17 +274,17 @@ ScanForEntities:
 	rst SwapBank
 	ld a, h
 	and a, a
+	ld a, SCAN_ENTITY
 	ret nz
 	; if not found, keep searching for each unit of range.
 	ldh a, [hRangeCounter]
 	dec a
-	jr z, .miss
+	jr nz, :+
+		ld a, SCAN_NONE
+		ret
+:
 	ldh [hRangeCounter], a
 	jr .offsetDirection
-
-.miss
-	pop af
-	jp PrintMissed
 
 SECTION "Deal damage", ROM0
 ; @param b: damage offset
