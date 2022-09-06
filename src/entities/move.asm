@@ -54,7 +54,7 @@ UseMove::
 	adc a, d
 	sub a, e
 	ld d, a
-	ld hl, wUsedMove.move
+	ld hl, wfmt_xUsedMoveString_move
 	ldh a, [hCurrentBank]
 	ld [hli], a
 	ld a, e
@@ -62,27 +62,8 @@ UseMove::
 	ld a, d
 	ld [hli], a
 	; Then the user's name
-	ld c, LOW(wEntity0_Bank)
-	ld a, [bc]
-	ld [hli], a
-	rst SwapBank
-	inc c
-	ld a, [bc]
-	ld l, a
-	inc c
-	ld a, [bc]
-	ld h, a
-	inc hl
-	inc hl
-	inc hl
-	inc hl
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	ld a, l
-	ld [wUsedMove.user + 1], a
-	ld a, h
-	ld [wUsedMove.user + 2], a
+	ld a, b
+	ld [wfmt_xUsedMoveString_user], a
 
 	ld hl, wEntityAnimation
 	ld a, LOW(EntityAttackAnimation)
@@ -95,8 +76,8 @@ UseMove::
 	ld [hli], a
 	ld [hl], b
 
-	ld b, BANK(xUsedText)
-	ld hl, xUsedText
+	ld b, BANK(xUsedMoveString)
+	ld hl, xUsedMoveString
 	call PrintHUD
 
 	pop af
@@ -297,7 +278,7 @@ DealDamage:
 	; Damage target with move power.
 	ld a, [de]
 	add a, b
-	ld [wDealtDamage.value], a
+	ld [wfmt_xDealtDamageString_value], a
 	ld e, a ; Save the move power in e. We don't need de anymore.
 	ld l, LOW(wEntity0_Health)
 	ld a, [hl]
@@ -307,24 +288,11 @@ DealDamage:
 	sbc a, 0
 	ld [hl], a
 	; Prepare for printing.
-	ld l, LOW(wEntity0_Bank)
-	ld a, [hli]
-	ld [wDealtDamage.target], a
-	rst SwapBank
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	inc hl
-	inc hl
-	inc hl
-	inc hl
-	ld a, [hli]
-	ld [wDealtDamage.target + 1], a
-	ld a, [hl]
-	ld [wDealtDamage.target + 2], a
+	ld a, h
+	ld [wfmt_xDealtDamageString_target], a
 
-	ld b, BANK(xDealtText)
-	ld hl, xDealtText
+	ld b, BANK(xDealtDamageString)
+	ld hl, xDealtDamageString
 	call PrintHUD
 	pop hl
 
@@ -354,31 +322,16 @@ HealDamage:
 	; Damage target with move power.
 	ld a, [de]
 	add a, b
-	ld [wHealedDamage.value], a
+	ld [wfmt_xHealedDamageString_value], a
 	ld e, a ; Save the move power in e. We don't need de anymore.
 	ld b, h
 	call HealEntity
 
 	; Prepare for printing.
-	ld h, b
-	ld l, LOW(wEntity0_Bank)
-	ld a, [hli]
-	ld [wHealedDamage.target], a
-	rst SwapBank
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	inc hl
-	inc hl
-	inc hl
-	inc hl
-	ld a, [hli]
-	ld [wHealedDamage.target + 1], a
-	ld a, [hl]
-	ld [wHealedDamage.target + 2], a
-
-	ld b, BANK(xHealedText)
-	ld hl, xHealedText
+	ld a, b
+	ld [wfmt_xHealedDamageString_target], a
+	ld b, BANK(xHealedDamageString)
+	ld hl, xHealedDamageString
 	call PrintHUD
 
 	ld hl, wEntityAnimation
@@ -389,7 +342,7 @@ HealDamage:
 	xor a, a
 	ld [hli], a
 	ld [hli], a
-	ld a, [wHealedDamage.target + 2]
+	ld a, [wfmt_xHealedDamageString_target]
 	ld [hl], a
 	ret
 
@@ -400,7 +353,7 @@ PrintMissed:
 	ld h, a
 	ld l, LOW(wEntity0_Bank)
 	ld a, [hli]
-	ld [wMissedMove.user], a
+	ld [wfmt_xMissedString_user], a
 	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
@@ -411,12 +364,12 @@ PrintMissed:
 	inc hl
 	inc hl
 	ld a, [hli]
-	ld [wMissedMove.user + 1], a
+	ld [wfmt_xMissedString_user + 1], a
 	ld a, [hl]
-	ld [wMissedMove.user + 2], a
+	ld [wfmt_xMissedString_user + 2], a
 
-	ld b, BANK(xMissedText)
-	ld hl, xMissedText
+	ld b, BANK(xMissedString)
+	ld hl, xMissedString
 	call PrintHUD
 
 	ld hl, wEntityAnimation
@@ -427,7 +380,7 @@ PrintMissed:
 	xor a, a
 	ld [hli], a
 	ld [hli], a
-	ld a, [wMissedMove.user + 2]
+	ld a, [wfmt_xMissedString_user + 2]
 	ld [hl], a
 	ret
 
@@ -462,26 +415,9 @@ DefeatCheck::
 	ld a, [hl]
 	call GetXpReward
 	ld b, a
-	ld [wDefeatText.reward], a
-	ldh a, [hCurrentBank]
-	push af
-		ld l, LOW(wEntity0_Bank)
-		ld a, [hli]
-		ld [wDefeatText.target], a
-		rst SwapBank
-		ld a, [hli]
-		ld h, [hl]
-		ld l, a
-		ASSERT EntityData_Name == 4
-		inc hl
-		inc hl
-		inc hl
-		inc hl
-		ld a, [hli]
-		ld [wDefeatText.target + 1], a
-		ld a, [hli]
-		ld [wDefeatText.target + 2], a
-	pop af
+	ld [wfmt_xDefeatedString_reward], a
+	ld a, h
+	ld [wfmt_xDefeatedString_target], a
 
 	ld hl, wEntity0
 .rewardParty
@@ -503,8 +439,8 @@ DefeatCheck::
 	cp a, HIGH(wEntity0) + NB_ALLIES
 	jr nz, .rewardParty
 
-	ld b, BANK(xDefeatText)
-	ld hl, xDefeatText
+	ld b, BANK(xDefeatedString)
+	ld hl, xDefeatedString
 	jp PrintHUD
 
 .final
@@ -514,65 +450,6 @@ DefeatCheck::
 	xor a, a
 	ld [hli], a
 	ret
-
-SECTION "Used move text", ROMX
-xUsedText:
-	textcallptr wUsedMove.user
-	db " used "
-	textcallptr wUsedMove.move
-	db "!<END>"
-
-SECTION "Dealt damage text", ROMX
-xDealtText:
-	db "Dealt "
-	print_u8 wDealtDamage.value
-	db " damage to "
-	textcallptr wDealtDamage.target
-	db "!<END>"
-
-SECTION "Healed damage text", ROMX
-xHealedText:
-	textcallptr wHealedDamage.target
-	db " healed "
-	print_u8 wHealedDamage.value
-	db " HP.<END>"
-
-SECTION "Defeated enemy text", ROMX
-xDefeatText:
-	db "Defeated "
-	textcallptr wDefeatText.target
-	db ". Gained "
-	print_u8 wDefeatText.reward
-	db " xp.", 0
-
-SECTION "Missed move text", ROMX
-xMissedText:
-	textcallptr wMissedMove.user
-	db " missed!<END>"
-
-SECTION UNION "Move text variables", WRAM0
-wUsedMove:
-.move ds 3
-.user ds 3
-
-SECTION UNION "Move text variables", WRAM0
-wMissedMove:
-.user ds 3
-
-SECTION UNION "Move text variables", WRAM0
-wDealtDamage:
-.value db
-.target ds 3
-
-SECTION UNION "Move text variables", WRAM0
-wHealedDamage:
-.value db
-.target ds 3
-
-SECTION UNION "Move text variables", WRAM0
-wDefeatText:
-.target ds 3
-.reward db
 
 ; User to save the parameters of UseMove for animation callbacks.
 SECTION "Move state", WRAM0

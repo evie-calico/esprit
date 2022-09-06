@@ -107,6 +107,10 @@ DEF ENTITY_ANIMATION_END RB 1
 		; been taken, using the damage animation's callback function.
 		words 1, Health
 		words 1, Experience
+		; Maximum of 100, displayed as a percentage.
+		; Each move has a fatigue cost to prevent rapidly using powerful moves.
+		; Every couple of steps recovers 1% of fatigue.
+		bytes 1, Fatigue
 	end_struct
 
 	struct Move

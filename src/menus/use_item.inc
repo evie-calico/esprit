@@ -272,14 +272,6 @@ xUseItemDrawPlayer:
 	inc d
 	jp RenderSimpleSprite
 
-xUseItemPlayerString:
-	textcallptr wPlayerStatsFmt.target
-	db "\nHP: "
-	print_u16 wPlayerStatsFmt.health
-	db "/"
-	print_u16 wPlayerStatsFmt.maxHealth
-	db 0
-
 PUSHS
 SECTION "Use item Menu ROM0", ROM0
 UseItemLoadEntity:
@@ -301,7 +293,8 @@ UseItemLoadEntity:
 		jp VRAMSetSmall
 .exists
 	rst SwapBank
-	ld [wPlayerStatsFmt.target], a ; Save bank for text formatter.
+	ld a, h
+	ld [wfmt_xPauseStatusString_target], a
 	push hl ; Save entity pointer so you can print info later.
 		ld a, [hli]
 		ld h, [hl]
@@ -322,32 +315,23 @@ UseItemLoadEntity:
 		pop hl
 		inc hl
 		ld a, [hli]
-		push hl
-			ld h, [hl]
-			ld l, a
-			ASSERT EntityData_Palette == 2
-			ld de, wUseItemCurrentPalette
-			ld a, [de]
-			inc de
-			ld b, a
-			ld a, [de]
-			ld d, a
-			ld e, b
-			ld c, 3 * 3
-			call MemCopySmall
-			ld hl, wUseItemCurrentPalette
-			ld a, e
-			ld [hli], a
-			ld [hl], d
-			call ReloadColor
-		pop hl
-		inc hl
-		ASSERT EntityData_Name == 4
-		; Load name into text formatter.
-		ld a, [hli]
-		ld [wPlayerStatsFmt.target + 1], a
-		ld a, [hli]
-		ld [wPlayerStatsFmt.target + 2], a
+		ld h, [hl]
+		ld l, a
+		ASSERT EntityData_Palette == 2
+		ld de, wUseItemCurrentPalette
+		ld a, [de]
+		inc de
+		ld b, a
+		ld a, [de]
+		ld d, a
+		ld e, b
+		ld c, 3 * 3
+		call MemCopySmall
+		ld hl, wUseItemCurrentPalette
+		ld a, e
+		ld [hli], a
+		ld [hl], d
+		call ReloadColor
 	pop hl
 	; Now throw in the level, health, and max health.
 	ld b, h
@@ -355,20 +339,20 @@ UseItemLoadEntity:
 	ld a, [hli]
 	call GetMaxHealth
 	ld a, l
-	ld [wPlayerStatsFmt.maxHealth], a
+	ld [wfmt_xPauseStatusString_maxHealth], a
 	ld a, h
-	ld [wPlayerStatsFmt.maxHealth + 1], a
+	ld [wfmt_xPauseStatusString_maxHealth + 1], a
 	ld h, b
 	ld l, LOW(wEntity0_Health)
 	ld a, [hli]
-	ld [wPlayerStatsFmt.health], a
+	ld [wfmt_xPauseStatusString_health], a
 	ld a, [hli]
-	ld [wPlayerStatsFmt.health + 1], a
+	ld [wfmt_xPauseStatusString_health + 1], a
 
 	; Finally, print!
 	ld a, 1
-	ld b, BANK(xUseItemPlayerString)
-	ld hl, xUseItemPlayerString
+	ld b, BANK(xPauseStatusString)
+	ld hl, xPauseStatusString
 	call PrintVWFText
 	lb de, 12, 4
 	ld hl, wCurrentTextPosition
@@ -385,10 +369,6 @@ UseItemLoadEntity:
 SECTION "Use Item vars", WRAM0
 wUseItemCurrentPalette: dw
 wCurrentTextPosition: dw
-wPlayerStatsFmt:
-.target ds 3
-.health dw
-.maxHealth dw
 wUseAnimationTimer: db
 
 POPS

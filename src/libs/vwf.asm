@@ -157,7 +157,9 @@ FIRST_READER_ONLY_CONTROL_CHAR rb 0
 
 NB_FONT_CHARACTERS equ FIRST_READER_ONLY_CONTROL_CHAR - " "
 
-
+; Custom chars/ligatures
+PRINTLN "charmap \"HP,\", $80"
+PRINTLN "charmap \"ft\", $81"
 
 ; Sets the pen's position somewhere in memory
 ; The code is designed for a pen in VRAM, but it can be anywhere

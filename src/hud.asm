@@ -247,43 +247,27 @@ DrawStatusBar::
 	jp DrawVWFChars
 
 .prepareFormatting
-	ld de, wPrintStatus
-	push hl
-		ld a, [hli]
-		ld [de], a
-		inc de
-		rst SwapBank
-		ld a, [hli]
-		ld h, [hl]
-		ld l, a
-		ASSERT EntityData_Name == 4
-		inc hl
-		inc hl
-		inc hl
-		inc hl
-		ld a, [hli]
-		ld [de], a
-		inc de
-		ld a, [hli]
-		ld [de], a
-		inc de
-	pop hl
+	ld a, h
+	ld [wfmt_xStatusString_name], a
+
 	ld l, LOW(wEntity0_Level)
 	ld a, [hli]
 	push hl
 		call GetMaxHealth
 		ld a, l
-		ld [de], a
-		inc de
+		ld [wfmt_xStatusString_maxHealth], a
 		ld a, h
-		ld [de], a
-		inc de
+		ld [wfmt_xStatusString_maxHealth + 1], a
 	pop hl
 	ld a, [hli]
-	ld [de], a
-	inc de
+	ld [wfmt_xStatusString_health], a
 	ld a, [hli]
-	ld [de], a
+	ld [wfmt_xStatusString_health + 1], a
+
+	ld l, LOW(wEntity0_Fatigue)
+	ld a, [hl]
+	ld [wfmt_xStatusString_fatigue], a
+
 	; If garbage is shown on the status bar after the partner dies, move this
 	; check outside this function and clear the text tiles.
 	bit 7, a
@@ -294,21 +278,6 @@ DrawStatusBar::
 		ld [de], a
 :
 	ret
-
-SECTION "Status String", ROMX
-xStatusString:
-	textcallptr wPrintStatus.name
-	db ": "
-	print_u16 wPrintStatus.health
-	db "/"
-	print_u16 wPrintStatus.maxHealth
-	db " HP", 0
-
-SECTION "Status Format", WRAM0
-wPrintStatus:
-.name ds 3
-.maxHealth dw
-.health dw
 
 SECTION "Attack window", ROMX
 ; TODO: make this more modular, akin to menu.asm, even if we only have 2.

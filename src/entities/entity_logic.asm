@@ -79,21 +79,21 @@ StandingCheck:
 	inc hl
 	ld a, b
 	rst SwapBank
-	ld [wGetItemFmt], a
+	ld [wfmt_xGetItemString_name], a
 	ld a, [hli]
-	ld [wGetItemFmt + 1], a
+	ld [wfmt_xGetItemString_name + 1], a
 	ld a, [hli]
-	ld [wGetItemFmt + 2], a
-	ld b, BANK(GetItemString)
-	ld hl, GetItemString
+	ld [wfmt_xGetItemString_name + 2], a
+	ld b, BANK(xGetItemString)
+	ld hl, xGetItemString
 	call PrintHUD
 	ld a, BANK(xPlayerLogic)
 	rst SwapBank
 	ret
 
 .full
-	ld b, BANK(FullBagString)
-	ld hl, FullBagString
+	ld b, BANK(xFullBagString)
+	ld hl, xFullBagString
 	call PrintHUD
 	ld a, BANK(xPlayerLogic)
 	rst SwapBank
@@ -139,8 +139,8 @@ StandingCheck:
 	jp DungeonComplete
 
 .generateFloor
-	ld b, BANK(FoundExit)
-	ld hl, FoundExit
+	ld b, BANK(xEnteredFloorString)
+	ld hl, xEnteredFloorString
 	call PrintHUD
 
 	ASSERT DUNGEON_HEIGHT / 2 == DUNGEON_WIDTH / 2
@@ -927,24 +927,6 @@ MoveEntity:
 	ld a, h
 	ld h, b
 	ret
-
-SECTION "Get item String", ROMX
-GetItemString:
-	db "Picked up "
-	textcallptr wGetItemFmt
-	db ".", 0
-
-SECTION "Get Item fmt", WRAM0
-wGetItemFmt: ds 3
-
-SECTION "Full Bag", ROMX
-FullBagString: db "Your bag is full.", 0
-
-SECTION "Found exit", ROMX
-FoundExit:
-	db "Entered floor "
-	print_u8 wDungeonCurrentFloor
-	db ".", 0
 
 SECTION "Movement Queued", WRAM0
 ; nonzero if any entity is ready to move.

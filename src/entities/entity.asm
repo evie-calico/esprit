@@ -486,9 +486,9 @@ xCheckForLevelUp::
 	inc c ; ld c, 1
 	inc [hl]
 	ld a, h
-	ld [wLevelUpText.target], a
+	ld [wfmt_xLeveledUpString_target], a
 	ld a, [hl]
-	ld [wLevelUpText.level], a
+	ld [wfmt_xLeveledUpString_level], a
 	push bc
 		call UpdateMoves
 		ld a, c
@@ -504,7 +504,7 @@ xCheckForLevelUp::
 	jr nz, :+
 	ld e, LOW(wEntity0_Moves) + (ENTITY_MOVE_COUNT - 1) * 3
 :
-	ld hl, wLevelUpText.moveName
+	ld hl, wfmt_xLeveledUpString_moveName
 	ld a, [de]
 	ld [hli], a
 	inc e
@@ -523,9 +523,9 @@ xCheckForLevelUp::
 
 	ld a, 1
 .noNewMoves
-	ld [wLevelUpText.newMove], a
-	ld b, BANK(xLeveledUpText)
-	ld hl, xLeveledUpText
+	ld [wfmt_xLeveledUpString_newMove], a
+	ld b, BANK(xLeveledUpString)
+	ld hl, xLeveledUpString
 	call PrintHUD
 	ld a, SFX_COMPLETE
 	jp audio_play_fx
@@ -622,27 +622,6 @@ HealEntity::
 	ld d, h
 	ld e, l
 	jr .heal
-
-SECTION "Leveled up", ROMX
-xLeveledUpText:
-	print_entity wLevelUpText.target
-	db "'s level increased to "
-	print_u8 wLevelUpText.level
-	db "!"
-	textcondition wLevelUpText.newMove
-.newMove
-	db " "
-	print_entity wLevelUpText.target
-	db " learned "
-	textcallptr wLevelUpText.moveName
-	db ".", 0
-
-SECTION "Leveled up fmt", WRAM0
-wLevelUpText:
-.target db
-.level db
-.newMove db
-.moveName ds 3
 
 ; This loop creates page-aligned entity structures. This is a huge benefit to
 ; the engine as it allows very quick structure seeking and access.
