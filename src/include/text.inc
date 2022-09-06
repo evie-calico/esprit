@@ -22,73 +22,89 @@ INCLUDE "res/charmap.inc"
 ; format xEcho, str:phrase, " ", str:<phrase, " ", str:<phrase, " ", str:<phrase
 
 macro format
-	redef id equs "\1"
-	shift 1
+	section "\1", romx
+	\1::
 
-	section "{id}", romx
-	{id}::
+	redef format_string equs \2
 
 	rept 65536
-		if !_NARG
+		if strlen("{format_string}") == 0
 			break
 		endc
 
-		if charsub("\1", 1) == "\""
-			db \1
-		else
-			def split = strin("\1", ":")
-			if split
-				redef type equs strsub("\1", 1, split - 1)
-				redef arg equs strsub("\1", split + 1)
+		def bracket = strin("{format_string}", "[")
 
-				def is_literal = strin("{arg}", ":")
-				def is_reused = strin("{arg}", "<")
-				
-				if is_literal || is_reused
-					redef arg equs strsub("{arg}", 2)
-				endc
-
-				if !is_literal
-					redef arg equs "wfmt_{id}_{arg}"
-				endc
-
-				if !strcmp("{type}", "str")
-					db TEXT_CALL_PTR
-					dw {arg}
-					def arg_size = 3
-				elif !strcmp("{type}", "u8")
-					db TEXT_U8
-					dw {arg}
-					def arg_size = 1
-				elif !strcmp("{type}", "u16")
-					db TEXT_U16
-					dw {arg}
-					def arg_size = 2
-				elif !strcmp("{type}", "entity")
-					db TEXT_ENTITY_NAME
-					dw {arg}
-					def arg_size = 1
-				elif !strcmp("{type}", "condition")
-					db TEXT_RET_FALSE
-					dw {arg}
-					def arg_size = 1
-				endc
-
-				if !is_literal && !is_reused
-					pushs
-						section "{arg}", wram0
-						{arg}:: ds arg_size
-					pops
-				endc
-			else
-				fail "Unknown format \"\1\""
-			endc
+		; If this is not currently a bracket, put it into the rom.
+		if bracket == 0
+			db "{format_string}", 0
+			break
+		elif bracket > 1
+			def literal equs strsub("{format_string}", 1, bracket - 1)
+			db "{literal}"
+			purge literal
 		endc
 
-		shift 1
-	endr
+		redef format_string equs strsub("{format_string}", bracket + 1)
 
-	db 0
+		def split = strin("{format_string}", ":")
+		def bracket = strin("{format_string}", "]")
+		
+		if !split
+			fail "Format specifier without seperator"
+		endc
+		
+		if !bracket	
+			fail "Unclosed format specifier"
+		endc
+
+		def type equs strsub("{format_string}", 1, split - 1)
+		def arg equs strsub("{format_string}", split + 1, bracket - split - 1)
+		def is_literal = strin("{arg}", ":")
+		def is_reused = strin("{arg}", "<")
+		
+		if is_literal || is_reused
+			redef arg equs strsub("{arg}", 2)
+		endc
+
+		if !is_literal
+			redef arg equs "wfmt_\1_{arg}"
+		endc
+
+		if !strcmp("{type}", "str")
+			db TEXT_CALL_PTR
+			dw {arg}
+			def arg_size = 3
+		elif !strcmp("{type}", "u8")
+			db TEXT_U8
+			dw {arg}
+			def arg_size = 1
+		elif !strcmp("{type}", "u16")
+			db TEXT_U16
+			dw {arg}
+			def arg_size = 2
+		elif !strcmp("{type}", "entity")
+			db TEXT_ENTITY_NAME
+			dw {arg}
+			def arg_size = 1
+		elif !strcmp("{type}", "condition")
+			db TEXT_RET_FALSE
+			dw {arg}
+			def arg_size = 1
+		else
+			fail "Unknown format type: {type}"
+		endc
+
+		if !is_literal && !is_reused
+			pushs
+				section "{arg}", wram0
+				{arg}:: ds arg_size
+			pops
+		endc
+
+		redef format_string equs strsub("{format_string}", bracket + 1)
+
+		purge type, arg, is_literal, is_reused, arg_size, split, bracket
+	endr
 endm
 
 ENDC
