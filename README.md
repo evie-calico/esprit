@@ -14,7 +14,7 @@ I use bleeding-edge RGBDS versions to help the maintainers test new features.
 You will likely need to compile the master branch of RGBDS manually to be able
 to build this project.
 
-- [RGBDS 0.6.0 rc](https://github.com/gbdev/rgbds)
+- [RGBDS 0.6.0 rc2](https://github.com/gbdev/rgbds)
 - [GNU Make 4.3](https://www.gnu.org/software/make/)
 - A C compiler
 - [evscript](https://github.com/eievui5/evscript)

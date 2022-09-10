@@ -77,7 +77,7 @@ SECTION "VWF engine", ROM0
 
 CTRL_CHAR_PTRS equs ""
 	rsreset
-control_char: MACRO
+MACRO control_char
 	IF DEF(PRINT_CHARMAP)
 		PRINT "charmap \"<\1>\", {d:_RS}\n"
 	ENDC
@@ -121,7 +121,7 @@ TEXT_BAD_CTRL_CHAR rb 0
 
 PTRS equs ""
 	rsset 256
-reader_only_control_char: MACRO
+MACRO reader_only_control_char
 _RS = _RS - 1
 	IF DEF(PRINT_CHARMAP)
 		PRINT "charmap \"<\1>\", {d:_RS}\n"
@@ -1473,7 +1473,7 @@ TextSetColor:
 	jr PrintNextCharInstant
 
 
-skip_key: MACRO
+MACRO skip_key
 	IF !DEF(\1)
 		FAIL "Please define \1"
 	ELSE

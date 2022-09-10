@@ -14,7 +14,7 @@ SRAMSIZE := 0x02
 VERSION := 0
 
 INCDIRS  = src/ src/include/
-WARNINGS = all extra
+WARNINGS = all extra no-unmapped-char
 
 ASFLAGS  = -p 0xFF -h $(addprefix -i, $(INCDIRS)) $(addprefix -W, $(WARNINGS))
 LDFLAGS  = -p 0xFF -w -S romx=64
