@@ -38,6 +38,8 @@ DEF ENTITY_ANIMATION_FORWARD RB 1
 DEF ENTITY_ANIMATION_BACKWARD RB 1
 DEF ENTITY_ANIMATION_END RB 1
 
+DEF TIRED_THRESHOLD EQU 35
+
 	; Constant data about an entity, such as graphics, moves, and stats.
 	struct EntityData
 		; All of these pointers are assumed to share a bank with this struct.
@@ -121,9 +123,12 @@ DEF ENTITY_ANIMATION_END RB 1
 		bytes 1, Chance
 		; Used to determine the reach of a move's effects.
 		bytes 1, Range
-		; The strength of the move's effect, ussually damage. If 0, power is not
+		; The strength of the move's effect, usually damage. If 0, power is not
 		; displayed.
 		bytes 1, Power
+		; The amount of fatigue used up by this attack. If 0, this attack is
+		; always available; otherwise this amount of fatigue is required.
+		bytes 1, Fatigue
 		alias Name
 	end_struct
 

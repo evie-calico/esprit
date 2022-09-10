@@ -286,6 +286,10 @@ SpawnEntity::
 		ld [hli], a
 	pop bc
 
+	; Start with 100% fatigue
+	ld l, LOW(wEntity0_Fatigue)
+	ld [hl], 100
+
 	; Set level
 	ld l, LOW(wEntity0_Level)
 	ld a, c

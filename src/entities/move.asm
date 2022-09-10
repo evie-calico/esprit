@@ -45,14 +45,25 @@ UseMove::
 	ld [hli], a
 	ld [hl], d
 
+	; Check the move's fatigue cost
+	ASSERT Move_Fatigue == 4
+	inc de
+	inc de
+	inc de
+	inc de
+	ld h, d
+	ld l, e
+	; hl = Move_Fatigue
+	ld c, LOW(wEntity0_Fatigue)
+	ld a, [bc]
+	sub a, [hl]
+	jr c, .tooTired
+	ld [bc], a
+
 	; Load up printing variables
 	; First the move name
-	ld a, Move_Name
-	add a, e
-	ld e, a
-	adc a, d
-	sub a, e
-	ld d, a
+	ASSERT Move_Fatigue + 1 == Move_Name
+	inc de
 	ld hl, wfmt_xUsedMoveString_move
 	ldh a, [hCurrentBank]
 	ld [hli], a
@@ -84,6 +95,28 @@ UseMove::
 	xor a, a
 	inc a ; This sets the Z flag.
 	ret
+
+.tooTired
+	; B must still be the high byte of the entity
+	ld a, b
+	; If the user is the player, print a message explaining that they are too tired.
+	cp a, HIGH(wEntity0) 
+	jr nz, .fail
+
+	ld b, BANK(xTooTiredString)
+	ld hl, xTooTiredString
+	call PrintHUD
+
+	ld hl, wEntityAnimation
+	ld a, LOW(EntityDelayAnimation)
+	ld [hli], a
+	ld a, HIGH(EntityDelayAnimation)
+	ld [hli], a
+	xor a, a
+	ld [hli], a
+	ld [hli], a
+	ld a, HIGH(wEntity0)
+	ld [hl], a
 
 .fail
 	pop af

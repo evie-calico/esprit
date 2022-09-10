@@ -290,6 +290,14 @@ POPS
 .endSwap
 	; If movement was successful, end the player's turn and process the next
 	; entity.
+	; Restore 1% fatigue
+	ld hl, wEntity0_Fatigue
+	ld a, [hl]
+	inc a
+	cp a, 101
+	jr nc, :+
+	ld [hl], a
+:
 	; Signal that an item should be checked at the next opportunity.
 	xor a, a
 	ld [wHasCheckedForItem], a

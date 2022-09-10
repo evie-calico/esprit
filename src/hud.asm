@@ -265,7 +265,12 @@ DrawStatusBar::
 
 	ld l, LOW(wEntity0_Fatigue)
 	ld a, [hl]
-	ld [wfmt_xStatusString_fatigue], a
+	cp a, TIRED_THRESHOLD
+	ld a, 0
+	jr nc, :+
+	inc a
+:
+	ld [wfmt_xStatusString_isFatigued], a
 
 	; If garbage is shown on the status bar after the partner dies, move this
 	; check outside this function and clear the text tiles.
@@ -471,12 +476,26 @@ DrawAttackWindow::
 	push hl
 	ld h, [hl]
 	ld l, a
-	ld a, Move_Name
-	add a, l
-	ld l, a
-	adc a, h
-	sub a, l
-	ld h, a
+
+	ld a, TEXT_SET_COLOR
+	ld [de], a
+	inc de
+
+	ASSERT Move_Fatigue == 4
+	inc hl
+	inc hl
+	inc hl
+	inc hl
+	ld a, [wEntity0_Fatigue]
+	cp a, [hl]
+	ld a, 3
+	jr nc, :+
+	dec a
+:
+	ld [de], a
+	inc de
+	ASSERT Move_Fatigue + 1 == Move_Name
+	inc hl
 .strcpy
 	ld a, [hli]
 	and a, a

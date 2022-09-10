@@ -225,29 +225,7 @@ SwitchToDungeonState::
 	jr nz, .copyItemGfx
 
 	; Initialize previous health
-	ld hl, wPreviousHealth
-	ld de, wEntity0_Bank
-	ld a, [de]
-	and a, a
-	jr z, :+
-	ld e, LOW(wEntity0_Health)
-	ld a, [de]
-	inc e
-	ld [hli], a
-	ld a, [de]
-	ld [hli], a
-:
-	ld de, wEntity1_Bank
-	ld a, [de]
-	and a, a
-	jr z, :+
-	ld e, LOW(wEntity0_Health)
-	ld a, [de]
-	inc e
-	ld [hli], a
-	ld a, [de]
-	ld [hli], a
-:
+	call SetPreviousHudStats
 	call DrawAttackWindow
 
 	ld a, BANK(xFocusCamera)
@@ -305,19 +283,24 @@ DungeonState::
 	and a, a
 	call nz, DrawPrintString
 
-	ld hl, wPreviousHealth
-	ld de, wEntity0_Bank
-	ld a, [de]
-	and a, a
-	jr z, :+
-	ld e, LOW(wEntity0_Health)
+	ld hl, wPreviousStats
+	ld de, wEntity0_Health
 	ld a, [de]
 	inc e
 	cp a, [hl]
 	jr nz, .updateStatus
 	inc hl
 	ld a, [de]
-	inc e
+	cp a, [hl]
+	jr nz, .updateStatus
+	inc hl
+	ld e, LOW(wEntity0_Fatigue)
+	ld a, [de]
+	cp a, TIRED_THRESHOLD
+	ld a, 0
+	jr nc, :+
+	inc a
+:
 	cp a, [hl]
 	jr nz, .updateStatus
 	inc hl
@@ -333,30 +316,21 @@ DungeonState::
 	jr nz, .updateStatus
 	inc hl
 	ld a, [de]
+	cp a, [hl]
+	jr nz, .updateStatus
+	inc hl
+	ld e, LOW(wEntity0_Fatigue)
+	ld a, [de]
+	cp a, TIRED_THRESHOLD
+	ld a, 0
+	jr nc, :+
+	inc a
+:
 	cp a, [hl]
 	jr z, .skipUpdateStatus
 .updateStatus
 	call DrawStatusBar
-	; Update health cache
-	ld hl, wPreviousHealth
-	ld de, wEntity0_Health
-	ld a, [de]
-	inc e
-	ld [hli], a
-	ld a, [de]
-	ld [hli], a
-
-	ld de, wEntity1_Bank
-	ld a, [de]
-	and a, a
-	jr z, :+
-	ld e, LOW(wEntity0_Health)
-	ld a, [de]
-	inc e
-	ld [hli], a
-	ld a, [de]
-	ld [hli], a
-:
+	call SetPreviousHudStats
 .skipUpdateStatus
 
 	; Wait after a level up for the next check.
@@ -401,7 +375,9 @@ DungeonState::
 	; If we leveled up, delay the next check
 	ld a, 255
 	ld [wLevelUpMessageLifetime], a
-	ld hl, wPreviousHealth
+	ld hl, wPreviousStats
+	ld [hli], a
+	ld [hli], a
 	ld [hli], a
 	ld [hli], a
 	ld [hli], a
@@ -429,6 +405,48 @@ OpenPauseMenu::
 	xor a, a
 	ld [wSTATTarget], a
 	ld [wSTATTarget + 1], a
+	ret
+
+SECTION "Set previous hud stats", ROM0
+SetPreviousHudStats:
+	ld hl, wPreviousStats
+	ld de, wEntity0_Bank
+	ld a, [de]
+	and a, a
+	jr z, :+
+	ld e, LOW(wEntity0_Health)
+	ld a, [de]
+	inc e
+	ld [hli], a
+	ld a, [de]
+	ld [hli], a
+	ld e, LOW(wEntity0_Fatigue)
+	ld a, [de]
+	cp a, TIRED_THRESHOLD
+	ld a, 0
+	jr nc, :+
+	inc a
+:
+	ld [hli], a
+:
+	ld de, wEntity1_Bank
+	ld a, [de]
+	and a, a
+	ret z
+	ld e, LOW(wEntity0_Health)
+	ld a, [de]
+	inc e
+	ld [hli], a
+	ld a, [de]
+	ld [hli], a
+	ld e, LOW(wEntity0_Fatigue)
+	ld a, [de]
+	cp a, TIRED_THRESHOLD
+	ld a, 0
+	jr nc, :+
+	inc a
+:
+	ld [hli], a
 	ret
 
 SECTION "Dungeon complete!", ROM0
@@ -647,9 +665,9 @@ wMapgenLoopCounter: db
 
 wDungeonFadeCallback:: dw
 
-wPreviousHealth::
-.player dw
-.partner dw
+wPreviousStats::
+.player ds 3 ; Health and fatigue
+.partner ds 3
 
 wSkipAllyTurn:: db
 
