@@ -156,6 +156,10 @@ UseMove::
 	dw MoveActionAttack
 	ASSERT MOVE_ACTION_HEAL == 1
 	dw MoveActionHeal
+	ASSERT MOVE_ACTION_POISON == 2
+	dw MoveActionPoison
+
+	ASSERT MOVE_ACTION_COUNT == 3
 
 ; Basic attack. Check <range> tiles in front of <entity>, and attack the first
 ; enemy seen. Deals <power> damage and has a <chance> chance of succeeding.
@@ -195,6 +199,17 @@ MoveActionHeal:
 	and a, 3
 	ld b, a
 	jp HealDamage
+
+MoveActionPoison:
+	call CheckMoveAccuracy
+	jp c, PrintMissed
+	call ScanForEntities
+	ASSERT SCAN_ENTITY == 0
+	and a, a
+	jp nz, PrintMissed
+	lb bc, BANK(xPoisonStatus), 8 * 8
+	ld de, xPoisonStatus
+	jp InflictStatus
 
 SECTION "Check move accuracy", ROM0
 ; Jumps to PrintMissed if the move missed.
@@ -306,43 +321,19 @@ SECTION "Deal damage", ROM0
 DealDamage:
 	ASSERT Move_Range + 1 == Move_Power
 	inc de
-	push hl
 	; Damage target with move power.
 	ld a, [de]
 	add a, b
 	ld [wfmt_xDealtDamageString_value], a
 	ld e, a ; Save the move power in e. We don't need de anymore.
-	ld l, LOW(wEntity0_Health)
-	ld a, [hl]
-	sub a, e
-	ld [hli], a
-	ld a, [hl]
-	sbc a, 0
-	ld [hl], a
+	call DamageEntity
 	; Prepare for printing.
 	ld a, h
 	ld [wfmt_xDealtDamageString_target], a
 
 	ld b, BANK(xDealtDamageString)
 	ld hl, xDealtDamageString
-	call PrintHUD
-	pop hl
-
-	; Finally, play the damage animation.
-	ld b, h
-	ld hl, wEntityAnimation
-	ld a, LOW(EntityHurtAnimation)
-	ld [hli], a
-	ld a, HIGH(EntityHurtAnimation)
-	ld [hli], a
-	ld a, LOW(DefeatCheck)
-	ld [hli], a
-	ld a, HIGH(DefeatCheck)
-	ld [hli], a
-	ld [hl], b
-	ld a, b
-	ld [wDefeatCheckTarget], a
-	ret
+	jp PrintHUD
 
 SECTION "Heal damage", ROM0
 ; @param b: damage offset
@@ -492,7 +483,7 @@ wMoveState:
 
 SECTION "Defeat check target", WRAM0
 ; High byte of the entity for the coming defeat check to target.
-wDefeatCheckTarget: db
+wDefeatCheckTarget:: db
 
 SECTION "Attack range counter", HRAM
 hRangeCounter: db

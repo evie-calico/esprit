@@ -19,10 +19,14 @@ ENDM
 		rgb 144, 32, 48
 		rgb 32, 0, 0
 	.moveTable
-		level 1, xHeal
+		level 1, xPoison
+		level 1, xPoison
+
 		level 1, xScratch
+		level 1, xPoison
 		level 6, xBite
 		level 7, xPounce
+		level 10, xHeal
 		db 0
 
 	entity xAris, "Aris", "res/sprites/aris.2bpp"

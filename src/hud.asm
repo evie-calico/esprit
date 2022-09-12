@@ -490,7 +490,7 @@ DrawAttackWindow::
 	cp a, [hl]
 	ld a, 3
 	jr nc, :+
-	dec a
+	ld a, 1
 :
 	ld [de], a
 	inc de

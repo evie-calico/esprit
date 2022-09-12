@@ -27,6 +27,10 @@ RSRESET
 DEF MOVE_ACTION_ATTACK RB 1
 ; Heals an ally in front of the user
 DEF MOVE_ACTION_HEAL RB 1
+; Inflicts poison on an enemy in front of the user.
+DEF MOVE_ACTION_POISON RB 1
+
+DEF MOVE_ACTION_COUNT RB 1
 
 ; Animation bytecode
 RSRESET
@@ -38,6 +42,7 @@ DEF ENTITY_ANIMATION_FORWARD RB 1
 DEF ENTITY_ANIMATION_BACKWARD RB 1
 DEF ENTITY_ANIMATION_END RB 1
 
+; This determines when the "Tired" status should appear.
 DEF TIRED_THRESHOLD EQU 35
 
 	; Constant data about an entity, such as graphics, moves, and stats.
@@ -113,6 +118,13 @@ DEF TIRED_THRESHOLD EQU 35
 		; Each move has a fatigue cost to prevent rapidly using powerful moves.
 		; Every couple of steps recovers 1% of fatigue.
 		bytes 1, Fatigue
+		; How many turns are left until the status is cured.
+		; 0 for an infinite length of time.
+		bytes 1, StatusTurns
+		; Pointer to a status effect. Set bank to 0 for none
+		; Negative effects override positive ones but not each other
+		; Positive effects override each other but not negative ones
+		bytes 3, Status
 	end_struct
 
 	struct Move
@@ -132,16 +144,19 @@ DEF TIRED_THRESHOLD EQU 35
 		alias Name
 	end_struct
 
+	struct Status
+		; Poiner to the function to run when the effect is applied
+		; b must be passed as the target index
+		words 1, FirstTurn
+		words 1, EachTurn
+		words 1, FinalTurn
+		alias Name
+	end_struct
+
 	; Wait a number of frames before continuing the script.
-	MACRO ea_wait ; frames
-		db ENTITY_ANIMATION_WAIT, \1
-	ENDM
-
+	DEF ea_wait     EQUS "db ENTITY_ANIMATION_WAIT,"
 	; Change the entity's frame.
-	MACRO ea_frame ; frame
-		db ENTITY_ANIMATION_FRAME, \1
-	ENDM
-
+	DEF ea_frame    EQUS "db ENTITY_ANIMATION_FRAME,"
 	; Moves the entity's sprite to an unreachable position.
 	DEF ea_hide     EQUS "db ENTITY_ANIMATION_HIDE"
 	; Resets the position of the entity's sprite.

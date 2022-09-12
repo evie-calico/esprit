@@ -220,10 +220,7 @@ POPS
 	ret z
 	xor a, a
 	ld [wWindowMode], a
-	; End the player's turn.
-	ld a, 1
-	ld [wActiveEntity], a
-	ret
+	jp EndTurn
 
 .turning
 	call PadToDir
@@ -238,13 +235,12 @@ POPS
 	ld a, [hCurrentKeys]
 	cp a, PADF_SELECT
 	jr nz, :+
-	; DEBUG: switch to map state.
-	jp DungeonComplete
-
-	; End the player's turn.
-	ld a, 1
-	ld [wActiveEntity], a
-	ret
+	; DEBUG: Inflict poison
+	lb bc, BANK(xPoisonStatus), 4
+	ld de, xPoisonStatus
+	ld h, HIGH(wEntity0)
+	call InflictStatus
+	jp EndTurn
 :
 
 	ld a, [hCurrentKeys]
@@ -290,14 +286,6 @@ POPS
 .endSwap
 	; If movement was successful, end the player's turn and process the next
 	; entity.
-	; Restore 1% fatigue
-	ld hl, wEntity0_Fatigue
-	ld a, [hl]
-	inc a
-	cp a, 101
-	jr nc, :+
-	ld [hl], a
-:
 	; Signal that an item should be checked at the next opportunity.
 	xor a, a
 	ld [wHasCheckedForItem], a
@@ -377,15 +365,7 @@ xAllyLogic::
 	cp a, 2
 	ret z
 	and a, a
-	jr z, .chaseEnemy
-	ld a, [wActiveEntity]
-	inc a
-	cp a, NB_ENTITIES
-	jr nz, :+
-	xor a, a
-:   ld [wActiveEntity], a
-	ret
-
+	jp nz, EndTurn
 .chaseEnemy
 	call xChaseTarget
 	jp c, ProcessEntities.next

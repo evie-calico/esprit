@@ -12,8 +12,6 @@ SECTION "Process entities", ROM0
 ; The individual logic functions can choose to return on their own to end logic
 ; processing. This is used to queue up movements to occur simultaneuously.
 ProcessEntities::
-	ld a, BANK("Entity Logic")
-	rst SwapBank
 	ld a, [wMoveEntityCounter]
 	and a, a
 	ret nz
@@ -21,25 +19,89 @@ ProcessEntities::
 .loop
 	add a, HIGH(wEntity0)
 	ld h, a
+	ld a, BANK("Entity Logic")
+	rst SwapBank
 	ld l, LOW(wEntity0_Bank)
 	ld a, [hl]
 	and a, a
-	jr z, .next
+	jr nz, :+
+		call EndTurn.skip
+		jr .loop
+:
 	ld a, [wActiveEntity]
 	and a, a
 	jp z, xPlayerLogic
 	cp a, NB_ALLIES
 	jp c, xAllyLogic
 	jp xEnemyLogic
+
 ; All entity logic jumps here to end their turn.
 .next::
+	call EndTurn
+	jr .loop
+
+EndTurn::
+	; End-of-turn bookkeeping
+	ld a, [wActiveEntity]
+	add a, HIGH(wEntity0)
+	ld h, a
+	; Restore 1% fatigue
+	ld l, LOW(wEntity0_Fatigue)
+	ld a, [hl]
+	inc a
+	cp a, 101
+	jr nc, :+
+	ld [hl], a
+:
+	ld l, LOW(wEntity0_Status)
+	ld a, [hld]
+	and a, a
+	jr z, .skip
+	dec [hl]
+	jr nz, :+
+	ASSERT Entity_StatusTurns + 1 == Entity_Status
+	inc l
+	ld a, [hl]
+	rst SwapBank
+	ld [hl], 0
+	inc l
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ASSERT Status_FinalTurn == 4
+	inc hl
+	inc hl
+	inc hl
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	rst CallHL
+	jr .skip
+:
+	ASSERT Entity_StatusTurns + 1 == Entity_Status
+	inc l
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ASSERT Status_EachTurn == 2
+	inc hl
+	inc hl
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	rst CallHL
+.skip
+	; Move on to the next entity
 	ld a, [wActiveEntity]
 	inc a
 	cp a, NB_ENTITIES
 	jr nz, :+
 	xor a, a
 :   ld [wActiveEntity], a
-	jr .loop
+	ret
 
 SECTION "Move entities", ROMX
 xMoveEntities::
@@ -532,6 +594,34 @@ xCheckForLevelUp::
 	call PrintHUD
 	ld a, SFX_COMPLETE
 	jp audio_play_fx
+
+SECTION "Entity take damage", ROM0
+; @param e: Damage
+; @param h: entity index
+; @clobbers: b, l
+DamageEntity::
+	ld l, LOW(wEntity0_Health)
+	ld a, [hl]
+	sub a, e
+	ld [hli], a
+	ld a, [hl]
+	sbc a, 0
+	ld [hl], a
+
+	ld b, h
+	ld hl, wEntityAnimation
+	ld a, LOW(EntityHurtAnimation)
+	ld [hli], a
+	ld a, HIGH(EntityHurtAnimation)
+	ld [hli], a
+	ld a, LOW(DefeatCheck)
+	ld [hli], a
+	ld a, HIGH(DefeatCheck)
+	ld [hli], a
+	ld [hl], b
+	ld a, b
+	ld [wDefeatCheckTarget], a
+	ret
 
 SECTION "Check for new moves", ROM0
 ; @param h: Entity high byte

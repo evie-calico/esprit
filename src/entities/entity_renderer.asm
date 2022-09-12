@@ -554,7 +554,10 @@ EntityHurtAnimation::
 		ea_backward
 		ea_wait 4
 	ENDR
-	ea_show
+	REPT 3
+		ea_forward
+		ea_wait 2
+	ENDR
 	ea_frame ENTITY_FRAME_IDLE
 	ea_end
 
