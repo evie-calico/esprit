@@ -19,8 +19,10 @@ ProcessEntities::
 .loop
 	add a, HIGH(wEntity0)
 	ld h, a
+	; Beginning-of-turn bookkeeping
 	ld a, BANK("Entity Logic")
 	rst SwapBank
+
 	ld l, LOW(wEntity0_Bank)
 	ld a, [hl]
 	and a, a
@@ -50,49 +52,8 @@ EndTurn::
 	ld a, [hl]
 	inc a
 	cp a, 101
-	jr nc, :+
+	jr nc, .skip
 	ld [hl], a
-:
-	ld l, LOW(wEntity0_Status)
-	ld a, [hld]
-	and a, a
-	jr z, .skip
-	dec [hl]
-	jr nz, :+
-	ASSERT Entity_StatusTurns + 1 == Entity_Status
-	inc l
-	ld a, [hl]
-	rst SwapBank
-	ld [hl], 0
-	inc l
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	ASSERT Status_FinalTurn == 4
-	inc hl
-	inc hl
-	inc hl
-	inc hl
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	rst CallHL
-	jr .skip
-:
-	ASSERT Entity_StatusTurns + 1 == Entity_Status
-	inc l
-	ld a, [hli]
-	rst SwapBank
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	ASSERT Status_EachTurn == 2
-	inc hl
-	inc hl
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	rst CallHL
 .skip
 	; Move on to the next entity
 	ld a, [wActiveEntity]

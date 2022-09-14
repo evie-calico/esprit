@@ -236,9 +236,8 @@ POPS
 	cp a, PADF_SELECT
 	jr nz, :+
 	; DEBUG: Inflict poison
-	lb bc, BANK(xPoisonStatus), 4
-	ld de, xPoisonStatus
 	ld h, HIGH(wEntity0)
+	ld b, STATUS_POISON
 	call InflictStatus
 	jp EndTurn
 :
