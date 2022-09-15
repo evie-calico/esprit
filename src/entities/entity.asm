@@ -15,14 +15,14 @@ ProcessEntities::
 	ld a, [wMoveEntityCounter]
 	and a, a
 	ret nz
-	ld a, [wActiveEntity]
 .loop
-	add a, HIGH(wEntity0)
-	ld h, a
 	; Beginning-of-turn bookkeeping
 	ld a, BANK("Entity Logic")
 	rst SwapBank
 
+	ld a, [wActiveEntity]
+	add a, HIGH(wEntity0)
+	ld h, a
 	ld l, LOW(wEntity0_Bank)
 	ld a, [hl]
 	and a, a
@@ -44,10 +44,18 @@ ProcessEntities::
 
 EndTurn::
 	; End-of-turn bookkeeping
+	; Handle status effect updates which happen at the end of each turn.
 	ld a, [wActiveEntity]
 	add a, HIGH(wEntity0)
 	ld h, a
+	ld a, BANK(xStatusPreTurnUpdate)
+	rst SwapBank
+	call xStatusPreTurnUpdate ; may clobber h
+
 	; Restore 1% fatigue
+	ld a, [wActiveEntity]
+	add a, HIGH(wEntity0)
+	ld h, a
 	ld l, LOW(wEntity0_Fatigue)
 	ld a, [hl]
 	inc a
