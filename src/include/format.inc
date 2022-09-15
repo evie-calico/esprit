@@ -37,9 +37,7 @@ macro format
 			db "{format_string}", 0
 			break
 		elif bracket > 1
-			def literal equs strsub("{format_string}", 1, bracket - 1)
-			db "{literal}"
-			purge literal
+			db strsub("{format_string}", 1, bracket - 1)
 		endc
 
 		redef format_string equs strsub("{format_string}", bracket + 1)
@@ -48,7 +46,7 @@ macro format
 		def bracket = strin("{format_string}", "]")
 		
 		if !split
-			fail "Format specifier without seperator"
+			fail "Format specifier without separator"
 		endc
 		
 		if !bracket	
@@ -73,10 +71,10 @@ macro format
 		for i, _FORMATTER_TYPE_COUNT
 			if !def(_FORMATTER_TYPE{d:i})
 				fail "Unknown format type: {type}"
-			endc
-
-			if !strcmp("{type}", _FORMATTER_TYPE{d:i})
-				_FORMATTER_TYPE{d:i}_CONTENTS
+			elif !strcmp("{type}", _FORMATTER_TYPE{d:i})
+				db _FORMATTER_TYPE{d:i}_CODE
+				dw {arg}
+				def arg_size = _FORMATTER_TYPE{d:i}_ARG_SIZE
 				break
 			endc
 		endr
@@ -94,12 +92,19 @@ macro format
 	endr
 endm
 
-def _FORMATTER_TYPE_COUNT = 0
-
 macro add_type
-	def _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT} equs "\1"
-	def _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT}_CONTENTS equs "\2"
-	def _FORMATTER_TYPE_COUNT += 1
+    if !def(_FORMATTER_TYPE_COUNT)
+        def _FORMATTER_TYPE_COUNT = 0
+    endc
+
+    def _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT} equs "\1"
+    def _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT}_CODE equs "\2"
+    def _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT}_NARGS equ _NARG - 2
+    for i, _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT}_NARGS
+        def _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT}_ARG_{d:i}_SIZE equ \3
+        shift
+    endr
+    def _FORMATTER_TYPE_COUNT += 1
 ENDM
 
 	add_type "str", \

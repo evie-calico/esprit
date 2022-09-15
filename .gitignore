@@ -9,3 +9,4 @@ __pycache__/
 *.tiled-session
 charmap.inc
 *.DS_Store
+*.sublime-project

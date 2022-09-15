@@ -517,9 +517,6 @@
 			]
 		]
 	},
-	"buffers":
-	[
-	],
 	"build_system": "",
 	"build_system_choices":
 	[
@@ -618,12 +615,14 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
-	"expanded_folders":
-	[
-		"/home/eievui/projects/vuiiger-engine"
-	],
 	"file_history":
 	[
+		"/home/eievui/projects/vuiiger-engine/vuiiger-engine.sublime-project",
+		"/home/eievui/projects/vuiiger-engine/src/include/format.inc",
+		"/home/eievui/projects/vuiiger-engine/debug-config.evd",
+		"/home/eievui/projects/vuiiger-engine/src/vblank.asm",
+		"/home/eievui/projects/vuiiger-engine/src/main.asm",
+		"/home/eievui/projects/vuiiger-engine/.gitignore",
 		"/home/eievui/.config/openmw/settings.cfg",
 		"/home/eievui/projects/evscript/test/config.evd",
 		"/home/eievui/projects/evscript/test/build.sh",
@@ -687,8 +686,6 @@
 		"/home/eievui/projects/vuiiger-engine/src/menus/title.asm",
 		"/home/eievui/projects/vuiiger-engine/tools/makefont.c",
 		"/home/eievui/projects/vuiiger-engine/credits.md",
-		"/home/eievui/projects/vuiiger-engine/src/vblank.asm",
-		"/home/eievui/projects/vuiiger-engine/src/main.asm",
 		"/home/eievui/projects/vuiiger-engine/src/libs/audio.asm",
 		"/home/eievui/projects/vuiiger-engine/src/init.asm",
 		"/home/eievui/projects/gb-asm-tutorial/src/part2/getting-started.md",
@@ -747,15 +744,11 @@
 		"/home/eievui/projects/sram128/sram128.asm",
 		"/home/eievui/projects/sram128/build.sh",
 		"/home/eievui/projects/sram128/README.md",
-		"/home/eievui/Pictures/Screenshots/half_fail.png",
-		"/home/eievui/projects/vuiiger-engine/obj/scenes/village_scripts.asm",
-		"/home/eievui/projects/vuiiger-engine/src/script_driver.asm",
-		"/home/eievui/projects/vuiiger-engine/src/scenes/village_scripts.evs",
-		"/home/eievui/projects/vuiiger-engine/src/scenes/scene_definitions.asm"
+		"/home/eievui/Pictures/Screenshots/half_fail.png"
 	],
 	"find":
 	{
-		"height": 26.0
+		"height": 38.0
 	},
 	"find_in_files":
 	{
@@ -785,14 +778,6 @@
 		"whole_word": false,
 		"wrap": true
 	},
-	"groups":
-	[
-		{
-			"sheets":
-			[
-			]
-		}
-	],
 	"incremental_find":
 	{
 		"height": 26.0
@@ -801,29 +786,15 @@
 	{
 		"height": 48.0
 	},
-	"layout":
-	{
-		"cells":
-		[
-			[
-				0,
-				0,
-				1,
-				1
-			]
-		],
-		"cols":
-		[
-			0.0,
-			1.0
-		],
-		"rows":
-		[
-			0.0,
-			1.0
-		]
-	},
 	"menu_visible": true,
+	"output.Debugger":
+	{
+		"height": 223.0
+	},
+	"output.Debugger Console":
+	{
+		"height": 254.0
+	},
 	"output.exec":
 	{
 		"height": 234.0
@@ -833,7 +804,6 @@
 		"height": 0.0
 	},
 	"pinned_build_system": "Packages/User/make-j.sublime-build",
-	"project": "vuiiger-engine.sublime-project",
 	"replace":
 	{
 		"height": 48.0
@@ -866,7 +836,6 @@
 		],
 		"width": 558.0
 	},
-	"selected_group": 0,
 	"settings":
 	{
 	},
