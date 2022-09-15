@@ -207,8 +207,7 @@ MoveActionPoison:
 	ASSERT SCAN_ENTITY == 0
 	and a, a
 	jp nz, PrintMissed
-	lb bc, BANK(xPoisonStatus), 8 * 8
-	ld de, xPoisonStatus
+	ld b, STATUS_POISON
 	jp InflictStatus
 
 SECTION "Check move accuracy", ROM0
@@ -324,12 +323,14 @@ DealDamage:
 	; Damage target with move power.
 	ld a, [de]
 	add a, b
-	ld [wfmt_xDealtDamageString_value], a
 	ld e, a ; Save the move power in e. We don't need de anymore.
-	call DamageEntity
-	; Prepare for printing.
+	ld [wfmt_xDealtDamageString_value], a
+
 	ld a, h
 	ld [wfmt_xDealtDamageString_target], a
+
+	call DamageEntity
+	; Prepare for printing.
 
 	ld b, BANK(xDealtDamageString)
 	ld hl, xDealtDamageString

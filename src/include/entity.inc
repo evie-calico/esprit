@@ -23,14 +23,15 @@ DEF ENTITY_FRAME_HURT_OFFSET RB 64
 
 ; Move actions. Must not exceed 128, as this is the limit for a jump table.
 RSRESET
-; A simple attack, dealing damage to an enemy in front of the user.
-DEF MOVE_ACTION_ATTACK RB 1
-; Heals an ally in front of the user
-DEF MOVE_ACTION_HEAL RB 1
-; Inflicts poison on an enemy in front of the user.
-DEF MOVE_ACTION_POISON RB 1
-
+DEF MOVE_ACTION_ATTACK RB 1 ; A simple attack, dealing damage to an enemy in front of the user.
+DEF MOVE_ACTION_HEAL RB 1 ; Heals an ally in front of the user
+DEF MOVE_ACTION_POISON RB 1 ; Inflicts poison on an enemy in front of the user.
 DEF MOVE_ACTION_COUNT RB 1
+
+RSRESET
+DEF STATUS_OK RB 1
+DEF STATUS_POISON RB 1 ; Lose 1-4 health every 8 turns
+DEF STATUS_COUNT RB 1
 
 ; Animation bytecode
 RSRESET
@@ -118,13 +119,10 @@ DEF TIRED_THRESHOLD EQU 35
 		; Each move has a fatigue cost to prevent rapidly using powerful moves.
 		; Every couple of steps recovers 1% of fatigue.
 		bytes 1, Fatigue
+		; 0/OK == no effect
+		bytes 1, StatusEffect
 		; How many turns are left until the status is cured.
-		; 0 for an infinite length of time.
 		bytes 1, StatusTurns
-		; Pointer to a status effect. Set bank to 0 for none
-		; Negative effects override positive ones but not each other
-		; Positive effects override each other but not negative ones
-		bytes 3, Status
 	end_struct
 
 	struct Move
@@ -141,15 +139,6 @@ DEF TIRED_THRESHOLD EQU 35
 		; The amount of fatigue used up by this attack. If 0, this attack is
 		; always available; otherwise this amount of fatigue is required.
 		bytes 1, Fatigue
-		alias Name
-	end_struct
-
-	struct Status
-		; Poiner to the function to run when the effect is applied
-		; b must be passed as the target index
-		words 1, FirstTurn
-		words 1, EachTurn
-		words 1, FinalTurn
 		alias Name
 	end_struct
 
