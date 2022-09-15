@@ -18,16 +18,14 @@ INCLUDE "res/charmap.inc"
 ; To re-use an existing global variable, use two colons:
 ; format xString, "Hello, [str::GlobalWorld]"
 
-; To re-use an existing format variable, use a colon followed by a <
-; format xEcho, "[str:phrase] [str:<phrase] [str:<phrase] [str:<phrase]"
-
 macro format
 	section "\1", romx
 	\1::
 
 	redef format_string equs \2
 
-	rept 65536
+	rept strlen("{format_string}")
+		; This check is *NOT* redundant, as the string may exhaust multiple characters per iteration.
 		if strlen("{format_string}") == 0
 			break
 		endc
@@ -60,17 +58,19 @@ macro format
 		def type equs strsub("{format_string}", 1, split - 1)
 		def arg equs strsub("{format_string}", split + 1, bracket - split - 1)
 		def is_literal = strin("{arg}", ":")
-		def is_reused = strin("{arg}", "<")
-		
-		if is_literal || is_reused
+		if is_literal
 			redef arg equs strsub("{arg}", 2)
-		endc
-
-		if !is_literal
+		else
 			redef arg equs "wfmt_\1_{arg}"
 		endc
 
-		for i, 65536
+		; Previously defined format variables will definitely be in scope since this
+		; macro is what defines them. Global/literal labels may or may not be in scope,
+		; but it's okay if they're not, this macro won't redundantly define them since
+		; it only does the 'pushs/section/new label/pops' for non-literals.
+		def is_reused = def({arg})
+
+		for i, _FORMATTER_TYPE_COUNT
 			if !def(_FORMATTER_TYPE{d:i})
 				fail "Unknown format type: {type}"
 			endc

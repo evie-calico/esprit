@@ -13,6 +13,8 @@ MBC := 0x1B
 SRAMSIZE := 0x02
 VERSION := 0
 
+DEBUG = 0
+
 INCDIRS  = src/ src/include/
 WARNINGS = all extra no-unmapped-char
 
@@ -24,6 +26,7 @@ GFXFLAGS = -c embedded
 
 SRCS := $(shell find src -name '*.asm')
 EVSS := $(shell find src -name '*.evs')
+EVDS := $(patsubst src/%.evs, debug/%.evd, $(EVSS))
 OBJS := $(patsubst src/%.asm, obj/%.o, $(SRCS)) \
         $(patsubst src/%.evs, obj/%.o, $(EVSS))
 .SECONDARY: $(OBJS)
@@ -54,7 +57,7 @@ rebuild:
 
 release:
 	$(MAKE) clean
-	${MAKE} LDFLAGS="-p 0xFF -w"
+	${MAKE} LDFLAGS="-p 0xFF -w" DEBUG=1
 .PHONY: release
 
 test: $(ROM)
@@ -75,6 +78,7 @@ bin/%.gb bin/%.sym bin/%.map: $(OBJS)
 	| rgbasm $(ASFLAGS) -o obj/version.o -
 	rgblink $(LDFLAGS) -m bin/$*.map -n bin/$*.sym -o bin/$*.gb $^ obj/version.o  \
 	&& rgbfix $(FIXFLAGS) bin/$*.gb
+	cat debug-config.evd $(EVDS) > bin/$*.evd
 
 obj/libs/vwf.o dep/libs/vwf.mk res/charmap.inc: src/libs/vwf.asm
 	@mkdir -p obj/libs/ dep/libs/ res/
@@ -89,8 +93,8 @@ obj/%.o dep/%.mk: src/%.asm
 	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o $<
 
 obj/%.o obj/%.asm dep/%.mk: src/%.evs
-	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$*))
-	evscript -o obj/$*.asm $<
+	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$* debug/$*))
+	evscript -d debug/$*.evd -o obj/$*.asm $<
 	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o obj/$*.asm
 
 ifneq ($(MAKECMDGOALS),clean)

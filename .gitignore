@@ -2,6 +2,7 @@
 /obj/
 /dep/
 /res/
+/debug/
 /.vscode/
 __pycache__/
 *.todo

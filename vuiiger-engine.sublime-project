@@ -1,0 +1,17 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+		}
+	],
+	"debugger_configurations":
+	[
+		{
+			"type": "emulicious-debugger",
+			"request": "attach",
+			"name": "Attach to Emulicious",
+			"port": 58870
+		},
+	],
+}
