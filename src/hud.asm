@@ -263,6 +263,28 @@ DrawStatusBar::
 	ld a, [hli]
 	ld [wfmt_xStatusString_health + 1], a
 
+	; Display any active status effect
+	ld l, LOW(wEntity0_StatusEffect)
+	ld a, [hl]
+	ASSERT STATUS_OK == 0
+	and a, a
+	jr z, .noStatus
+	ld a, BANK(xStatusGetName)
+	rst SwapBank
+	ld a, [hl]
+	call xStatusGetName
+	ld a, 1
+	ld [wfmt_xStatusString_hasStatus], a
+	ld a, BANK("Status Names")
+	ld [wfmt_xStatusString_status], a
+	ld a, l
+	ld [wfmt_xStatusString_status + 1], a
+	ld a, h
+	ld [wfmt_xStatusString_status + 2], a
+	jr .statusComplete
+.noStatus
+
+	; Show a tired status if fatigue is below a certain amount and no other effects are active.
 	ld l, LOW(wEntity0_Fatigue)
 	ld a, [hl]
 	cp a, TIRED_THRESHOLD
@@ -270,7 +292,14 @@ DrawStatusBar::
 	jr nc, :+
 	inc a
 :
-	ld [wfmt_xStatusString_isFatigued], a
+	ld [wfmt_xStatusString_hasStatus], a
+	ld a, BANK(xTiredStatus)
+	ld [wfmt_xStatusString_status], a
+	ld a, LOW(xTiredStatus)
+	ld [wfmt_xStatusString_status + 1], a
+	ld a, HIGH(xTiredStatus)
+	ld [wfmt_xStatusString_status + 2], a
+.statusComplete
 
 	; If garbage is shown on the status bar after the partner dies, move this
 	; check outside this function and clear the text tiles.

@@ -34,7 +34,7 @@ macro format
 
 		; If this is not currently a bracket, put it into the rom.
 		if bracket == 0
-			db "{format_string}", 0
+			db "{format_string}"
 			break
 		elif bracket > 1
 			db strsub("{format_string}", 1, bracket - 1)
@@ -90,6 +90,8 @@ macro format
 
 		purge type, arg, is_literal, is_reused, arg_size, split, bracket
 	endr
+
+	db 0
 endm
 
 macro add_type

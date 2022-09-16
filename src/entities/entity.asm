@@ -48,7 +48,7 @@ EndTurn::
 	ld a, [wActiveEntity]
 	add a, HIGH(wEntity0)
 	ld h, a
-	ld a, BANK(xStatusPreTurnUpdate)
+	ld a, BANK(xStatusPostTurnUpdate)
 	rst SwapBank
 	call xStatusPostTurnUpdate ; may clobber h
 

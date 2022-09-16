@@ -49,3 +49,22 @@ xPoisonPostTurnUpdate:
 	inc a
 	ld e, a
 	jp DamageEntity
+
+SECTION "Status Names", ROM0
+xStatusGetName::
+	add a, a
+	add a, LOW(.names - 2)
+	ld l, a
+	adc a, HIGH(.names - 2)
+	sub a, l
+	ld h, a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ret
+
+.names
+	ASSERT STATUS_POISON == 1
+	dw .poison
+
+.poison db "Poison", 0
