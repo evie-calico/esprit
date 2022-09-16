@@ -12,11 +12,11 @@ InflictStatus::
 
 
 SECTION "Pre-Turn Status Update", ROMX
-; Update any status effects which occur before the entity's turn.
+; Update any status effects which occur after the entity's turn.
 ; Eahc handler recieves Entity_StatusEffect in HL.
 ; @param h: Entity index
 ; @clobbers all
-xStatusPreTurnUpdate::
+xStatusPostTurnUpdate::
 	ld l, LOW(wEntity0_StatusTurns)
 	ld a, [hl]
 	and a, a
@@ -36,7 +36,7 @@ xStatusPreTurnUpdate::
 	cp a, STATUS_POISON
 	ret nz
 ; Deal 1-4 damage to an entity every 8 turns.
-xPoisonPreTurnUpdate:
+xPoisonPostTurnUpdate:
 	ASSERT Entity_StatusEffect + 1 == Entity_StatusTurns
 	inc l
 	ld a, [hl]

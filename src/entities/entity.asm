@@ -50,7 +50,7 @@ EndTurn::
 	ld h, a
 	ld a, BANK(xStatusPreTurnUpdate)
 	rst SwapBank
-	call xStatusPreTurnUpdate ; may clobber h
+	call xStatusPostTurnUpdate ; may clobber h
 
 	; Restore 1% fatigue
 	ld a, [wActiveEntity]
