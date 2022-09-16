@@ -100,36 +100,14 @@ macro add_type
     def _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT} equs "\1"
     def _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT}_CODE equs "\2"
     def _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT}_NARGS equ _NARG - 2
-    for i, _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT}_NARGS
-        def _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT}_ARG_{d:i}_SIZE equ \3
-        shift
-    endr
+    def _FORMATTER_TYPE{d:_FORMATTER_TYPE_COUNT}_ARG_SIZE equ \3
     def _FORMATTER_TYPE_COUNT += 1
 ENDM
 
-	add_type "str", \
-		db TEXT_CALL_PTR \n\
-		dw \{arg\} \n\
-		def arg_size = 3
-
-	add_type "u8", \
-		db TEXT_U8 \n\
-		dw \{arg\} \n\
-		def arg_size = 1
-
-	add_type "u16", \
-		db TEXT_U16 \n\
-		dw \{arg\} \n\
-		def arg_size = 2
-
-	add_type "entity", \
-		db TEXT_ENTITY_NAME \n\
-		dw \{arg\} \n\
-		def arg_size = 1
-
-	add_type "condition", \
-		db TEXT_RET_FALSE \n\
-		dw \{arg\} \n\
-		def arg_size = 1
+    add_type "str",       TEXT_CALL_PTR,    3
+    add_type "u8",        TEXT_U8,          1
+    add_type "u16",       TEXT_U16,         2
+    add_type "entity",    TEXT_ENTITY_NAME, 1
+    add_type "condition", TEXT_RET_FALSE,   1
 
 ENDC

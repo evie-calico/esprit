@@ -21,7 +21,7 @@ to build this project.
 
 To run unit tests (optional, for development), additional dependancies are required.
 
-- [Bash](https://www.gnu.org/software/make/), or a similar software which can run bash scripts.
+- [Bash](https://www.gnu.org/software/bash/), or a similar software which can run bash scripts.
 - [evunit](https://github.com/eievui5/evunit)
 
 Windows is not supported.

@@ -38,14 +38,29 @@ OBJS := $(patsubst src/%.asm, obj/%.o, $(SRCS)) \
 ################################################
 
 # `all` (Default target): build the ROM
-all: $(ROM)
+all:
+ifeq (, $(shell which rgbasm))
+	$(error rgbasm is not installed on the PATH (https://github.com/gbdev/rgbds))
+endif
+ifeq (, $(shell which rgblink))
+	$(error rgblink is not installed on the PATH (https://github.com/gbdev/rgbds))
+endif
+ifeq (, $(shell which rgbfix))
+	$(error rgbfix is not installed on the PATH (https://github.com/gbdev/rgbds))
+endif
+ifeq (, $(shell which rgbgfx))
+	$(error rgbgfx is not installed on the PATH (https://github.com/gbdev/rgbds))
+endif
+ifeq (, $(shell which evscript))
+	$(error evscript is not installed on the PATH (https://github.com/eievui5/evscript))
+endif
+	$(MAKE) $(ROM)
 .PHONY: all
 
 # `clean`: Clean temp and bin files
 clean:
 	rm -rf bin obj dep res
 	rm -f src/include/charmap.inc
-
 .PHONY: clean
 
 # `rebuild`: Build everything from scratch
@@ -61,9 +76,13 @@ release:
 .PHONY: release
 
 test: $(ROM)
+ifeq (, $(shell which evunit))
+	$(error evunit is not installed on the PATH (https://github.com/eievui5/evunit))
+endif
 	bash test-config-generator.bash | \
 	cat test-config.toml - | \
 	evunit --config /dev/stdin --symfile bin/vuiiger.sym --silent $<
+.PHONY: test
 
 ###############################################
 #                                             #
