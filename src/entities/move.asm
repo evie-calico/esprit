@@ -207,6 +207,16 @@ MoveActionPoison:
 	ASSERT SCAN_ENTITY == 0
 	and a, a
 	jp nz, PrintMissed
+
+	ld a, h
+	ld [wfmt_xGotPoisonedString_target], a
+	ld a, BANK(xGotPoisonedString)
+	ld [wPrintString], a
+	ld a, LOW(xGotPoisonedString)
+	ld [wPrintString + 1], a
+	ld a, HIGH(xGotPoisonedString)
+	ld [wPrintString + 2], a
+
 	ld b, STATUS_POISON
 	jp InflictStatus
 
