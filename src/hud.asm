@@ -58,6 +58,7 @@ InitUI::
 
 	xor a, a
 	ld [wPrintString], a
+	ld [wForceHudUpdate], a
 
 	lb bc, idof_vBlankTile, vHUD_Width - 2
 	ld hl, vHUD + 33
@@ -679,3 +680,6 @@ wPrintString:: ds 3
 
 SECTION "Move Window Buffer", WRAM0
 wMoveWindowBuffer: ds 8 * 4
+
+SECTION "Force HUD update", WRAM0
+wForceHudUpdate:: db

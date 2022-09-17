@@ -283,6 +283,10 @@ DungeonState::
 	and a, a
 	call nz, DrawPrintString
 
+	ld a, [wForceHudUpdate]
+	and a, a
+	jr nz, .updateStatus
+
 	ld hl, wPreviousStats
 	ld de, wEntity0_Health
 	ld a, [de]
@@ -329,6 +333,8 @@ DungeonState::
 	cp a, [hl]
 	jr z, .skipUpdateStatus
 .updateStatus
+	xor a, a
+	ld [wForceHudUpdate], a
 	call DrawStatusBar
 	call SetPreviousHudStats
 .skipUpdateStatus

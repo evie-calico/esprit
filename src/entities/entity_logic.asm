@@ -234,13 +234,7 @@ POPS
 
 	ld a, [hCurrentKeys]
 	cp a, PADF_SELECT
-	jr nz, :+
-	; DEBUG: Inflict poison
-	ld h, HIGH(wEntity0)
-	ld b, STATUS_POISON
-	call InflictStatus
-	jp EndTurn
-:
+	jp z, EndTurn
 
 	ld a, [hCurrentKeys]
 	cp a, PADF_START

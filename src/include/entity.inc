@@ -28,11 +28,6 @@ DEF MOVE_ACTION_HEAL RB 1 ; Heals an ally in front of the user
 DEF MOVE_ACTION_POISON RB 1 ; Inflicts poison on an enemy in front of the user.
 DEF MOVE_ACTION_COUNT RB 1
 
-RSRESET
-DEF STATUS_OK RB 1
-DEF STATUS_POISON RB 1 ; Lose 1-4 health every 8 turns
-DEF STATUS_COUNT RB 1
-
 ; Animation bytecode
 RSRESET
 DEF ENTITY_ANIMATION_WAIT RB 1
