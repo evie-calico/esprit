@@ -20,10 +20,8 @@ ENDM
 		rgb 32, 0, 0
 	.moveTable
 		level 1, xPoison
-		level 1, xPoison
 
 		level 1, xScratch
-		level 1, xPoison
 		level 6, xBite
 		level 7, xPounce
 		level 10, xHeal
@@ -46,7 +44,8 @@ ENDM
 		rgb 48, 80, 16
 		rgb 16, 24, 0
 	.moveTable
-		level 1, xNibble
+		level 1, xPoisonFangs
+		;level 1, xNibble
 		db 0
 
 	entity xFieldRat, "Field Rat", "res/sprites/rat.2bpp"

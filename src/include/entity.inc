@@ -26,6 +26,7 @@ RSRESET
 DEF MOVE_ACTION_ATTACK RB 1 ; A simple attack, dealing damage to an enemy in front of the user.
 DEF MOVE_ACTION_HEAL RB 1 ; Heals an ally in front of the user
 DEF MOVE_ACTION_POISON RB 1 ; Inflicts poison on an enemy in front of the user.
+DEF MOVE_ACTION_POISN_ATK RB 1 ; Inflicts poison on and deals damage to an enemy in front of the user.
 DEF MOVE_ACTION_COUNT RB 1
 
 ; Animation bytecode

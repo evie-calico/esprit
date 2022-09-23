@@ -158,8 +158,10 @@ UseMove::
 	dw MoveActionHeal
 	ASSERT MOVE_ACTION_POISON == 2
 	dw MoveActionPoison
+	ASSERT MOVE_ACTION_POISN_ATK == 3
+	dw MoveActionPoisonAttack
 
-	ASSERT MOVE_ACTION_COUNT == 3
+	ASSERT MOVE_ACTION_COUNT == 4
 
 ; Basic attack. Check <range> tiles in front of <entity>, and attack the first
 ; enemy seen. Deals <power> damage and has a <chance> chance of succeeding.
@@ -220,6 +222,35 @@ MoveActionPoison:
 	ld b, STATUS_POISON
 	jp InflictStatus
 
+; Basic attack. Check <range> tiles in front of <entity>, and attack the first
+; enemy seen. Deals <power> damage and has a <chance> chance of succeeding.
+; @param b: Entity pointer high byte
+; @param de: Move pointer
+MoveActionPoisonAttack:
+	; This type of attack always hits; accuracy only applies to the status.
+	ASSERT Move_Chance == 1
+	inc de
+	push de
+		call ScanForEntities
+
+		ASSERT SCAN_ENTITY == 0
+		and a, a
+		jp nz, PrintMissed
+		rst Rand8
+		and a, 3
+		ld b, a
+		
+		push hl
+			call DealDamage
+		pop hl
+	pop de
+
+	call CheckMoveAccuracy.moveChance
+	ret c
+
+	ld b, STATUS_POISON
+	jp InflictStatus
+
 SECTION "Check move accuracy", ROM0
 ; Jumps to PrintMissed if the move missed.
 ; Skips over caller.
@@ -231,6 +262,7 @@ SECTION "Check move accuracy", ROM0
 CheckMoveAccuracy:
 	ASSERT Move_Chance == 1
 	inc de
+.moveChance
 	rst Rand8
 	ld c, a
 	ld a, [de]
@@ -238,11 +270,11 @@ CheckMoveAccuracy:
 	ret
 
 SECTION "Scan for entities", ROM0
-; Jumps to PrintMissed if no entity is found or a wall is hit.
 ; @param de: Move_Chance
 ; @param hSaveUserIndex: User index
 ; @return a: SCAN_ENTITY, SCAN_WALL, SCAN_NONE
 ; @return de: Move_Chance
+; @return h: Target entity ID
 ; @preserves de
 ScanForEntities:
 	inc de
