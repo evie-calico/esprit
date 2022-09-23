@@ -16,7 +16,7 @@
 ; 4. Wait for VBlank and call hOAMDMA - Copies wShadowOAM to the Game Boy's OAM in
 ;    just 160 M-cycles. Make sure to pass HIGH(wShadowOAM) in the a register.
 ;
-; Copyright 2021, Eievui
+; Copyright 2022, Evie M.
 ;
 ; This software is provided 'as-is', without any express or implied
 ; warranty.  In no event will the authors be held liable for any damages

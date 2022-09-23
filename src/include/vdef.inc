@@ -1,7 +1,7 @@
 ;
 ; Static VRAM allocation macro pack for RGBDS
 ;
-; Copyright 2021, Eievui
+; Copyright 2022, Evie M.
 ;
 ; This software is provided 'as-is', without any express or implied
 ; warranty.  In no event will the authors be held liable for any damages
