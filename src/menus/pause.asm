@@ -42,9 +42,9 @@ xDrawPauseMenu:
 	print_text 3, 1, "Return"
 	print_text 3, 3, "Items"
 	print_text 3, 5, "Party"
-	print_text 3, 7, "Save", 3
+	print_text 3, 7, "Save"
 	print_text 3, 9, "Options"
-	print_text 3, 11, "Escape!", 5
+	print_text 3, 11, "Escape!"
 	end_dmg
 	set_region 0, 0, SCRN_VX_B, SCRN_VY_B, 0
 	end_cgb

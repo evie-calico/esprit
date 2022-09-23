@@ -1,5 +1,7 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define PLUM_UNPREFIXED_MACROS
 #include "libplum.h"
@@ -7,12 +9,12 @@
 #define CHARACTER_WIDTH 9
 #define CHARACTER_HEIGHT 8
 
-#define error(...) do { fprintf(stderr, __VA_ARGS__); exit(1); } while (0);
+#define error(...) do { fprintf(stderr, __VA_ARGS__); exit(1); } while (0)
 
 // Converts PNG images into vwf files.
 
 int main(int argc, char ** argv) {
-	if (argc != 3) error("Usage:\n\t%s input_file output_file\n", argv[0]);
+	if (argc != 4) error("Usage:\n\t%s input_file output_file glyph_file\n", argv[0]);
 
 	unsigned err;
 	struct plum_image * image = plum_load_image(
@@ -21,6 +23,14 @@ int main(int argc, char ** argv) {
 
 	if (!image)
 		error("%s: load error (%s)\n", argv[1], plum_get_error_text(err));
+
+	FILE * output = fopen(argv[2], "w");
+	if (!output)
+		error("Failed to open %s: %s\n", argv[2], strerror(errno));
+
+	FILE * glyphs = fopen(argv[3], "w");
+	if (!glyphs)
+		error("Failed to open %s: %s\n", argv[3], strerror(errno));
 
 	if (image->width % CHARACTER_WIDTH != 0)
 		error("%s: width must be a multiple of 9", argv[1]);
@@ -31,9 +41,7 @@ int main(int argc, char ** argv) {
 	uint32_t fg_color = PIXEL32(image, 1, 0, 0);
 	uint32_t null_color = PIXEL32(image, 2, 0, 0);
 
-	uint8_t * data = malloc(512);
-	size_t index = 0;
-	#define append(val) { data[index++] = (val); if (index % 512 == 0) data = realloc(data, index + 512); }
+	uint8_t glyph_id = ' ';
 
 	for (size_t ty = 0; ty < image->height - 1; ty += CHARACTER_HEIGHT) {
 		for (size_t tx = 0; tx < image->width; tx += CHARACTER_WIDTH) {
@@ -53,21 +61,18 @@ int main(int argc, char ** argv) {
 				}
 				if (byte & (1 << (CHARACTER_WIDTH - 8) - 1))
 					error("Row at (x:%zu, y:%zu): only the first 8 pixels of a character can be non-blank!", tx, y);
-				append(byte >> (CHARACTER_WIDTH - 8));
+				fputc(byte >> (CHARACTER_WIDTH - 8), output);
 			}
-			append(size);
+			fputc(size, output);
+			fprintf(glyphs, "def glyph%2u = %u\n", (unsigned) glyph_id, (unsigned) size);
+			glyph_id++;
 		}
 	}
 
 	#undef append
 
 	plum_destroy_image(image);
-
-	FILE * output = fopen(argv[2], "w");
-	for (size_t i = 0; i < index; i++)
-		fputc(data[i], output);
 	fclose(output);
-	free(data);
 
 	return 0;
 }

@@ -3,6 +3,7 @@ DEF DRAW_MENU_INC EQU 1
 
 INCLUDE "structs.inc"
 INCLUDE "vdef.inc"
+INCLUDE "res/ui/optix_glyphs.inc"
 
 	struct Cursor
 		bytes 1, X
@@ -71,15 +72,19 @@ MACRO print_text ; X, Y, string, [length hint]
 
 	; This macro can loosely guess at the length of a string if the user can't
 	; be bothered to figure it out.
-	IF _NARG == 3
-		db CUR_ID + STRLEN(\3) * 2 / 3
-		dtile_anon STRLEN(\3) * 2 / 3
-	ELSE
-		db CUR_ID + \4
-		dtile_anon \4
+	IF _NARG == 4
+		WARN "Unneeded length hint"
 	ENDC
 
-	PURGE CUR_ID
+	DEF WIDTH = 1
+	FOR I, 1, STRLEN(\3)
+		DEF GLYPH = CHARSUB(\3, I)
+		DEF WIDTH += glyph{d:GLYPH}
+	ENDR
+	db CUR_ID + (WIDTH / 8) + 1
+	dtile_anon (WIDTH / 8) + 1
+
+	PURGE CUR_ID, WIDTH, GLYPH
 
 	; Now place the tilemap address
 	dw $9800 + \1 + \2 * 32

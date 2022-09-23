@@ -167,9 +167,9 @@ res/%.1bpp: res/%.h.png
 	@mkdir -p $(@D)
 	rgbgfx -Z -d 1 -o $@ $<
 
-res/%.vwf: res/%.png $(MAKEFONT)
+res/%.vwf res/%_glyphs.inc: res/%.png $(MAKEFONT)
 	@mkdir -p $(@D)
-	$(MAKEFONT) $< $@
+	$(MAKEFONT) $< res/$*.vwf res/$*_glyphs.inc
 
 res/%.asm: res/%.mod $(MOD2GBT)
 	@mkdir -p $(@D)
