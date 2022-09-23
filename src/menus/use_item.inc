@@ -235,7 +235,8 @@ xUseItemMenuA:
 	ret nz
 	inc a ; ld a, 1
 	ld [wUseAnimationTimer], a
-	jp EndTurn
+	ld [wActiveEntity], a
+	ret
 
 xUseItemBlockAction:
 	ld a, [wUseAnimationTimer]

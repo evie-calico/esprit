@@ -62,7 +62,7 @@ EndTurn::
 	cp a, 101
 	jr nc, .skip
 	ld [hl], a
-.skip
+.skip::
 	; Move on to the next entity
 	ld a, [wActiveEntity]
 	inc a

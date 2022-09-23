@@ -46,8 +46,8 @@ BankReturn::
 ; @param a: Bank
 SwapBank::
 	ASSERT @ == $20
-	ld [rROMB0], a
 	ldh [hCurrentBank], a
+	ld [rROMB0], a
 	ret
 
 SECTION "rand8", ROM0[$0028]

@@ -193,7 +193,7 @@ DrawPrintString::
 SECTION "Draw Status bar", ROM0
 ; @clobbers bank
 DrawStatusBar::
-	ld hl, wEntity0
+	ld h, HIGH(wEntity0)
 	call .prepareFormatting
 
 	ld a, vStatusBar_Width * 8
@@ -226,7 +226,7 @@ DrawStatusBar::
 
 	ld a, vStatusBar_Width * 8
 	lb bc, idof_vPartnerStatus, idof_vPartnerStatus + vStatusBar_Width
-	lb de, vStatusBar_Height, HIGH(vPartnerStatus) & $F0
+	lb de, 1, HIGH(vPartnerStatus) & $F0
 	call TextInit
 
 	xor a, a
