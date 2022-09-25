@@ -81,6 +81,12 @@ macro format
 
 		if arg_size && !is_literal && !is_reused
 			pushs
+				if !def(FORMAT_MEMORY_USAGE)
+					def FORMAT_MEMORY_USAGE = 0
+				endc
+
+				def FORMAT_MEMORY_USAGE += arg_size
+
 				section "{arg}", wram0
 				{arg}:: ds arg_size
 			pops
@@ -92,6 +98,14 @@ macro format
 	endr
 
 	db 0
+endm
+
+macro format_report_usage
+	if !def(FORMAT_MEMORY_USAGE)
+		def FORMAT_MEMORY_USAGE = 0
+	endc
+
+	println "Memory allocated for format strings: {d:FORMAT_MEMORY_USAGE} bytes"
 endm
 
 macro add_type
