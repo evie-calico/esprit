@@ -11,7 +11,7 @@ MACRO dungeon
 	REDEF FLOORS EQUS "\4"
 	REDEF FLAG EQUS "\5"
 	SECTION "{NAME} Dungeon", ROMX
-	x{NAME}:: dw .tileset, .palette
+	{NAME}:: dw .tileset, .palette
 
 	SHIFT 5
 	farptr \1
@@ -49,14 +49,14 @@ MACRO dungeon_palette
 	ENDR
 ENDM
 
-	dungeon Forest, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, \
+	dungeon xForestDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
 	        xForestRat, 2, \
 	        xForestRat, 2, \
 	        xForestRat, 3, \
-	        xFieldRat, 3, \
+	        xFieldRat,  3, \
 	        xForestRat, 4, \
 	        xForestRat, 5
 	dungeon_palette 128, 255, 144, \ ; Blank
@@ -70,16 +70,16 @@ ENDM
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon Field, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_FIELDS_COMPLETE, \
+	dungeon xFieldDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_FIELDS_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
-	        xFieldRat, 2, \
+	        xFieldRat,  2, \
 	        xForestRat, 3, \
 	        xForestRat, 3, \
-	        xFieldRat, 3, \
-	        xFieldRat, 4, \
-	        xFieldRat, 5, \
-	        xFieldRat, 6, \
-	        xFieldRat, 6
+	        xFieldRat,  3, \
+	        xFieldRat,  4, \
+	        xFieldRat,  5, \
+	        xFieldRat,  6, \
+	        xFieldRat,  6
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
 	                 24,  64,  24, \
@@ -91,16 +91,16 @@ ENDM
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon Lake, "res/dungeons/lake_tiles.2bpp", HALLS, 5, FLAG_LAKE_COMPLETE, \
+	dungeon xLakeDungeon, "res/dungeons/lake_tiles.2bpp", HALLS, 5, FLAG_LAKE_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
-	        xFieldRat, 2, \
+	        xFieldRat,  2, \
 	        xForestRat, 3, \
 	        xForestRat, 3, \
-	        xFieldRat, 3, \
-	        xFieldRat, 4, \
-	        xFieldRat, 5, \
-	        xFieldRat, 6, \
-	        xFieldRat, 6
+	        xFieldRat,  3, \
+	        xFieldRat,  4, \
+	        xFieldRat,  5, \
+	        xFieldRat,  6, \
+	        xFieldRat,  6
 	dungeon_palette 255, 255,  128, \ ; Blank
 	                160, 160,  80, \ ; Ground
 	                 48,  48, 176, \
@@ -112,16 +112,16 @@ ENDM
 	                128,   0,   0, \
 	                 64,   0,   0, \
 
-	dungeon Plains, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_PLAINS_COMPLETE, \
+	dungeon xPlainsDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_PLAINS_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
-	        xFieldRat, 2, \
+	        xFieldRat,  2, \
 	        xForestRat, 3, \
 	        xForestRat, 3, \
-	        xFieldRat, 3, \
-	        xFieldRat, 4, \
-	        xFieldRat, 5, \
-	        xFieldRat, 6, \
-	        xFieldRat, 6
+	        xFieldRat,  3, \
+	        xFieldRat,  4, \
+	        xFieldRat,  5, \
+	        xFieldRat,  6, \
+	        xFieldRat,  6
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
 	                 24,  64,  24, \
@@ -133,14 +133,14 @@ ENDM
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon Caves, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_CAVES_COMPLETE, \
+	dungeon xCavesDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_CAVES_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
 	        xForestRat, 2, \
 	        xForestRat, 2, \
 	        xForestRat, 3, \
-	        xFieldRat, 3, \
+	        xFieldRat,  3, \
 	        xForestRat, 4, \
 	        xForestRat, 5
 	dungeon_palette 128, 255, 144, \ ; Blank
@@ -154,14 +154,14 @@ ENDM
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon GemstoneWoods, "res/dungeons/gemtree_tiles.2bpp", HALLS, 5, FLAG_GEMTREE_COMPLETE, \
+	dungeon xGemstoneWoodsDungeon, "res/dungeons/gemtree_tiles.2bpp", HALLS, 5, FLAG_GEMTREE_COMPLETE, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
 	        xForestRat, 2, \
 	        xForestRat, 2, \
 	        xForestRat, 3, \
-	        xFieldRat, 3, \
+	        xFieldRat,  3, \
 	        xForestRat, 4, \
 	        xForestRat, 5
 	dungeon_palette 248, 136, 112, \ ; Blank

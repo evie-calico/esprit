@@ -92,11 +92,11 @@ SECTION "World map nodes", ROMX
 	node xForestNode, "Crater Forest", 12, 88
 		right MOVE, xVillageNode
 		up LOCK, xFieldsNode, FOREST_COMPLETE
-		press DUNGEON, xForest
+		press DUNGEON, xForestDungeon
 	end_node
 
 	node xFieldsNode, "Crater Fields", 12, 32
-		press DUNGEON, xField
+		press DUNGEON, xFieldDungeon
 		down MOVE, xForestNode
 		up LOCK, xRemoteHouse, FIELDS_COMPLETE
 		right LOCK, xLakeNode, FIELDS_COMPLETE
@@ -107,7 +107,7 @@ SECTION "World map nodes", ROMX
 	end_node
 
 	node xLakeNode, "Crystal Lake", 45, 32
-		press DUNGEON, xLake
+		press DUNGEON, xLakeDungeon
 		left MOVE, xFieldsNode
 		right LOCK, xTurn0, LAKE_COMPLETE
 	end_node
@@ -125,7 +125,7 @@ SECTION "World map nodes", ROMX
 	end_node
 
 	node xBlazingPlains, "Blazing Plains", 101, 56
-		press DUNGEON, xPlains
+		press DUNGEON, xPlainsDungeon
 		left MOVE, xTurn1
 		up LOCK, xTurn2, PLAINS_COMPLETE
 		down LOCK, xGemstoneWoodsNode, CAVES_COMPLETE
@@ -150,12 +150,12 @@ SECTION "World map nodes", ROMX
 	end_node
 
 	node xCraterCaverns, "Crater Caverns", 101, 8
-		press DUNGEON, xCaves
+		press DUNGEON, xCavesDungeon
 		left MOVE, xTurn4
 	end_node
 
 	node xGemstoneWoodsNode, "Gemstone Woods", 101, 80
-		press DUNGEON, xGemstoneWoods
+		press DUNGEON, xGemstoneWoodsDungeon
 		up MOVE, xBlazingPlains
 	end_node
 

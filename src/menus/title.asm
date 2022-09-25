@@ -79,11 +79,11 @@ xTitleScreenClose:
 	call FadeToBlack
 
 	ld hl, wActiveDungeon
-	ld a, BANK(xGemstoneWoods)
+	ld a, BANK(xGemstoneWoodsDungeon)
 	ld [hli], a
-	ld a, LOW(xGemstoneWoods)
+	ld a, LOW(xGemstoneWoodsDungeon)
 	ld [hli], a
-	ld a, HIGH(xGemstoneWoods)
+	ld a, HIGH(xGemstoneWoodsDungeon)
 	ld [hli], a
 
 	ld hl, wActiveMapNode
