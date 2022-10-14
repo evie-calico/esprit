@@ -484,7 +484,7 @@ xUpdateAnimation::
 	ld b, a
 
 	ld a, c
-	sub a, 1 << 4
+	sub a, 1.0
 	ld c, a
 	jr nc, :+
 	dec b
@@ -507,7 +507,7 @@ xUpdateAnimation::
 	ld b, a
 
 	ld a, c
-	add a, 1 << 4
+	add a, 1.0
 	ld c, a
 	adc a, b
 	sub a, c

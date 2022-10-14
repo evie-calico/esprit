@@ -522,7 +522,7 @@ xFocusCamera::
 	ld a, [bc]
 	inc c
 	ld h, a
-	ld de, (SCRN_Y - 34) / -2 << 4
+	ld de, (SCRN_Y - 34) / -2.0
 	add hl, de
 	bit 7, h
 	jr nz, :+
@@ -539,7 +539,7 @@ xFocusCamera::
 	ld a, [bc]
 	inc c
 	ld h, a
-	ld de, (SCRN_X - 24) / -2 << 4
+	ld de, (SCRN_X - 24) / -2.0
 	add hl, de
 	bit 7, h
 	ret nz

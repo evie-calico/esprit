@@ -107,10 +107,10 @@ ENDM
 
 MACRO begin_draw
 	; Begin with an array of 4 positions, corresponding to each direction
-	dw SCENE_BOTTOM_ENTRANCE_Y * 8 << 4, SCENE_BOTTOM_ENTRANCE_X * 8 << 4
-	dw SCENE_LEFT_ENTRANCE_Y * 8 << 4, (SCENE_LEFT_ENTRANCE_X * 8 + 1) << 4
-	dw (SCENE_TOP_ENTRANCE_Y * 8 + 1) << 4, SCENE_TOP_ENTRANCE_X * 8 << 4
-	dw SCENE_RIGHT_ENTRANCE_Y * 8 << 4, SCENE_RIGHT_ENTRANCE_X * 8 << 4
+	dw SCENE_BOTTOM_ENTRANCE_Y * 8.0, SCENE_BOTTOM_ENTRANCE_X * 8.0
+	dw SCENE_LEFT_ENTRANCE_Y * 8.0, (SCENE_LEFT_ENTRANCE_X * 8.0 + 1.0)
+	dw (SCENE_TOP_ENTRANCE_Y * 8.0 + 1.0), SCENE_TOP_ENTRANCE_X * 8.0
+	dw SCENE_RIGHT_ENTRANCE_Y * 8.0, SCENE_RIGHT_ENTRANCE_X * 8.0
 	ASSERT SCENE_BOUNDARY_X <= 512 && SCENE_BOUNDARY_Y <= 256, "Scenes are limited to a 512x256 area"
 	db (SCENE_BOUNDARY_X - SCRN_X) / 16, (SCENE_BOUNDARY_Y - SCRN_Y + 32) / 16 ; width/height divided by 16
 	; The seed ensures maps always appear the same.
@@ -278,7 +278,7 @@ MACRO npc
 	DEF ENTITY_ID += 1
 	db BANK(\1)
 	dw \1 ; NPC's entity base (source of graphics)
-	dw \3 << 4, \2 << 4 ; x/y fixed-point positions
+	dw \3, \2 ; x/y fixed-point positions
 	db \4
 	db BANK(\5) ; Idle Script
 	dw \5

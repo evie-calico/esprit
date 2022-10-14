@@ -101,7 +101,7 @@ InitScene::
 	dec e
 	ld a, [de]
 	ld l, a
-	ld bc, -SCRN_X / 2 << 4
+	ld bc, -SCRN_X / 2.0
 	add hl, bc
 	bit 7, h
 	jr z, :+
@@ -130,7 +130,7 @@ InitScene::
 	dec e
 	ld a, [de]
 	ld l, a
-	ld bc, -(SCRN_Y - 32) / 2 << 4
+	ld bc, -(SCRN_Y - 32) / 2.0
 	add hl, bc
 	bit 7, h
 	jr z, :+
@@ -294,19 +294,19 @@ xHandleSceneMovement:
 	bit PADB_UP, a
 	ret z
 .up
-	lb bc, 0, -1 << 4
+	lb bc, 0, -1.0
 	jr .finish
 
 .left
-	lb bc, -1 << 4, 0
+	lb bc, -1.0, 0
 	jr .finish
 
 .right
-	lb bc, 1 << 4, 0
+	lb bc, 1.0, 0
 	jr .finish
 
 .down
-	lb bc, 0, 1 << 4
+	lb bc, 0, 1.0
 .finish
 	; b = X offset
 	; c = Y offset
@@ -338,7 +338,7 @@ xHandleSceneMovement:
 	; Get the tile this would end up on in bc and check for collision
 	ld b, h
 	ld a, l
-	add a, 15 << 4
+	add a, 15.0
 	ld c, a
 	adc a, b
 	sub a, c
@@ -357,7 +357,7 @@ xHandleSceneMovement:
 	; Now adjust and add the X component
 	push de
 		ld a, e
-		add a, 7 << 4
+		add a, 7.0
 		ld e, a
 		adc a, d
 		sub a, e
@@ -437,7 +437,7 @@ xSceneCheckInteraction:
 
 	ld hl, wEntity0_SpriteY
 	ld a, [hli]
-	add a, 8 << 4
+	add a, 8.0
 	ld c, a
 	ld a, [hli]
 	adc a, 0
@@ -445,7 +445,7 @@ xSceneCheckInteraction:
 	; bc = Y (fixed-point)
 	; We'll shift Y later after adding the direction vector.
 	ld a, [hli]
-	add a, 8 << 4
+	add a, 8.0
 	ld e, a
 	ld a, [hli]
 	adc a, 0
@@ -568,7 +568,7 @@ xHandleSceneCamera:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld bc, -1 << 4
+	ld bc, -1.0
 	add hl, bc
 	bit 7, h
 	jr z, :+
@@ -609,7 +609,7 @@ xHandleSceneCamera:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld bc, 1 << 4
+	ld bc, 1.0
 	add hl, bc
 	ld a, [wSceneBoundary.y]
 	cp a, h
@@ -651,7 +651,7 @@ xHandleSceneCamera:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld bc, -1 << 4
+	ld bc, -1.0
 	add hl, bc
 	bit 7, h
 	jr z, :+
@@ -692,7 +692,7 @@ xHandleSceneCamera:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld bc, 1 << 4
+	ld bc, 1.0
 	add hl, bc
 	ld a, [wSceneBoundary.x]
 	cp a, h

@@ -25,7 +25,7 @@ DEF STRUCTS_INC EQU 1
 
 DEF STRUCTS_VERSION equs "2.0.0"
 MACRO structs_assert
-    assert (\1), "rgbds-structs {STRUCTS_VERSION} bug on line {d:__LINE__}. Please report at https://github.com/ISSOtm/rgbds-structs, and share your code there!"
+    assert (\1), "rgbds-structs {STRUCTS_VERSION} bug. Please report at https://github.com/ISSOtm/rgbds-structs, and share your code there!"
 ENDM
 
 

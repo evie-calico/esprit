@@ -151,7 +151,7 @@ xGetCurrentVram:
 	rra
 	rr e
 	ld d, a
-	; hl = (Camera >> 8) & 15 << 4
+	; hl = (Camera >> 8) & 15.0
 	ld hl, $9800
 	add hl, de ; Add to VRAM
 	ld a, [wDungeonCameraX + 1]
