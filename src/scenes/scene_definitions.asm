@@ -9,7 +9,7 @@ xVillageScene::
 	scene
 		DEF random = $EA751B27
 	begin_draw
-		load_background_palette GrassGreen, "res/scenes/grass_bkg.pal8"
+		load_background_palette GrassGreen, "res/scenes/bush_detail.pal8"
 		load_tiles Grass, GrassGreen
 		load_tiles Bush, GrassGreen
 
