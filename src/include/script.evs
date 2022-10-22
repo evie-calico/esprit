@@ -27,6 +27,7 @@ env script {
 	def gte_u8(); alias gte_i8() = gte_u8();
 	def land_u8(); alias land_i8() = land_u8();
 	def lor_u8(); alias lor_i8() = lor_u8();
+
 	// Engine extensions
 	def rand(return u8);
 	def print(const string);
@@ -42,22 +43,35 @@ env script {
 	def draw_sprite(sprite);
 	def npc_move(const u8, const u16, const u16);
 	def npc_set_frame(const u8, const u8);
+	def npc_set_direction(const u8, const u8);
 	def npc_lock();
+	def face_player();
 
 	pool = 16;
 }
 
 env npc {
 	use script;
+
+	// Self commands
 	alias move(const u16, const u16) = npc_move(const -1, $2, $1);
 	alias set_frame(const u8) = npc_set_frame(const -1, $1);
+	alias set_direction(const u8) = npc_set_direction(const -1, $1);
+	// Player commands
 	alias move_player(const u16, const u16) = npc_move(const 0, $2, $1);
 	alias set_frame_player(const u8) = npc_set_frame(const 0, $1);
+	alias set_direction_player(const u8) = npc_set_direction(const 0, $1);
+	// Partner commands
 	alias move_partner(const u16, const u16) = npc_move(const 1, $2, $1);
 	alias set_frame_partner(const u8) = npc_set_frame(const 1, $1);
+	alias set_direction_partner(const u8) = npc_set_direction(const 1, $1);
+	// Generic commands
 	alias move_other(const u8, const u8, const u8) = npc_move($1, $3, $2);
 	alias set_frame_other(u8, u8) = npc_set_frame($1, $2);
+	alias set_direction_other(u8, u8) = npc_set_direction($1, $2);
+	// Toggle the player's ability to move.
 	alias lock() = npc_lock();
+	// Wait for the current print/say command to end.
 	alias wait() = print_wait();
 
 	pool = 8;

@@ -1,29 +1,48 @@
 include "src/include/script.evs";
 #asm
 	include "res/charmap.inc";
+	include "defines.inc"
 	include "entity.inc";
 #end
 
 npc xWalkAround {
 	lock();
+	face_player();
+
 	say("Hello, World!<WAITBTN>");
 	wait();
+
+	set_direction(RIGHT);
+	set_direction_player(RIGHT);
 	set_frame(ENTITY_FRAME_STEP);
+	set_frame_player(ENTITY_FRAME_STEP);
 	repeat 60 {
 		move(12, 0);
+		move_player(12, 0);
 		yield;
 	}
+
 	set_frame(ENTITY_FRAME_IDLE);
+	set_frame_player(ENTITY_FRAME_IDLE);
 	repeat 60 {
 		yield;
 	}
+
 	set_frame(ENTITY_FRAME_STEP);
+	set_frame_player(ENTITY_FRAME_STEP);
+	set_direction(LEFT);
+	set_direction_player(LEFT);
 	repeat 60 {
 		move(-12, 0);
+		move_player(-12, 0);
 		yield;
 	}
+
 	set_frame(ENTITY_FRAME_IDLE);
+	set_frame_player(ENTITY_FRAME_IDLE);
+
 	say("Bye!<WAITBTN><CLEAR>");
 	wait();
+
 	lock();
 }

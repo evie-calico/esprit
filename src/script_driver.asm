@@ -1,4 +1,6 @@
+INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
+INCLUDE "entity.inc"
 
 SECTION "evscript Driver", ROM0
 ; @param de: Variable pool
@@ -75,7 +77,9 @@ EvscriptBytecodeTable:
 	; NPC commands
 	dw ScriptNPCWalk
 	dw ScriptNPCSetFrame
+	dw ScriptNPCSetDirection
 	dw ScriptNPCLockPlayer
+	dw ScriptNPCFacePlayer
 
 SECTION "evscript Return", ROM0
 StdReturn:
@@ -565,14 +569,19 @@ ScriptNPCWalk:
 
 SECTION "evscript ScriptNPCSetFrame", ROM0
 ScriptNPCSetFrame:
-	; TODO: This is a particularly egrigious example of a situation in which pointer support is needed.
+	ld e, LOW(wEntity0_Frame)
+	jr ScriptNPCSet
+
+ScriptNPCSetDirection:
+	ld e, LOW(wEntity0_Direction)
+; @param e: field to set
+ScriptNPCSet:
 	ld a, [hli]
 	add a, HIGH(wEntity0)
 	jr nc, :+
 	ld a, [wActiveEntity]
 :
 	ld d, a
-	ld e, LOW(wEntity0_Frame)
 	ld a, [hli]
 	ld [de], a
 	ret
@@ -582,4 +591,87 @@ ScriptNPCLockPlayer:
 	ld a, [wSceneMovementLocked]
 	xor a, 1
 	ld [wSceneMovementLocked], a
+	ret
+
+SECTION "evscript ScriptNPCFacePlayer", ROM0
+ScriptNPCFacePlayer:
+	push hl
+
+	ld de, wEntity0_SpriteY
+	ld a, [wActiveEntity]
+	ld h, a
+	ld l, LOW(wEntity0_SpriteY)
+	ld a, [de]
+	sub a, [hl]
+	ld c, a
+	inc de ; Use 16-bit incs to preserve carry
+	inc hl
+	ld a, [de]
+	sbc a, [hl]
+	ld b, a
+	push bc ; Push Y difference
+		ASSERT Entity_SpriteY + 2 == Entity_SpriteX
+		inc e
+		inc l
+		ld a, [de]
+		sub a, [hl]
+		ld c, a
+		inc de
+		inc hl
+		ld a, [de]
+		sbc a, [hl]
+		ld b, a
+		; bc = X difference
+	pop de ; de = Y difference
+	; Figure out which axis has the greater magnitude, then check its sign.
+	; hl = wEntityN_SpriteX + 1
+	; l will be used in the following code to track the sign of each axis
+
+	; Find the absolute values so we can compare only the magnitudes.
+	ld a, b
+	bit 7, a
+	jr z, :+
+		ld l, %1 ; bit 1 will be the sign of the X direction, after a shift
+		cpl
+		ld b, a
+		ld a, c
+		cpl
+		ld c, a
+		inc bc
+:
+	xor a, a ; Clear carry; none of the following 3 instructions will modify it
+	ld a, d
+	bit 7, a
+	jr z, :+
+		cpl
+		ld d, a
+		ld a, e
+		cpl
+		ld e, a
+		inc de
+		; Set the carry flag so the following rotate will set bit 0
+		scf
+:
+	rl l ; Bit 0: sign of Y, Bit 1: sign of X
+
+	ld a, b
+	cp a, d
+	jr c, .y
+.x
+	ld a, RIGHT
+	bit 1, l
+	jr z, .store
+	ld a, LEFT
+	jr .store
+.y
+	ld a, DOWN
+	bit 0, l
+	jr z, .store
+	ASSERT UP == 0
+	xor a, a
+.store
+	ld l, LOW(wEntity0_Direction)
+	ld [hl], a
+
+	pop hl
 	ret
