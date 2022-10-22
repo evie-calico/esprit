@@ -1,37 +1,64 @@
-include asm "script.inc";
-
+typedef string = u16;
 typedef ptr = u16;
 
+struct sprite {
+	x: u8,
+	y: u8,
+	tile: u8,
+	attributes: u8,
+}
+
 env script {
-	use std;
-	def memset(const ptr, const u8, const u16);
-	def rand(u8);
-	def print(const ptr);
+	def ret();
+	def yld();
+	def jmp();
+	def jmp_if_true();
+	def jmp_if_false();
+	def put_u8(); alias put_i8() = put_u8();
+	def mov_u8(); alias mov_i8() = mov_u8();
+	def add_u8(); alias add_i8() = add_u8();
+	def sub_u8(); alias sub_i8() = sub_u8();
+	def band_u8(); alias band_i8() = band_u8();
+	def equ_u8(); alias equ_i8() = equ_u8();
+	def nequ_u8(); alias nequ_i8() = nequ_u8();
+	def lt_u8(); alias lt_i8() = lt_u8();
+	def gt_u8(); alias gt_i8() = gt_u8();
+	def lte_u8(); alias lte_i8() = lte_u8();
+	def gte_u8(); alias gte_i8() = gte_u8();
+	def land_u8(); alias land_i8() = land_u8();
+	def lor_u8(); alias lor_i8() = lor_u8();
+	// Engine extensions
+	def rand(return u8);
+	def print(const string);
 	// Same as print, but sets a delay on each letter.
 	// The delay only works within scenes.
-	def say(const ptr);
+	def say(const string);
 	// Wait until text printing is done.
 	def print_wait();
-	def get_flag(const u8, u8);
-	def map_put_tile(u8, u8, const u8);
-	def map_get_tile(u8, u8, u8);
+	def get_flag(u8, return u8);
+	def map_put_tile(u8, u8, u8);
+	def map_get_tile(u8, u8, return u8);
 	def step_direction(u8, u8, u8);
-	def draw_sprite(u8); // TODO: This "u8" should really be a struct.
+	def draw_sprite(sprite);
 	def npc_move(const u8, const u16, const u16);
 	def npc_set_frame(const u8, const u8);
 	def npc_lock();
 
 	pool = 16;
-	terminator = 0;
 }
 
 env npc {
 	use script;
-	// Define a more terse name for this command and reverse the arguments
-	// to be in x, y order.
-	mac move(...) = npc_move;
-	mac set_frame(...) = npc_set_frame;
-	mac lock() = npc_lock();
-	mac wait() = print_wait();
+	alias move(const u16, const u16) = npc_move(const -1, $2, $1);
+	alias set_frame(const u8) = npc_set_frame(const -1, $1);
+	alias move_player(const u16, const u16) = npc_move(const 0, $2, $1);
+	alias set_frame_player(const u8) = npc_set_frame(const 0, $1);
+	alias move_partner(const u16, const u16) = npc_move(const 1, $2, $1);
+	alias set_frame_partner(const u8) = npc_set_frame(const 1, $1);
+	alias move_other(const u8, const u8, const u8) = npc_move($1, $3, $2);
+	alias set_frame_other(u8, u8) = npc_set_frame($1, $2);
+	alias lock() = npc_lock();
+	alias wait() = print_wait();
+
 	pool = 8;
 }

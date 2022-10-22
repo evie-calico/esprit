@@ -1,87 +1,73 @@
-include "../include/script.evs";
-include asm "defines.inc";
+include "src/include/script.evs";
+#asm include "defines.inc" #end
 
 script xDropletEffect {
-	u8 x = 58; u8 y = 24; u8 id = 126; u8 attr = 1;
+	sprite droplet;
+
+	droplet.x = 58;
+	droplet.y = 24;
+	droplet.tile = 126;
+	droplet.attributes = 1;
 
 	loop {
-		u8 offset;
-		rand(offset);
-		offset &= 127;
-		while offset != 0 {
-			offset -= 1;
+		repeat rand() & 127 {
 			yield;
 		}
 
-		x = 59;
-		rand(offset);
-		offset &= 1;
-		x += offset;
-		y = 24;
+		droplet.x = 59 + (rand() & 1);
+		droplet.y = 24;
 
-		draw_sprite(x);
+		draw_sprite(droplet);
 		yield;
 		yield;
 
-		x = 60;
-		rand(offset);
-		offset &= 1;
-		x += offset;
+		droplet.x = 60 + (rand() & 1);
 
 		repeat 8 {
-			y += 1;
-			draw_sprite(x);
+			droplet.y += 1;
+			draw_sprite(droplet);
 			yield;
 			yield;
 		}
 
-		x = 59;
-		rand(offset);
-		offset &= 1;
-		x += offset;
+		droplet.x = 59 + (rand() & 1);
 
 		repeat 4 {
-			y += 1;
-			draw_sprite(x);
+			droplet.y += 1;
+			draw_sprite(droplet);
 			yield;
 			yield;
 		}
 
-		x = 58;
-		rand(offset);
-		offset &= 1;
-		x += offset;
+		droplet.x = 58 + (rand() & 1);
 
 		repeat 2 {
-			y += 1;
-			draw_sprite(x);
+			droplet.y += 1;
+			draw_sprite(droplet);
 			yield;
 			yield;
 		}
 
-		x = 57;
-		rand(offset);
-		offset &= 1;
-		x += offset;
+		droplet.x = 57 + (rand() & 1);
 
 		repeat 4 {
-			y += 1;
-			draw_sprite(x);
+			droplet.y += 1;
+			draw_sprite(droplet);
 			yield;
 			yield;
 		}
 
 		repeat 4 {
-			y += 1;
-			draw_sprite(x);
+			droplet.y += 1;
+			draw_sprite(droplet);
 			yield;
 			yield;
 			yield;
 		}
 
 		repeat 4 {
-			y += 1;
-			draw_sprite(x);
+			droplet.y += 1;
+			draw_sprite(droplet);
 			yield;
 			yield;
 			yield;
@@ -91,107 +77,119 @@ script xDropletEffect {
 }
 
 script xDuckEffect {
-	u8 x = 46; u8 y = 60; u8 id = 124; u8 attr;
+	sprite duck;
+
+	duck.x = 46;
+	duck.y = 60;
+	duck.tile = 124;
 
 	loop {
-		attr = 2;
+		duck.attributes = 2;
 
 		repeat 4 {
 			repeat 4 {
-				x += 1;
+				duck.x += 1;
 				repeat 20 {
-					draw_sprite(x);
+					draw_sprite(duck);
 					yield;	
 				}
 			}
-			y += 1;
+			duck.y += 1;
 		}
 
-		repeat 255 { draw_sprite(x); yield; }
+		repeat 255 { draw_sprite(duck); yield; }
 
-		attr = 34;
+		duck.attributes = 34;
 
 		repeat 4 {
 			repeat 4 {
-				x -= 1;
+				duck.x -= 1;
 				repeat 20 {
-					draw_sprite(x);
+					draw_sprite(duck);
 					yield;	
 				}
 			}
-			y -= 1;
+			duck.y -= 1;
 		}
 
-		repeat 255 { draw_sprite(x); yield; }
+		repeat 255 { draw_sprite(duck); yield; }
 	}
 }
 
 script xHoofprintsEffect {
-	u8 is_unlocked = 0;
-	get_flag(FLAG_CAVES_COMPLETE, is_unlocked);
-	if is_unlocked != 1 { return; }
-	drop is_unlocked;
+	if get_flag(FLAG_CAVES_COMPLETE) == 0 { return; }
 
 	loop {
-		u8 x = 105; u8 y = 72; u8 id = 122; u8 attr = 3;
-		draw_sprite(x);
-		x = 108; y = 78;
-		draw_sprite(x);
-		x = 105; y = 84;
-		draw_sprite(x);
-		x = 108; y = 90;
-		draw_sprite(x);
+		sprite hoofprint;
+
+		hoofprint.x = 105;
+		hoofprint.y = 72;
+		hoofprint.tile = 122;
+		hoofprint.attributes = 3;
+
+		draw_sprite(hoofprint);
+		hoofprint.x = 108;
+		hoofprint.y = 78;
+		draw_sprite(hoofprint);
+		hoofprint.x = 105;
+		hoofprint.y = 84;
+		draw_sprite(hoofprint);
+		hoofprint.x = 108;
+		hoofprint.y = 90;
+		draw_sprite(hoofprint);
 		yield;
 	}
 }
 
 script xHazeEffect {
-	u8 is_unlocked = 0;
-	get_flag(FLAG_CAVES_COMPLETE, is_unlocked);
-	if is_unlocked != 1 { return; }
-	drop is_unlocked;
+	if get_flag(FLAG_CAVES_COMPLETE) == 0 { return; }
 
 	// Check if the level has already been cleared.
 	// We only show mist when the level is unlocked but not clear.
-	u8 is_cleared = 0;
-	get_flag(FLAG_GEMTREE_COMPLETE, is_cleared);
-	if is_cleared == 1 { return; }
-	drop is_cleared;
+	if get_flag(FLAG_GEMTREE_COMPLETE) == 1 { return; }
 
-	u8 x1 = 141; u8 y1 = 100; u8 id1 = 110; u8 attr1 = 4;
-	u8 x2 = 121; u8 y2 = 84; u8 id2 = 116; u8 attr2 = 4;
+	sprite pink_haze;
+	sprite blue_haze;
+
+	pink_haze.x = 141;
+	pink_haze.y = 100;
+	pink_haze.tile = 110;
+	pink_haze.attributes = 4;
+
+	blue_haze.x = 121;
+	blue_haze.y = 84;
+	blue_haze.tile = 116;
+	blue_haze.attributes = 4;
+
+	u8 direction = 1;
+	u8 timer = 0;
+
 	loop {
-		repeat 16 {
-			repeat 4 {
-				repeat 3 { draw_sprite(x1); x1 += 8; id1 += 2; } x1 -= 24; id1 -= 6;
-				repeat 3 { draw_sprite(x2); x2 += 8; id2 += 2; } x2 -= 24; id2 -= 6;
-				yield;
-				yield;
+		repeat 4 {
+			repeat 3 {
+				draw_sprite(pink_haze);
+				pink_haze.x += 8;
+				pink_haze.tile += 2;
 			}
-			x1 -= 1;
-			x2 += 1;
-		}
-		repeat 24 {
-			repeat 3 { draw_sprite(x1); x1 += 8; id1 += 2; } x1 -= 24; id1 -= 6;
-			repeat 3 { draw_sprite(x2); x2 += 8; id2 += 2; } x2 -= 24; id2 -= 6;
-			yield;
-			yield;
-		}
-		repeat 16 {
-			repeat 4 {
-				repeat 3 { draw_sprite(x1); x1 += 8; id1 += 2; } x1 -= 24; id1 -= 6;
-				repeat 3 { draw_sprite(x2); x2 += 8; id2 += 2; } x2 -= 24; id2 -= 6;
-				yield;
-				yield;
+			pink_haze.x -= 24;
+			pink_haze.tile -= 6;
+			repeat 3 {
+				draw_sprite(blue_haze);
+				blue_haze.x += 8;
+				blue_haze.tile += 2;
 			}
-			x1 += 1;
-			x2 -= 1;
-		}
-		repeat 24 {
-			repeat 3 { draw_sprite(x1); x1 += 8; id1 += 2; } x1 -= 24; id1 -= 6;
-			repeat 3 { draw_sprite(x2); x2 += 8; id2 += 2; } x2 -= 24; id2 -= 6;
+			blue_haze.x -= 24;
+			blue_haze.tile -= 6;
 			yield;
 			yield;
 		}
+		if timer < 16 {
+			pink_haze.x -= direction;
+			blue_haze.x += direction;
+		} else if timer == 16 + 24 {
+			timer = -1;
+		}
+
+		timer += 1;
 	}
 }

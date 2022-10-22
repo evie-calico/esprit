@@ -1,6 +1,6 @@
 INCLUDE "dungeon.inc"
 
-SECTION "EVScript Driver", ROM0
+SECTION "evscript Driver", ROM0
 ; @param de: Variable pool
 ; @param hl: Script pointer
 ; @param bank: Script bank
@@ -14,9 +14,9 @@ ExecuteScript::
 .next
 	ld a, [hli]
 	push hl
-	add a, LOW(EVScriptBytecodeTable >> 1)
+	add a, LOW(EvscriptBytecodeTable >> 1)
 	ld l, a
-	adc a, HIGH(EVScriptBytecodeTable >> 1)
+	adc a, HIGH(EvscriptBytecodeTable >> 1)
 	sub a, l
 	ld h, a
 	add hl, hl
@@ -35,52 +35,32 @@ ExecuteScript::
 	push bc
 	ret
 
-SECTION "EVScript Bytecode table", ROM0, ALIGN[1]
-EVScriptBytecodeTable:
+SECTION "evscript Bytecode table", ROM0, ALIGN[1]
+EvscriptBytecodeTable:
 	; Control
 	dw StdReturn
 	dw StdYield
-	dw StdGoto
-	dw StdGotoFar
-	dw StdGotoConditional
-	dw StdGotoConditionalNot
-	dw StdGotoConditionalFar
-	dw StdGotoConditionalNotFar
-	dw StdCallAsm
-	dw StdCallAsmFar
+	; goto
+	dw StdJump
+	dw StdJumpIfTrue
+	dw StdJumpIfFalse
+	; Moves
+	dw StdPut
+	dw StdMove
 	; 8-bit ops
 	dw StdAdd
 	dw StdSub
-	dw StdMul
-	dw StdDiv
 	dw StdBinaryAnd
-	dw StdBinaryOr
 	dw StdEqu
-	dw StdNot
+	dw StdNotEqu
 	dw StdLessThan
+	dw StdGreaterThan
+	dw StdLessThanEqu
 	dw StdGreaterThanEqu
 	dw StdLogicalAnd
 	dw StdLogicalOr
-	; Constant 8-bit ops
-	dw StdAddConst
-	dw StdSubConst
-	dw StdMulConst
-	dw StdDivConst
-	dw StdBinaryAndConst
-	dw StdBinaryOrConst
-	dw StdEquConst
-	dw StdNotConst
-	dw StdLessThanConst
-	dw StdGreaterThanEquConst
-	; Copy
-	dw StdCopy
-	dw StdLoad
-	dw StdStore
-	dw StdCopyConst
-	dw StdLoadConst
-	dw StdStoreConst
-	;
-	dw ScriptMemset
+
+	; Engine extensions
 	dw ScriptRand
 	dw ScriptPrint
 	dw ScriptSay
@@ -97,7 +77,7 @@ EVScriptBytecodeTable:
 	dw ScriptNPCSetFrame
 	dw ScriptNPCLockPlayer
 
-SECTION "EVScript Return", ROM0
+SECTION "evscript Return", ROM0
 StdReturn:
 	ld hl, 0
 StdYield:
@@ -105,14 +85,14 @@ StdYield:
 	pop de ; pop pool pointer
 	ret
 
-SECTION "EVScript Goto", ROM0
-StdGoto:
+SECTION "evscript Goto", ROM0
+StdJump:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ret
 
-StdGotoConditional:
+StdJumpIfTrue:
 	ld a, [hli]
 	add a, e
 	ld c, a
@@ -121,13 +101,13 @@ StdGotoConditional:
 	ld b, a
 	ld a, [bc]
 	and a, a
-	jr nz, StdGoto
+	jr nz, StdJump
 .fail
 	inc hl
 	inc hl
 	ret
 
-StdGotoConditionalNot:
+StdJumpIfFalse:
 	ld a, [hli]
 	add a, e
 	ld c, a
@@ -136,101 +116,46 @@ StdGotoConditionalNot:
 	ld b, a
 	ld a, [bc]
 	and a, a
-	jr z, StdGoto
+	jr z, StdJump
 .fail
 	inc hl
 	inc hl
 	ret
 
-SECTION "EVScript GotoFar", ROM0
-StdGotoFar:
-	ld a, [hli]
-	ld c, a
-	ld a, [hli]
-	ld b, a
-	ld a, [hl]
-	rst SwapBank
-	ld l, c
-	ld h, b
-	ret
-
-StdGotoConditionalFar:
+SECTION "evscript Put", ROM0
+StdPut:
 	ld a, [hli]
 	add a, e
 	ld c, a
 	adc a, d
 	sub a, c
 	ld b, a
-	ld a, [bc]
-	and a, a
-	jr nz, StdGotoFar
-.fail
-	inc hl
-	inc hl
+	ld a, [hli]
+	ld [bc], a
 	ret
 
-StdGotoConditionalNotFar:
+SECTION "evscript Mov", ROM0
+StdMove:
+	; Load dest
 	ld a, [hli]
 	add a, e
 	ld c, a
 	adc a, d
 	sub a, c
 	ld b, a
-	ld a, [bc]
-	and a, a
-	jr z, StdGotoFar
-.fail
-	inc hl
-	inc hl
-	ret
-
-SECTION "EVScript CallAsm", ROM0
-StdCallAsm:
-	push hl
+	; Load source
 	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	call .hl
-	pop hl
-	ret
-.hl
-	jp hl
-
-SECTION "EVScript CallAsmFar", ROM0
-StdCallAsmFar:
-	push hl
-	ld a, [hli]
-	ld c, a
-	ld a, [hli]
-	ld b, a
-	ld a, [hli]
-	rst SwapBank
-	ld h, b
-	ld l, c
-	call .hl
-	pop hl
-	ret
-.hl
-	jp hl
-
-SECTION "EVScript 8-bit Operations", ROM0
-; @param de: pool
-; @param hl: script pointer
-; @return a: lhs
-; @return b: rhs
-ConstantOperandPrologue:
-	ld a, [hli] ; lhs offset
 	add a, e
-	ld c, a
+	ld e, a
 	adc a, d
-	sub a, c
-	ld b, a
-	; de is preserved & variable is pointed to by bc
-	ld a, [bc]
-	ld b, [hl]
-	inc hl
+	sub a, e
+	ld d, a
+	; Move
+	ld a, [de]
+	ld [bc], a
 	ret
 
+SECTION "evscript 8-bit Operations", ROM0
 ; @param de: pool
 ; @param hl: script pointer
 ; @return a: lhs
@@ -263,38 +188,9 @@ StdSub:
 	sub a, b ; Here is the actual operation
 	jr StoreEpilogue
 
-; This is a VERY simple multiply routine. It is meant to be compact, not
-; fast. Rewrite if speed is needed.
-StdMul:
-	call OperandPrologue
-	ld c, a
-	xor a, a
-	inc b
-:
-	dec b
-	jr z, StoreEpilogue
-	add a, c
-	jr :-
-
-; This is a VERY simple divide routine. It is meant to be compact, not
-; fast. Rewrite if speed is needed.
-StdDiv:
-	call OperandPrologue
-	ld c, 0
-:
-	sub a, b
-	jr c, StoreEpilogue
-	inc c
-	jr :-
-
 StdBinaryAnd:
 	call OperandPrologue
 	and a, b
-	jr StoreEpilogue
-
-StdBinaryOr:
-	call OperandPrologue
-	or a, b
 	jr StoreEpilogue
 
 StdEqu:
@@ -305,7 +201,7 @@ StdEqu:
 	inc a
 	jr StoreEpilogue
 
-StdNot:
+StdNotEqu:
 	call OperandPrologue
 	cp a, b
 	ld a, 0
@@ -319,6 +215,28 @@ StdLessThan:
 	ld a, 0
 	jr nc, StoreEpilogue
 	inc a
+	jr StoreEpilogue
+
+StdGreaterThan:
+	call OperandPrologue
+	cp a, b
+	jr z, .zero
+	jr nc, .zero
+	ld a, 1
+	jr StoreEpilogue
+.zero
+	xor a, a
+	jr StoreEpilogue
+
+StdLessThanEqu:
+	call OperandPrologue
+	cp a, b
+	jr z, .one
+	jr c, .one
+	xor a, a
+	jr StoreEpilogue
+.one
+	ld a, 1
 	jr StoreEpilogue
 
 StdGreaterThanEqu:
@@ -363,216 +281,7 @@ StoreEpilogue:
 	ld [de], a
 	ret
 
-StdAddConst:
-	call ConstantOperandPrologue
-	add a, b ; Here is the actual operation
-	jr StoreEpilogue
-
-StdSubConst:
-	call ConstantOperandPrologue
-	sub a, b ; Here is the actual operation
-	jr StoreEpilogue
-
-; This is a VERY simple multiply routine. It is meant to be compact, not
-; fast. Rewrite if speed is needed.
-StdMulConst:
-	call ConstantOperandPrologue
-	ld c, a
-	xor a, a
-	inc b
-:
-	dec b
-	jr z, StoreEpilogue
-	add a, c
-	jr :-
-
-; This is a VERY simple divide routine. It is meant to be compact, not
-; fast. Rewrite if speed is needed.
-StdDivConst:
-	call ConstantOperandPrologue
-	ld c, 0
-:
-	sub a, b
-	jr c, StoreEpilogue
-	inc c
-	jr :-
-
-StdBinaryAndConst:
-	call ConstantOperandPrologue
-	and a, b ; Here is the actual operation
-	jr StoreEpilogue
-
-StdBinaryOrConst:
-	call ConstantOperandPrologue
-	or a, b ; Here is the actual operation
-	jr StoreEpilogue
-
-StdEquConst:
-	call ConstantOperandPrologue
-	cp a, b
-	ld a, 0
-	jr nz, StoreEpilogue
-	inc a
-	jr StoreEpilogue
-
-StdNotConst:
-	call ConstantOperandPrologue
-	cp a, b
-	ld a, 0
-	jr z, StoreEpilogue
-	inc a
-	jr StoreEpilogue
-
-StdLessThanConst:
-	call ConstantOperandPrologue
-	cp a, b
-	ld a, 0
-	jr nc, StoreEpilogue
-	inc a
-	jr StoreEpilogue
-
-StdGreaterThanEquConst:
-	call ConstantOperandPrologue
-	cp a, b
-	ld a, 0
-	jr c, StoreEpilogue
-	inc a
-	jr StoreEpilogue
-
-SECTION "EVScript Copy", ROM0
-StdCopy:
-	push de
-	ld a, [hli]
-	add a, e
-	ld c, a
-	adc a, d
-	sub a, c
-	ld b, a
-	ld a, [hli]
-	add a, e
-	ld e, a
-	adc a, d
-	sub a, e
-	ld d, a
-	ld a, [de]
-	ld [bc], a
-	pop de
-	ret
-
-SECTION "EVScript Load", ROM0
-StdLoad:
-	ld a, [hli]
-	add a, e
-	ld c, a
-	adc a, d
-	sub a, c
-	ld b, a
-	ld a, [hli]
-	push hl
-	add a, e
-	ld l, a
-	adc a, d
-	sub a, l
-	ld h, a
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	ld a, [hl]
-	ld [bc], a
-	pop hl
-	ret
-
-SECTION "EVScript Store", ROM0
-StdStore:
-	push de
-	ld a, [hli]
-	add a, e
-	ld c, a
-	adc a, d
-	sub a, c
-	ld b, a
-	ld a, [bc]
-	inc bc
-	ld d, a
-	ld a, [bc]
-	ld b, a
-	ld c, d
-	ld a, [hli]
-	add a, e
-	ld e, a
-	adc a, d
-	sub a, e
-	ld d, a
-	ld a, [de]
-	ld [bc], a
-	pop de
-	ret
-
-SECTION "EVScript CopyConst", ROM0
-StdCopyConst:
-	ld a, [hli]
-	add a, e
-	ld c, a
-	adc a, d
-	sub a, c
-	ld b, a
-	ld a, [hli]
-	ld [bc], a
-	ret
-
-SECTION "EVScript LoadConst", ROM0
-StdLoadConst:
-	ld a, [hli]
-	add a, e
-	ld c, a
-	adc a, d
-	sub a, c
-	ld b, a
-	ld a, [hli]
-	push hl
-	ld h, [hl]
-	ld l, a
-	ld a, [hl]
-	ld [bc], a
-	pop hl
-	inc hl
-	ret
-
-SECTION "EVScript StoreConst", ROM0
-StdStoreConst:
-	ld a, [hli]
-	ld c, a
-	ld a, [hli]
-	ld b, a
-	ld a, [hli]
-	add a, e
-	ld e, a
-	adc a, d
-	sub a, e
-	ld d, a
-	ld a, [de]
-	ld [bc], a
-	ret
-
-SECTION "EVScript ScriptMemset", ROM0
-ScriptMemset:
-	ld a, [hli]
-	ld e, a
-	ld a, [hli]
-	ld d, a
-	ld a, [hli]
-	ld c, [hl]
-	inc hl
-	ld b, [hl]
-	inc hl
-	push hl
-		ld h, d
-		ld l, e
-		call MemSet
-	pop hl
-	ret
-
-SECTION "EVScript ScriptRand", ROM0
+SECTION "evscript ScriptRand", ROM0
 ScriptRand:
 	rst Rand8
 	ld b, a
@@ -586,7 +295,7 @@ ScriptRand:
 	ld [de], a
 	ret
 
-SECTION "EVScript ScriptPrint", ROM0
+SECTION "evscript ScriptPrint", ROM0
 ScriptSay:
 	ld a, 2
 	ld [wTextLetterDelay], a
@@ -602,7 +311,7 @@ ScriptPrint:
 	ld [de], a
 	jp StdYield
 
-SECTION "EVScript ScriptPrintWait", ROM0
+SECTION "evscript ScriptPrintWait", ROM0
 ScriptPrintWait:
 	ld a, [wTextSrcPtr + 1]
 	inc a
@@ -610,10 +319,17 @@ ScriptPrintWait:
 	dec hl
 	jp StdYield
 
-SECTION "EVScript ScriptGetFlag", ROM0
+SECTION "evscript ScriptGetFlag", ROM0
 ScriptGetFlag:
 	ld a, [hli]
+	add a, e
 	ld c, a
+	adc a, d
+	sub a, c
+	ld b, a
+	ld a, [bc]
+	ld c, a
+
 	ld a, [hli]
 	add a, e
 	ld e, a
@@ -633,6 +349,7 @@ ScriptGetFlag:
 
 SECTION "Map Get/Put Prologue", ROM0
 MapGetPutPrologue:
+	push de
 	ld a, [hli]
 	push hl
 		ld l, a
@@ -706,38 +423,45 @@ MapGetPutPrologue:
 		add hl, de
 		ld a, b
 		add a, l
-		ld e, a
+		ld c, a
 		adc a, h
-		sub a, e
-		ld d, a
+		sub a, c
+		ld b, a
 	pop hl
+	pop de
 	ret
 
-SECTION "EVScript ScriptMapPutTile", ROM0
+SECTION "evscript ScriptMapPutTile", ROM0
 ScriptMapPutTile:
 	call MapGetPutPrologue
-	ld a, [hli]
-	ld [de], a
-	ret
-
-SECTION "EVScript ScriptMapGetTile", ROM0
-ScriptMapGetTile:
-	push de
-	call MapGetPutPrologue
-	ld a, [de]
-	pop de
-	ld b, a
+	; get return register
 	ld a, [hli]
 	add a, e
 	ld e, a
 	adc a, d
 	sub a, e
 	ld d, a
-	ld a, b
+	; and copy it into the tile
+	ld a, [de]
+	ld [bc], a
+	ret
+
+SECTION "evscript ScriptMapGetTile", ROM0
+ScriptMapGetTile:
+	call MapGetPutPrologue
+	; get return register
+	ld a, [hli]
+	add a, e
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+	; and copy the tile into it
+	ld a, [bc]
 	ld [de], a
 	ret
 
-SECTION "EVScript ScriptMapStepDir", ROM0
+SECTION "evscript ScriptMapStepDir", ROM0
 ScriptMapStepDir:
 	ld a, [hli]
 	push hl
@@ -773,7 +497,7 @@ ScriptMapStepDir:
 	pop hl
 	ret
 
-SECTION "EVScript ScriptDrawSprite", ROM0
+SECTION "evscript ScriptDrawSprite", ROM0
 ScriptDrawSprite:
 	; TODO: this would be a good application for structs in evscript.
 	; We know these 4 variables are always going to exist in a group, so we
@@ -796,7 +520,7 @@ ScriptDrawSprite:
 	pop hl
 	ret
 
-SECTION "EVScript ScriptNPCWalk", ROM0
+SECTION "evscript ScriptNPCWalk", ROM0
 ScriptNPCWalk:
 	; TODO: Most NPC operations are simply manipulating data in memory. This would be a good application for pointers, arrays, and function support.
 	; For now, we use this bytecode instead.
@@ -839,7 +563,7 @@ ScriptNPCWalk:
 	ld [de], a
 	ret
 
-SECTION "EVScript ScriptNPCSetFrame", ROM0
+SECTION "evscript ScriptNPCSetFrame", ROM0
 ScriptNPCSetFrame:
 	; TODO: This is a particularly egrigious example of a situation in which pointer support is needed.
 	ld a, [hli]
@@ -853,7 +577,7 @@ ScriptNPCSetFrame:
 	ld [de], a
 	ret
 
-SECTION "EVScript ScriptNPCLockPlayer", ROM0
+SECTION "evscript ScriptNPCLockPlayer", ROM0
 ScriptNPCLockPlayer:
 	ld a, [wSceneMovementLocked]
 	xor a, 1

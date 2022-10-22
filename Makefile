@@ -103,17 +103,13 @@ obj/libs/vwf.o dep/libs/vwf.mk res/charmap.inc: src/libs/vwf.asm
 	@mkdir -p obj/libs/ dep/libs/ res/
 	rgbasm $(ASFLAGS) -M dep/libs/vwf.mk -MG -MP -MQ obj/libs/vwf.o -MQ dep/libs/vwf.mk -o obj/libs/vwf.o $< > res/charmap.inc
 
-# `.mk` files are auto-generated dependency lists of the "root" ASM files, to save a lot of hassle.
-# Also add all obj dependencies to the dep file too, so Make knows to remake it
-# Caution: some of these flags were added in RGBDS 0.4.0, using an earlier version WILL NOT WORK
-# (and produce weird errors)
 obj/%.o dep/%.mk: src/%.asm
 	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$*))
 	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o $<
 
 obj/%.o obj/%.asm dep/%.mk: src/%.evs
 	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$* debug/$*))
-	evscript -d debug/$*.evd -o obj/$*.asm $<
+	evscript -o obj/$*.asm $<
 	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o obj/$*.asm
 
 ifneq ($(MAKECMDGOALS),clean)

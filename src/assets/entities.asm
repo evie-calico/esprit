@@ -44,8 +44,7 @@ ENDM
 		rgb 48, 80, 16
 		rgb 16, 24, 0
 	.moveTable
-		level 1, xPoisonFangs
-		;level 1, xNibble
+		level 1, xNibble
 		db 0
 
 	entity xFieldRat, "Field Rat", "res/sprites/rat.2bpp"

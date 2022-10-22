@@ -234,7 +234,7 @@ POPS
 
 	ld a, [hCurrentKeys]
 	cp a, PADF_SELECT
-	jp z, EndTurn
+	jp z, DungeonComplete
 
 	ld a, [hCurrentKeys]
 	cp a, PADF_START
