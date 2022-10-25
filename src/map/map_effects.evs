@@ -116,32 +116,8 @@ script xDuckEffect {
 	}
 }
 
-script xHoofprintsEffect {
-	if get_flag(FLAG_CAVES_COMPLETE) == 0 { return; }
-
-	loop {
-		sprite hoofprint;
-
-		hoofprint.x = 105;
-		hoofprint.y = 72;
-		hoofprint.tile = 122;
-		hoofprint.attributes = 3;
-
-		draw_sprite(hoofprint);
-		hoofprint.x = 108;
-		hoofprint.y = 78;
-		draw_sprite(hoofprint);
-		hoofprint.x = 105;
-		hoofprint.y = 84;
-		draw_sprite(hoofprint);
-		hoofprint.x = 108;
-		hoofprint.y = 90;
-		draw_sprite(hoofprint);
-		yield;
-	}
-}
-
 script xHazeEffect {
+	if is_cgb() == 0 { return; }
 	if get_flag(FLAG_CAVES_COMPLETE) == 0 { return; }
 
 	// Check if the level has already been cleared.
@@ -152,9 +128,9 @@ script xHazeEffect {
 	sprite blue_haze;
 
 	pink_haze.x = 141;
-	pink_haze.y = 100;
+	pink_haze.y = 88;
 	pink_haze.tile = 110;
-	pink_haze.attributes = 4;
+	pink_haze.attributes = 68;
 
 	blue_haze.x = 121;
 	blue_haze.y = 84;
@@ -165,7 +141,7 @@ script xHazeEffect {
 	u8 timer = 0;
 
 	loop {
-		repeat 4 {
+		repeat 8 {
 			repeat 3 {
 				draw_sprite(pink_haze);
 				pink_haze.x += 8;
@@ -181,12 +157,16 @@ script xHazeEffect {
 			blue_haze.x -= 24;
 			blue_haze.tile -= 6;
 			yield;
-			yield;
 		}
 		if timer < 16 {
 			pink_haze.x -= direction;
 			blue_haze.x += direction;
-		} else if timer == 16 + 24 {
+		} else if timer < 32 {
+			pink_haze.x += direction;
+			blue_haze.x -= direction;
+		}
+
+		if timer == 16 * 2 {
 			timer = -1;
 		}
 

@@ -32,7 +32,16 @@ Main::
 	ld a, [wFadeSteps]
 	and a, a
 	jr z, .noFade
-	call nz, FadePaletteBuffers
+	; Only fade out music when fading to black
+	ld a, [wFadeDelta]
+	bit 7, a
+	jr z, .notSound
+	ldh a, [rNR50]
+	sub a, $11
+	jr z, .notSound
+	ldh [rNR50], a
+.notSound
+	call FadePaletteBuffers
 	jr .noCallback
 .noFade
 	ld hl, wFadeCallback
@@ -62,41 +71,41 @@ Main::
 
 ; Fade to white is used when transitioning between menus, like when pausing.
 FadeToWhite::
-	ld a, $20
+	ld a, $10
 	ld [wFadeSteps], a
 	ld a, $80
 	ld [wFadeAmount], a
-	ld a, 4
+	ld a, 8
 	ld [wFadeDelta], a
 	ret
 
 ; Fade to black is used when transitioning between areas, such as entering or
 ; leaving a dungeon or scene.
 FadeToBlack::
-	ld a, $20
+	ld a, $10
 	ld [wFadeSteps], a
 	ld a, $80
 	ld [wFadeAmount], a
-	ld a, -4
+	ld a, -8
 	ld [wFadeDelta], a
 	ret
 
 FadeIn::
-	ld a, $1F
+	ld a, $0F
 	ld [wFadeSteps], a
 	ld a, [wFadeDelta]
 	bit 7, a
 	jr z, .down
-	ld a, 4
+	ld a, 8
 	ld [wFadeDelta], a
-	ld a, $80 - $1F * 4
+	ld a, $80 - $0F * 8
 	ld [wFadeAmount], a
 	ret
 
 .down
-	ld a, -4
+	ld a, -8
 	ld [wFadeDelta], a
-	ld a, $80 + $1F * 4
+	ld a, $80 + $0F * 8
 	ld [wFadeAmount], a
 	ret
 

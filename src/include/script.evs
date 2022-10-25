@@ -30,6 +30,7 @@ env script {
 
 	// Engine extensions
 	def rand(return u8);
+	def is_cgb(return u8);
 	def print(const string);
 	// Same as print, but sets a delay on each letter.
 	// The delay only works within scenes.

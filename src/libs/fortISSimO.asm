@@ -45,6 +45,8 @@ StartSong::
 	; Set song bank
 	ldh [hSongBank], a
 	rst SwapBank
+	ld a, $77
+	ldh [rNR50], a
 
 	xor a ; Begin by not touching any channels until a note first plays on them.
 	ldh [hUGE_AllowedChannels], a

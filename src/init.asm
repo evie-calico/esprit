@@ -73,6 +73,7 @@ Initialize::
 	ld [wFadeCallback], a
 	ld [wFadeCallback + 1], a
 	ld [wWindowSticky], a
+	ldh [hSongBank], a
 	ldh [hMutedChannels], a
 	ldh [hCurrentBank], a
 	ldh [hCurrentKeys], a
@@ -143,10 +144,6 @@ Initialize::
 	call InitSprObjLib
 	ld a, HIGH(wShadowOAM)
 	call hOAMDMA
-
-	ld a, BANK(xLakeMusic)
-	ld de, xLakeMusic
-	call StartSong
 
 	call audio_init
 

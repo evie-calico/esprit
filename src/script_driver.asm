@@ -64,6 +64,7 @@ EvscriptBytecodeTable:
 
 	; Engine extensions
 	dw ScriptRand
+	dw ScriptIsCgb
 	dw ScriptPrint
 	dw ScriptSay
 	dw ScriptPrintWait
@@ -296,6 +297,24 @@ ScriptRand:
 	sub a, e
 	ld d, a
 	ld a, b
+	ld [de], a
+	ret
+
+SECTION "evscript ScriptIsCgb", ROM0
+ScriptIsCgb:
+	ld a, [hli]
+	add a, e
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+
+	ldh a, [hSystem]
+	and a, a
+	ld a, 0
+	jr z, :+
+	inc a
+:
 	ld [de], a
 	ret
 

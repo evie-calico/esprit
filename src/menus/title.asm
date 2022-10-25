@@ -87,11 +87,11 @@ xTitleScreenClose:
 	ld [hli], a
 
 	ld hl, wActiveMapNode
-	ld a, BANK(xBeginningHouse)
+	ld a, BANK(xFirstNode)
 	ld [hli], a
-	ld a, LOW(xBeginningHouse)
+	ld a, LOW(xFirstNode)
 	ld [hli], a
-	ld a, HIGH(xBeginningHouse)
+	ld a, HIGH(xFirstNode)
 	ld [hli], a
 
 	ld hl, wFadeCallback

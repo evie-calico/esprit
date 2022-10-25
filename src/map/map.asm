@@ -64,6 +64,8 @@ MACRO _node_define
 	db _NODE_\1_TYPE, _NODE_\1_ARG0, _NODE_\1_ARG1, _NODE_\1_ARG2
 ENDM
 
+DEF first_node EQUS "xFirstNode::"
+
 MACRO end_node
 	{_NODE_IDENTIFIER}:
 		_node_define UP
@@ -75,24 +77,24 @@ MACRO end_node
 ENDM
 
 DEF NB_DROPLETS EQU 16
-DEF NB_EFFECTS EQU NB_DROPLETS + 3
+DEF NB_EFFECTS EQU NB_DROPLETS + 2
 
 SECTION "World map nodes", ROMX
-	node xBeginningHouse, "----'s House", 76, 88
+	node xBeginningHouse, "House", 76, 88
 		left MOVE, xVillageNode
 	end_node
-	EXPORT xBeginningHouse
 
 	node xVillageNode, "Crater Village", 48, 88
 		left MOVE, xForestNode
 		right MOVE, xBeginningHouse
-		press SCENE, xVillageScene
+		; press SCENE, xVillageScene // Disabled until complete.
 	end_node
 
 	node xForestNode, "Crater Forest", 12, 88
 		right MOVE, xVillageNode
 		up LOCK, xFieldsNode, FOREST_COMPLETE
 		press DUNGEON, xForestDungeon
+		first_node
 	end_node
 
 	node xFieldsNode, "Crater Fields", 12, 32
@@ -253,14 +255,11 @@ InitMap::
 	ld l, e
 	call VRAMSetSmall
 
+	DEF HOOFTILE EQU $7F
 	ld hl, xWorldMap.hoof
-	ld de, $8000 + $7A * 16
+	ld de, $9800 - 16
 	ld c, 16
 	call VRAMCopySmall
-	lb bc, 0, 16
-	ld h, d
-	ld l, e
-	call VRAMSetSmall
 
 	ld hl, xWorldMap.haze
 	ld de, $8000 + $6E * 16
@@ -294,14 +293,6 @@ InitMap::
 	ld [hli], a
 
 	ld hl, wEffects + 19 * (NB_DROPLETS + 1)
-	ld a, BANK(xHoofprintsEffect)
-	ld [hli], a
-	ld a, LOW(xHoofprintsEffect)
-	ld [hli], a
-	ld a, HIGH(xHoofprintsEffect)
-	ld [hli], a
-
-	ld hl, wEffects + 19 * (NB_DROPLETS + 2)
 	ld a, BANK(xHazeEffect)
 	ld [hli], a
 	ld a, LOW(xHazeEffect)
@@ -353,6 +344,25 @@ InitMap::
 	ld b, a
 	call PrintHUD
 	call DrawPrintString
+
+	ld a, BANK(xMapMusic)
+	ld de, xMapMusic
+	call StartSong
+
+	ld c, FLAG_CAVES_COMPLETE
+	call GetFlag
+	and a, [hl]
+	jr z, .noPrints
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+
+	ld a, HOOFTILE
+	ld [$9800 + 13 + 9 * 32], a
+	ld [$9800 + 13 + 10 * 32], a
+	ld [$9800 + 13 + 11 * 32], a
+.noPrints
 
 	call FadeIn
 

@@ -59,8 +59,11 @@ VBlank:
 	ei
 
 	ldh a, [hSongBank]
+	and a, a
+	jr z, .noMusic
 	rst SwapBank
 	call TickMusic
+.noMusic
 
 	ld a, BANK("Sound Effects")
 	rst SwapBank
