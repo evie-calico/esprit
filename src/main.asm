@@ -1,8 +1,6 @@
 INCLUDE "defines.inc"
 INCLUDE "hardware.inc"
 
-INCLUDE "res/music/dungeon.asm"
-
 SECTION "Main", ROM0
 Main::
 	; Poll player input and move as needed.

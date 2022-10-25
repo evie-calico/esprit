@@ -35,6 +35,25 @@ InitDungeon::
 	ld h, HIGH(wEntity1)
 	call SpawnEntity
 
+	ld hl, wActiveDungeon
+	ld a, [hli]
+	rst SwapBank
+	; Deref pointer
+	ld a, [hli]
+	ld h, [hl]
+	add a, Dungeon_Music
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+
+	ld a, [hli]
+	ld e, a
+	ld a, [hli]
+	ld d, a
+	ld a, [hli]
+	call StartSong
+
 	ld a, 1
 	ld [wDungeonCurrentFloor], a
 	call DungeonGenerateFloor

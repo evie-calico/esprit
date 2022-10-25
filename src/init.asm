@@ -73,6 +73,7 @@ Initialize::
 	ld [wFadeCallback], a
 	ld [wFadeCallback + 1], a
 	ld [wWindowSticky], a
+	ldh [hMutedChannels], a
 	ldh [hCurrentBank], a
 	ldh [hCurrentKeys], a
 	ldh [hFrameCounter], a
@@ -122,6 +123,8 @@ Initialize::
 	ld [randstate + 1], a
 	ld [randstate + 2], a
 	ld [randstate + 3], a
+	ld a, hUGE_NO_WAVE
+	ld [wLoadedWaveID], a
 	; Set palettes.
 	; These never change for the whole course of the program.
 	ld a, %11100100
@@ -141,10 +144,10 @@ Initialize::
 	ld a, HIGH(wShadowOAM)
 	call hOAMDMA
 
-	ld c, BANK(dungeon_data)
-	ld de, dungeon_data
-	ld a, 0
-	call gbt_play
+	ld a, BANK(xLakeMusic)
+	ld de, xLakeMusic
+	call StartSong
+
 	call audio_init
 
 	; Enable interrupts

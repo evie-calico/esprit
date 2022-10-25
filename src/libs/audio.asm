@@ -98,11 +98,10 @@ audio_play_fx::
   add hl,hl
   ld a,[hl]  ; channel ID
   call GetBitA
-  cpl
   ld b, a
-  ld a, [gbt_channels_enabled]
-  and a, b
-  ld [gbt_channels_enabled], a
+  ldh a, [hMutedChannels]
+  xor a, b
+  ldh [hMutedChannels], a
   ld a, [hli]
   inc l
   ld c,[hl]   ; ptr lo
@@ -177,9 +176,9 @@ audio_update_ch_a:
     ld a, b
     call GetBitA
     ld b, a
-    ld a, [gbt_channels_enabled]
-    or a, b
-    ld [gbt_channels_enabled], a
+    ldh a, [hMutedChannels]
+    xor a, b
+    ldh [hMutedChannels], a
     xor a
     ld [hl+],a
     ld [hl+],a  ; Clear pointer to sound sequence

@@ -57,7 +57,11 @@ VBlank:
 	ld [wWaitVBlankFlag], a
 
 	ei
-	call gbt_update
+
+	ldh a, [hSongBank]
+	rst SwapBank
+	call TickMusic
+
 	ld a, BANK("Sound Effects")
 	rst SwapBank
 	call audio_update

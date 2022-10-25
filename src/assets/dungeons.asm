@@ -1,7 +1,7 @@
 INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 
-; name, tileset, type, floors, completion flag
+; name, tileset, type, floors, completion flag, music
 ; item0, item1, item2, item3, items per floor,
 ; (entity ptr, entity level) * DUNGEON_ENTITY_COUNT
 MACRO dungeon
@@ -10,10 +10,11 @@ MACRO dungeon
 	REDEF TYPE EQUS "\3"
 	REDEF FLOORS EQUS "\4"
 	REDEF FLAG EQUS "\5"
+	REDEF MUSIC EQUS "\6"
 	SECTION "{NAME} Dungeon", ROMX
 	{NAME}:: dw .tileset, .palette
 
-	SHIFT 5
+	SHIFT 6
 	farptr \1
 	farptr \2
 	farptr \3
@@ -29,7 +30,10 @@ MACRO dungeon
 
 	db {FLAG}
 
-	ASSERT sizeof_Dungeon == 52
+	dw {MUSIC}
+	db BANK({MUSIC})
+
+	ASSERT sizeof_Dungeon == 55
 	.tileset INCBIN {TILESET}
 ENDM
 
@@ -49,7 +53,7 @@ MACRO dungeon_palette
 	ENDR
 ENDM
 
-	dungeon xForestDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, \
+	dungeon xForestDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, xForestMusic, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
@@ -70,7 +74,7 @@ ENDM
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon xFieldDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_FIELDS_COMPLETE, \
+	dungeon xFieldDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_FIELDS_COMPLETE, xLakeMusic, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat,  2, \
 	        xForestRat, 3, \
@@ -91,7 +95,7 @@ ENDM
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon xLakeDungeon, "res/dungeons/lake_tiles.2bpp", HALLS, 5, FLAG_LAKE_COMPLETE, \
+	dungeon xLakeDungeon, "res/dungeons/lake_tiles.2bpp", HALLS, 5, FLAG_LAKE_COMPLETE, xLakeMusic, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat,  2, \
 	        xForestRat, 3, \
@@ -112,7 +116,7 @@ ENDM
 	                128,   0,   0, \
 	                 64,   0,   0, \
 
-	dungeon xPlainsDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_PLAINS_COMPLETE, \
+	dungeon xPlainsDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_PLAINS_COMPLETE, xLakeMusic, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat,  2, \
 	        xForestRat, 3, \
@@ -133,7 +137,7 @@ ENDM
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon xCavesDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_CAVES_COMPLETE, \
+	dungeon xCavesDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_CAVES_COMPLETE, xLakeMusic, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
@@ -154,7 +158,7 @@ ENDM
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon xGemstoneWoodsDungeon, "res/dungeons/gemtree_tiles.2bpp", HALLS, 5, FLAG_GEMTREE_COMPLETE, \
+	dungeon xGemstoneWoodsDungeon, "res/dungeons/gemtree_tiles.2bpp", HALLS, 5, FLAG_GEMTREE_COMPLETE, xLakeMusic, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \

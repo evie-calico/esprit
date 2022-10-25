@@ -4,8 +4,8 @@
   - Programming
   - Art
 
-- Benjamin "Mojius" D.
-  - Music composition.
+- [Cello2WC](https://cello2wc.com)
+  - Music composition
 
 - [Henry "Tachytaenius" F.T.](https://github.com/wolfboyft)
   - [platypus.png](src/res/sprites/platypus.h.png)
@@ -20,9 +20,10 @@
   - [structs.inc](https://github.com/ISSOtm/rgbds-structs)
   - [vwf.asm](https://github.com/ISSOtm/gb-vwf)
   - [pal_fade_dmgcgb.asm](https://gist.github.com/ISSOtm/9f960cf08b8d4d4a9bd9c3397c57b79d)
+  - [fortISSimO.asm](https://github.com/ISSOtm/fortISSimO)
 
-- [Antonio D.](https://github.com/AntonioND)
-  - [GBT Player](https://github.com/AntonioND/gbt-player)
+- [Nick "Superdisk" F.](https://github.com/SuperDisk)
+  - [hUGETracker](https://github.com/SuperDisk/hUGETracker)
 
 Special Thanks:
 - Rangi

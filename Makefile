@@ -26,7 +26,6 @@ GFXFLAGS = -c embedded
 
 SRCS := $(shell find src -name '*.asm')
 EVSS := $(shell find src -name '*.evs')
-EVDS := $(patsubst src/%.evs, debug/%.evd, $(EVSS))
 OBJS := $(patsubst src/%.asm, obj/%.o, $(SRCS)) \
         $(patsubst src/%.evs, obj/%.o, $(EVSS))
 .SECONDARY: $(OBJS)
@@ -97,7 +96,6 @@ bin/%.gb bin/%.sym bin/%.map: $(OBJS)
 	| rgbasm $(ASFLAGS) -o obj/version.o -
 	rgblink $(LDFLAGS) -m bin/$*.map -n bin/$*.sym -o bin/$*.gb $^ obj/version.o  \
 	&& rgbfix $(FIXFLAGS) bin/$*.gb
-	cat debug-config.evd $(EVDS) > bin/$*.evd
 
 obj/libs/vwf.o dep/libs/vwf.mk res/charmap.inc: src/libs/vwf.asm
 	@mkdir -p obj/libs/ dep/libs/ res/
@@ -108,7 +106,7 @@ obj/%.o dep/%.mk: src/%.asm
 	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o $<
 
 obj/%.o obj/%.asm dep/%.mk: src/%.evs
-	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$* debug/$*))
+	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$*))
 	evscript -o obj/$*.asm $<
 	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o obj/$*.asm
 
@@ -167,10 +165,6 @@ res/%.vwf res/%_glyphs.inc: res/%.png $(MAKEFONT)
 	@mkdir -p $(@D)
 	$(MAKEFONT) $< res/$*.vwf res/$*_glyphs.inc
 
-res/%.asm: res/%.mod $(MOD2GBT)
-	@mkdir -p $(@D)
-	$(MOD2GBT) $< $@ $(patsubst res/music/%.asm, %, $@)
-
 # Adjust .pal files to rgb888 instead of rgb555.
 res/%.pal8: res/%.pal $(PALCONV)
 	@mkdir -p $(@D)
@@ -185,10 +179,6 @@ res/%.pal8: res/%.pal $(PALCONV)
 $(MAKEFONT): tools/makefont.c tools/libplum.c
 	@mkdir -p $(@D)
 	$(CC) -o $@ $^
-
-$(MOD2GBT): tools/mod2gbt.c
-	@mkdir -p $(@D)
-	$(CC) -o $@ $<
 
 $(PALCONV): tools/palconv.c
 	@mkdir -p $(@D)
