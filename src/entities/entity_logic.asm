@@ -1,3 +1,4 @@
+INCLUDE "config.inc"
 INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 INCLUDE "entity.inc"
@@ -234,7 +235,11 @@ POPS
 
 	ld a, [hCurrentKeys]
 	cp a, PADF_SELECT
+if DEBUG_SELECT
 	jp z, DungeonComplete
+else
+	jp z, EndTurn
+endc	
 
 	ld a, [hCurrentKeys]
 	cp a, PADF_START

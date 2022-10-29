@@ -29,8 +29,14 @@ Use a POSIX environment like [WSL](https://docs.microsoft.com/en-us/windows/wsl/
 
 ## Building
 
-Navigate to the project root and execute `make`. This will build the ROM and any
-tools needed by it, and place them in the `bin/` directory.
+Navigate to the project root and execute `make`.
+This will build the ROM and any tools needed by it, and place them in the `bin/` directory.
+
+A few options are available for debugging.
+Adding `CONFIG=` to your make invocation will allow you to enable some of these.
+(For example, `make "CONFIG= FIRST_DUNGEON=xLakeDungeon"` will cause the game to begin in the lake instead of the forest)
+
+The build-time options can be found in `src/include/config.inc`
 
 ## Naming Conventions
 
