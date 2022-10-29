@@ -124,8 +124,6 @@ Initialize::
 	ld [randstate + 1], a
 	ld [randstate + 2], a
 	ld [randstate + 3], a
-	ld a, hUGE_NO_WAVE
-	ld [wLoadedWaveID], a
 	; Set palettes.
 	; These never change for the whole course of the program.
 	ld a, %11100100

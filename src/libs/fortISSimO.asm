@@ -48,6 +48,9 @@ StartSong::
 	ld a, $77
 	ldh [rNR50], a
 
+	ld a, hUGE_NO_WAVE
+	ld [wLoadedWaveID], a
+
 	xor a ; Begin by not touching any channels until a note first plays on them.
 	ldh [hUGE_AllowedChannels], a
 

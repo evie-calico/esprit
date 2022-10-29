@@ -14,8 +14,8 @@ InitDungeon::
 	ld hl, STARTOF("dungeon BSS")
 	call MemSetSmall
 
-	; Null out all entities.
-	ld hl, wEntity0
+	; Null out all enemies.
+	ld hl, wEntity2
 	ld b, NB_ENTITIES
 .clearEntities
 	ld [hl], a
@@ -25,15 +25,29 @@ InitDungeon::
 
 	ld [wSkipAllyTurn], a
 
-	lb bc, bank(xLuvui), 5
-	ld de, xLuvui
-	ld h, high(wEntity0)
-	call SpawnEntity
+	ld a, DUNGEON_WIDTH / 2
+	ld hl, wEntity0_SpriteY
+	ld [hl], 0
+	inc l
+	ld [hli], a
+	ld [hl], 0
+	inc l
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	call RestoreEntity
 
-	lb bc, bank(xAris), 6
-	ld de, xAris
-	ld h, high(wEntity1)
-	call SpawnEntity
+	ld a, DUNGEON_WIDTH / 2
+	ld hl, wEntity1_SpriteY
+	ld [hl], 0
+	inc l
+	ld [hli], a
+	ld [hl], 0
+	inc l
+	ld [hli], a
+	ld [hli], a
+	ld [hli], a
+	call RestoreEntity
 
 	ld hl, wActiveDungeon
 	ld a, [hli]

@@ -121,7 +121,7 @@ HealHandler:
 	ld e, [hl]
 	jp HealEntity
 
-section FRAGMENT "dungeon BSS", wram0
+section "Inventory", wram0
 wInventory::
 	ds 3 * INVENTORY_SIZE
 .end::

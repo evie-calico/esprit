@@ -317,14 +317,28 @@ SpawnEntity::
 		ld [hli], a
 	pop bc
 
-	; Start with 100% fatigue
-	ld l, low(wEntity0_Fatigue)
-	ld [hl], 100
-
 	; Set level
 	ld l, low(wEntity0_Level)
 	ld a, c
 	ld [hli], a
+
+	call RestoreEntity
+
+	push hl
+		call UpdateMoves
+	pop hl
+
+	jp BankReturn
+
+section "Restore entity", rom0
+RestoreEntity::
+	; Start with 100% fatigue
+	ld l, low(wEntity0_Fatigue)
+	ld [hl], 100
+
+	; Get level
+	ld l, low(wEntity0_Level)
+	ld a, [hli]
 
 	; Use level to determine health.
 	assert Entity_Level + 1 == Entity_Health
@@ -335,12 +349,7 @@ SpawnEntity::
 	pop hl
 	ld [hli], a
 	ld [hl], b
-
-	push hl
-		call UpdateMoves
-	pop hl
-
-	jp BankReturn
+	ret
 
 section "Spawn Enemy", rom0
 SpawnEnemy::

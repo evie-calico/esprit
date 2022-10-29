@@ -79,6 +79,7 @@ xTitleScreenClose:
 	ld [wOBJPaletteMask], a
 	call FadeToBlack
 
+	; Game Setup
 	ld hl, wActiveDungeon
 	ld a, bank(FIRST_DUNGEON)
 	ld [hli], a
@@ -94,6 +95,21 @@ xTitleScreenClose:
 	ld [hli], a
 	ld a, high(FIRST_NODE)
 	ld [hli], a
+
+	lb bc, bank(xLuvui), 5
+	ld de, xLuvui
+	ld h, high(wEntity0)
+	call SpawnEntity
+
+	lb bc, bank(xAris), 6
+	ld de, xAris
+	ld h, high(wEntity1)
+	call SpawnEntity
+
+	xor a, a
+	ld hl, wInventory
+	ld c, wInventory.end - wInventory
+	call MemSetSmall
 
 	ld hl, wFadeCallback
 	ld a, low(InitDungeon)
