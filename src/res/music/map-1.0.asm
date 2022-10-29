@@ -1,6 +1,6 @@
 include "include/hUGE.inc"
 
-SECTION "Song Data", ROMX
+SECTION "xMapMusic Data", ROMX
 
 xMapMusic::
 db 8

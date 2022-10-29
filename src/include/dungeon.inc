@@ -54,6 +54,7 @@ DEF WINDOW_TURNING RB 1
 		bytes sizeof_SpawnEntityInfo * DUNGEON_ENTITY_COUNT, Entities
 		bytes 1, CompletionFlag
 		bytes 3, Music
+		words 1, TickFunction
 	end_struct
 
 ENDC

@@ -6,6 +6,8 @@ include "src/include/script.evs";
 #end
 
 npc xWalkAround {
+	play_music(xTownMusic);
+
 	lock();
 	face_player();
 

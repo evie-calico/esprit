@@ -1,3 +1,4 @@
+INCLUDE "config.inc"
 INCLUDE "defines.inc"
 INCLUDE "draw_menu.inc"
 INCLUDE "hardware.inc"
@@ -79,19 +80,19 @@ xTitleScreenClose:
 	call FadeToBlack
 
 	ld hl, wActiveDungeon
-	ld a, BANK(xForestDungeon)
+	ld a, BANK(FIRST_DUNGEON)
 	ld [hli], a
-	ld a, LOW(xForestDungeon)
+	ld a, LOW(FIRST_DUNGEON)
 	ld [hli], a
-	ld a, HIGH(xForestDungeon)
+	ld a, HIGH(FIRST_DUNGEON)
 	ld [hli], a
 
 	ld hl, wActiveMapNode
-	ld a, BANK(xFirstNode)
+	ld a, BANK(FIRST_NODE)
 	ld [hli], a
-	ld a, LOW(xFirstNode)
+	ld a, LOW(FIRST_NODE)
 	ld [hli], a
-	ld a, HIGH(xFirstNode)
+	ld a, HIGH(FIRST_NODE)
 	ld [hli], a
 
 	ld hl, wFadeCallback

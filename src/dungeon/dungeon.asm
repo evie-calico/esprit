@@ -358,6 +358,24 @@ DungeonState::
 	call SetPreviousHudStats
 .skipUpdateStatus
 
+	; Run the dungeon's tick function (if any)
+	ld hl, wActiveDungeon
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	add a, Dungeon_TickFunction
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+
+	rst CallHL
+
 	; Wait after a level up for the next check.
 	ld a, [wLevelUpMessageLifetime]
 	and a, a

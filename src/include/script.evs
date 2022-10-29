@@ -8,6 +8,14 @@ struct sprite {
 	attributes: u8,
 }
 
+#asm
+macro play_music
+	db script@_play_music
+	dw \1
+	db BANK(\1)
+endm
+#end
+
 env script {
 	def ret();
 	def yld();
@@ -32,6 +40,8 @@ env script {
 	def rand(return u8);
 	def is_cgb(return u8);
 	def print(const string);
+	def _play_music();
+	macro play_music(const u8) = play_music;
 	// Same as print, but sets a delay on each letter.
 	// The delay only works within scenes.
 	def say(const string);
@@ -47,6 +57,7 @@ env script {
 	def npc_set_direction(const u8, const u8);
 	def npc_lock();
 	def face_player();
+
 
 	pool = 16;
 }

@@ -66,6 +66,7 @@ EvscriptBytecodeTable:
 	dw ScriptRand
 	dw ScriptIsCgb
 	dw ScriptPrint
+	dw ScriptPlayMusic
 	dw ScriptSay
 	dw ScriptPrintWait
 	dw ScriptGetFlag
@@ -694,3 +695,17 @@ ScriptNPCFacePlayer:
 
 	pop hl
 	ret
+
+SECTION "evscript ScriptPlayMusic", ROM0
+ScriptPlayMusic:
+	ldh a, [hCurrentBank]
+	push af
+	ld a, [hli]
+	ld e, a
+	ld a, [hli]
+	ld d, a
+	ld a, [hli]
+	push hl
+	call StartSong
+	pop hl
+	jp BankReturn

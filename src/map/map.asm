@@ -64,10 +64,8 @@ MACRO _node_define
 	db _NODE_\1_TYPE, _NODE_\1_ARG0, _NODE_\1_ARG1, _NODE_\1_ARG2
 ENDM
 
-DEF first_node EQUS "xFirstNode::"
-
 MACRO end_node
-	{_NODE_IDENTIFIER}:
+	{_NODE_IDENTIFIER}::
 		_node_define UP
 		_node_define RIGHT
 		_node_define DOWN
@@ -87,14 +85,13 @@ SECTION "World map nodes", ROMX
 	node xVillageNode, "Crater Village", 48, 88
 		left MOVE, xForestNode
 		right MOVE, xBeginningHouse
-		; press SCENE, xVillageScene // Disabled until complete.
+		press SCENE, xVillageScene
 	end_node
 
 	node xForestNode, "Crater Forest", 12, 88
 		right MOVE, xVillageNode
 		up LOCK, xFieldsNode, FOREST_COMPLETE
 		press DUNGEON, xForestDungeon
-		first_node
 	end_node
 
 	node xFieldsNode, "Crater Fields", 12, 32

@@ -1,7 +1,7 @@
 INCLUDE "defines.inc"
 INCLUDE "dungeon.inc"
 
-; name, tileset, type, floors, completion flag, music
+; name, tileset, type, floors, completion flag, music, tick function
 ; item0, item1, item2, item3, items per floor,
 ; (entity ptr, entity level) * DUNGEON_ENTITY_COUNT
 MACRO dungeon
@@ -11,10 +11,11 @@ MACRO dungeon
 	REDEF FLOORS EQUS "\4"
 	REDEF FLAG EQUS "\5"
 	REDEF MUSIC EQUS "\6"
+	REDEF TICK_FUNCTION EQUS "\7"
 	SECTION "{NAME} Dungeon", ROMX
 	{NAME}:: dw .tileset, .palette
 
-	SHIFT 6
+	SHIFT 7
 	farptr \1
 	farptr \2
 	farptr \3
@@ -33,7 +34,9 @@ MACRO dungeon
 	dw {MUSIC}
 	db BANK({MUSIC})
 
-	ASSERT sizeof_Dungeon == 55
+	dw {TICK_FUNCTION}
+
+	ASSERT sizeof_Dungeon == 57
 	.tileset INCBIN {TILESET}
 ENDM
 
@@ -53,7 +56,7 @@ MACRO dungeon_palette
 	ENDR
 ENDM
 
-	dungeon xForestDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, xForestMusic, \
+	dungeon xForestDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, xForestMusic, null, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
@@ -74,7 +77,7 @@ ENDM
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon xFieldDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_FIELDS_COMPLETE, xLakeMusic, \
+	dungeon xFieldDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_FIELDS_COMPLETE, xTownMusic, null, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat,  2, \
 	        xForestRat, 3, \
@@ -95,7 +98,7 @@ ENDM
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon xLakeDungeon, "res/dungeons/lake_tiles.2bpp", HALLS, 5, FLAG_LAKE_COMPLETE, xLakeMusic, \
+	dungeon xLakeDungeon, "res/dungeons/lake_tiles.2bpp", HALLS, 5, FLAG_LAKE_COMPLETE, xLakeMusic, xLakeAnimationFunction, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat,  2, \
 	        xForestRat, 3, \
@@ -105,18 +108,52 @@ ENDM
 	        xFieldRat,  5, \
 	        xFieldRat,  6, \
 	        xFieldRat,  6
-	dungeon_palette 255, 255,  128, \ ; Blank
-	                160, 160,  80, \ ; Ground
-	                 48,  48, 176, \
-	                 16,  16, 128, \
-	                 48,  48, 176, \ ; Wall
-	                 16,  16, 128, \
-	                  0,   8,   0, \
-	                255,   0,   0, \ ; Exit
-	                128,   0,   0, \
-	                 64,   0,   0, \
+	dungeon_palette $7b, $82, $a6, \ ; Blank
+	                $7f, $b7, $b7, \
+	                $55, $b7, $b3, \
+	                $42, $4c, $9c, \
+	                216, 136, 88, \
+	                $3e, $4a, $83, \
+	                $30, $38, $72, \
+	                $63, $7f, $b7, \
+	                64, 80, 160, \
+	                $30, $38, $72, \
 
-	dungeon xPlainsDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_PLAINS_COMPLETE, xLakeMusic, \
+xLakeAnimationFunction:
+	ldh a, [hFrameCounter]
+	and a, 7
+	ret nz
+	ld a, [wLakeAnimationCounter]
+	inc a
+	cp a, 8
+	jr nz, :+
+	xor a, a
+:
+	ld [wLakeAnimationCounter], a
+
+	add a, a ; a * 2 (18)
+	add a, a ; a * 4 (36)
+	add a, a ; a * 8 (72)
+	add a, a ; a * 16 (144)
+	add a, LOW(xLakeAnimationFrames / 4)
+	ld l, a
+	adc a, HIGH(xLakeAnimationFrames / 4)
+	sub a, l
+	ld h, a
+	add hl, hl
+	add hl, hl
+
+	ld de, $88C0 ; Address of full-wall tile
+	ld c, 16 * 4
+	jp VRAMCopySmall
+
+ALIGN 2
+xLakeAnimationFrames: INCBIN "res/dungeons/lake_animation.2bpp"
+
+SECTION FRAGMENT "dungeon BSS", WRAM0
+wLakeAnimationCounter: db
+
+	dungeon xPlainsDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_PLAINS_COMPLETE, xLakeMusic, null, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat,  2, \
 	        xForestRat, 3, \
@@ -137,7 +174,7 @@ ENDM
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon xCavesDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_CAVES_COMPLETE, xLakeMusic, \
+	dungeon xCavesDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_CAVES_COMPLETE, xLakeMusic, null, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
@@ -158,7 +195,7 @@ ENDM
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon xGemstoneWoodsDungeon, "res/dungeons/gemtree_tiles.2bpp", HALLS, 5, FLAG_GEMTREE_COMPLETE, xLakeMusic, \
+	dungeon xGemstoneWoodsDungeon, "res/dungeons/gemtree_tiles.2bpp", HALLS, 5, FLAG_GEMTREE_COMPLETE, xLakeMusic, null, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
