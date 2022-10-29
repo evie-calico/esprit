@@ -1,14 +1,14 @@
-IF !DEF(ITEM_INC)
-DEF ITEM_INC EQU 1
+if !def(ITEM_INC)
+def ITEM_INC equ 1
 
-INCLUDE "structs.inc"
+include "structs.inc"
 
-DEF INVENTORY_SIZE EQU 8
+def INVENTORY_SIZE equ 8
 
-RSRESET
-DEF ITEM_NULL RB 1 ; An item that cannot be used.
-DEF ITEM_HEAL RB 1 ; An item that restores health.
-DEF ITEM_MAX RB 0
+rsreset
+def ITEM_NULL rb 1 ; An item that cannot be used.
+def ITEM_HEAL rb 1 ; An item that restores health.
+def ITEM_MAX rb 0
 
 	struct Item
 		words 1, Palette
@@ -23,4 +23,4 @@ DEF ITEM_MAX RB 0
 		bytes 1, Strength
 	end_struct
 
-ENDC
+endc

@@ -18,7 +18,7 @@
 ;    misrepresented as being the original software.
 ; 3. This notice may not be removed or altered from any source distribution.
 ;
-section "bcd",ROM0
+section "bcd",rom0
 
 ;;
 ; Converts a 16-bit number from binary to decimal in about
@@ -97,7 +97,7 @@ bcd8bit_baa::
 	rl b
 	ret
 
-section "pctdigit",ROM0
+section "pctdigit",rom0
 ;;
 ; Calculates one digit of converting a fraction to a percentage.
 ; @param B numerator, less than C

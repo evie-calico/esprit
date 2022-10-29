@@ -1,6 +1,6 @@
-INCLUDE "hardware.inc"
+include "hardware.inc"
 
-SECTION "Wait for VBlank", ROM0
+section "Wait for VBlank", rom0
 WaitVBlank::
 	xor a, a
 	ld [wWaitVBlankFlag], a
@@ -10,26 +10,26 @@ WaitVBlank::
 	jr z, :-
 	ret
 
-SECTION "VBlank Interrupt", ROM0[$0040]
+section "VBlank Interrupt", rom0[$0040]
 	push af
 	push bc
 	push de
 	push hl
 	jp VBlank
 
-SECTION "STAT Interrupt", ROM0[$0048]
+section "STAT Interrupt", rom0[$0048]
 	push af
 	push bc
 	push de
 	push hl
 	jp STAT
 
-SECTION "VBlank Handler", ROM0
+section "VBlank Handler", rom0
 VBlank:
 	ld a, [hCurrentBank]
 	push af
 
-	ld a, HIGH(wShadowOAM)
+	ld a, high(wShadowOAM)
 	call hOAMDMA
 
 	ldh a, [hShadowWX]
@@ -65,7 +65,7 @@ VBlank:
 	call TickMusic
 .noMusic
 
-	ld a, BANK("Sound Effects")
+	ld a, bank("Sound Effects")
 	rst SwapBank
 	call audio_update
 
@@ -78,7 +78,7 @@ VBlank:
 	pop af
 	ret
 
-SECTION "STAT Handler", ROM0
+section "STAT Handler", rom0
 STAT:
 	ld hl, wSTATTarget
 	ld a, [hli]
@@ -95,13 +95,13 @@ STAT:
 	pop af
 	reti
 
-SECTION "Wait VBlank flag", WRAM0
+section "Wait VBlank flag", wram0
 wWaitVBlankFlag: db
 
-SECTION "STAT target", WRAM0
+section "STAT target", wram0
 wSTATTarget:: dw
 
-SECTION "Shadow registers", HRAM
+section "Shadow registers", hram
 hShadowSCX:: db
 hShadowSCY:: db
 hShadowWX:: db

@@ -41,14 +41,14 @@ The build-time options can be found in `src/include/config.inc`
 ## Naming Conventions
 
 - All labels are `PascalCase`
-  - Prefix `x`: ROMX
+  - Prefix `x`: romx
   - Prefix `v`: VRAM
   - Prefix `s`: SRAM
   - Prefix `w`: WRAM
-  - Prefix `h`: HRAM
+  - Prefix `h`: hram
 
 - Constants are in `ALL_CAPS`
 - Macros are in `snake_case`
 
-- RGBDS directives are in all caps (Such as `SECTION`, `INCLUDE`, `ASSERT`, but not `db`, `ds`, etc...)
+- RGBDS directives are in all caps (Such as `section`, `include`, `assert`, but not `db`, `ds`, etc...)
 - Instructions are in lowercase (Such as `ld`, `call`, as well as `db`, `ds`, etc...)

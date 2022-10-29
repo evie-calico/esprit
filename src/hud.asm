@@ -1,11 +1,11 @@
-INCLUDE "defines.inc"
-INCLUDE "dungeon.inc"
-INCLUDE "entity.inc"
-INCLUDE "hardware.inc"
-INCLUDE "menu.inc"
-INCLUDE "vdef.inc"
+include "defines.inc"
+include "dungeon.inc"
+include "entity.inc"
+include "hardware.inc"
+include "menu.inc"
+include "vdef.inc"
 
-DEF POPUP_SPEED EQU 8
+def POPUP_SPEED equ 8
 
 	dregion vStatusBar, 0, 26, 20, 2, $9C00
 	dregion vHUD, 0, 28, 20, 4, $9C00
@@ -29,23 +29,23 @@ DEF POPUP_SPEED EQU 8
 	dtile vPlayerStatus, 16
 	dtile vPartnerStatus, 16
 
-SECTION "User interface graphics", ROMX
+section "User interface graphics", romx
 xUIFrame:
-	INCBIN "res/ui/hud_frame.2bpp", 16, 16 ; top
-	INCBIN "res/ui/hud_frame.2bpp", 48, 16 ; left
-	INCBIN "res/ui/hud_frame.2bpp", 80, 16 ; right
-	INCBIN "res/ui/hud_frame.2bpp",  0, 16 ; top left
-	INCBIN "res/ui/hud_frame.2bpp", 32, 16 ; top right
-	INCBIN "res/ui/arrows.2bpp"
-	INCBIN "res/ui/hud_frame.2bpp", 112, 16 ; bottom
+	incbin "res/ui/hud_frame.2bpp", 16, 16 ; top
+	incbin "res/ui/hud_frame.2bpp", 48, 16 ; left
+	incbin "res/ui/hud_frame.2bpp", 80, 16 ; right
+	incbin "res/ui/hud_frame.2bpp",  0, 16 ; top left
+	incbin "res/ui/hud_frame.2bpp", 32, 16 ; top right
+	incbin "res/ui/arrows.2bpp"
+	incbin "res/ui/hud_frame.2bpp", 112, 16 ; bottom
 .end
 
-SECTION "Initialize user interface", ROM0
+section "Initialize user interface", rom0
 InitUI::
 	ld a, [hCurrentBank]
 	push af
 
-	ld a, BANK(xUIFrame)
+	ld a, bank(xUIFrame)
 	rst SwapBank
 	ld c, xUIFrame.end - xUIFrame
 	ld de, vUIFrameTop
@@ -80,10 +80,10 @@ InitUI::
 	; 17.75 safe cycles.
 	ld a, idof_vUIFrameRightCorner ; 2
 	ld [vHUD + vHUD_Width - 1], a ; 5
-	ASSERT idof_vUIFrameRightCorner - 1 == idof_vUIFrameLeftCorner
+	assert idof_vUIFrameRightCorner - 1 == idof_vUIFrameLeftCorner
 	dec a ; 6
 	ld [vHUD], a ; 9
-	ASSERT idof_vUIFrameLeftCorner - 1 == idof_vUIFrameRight
+	assert idof_vUIFrameLeftCorner - 1 == idof_vUIFrameRight
 	dec a ; 10
 	ld [vHUD + vHUD_Width - 1 + 32], a ; 13
 	ld [vHUD + vHUD_Width - 1 + 64], a ; 16
@@ -93,15 +93,15 @@ InitUI::
 	; 17.75 safe cycles.
 	ld a, idof_vUIFrameRight ; 2
 	ld [vHUD + vHUD_Width - 1 + 96], a ; 5
-	ASSERT idof_vUIFrameRight - 1 == idof_vUIFrameLeft
+	assert idof_vUIFrameRight - 1 == idof_vUIFrameLeft
 	dec a ; 6
 	ld [vHUD + 32], a ; 9
 	ld [vHUD + 64], a ; 12
 	ld [vHUD + 96], a ; 15
 
-	ld a, LOW(ShowTextBox)
+	ld a, low(ShowTextBox)
 	ld [wSTATTarget], a
-	ld a, HIGH(ShowTextBox)
+	ld a, high(ShowTextBox)
 	ld [wSTATTarget + 1], a
 
 	ld a, 144 - 32 - 1
@@ -124,7 +124,7 @@ InitUI::
 		ld a, [hli]
 		ld h, [hl]
 		ld l, a
-		ASSERT MenuPal_Colors == 3
+		assert MenuPal_Colors == 3
 		inc hl
 		inc hl
 		inc hl
@@ -142,7 +142,7 @@ InitUI::
 
 	jp BankReturn
 
-SECTION "Print HUD", ROM0
+section "Print HUD", rom0
 ; Sets a string to print.
 ; @param b:  Bank of string
 ; @param hl: String to print
@@ -155,7 +155,7 @@ PrintHUD::
 	ld [wPrintString + 2], a
 	ret
 
-SECTION "Draw print string", ROM0
+section "Draw print string", rom0
 ; Draw a string to the HUD.
 ; This is called during the game loop after rendering entities, to ensure they
 ; do not fail to render if printing takes too long.
@@ -166,7 +166,7 @@ DrawPrintString::
 
 	ld a, vTextbox_Width * 8
 	lb bc, idof_vTextboxTiles, idof_vTextboxTiles + vTextbox_Width * vTextbox_Height
-	lb de, vTextbox_Height, HIGH(vTextboxTiles) & $F0
+	lb de, vTextbox_Height, high(vTextboxTiles) & $F0
 	call TextInit
 
 	ld hl, wPrintString
@@ -184,35 +184,35 @@ DrawPrintString::
 	ld hl, vTextbox
 	call TextDefineBox
 	call ReaderClear
-	ld a, BANK(TextClear)
+	ld a, bank(TextClear)
 	rst SwapBank
 	call TextClear
 	call PrintVWFChar
 	jp DrawVWFChars
 
-SECTION "Draw Status bar", ROM0
+section "Draw Status bar", rom0
 ; @clobbers bank
 DrawStatusBar::
-	ld h, HIGH(wEntity0)
+	ld h, high(wEntity0)
 	call .prepareFormatting
 
 	ld a, vStatusBar_Width * 8
 	lb bc, idof_vPlayerStatus, idof_vPlayerStatus + vStatusBar_Width
-	lb de, 1, HIGH(vPlayerStatus) & $F0
+	lb de, 1, high(vPlayerStatus) & $F0
 	call TextInit
 
 	xor a, a
 	ld [wTextLetterDelay], a
 
 	ld a, 1
-	ld b, BANK(xStatusString)
+	ld b, bank(xStatusString)
 	ld hl, xStatusString
 	call PrintVWFText
 
 	lb de, vStatusBar_Width, 1
 	ld hl, vStatusBar + 1
 	call TextDefineBox
-	ld a, BANK(TextClear)
+	ld a, bank(TextClear)
 	rst SwapBank
 	call TextClear
 	call PrintVWFChar
@@ -226,21 +226,21 @@ DrawStatusBar::
 
 	ld a, vStatusBar_Width * 8
 	lb bc, idof_vPartnerStatus, idof_vPartnerStatus + vStatusBar_Width
-	lb de, 1, HIGH(vPartnerStatus) & $F0
+	lb de, 1, high(vPartnerStatus) & $F0
 	call TextInit
 
 	xor a, a
 	ld [wTextLetterDelay], a
 
 	ld a, 1
-	ld b, BANK(xStatusString)
+	ld b, bank(xStatusString)
 	ld hl, xStatusString
 	call PrintVWFText
 
 	lb de, vStatusBar_Width, 1
 	ld hl, vStatusBar + 33
 	call TextDefineBox
-	ld a, BANK(TextClear)
+	ld a, bank(TextClear)
 	rst SwapBank
 	call TextClear
 	call PrintVWFChar
@@ -250,7 +250,7 @@ DrawStatusBar::
 	ld a, h
 	ld [wfmt_xStatusString_name], a
 
-	ld l, LOW(wEntity0_Level)
+	ld l, low(wEntity0_Level)
 	ld a, [hli]
 	push hl
 		call GetMaxHealth
@@ -265,18 +265,18 @@ DrawStatusBar::
 	ld [wfmt_xStatusString_health + 1], a
 
 	; Display any active status effect
-	ld l, LOW(wEntity0_StatusEffect)
+	ld l, low(wEntity0_StatusEffect)
 	ld a, [hl]
-	ASSERT STATUS_OK == 0
+	assert STATUS_OK == 0
 	and a, a
 	jr z, .noStatus
-	ld a, BANK(xStatusGetName)
+	ld a, bank(xStatusGetName)
 	rst SwapBank
 	ld a, [hl]
 	call xStatusGetName
 	ld a, 1
 	ld [wfmt_xStatusString_hasStatus], a
-	ld a, BANK("Status Names")
+	ld a, bank("Status Names")
 	ld [wfmt_xStatusString_status], a
 	ld a, l
 	ld [wfmt_xStatusString_status + 1], a
@@ -286,7 +286,7 @@ DrawStatusBar::
 .noStatus
 
 	; Show a tired status if fatigue is below a certain amount and no other effects are active.
-	ld l, LOW(wEntity0_Fatigue)
+	ld l, low(wEntity0_Fatigue)
 	ld a, [hl]
 	cp a, TIRED_THRESHOLD
 	ld a, 0
@@ -294,11 +294,11 @@ DrawStatusBar::
 	inc a
 :
 	ld [wfmt_xStatusString_hasStatus], a
-	ld a, BANK(xTiredStatus)
+	ld a, bank(xTiredStatus)
 	ld [wfmt_xStatusString_status], a
-	ld a, LOW(xTiredStatus)
+	ld a, low(xTiredStatus)
 	ld [wfmt_xStatusString_status + 1], a
-	ld a, HIGH(xTiredStatus)
+	ld a, high(xTiredStatus)
 	ld [wfmt_xStatusString_status + 2], a
 .statusComplete
 
@@ -313,7 +313,7 @@ DrawStatusBar::
 :
 	ret
 
-SECTION "Attack window", ROMX
+section "Attack window", romx
 ; TODO: make this more modular, akin to menu.asm, even if we only have 2.
 ; Add redraw, init, and target positions for the bounce animation
 xUpdateAttackWindow::
@@ -436,7 +436,7 @@ xDrawTurningWindow:
 	ld [vAttackWindow + 96 + 4], a
 	ret
 
-SECTION "Draw attack window", ROM0
+section "Draw attack window", rom0
 DrawAttackWindow::
 	ldh a, [hCurrentBank]
 	push af
@@ -511,7 +511,7 @@ DrawAttackWindow::
 	ld [de], a
 	inc de
 
-	ASSERT Move_Fatigue == 4
+	assert Move_Fatigue == 4
 	inc hl
 	inc hl
 	inc hl
@@ -524,7 +524,7 @@ DrawAttackWindow::
 :
 	ld [de], a
 	inc de
-	ASSERT Move_Fatigue + 1 == Move_Name
+	assert Move_Fatigue + 1 == Move_Name
 	inc hl
 .strcpy
 	ld a, [hli]
@@ -553,7 +553,7 @@ DrawAttackWindow::
 	; Draw move names
 	ld a, vAttackText_Width * 8
 	lb bc, idof_vAttackTiles, idof_vAttackTiles + vAttackText_Width * vAttackText_Height
-	lb de, vAttackText_Height + 2, HIGH(vAttackTiles) & $F0
+	lb de, vAttackText_Height + 2, high(vAttackTiles) & $F0
 	call TextInit
 
 	lb de, vAttackText_Width, vAttackText_Height
@@ -563,7 +563,7 @@ DrawAttackWindow::
 	call DrawVWFChars
 	jp BankReturn
 
-SECTION "Show HP bar", ROM0
+section "Show HP bar", rom0
 ShowHPBar:
 	ldh a, [rSTAT]
 	and a, STATF_BUSY
@@ -578,13 +578,13 @@ ShowHPBar:
 	; Prepare for next scanline effect
 	ld a, 16
 	ldh [rLYC], a
-	ld a, LOW(ShowDungeonView)
+	ld a, low(ShowDungeonView)
 	ld [wSTATTarget], a
-	ld a, HIGH(ShowDungeonView)
+	ld a, high(ShowDungeonView)
 	ld [wSTATTarget + 1], a
 	ret
 
-SECTION "Show dungeon", ROM0
+section "Show dungeon", rom0
 ShowDungeonView:
 	ldh a, [rSTAT]
 	and a, STATF_BUSY
@@ -599,13 +599,13 @@ ShowDungeonView:
 	; Prepare for next scanline effect
 	ld a, 144 - 32 - 1
 	ldh [rLYC], a
-	ld a, LOW(ShowTextBox)
+	ld a, low(ShowTextBox)
 	ld [wSTATTarget], a
-	ld a, HIGH(ShowTextBox)
+	ld a, high(ShowTextBox)
 	ld [wSTATTarget + 1], a
 	ret
 
-SECTION "Show text box", ROM0
+section "Show text box", rom0
 ShowTextBox:
 	ldh a, [rSTAT]
 	and a, STATF_BUSY
@@ -620,13 +620,13 @@ ShowTextBox:
 	; Prepare for next scanline effect
 	ld a, 145 ; A value over 144 means this will occur after the VBlank handler.
 	ldh [rLYC], a
-	ld a, LOW(ShowHPBar)
+	ld a, low(ShowHPBar)
 	ld [wSTATTarget], a
-	ld a, HIGH(ShowHPBar)
+	ld a, high(ShowHPBar)
 	ld [wSTATTarget + 1], a
 	ret
 
-SECTION "Show only text box", ROM0
+section "Show only text box", rom0
 ShowOnlyTextBox::
 	ldh a, [rSTAT]
 	and a, STATF_BUSY
@@ -640,13 +640,13 @@ ShowOnlyTextBox::
 	ldh [rSCY], a
 	ld a, 145 ; A value over 144 means this will occur after the VBlank handler.
 	ldh [rLYC], a
-	ld a, LOW(ResetView)
+	ld a, low(ResetView)
 	ld [wSTATTarget], a
-	ld a, HIGH(ResetView)
+	ld a, high(ResetView)
 	ld [wSTATTarget + 1], a
 	ret
 
-SECTION "Reset view", ROM0
+section "Reset view", rom0
 ResetView:
 	ldh a, [rSTAT]
 	and a, STATF_BUSY
@@ -661,25 +661,25 @@ ResetView:
 	; Prepare for next scanline effect
 	ld a, 144 - 32 - 1
 	ldh [rLYC], a
-	ld a, LOW(ShowOnlyTextBox)
+	ld a, low(ShowOnlyTextBox)
 	ld [wSTATTarget], a
-	ld a, HIGH(ShowOnlyTextBox)
+	ld a, high(ShowOnlyTextBox)
 	ld [wSTATTarget + 1], a
 	ret
 
-SECTION "Show Moves", WRAM0
+section "Show Moves", wram0
 wWindowMode:: db
 .last db
 
-SECTION "Window effect bounce", WRAM0
+section "Window effect bounce", wram0
 wWindowBounce: db
 wWindowSticky:: db
 
-SECTION "Print string", WRAM0
+section "Print string", wram0
 wPrintString:: ds 3
 
-SECTION "Move Window Buffer", WRAM0
+section "Move Window Buffer", wram0
 wMoveWindowBuffer: ds 8 * 4
 
-SECTION "Force HUD update", WRAM0
+section "Force HUD update", wram0
 wForceHudUpdate:: db

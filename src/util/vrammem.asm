@@ -20,9 +20,9 @@
 ;    misrepresented as being the original software.
 ; 3. This notice may not be removed or altered from any source distribution.
 
-INCLUDE "hardware.inc"
+include "hardware.inc"
 
-SECTION "VRAM Memory Copy", ROM0
+section "VRAM Memory Copy", rom0
 ; Waits for VRAM access before copying data.
 ; @param bc: length
 ; @param de: destination
@@ -45,7 +45,7 @@ VRAMCopy::
 	jr nz, .loop
 	ret
 
-SECTION "VRAM Small Memory Copy", ROM0
+section "VRAM Small Memory Copy", rom0
 ; Waits for VRAM access before copying data. Slightly faster than vmemcopy with
 ; less setup, but can only copy 256 bytes at a time.
 ; @param  c: length
@@ -62,7 +62,7 @@ VRAMCopySmall::
 	jr nz, VRAMCopySmall
 	ret
 
-SECTION "VRAM Memory Set", ROM0
+section "VRAM Memory Set", rom0
 ; Waits for VRAM access before setting data.
 ; @param  d: source (is preserved)
 ; @param bc: length
@@ -85,7 +85,7 @@ VRAMSet::
 	jr nz, .loadByte
 	ret
 
-SECTION "VRAM Memory Set Small", ROM0
+section "VRAM Memory Set Small", rom0
 ; Waits for VRAM access before setting data.
 ; @param  b: source (is preserved)
 ; @param  c: length

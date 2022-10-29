@@ -1,63 +1,63 @@
-INCLUDE "defines.inc"
-INCLUDE "menu.inc"
+include "defines.inc"
+include "menu.inc"
 
 ; These two helper macros define the themes and palettes, automatically turning
 ; them into a circular linked list. You're welcome :3
 
-MACRO themes
-	DEF FIRST_NAME EQUS "\1MenuTheme"
-	REPT _NARG / 2
-		DEF CUR_NAME EQUS "\1"
-		SECTION "\1 Theme", ROMX
+macro themes
+	def FIRST_NAME equs "\1MenuTheme"
+	rept _NARG / 2
+		def CUR_NAME equs "\1"
+		section "\1 Theme", romx
 		\1MenuTheme::
-			IF _NARG > 2
-				db BANK(\3MenuTheme)
+			if _NARG > 2
+				db bank(\3MenuTheme)
 				dw \3MenuTheme
-			ELSE
-				db BANK(FIRST_NAME)
+			else
+				db bank(FIRST_NAME)
 				dw FIRST_NAME
-			ENDC
-			INCBIN "res/ui/\2_cursor.2bpp"
+			endc
+			incbin "res/ui/\2_cursor.2bpp"
 			dw .end - .emblem, .emblem, .map
 			db "{CUR_NAME}", 0
-		.emblem INCBIN "res/ui/\2_emblem.2bpp"
+		.emblem incbin "res/ui/\2_emblem.2bpp"
 		.end
-		.map INCBIN "res/ui/\2_emblem.map"
-			SHIFT 2
-		PURGE CUR_NAME
-	ENDR
-	PURGE FIRST_NAME
-ENDM
+		.map incbin "res/ui/\2_emblem.map"
+			shift 2
+		purge CUR_NAME
+	endr
+	purge FIRST_NAME
+endm
 
-MACRO colors
-	DEF FIRST_NAME EQUS "\1MenuPalette"
-	REPT _NARG / 13
-		DEF CUR_NAME EQUS "\1"
-		SECTION "\1 Theme", ROMX
+macro colors
+	def FIRST_NAME equs "\1MenuPalette"
+	rept _NARG / 13
+		def CUR_NAME equs "\1"
+		section "\1 Theme", romx
 		\1MenuPalette::
-			IF _NARG > 13
-				SHIFT 13
-				db BANK(\1MenuPalette)
+			if _NARG > 13
+				shift 13
+				db bank(\1MenuPalette)
 				dw \1MenuPalette
-				SHIFT -13
-			ELSE
-				db BANK(FIRST_NAME)
+				shift -13
+			else
+				db bank(FIRST_NAME)
 				dw FIRST_NAME
-			ENDC
-			SHIFT 1
+			endc
+			shift 1
 			rgb \1, \2, \3
-			SHIFT 3
+			shift 3
 			rgb \1, \2, \3
-			SHIFT 3
+			shift 3
 			rgb \1, \2, \3
-			SHIFT 3
+			shift 3
 			rgb \1, \2, \3
-			SHIFT 3
+			shift 3
 			db "{CUR_NAME}", 0
-		PURGE CUR_NAME
-	ENDR
-	PURGE FIRST_NAME
-ENDM
+		purge CUR_NAME
+	endr
+	purge FIRST_NAME
+endm
 
 	themes Pawprint, paw, Explorer, explorer, Heart, heart
 
@@ -91,6 +91,6 @@ Black,    0,   0,   0,\
         128, 128, 128,\
         255, 255, 255,\
 
-SECTION "Active Theme", WRAM0
+section "Active Theme", wram0
 wActiveMenuPalette:: ds 3
 wActiveMenuTheme:: ds 3

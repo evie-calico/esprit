@@ -1,17 +1,17 @@
-INCLUDE "defines.inc"
-INCLUDE "entity.inc"
+include "defines.inc"
+include "entity.inc"
 
-MACRO entity ; label, name, graphic
-	SECTION "\1 entity", ROMX
+macro entity ; label, name, graphic
+	section "\1 entity", romx
 	\1:: dw .gfx, .palette, .name, .moveTable
-	.gfx INCBIN \3
+	.gfx incbin \3
 	.name db \2, 0
-ENDM
+endm
 
-MACRO level
-	db \1, BANK(\2)
+macro level
+	db \1, bank(\2)
 	dw \2
-ENDM
+endm
 
 	entity xLuvui, "Luvui", "res/sprites/luvui.2bpp"
 	.palette

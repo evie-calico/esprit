@@ -1,11 +1,11 @@
-INCLUDE "config.inc"
-INCLUDE "defines.inc"
-INCLUDE "draw_menu.inc"
-INCLUDE "hardware.inc"
+include "config.inc"
+include "defines.inc"
+include "draw_menu.inc"
+include "hardware.inc"
 
-SECTION "Title screen", ROMX
+section "Title screen", romx
 xTitleScreen::
-	db BANK(@)
+	db bank(@)
 	dw xTitleScreenInit
 	; Used Buttons
 	db PADF_A | PADF_B | PADF_START
@@ -31,7 +31,7 @@ xTitleScreen::
 xDrawTitleScreen:
 	set_region 0, 0, SCRN_X_B, SCRN_Y_B, idof_vBlankTile
 	load_tiles .frame, 9, vFrame
-	DEF idof_vBlankTile EQU idof_vFrame + 4
+	def idof_vBlankTile equ idof_vFrame + 4
 	dregion vTopMenu, 0, 0, SCRN_X_B, SCRN_Y_B
 	set_frame vTopMenu, idof_vFrame
 	end_dmg
@@ -39,7 +39,7 @@ xDrawTitleScreen:
 	end_cgb
 	dtile vVersionText
 
-.frame INCBIN "res/ui/hud_frame.2bpp"
+.frame incbin "res/ui/hud_frame.2bpp"
 
 xTitleScreenInit:
 	xor a, a
@@ -58,7 +58,7 @@ xTitleScreenInit:
 	ld hl, $9800 + 1 + 1 * 32
 	call TextDefineBox
 	ld a, 1
-	ld b, BANK(@)
+	ld b, bank(@)
 	ld hl, Version
 	call PrintVWFText
 	call PrintVWFChar
@@ -80,23 +80,23 @@ xTitleScreenClose:
 	call FadeToBlack
 
 	ld hl, wActiveDungeon
-	ld a, BANK(FIRST_DUNGEON)
+	ld a, bank(FIRST_DUNGEON)
 	ld [hli], a
-	ld a, LOW(FIRST_DUNGEON)
+	ld a, low(FIRST_DUNGEON)
 	ld [hli], a
-	ld a, HIGH(FIRST_DUNGEON)
+	ld a, high(FIRST_DUNGEON)
 	ld [hli], a
 
 	ld hl, wActiveMapNode
-	ld a, BANK(FIRST_NODE)
+	ld a, bank(FIRST_NODE)
 	ld [hli], a
-	ld a, LOW(FIRST_NODE)
+	ld a, low(FIRST_NODE)
 	ld [hli], a
-	ld a, HIGH(FIRST_NODE)
+	ld a, high(FIRST_NODE)
 	ld [hli], a
 
 	ld hl, wFadeCallback
-	ld a, LOW(InitDungeon)
+	ld a, low(InitDungeon)
 	ld [hli], a
-	ld [hl], HIGH(InitDungeon)
+	ld [hl], high(InitDungeon)
 	ret

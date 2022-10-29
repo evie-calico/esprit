@@ -1,38 +1,38 @@
-IF !DEF(SCENE_INC)
-DEF SCENE_INC EQU 1
+if !def(SCENE_INC)
+def SCENE_INC equ 1
 
-INCLUDE "hardware.inc"
-INCLUDE "structs.inc"
+include "hardware.inc"
+include "structs.inc"
 
-RSRESET
-DEF DRAWSCENE_END RB         ; End drawing.
-DEF DRAWSCENE_VRAMCOPY RB    ; Copy data to VRAM
-DEF DRAWSCENE_BKG RB         ; Fill in an area of the map with three ground tiles.
-DEF DRAWSCENE_PLACEDETAIL RB ; Place a small tilemap somewhere on the map.
-DEF DRAWSCENE_SPAWNNPC RB    ; Allocate space for an NPC and assign it a position.
-DEF DRAWSCENE_FILL RB        ; Fill an area of the scene
-DEF DRAWSCENE_SETDOOR RB     ; Define a door pointing to another scene.
-DEF DRAWSCENE_MEMCOPY RB     ; Copy data
-DEF DRAWSCENE_SETCOLOR RB    ; Assign an attribute to a tile id
+rsreset
+def DRAWSCENE_END rb         ; End drawing.
+def DRAWSCENE_VRAMCOPY rb    ; Copy data to VRAM
+def DRAWSCENE_BKG rb         ; Fill in an area of the map with three ground tiles.
+def DRAWSCENE_PLACEDETAIL rb ; Place a small tilemap somewhere on the map.
+def DRAWSCENE_SPAWNNPC rb    ; Allocate space for an NPC and assign it a position.
+def DRAWSCENE_FILL rb        ; Fill an area of the scene
+def DRAWSCENE_SETDOOR rb     ; Define a door pointing to another scene.
+def DRAWSCENE_MEMCOPY rb     ; Copy data
+def DRAWSCENE_SETCOLOR rb    ; Assign an attribute to a tile id
 
-RSRESET
-DEF SCENETILE_CLEAR RB
-DEF SCENETILE_WALL RB
-DEF SCENETILE_EXIT_DOWN RB
-DEF SCENETILE_EXIT_LEFT RB
-DEF SCENETILE_EXIT_UP RB
-DEF SCENETILE_EXIT_RIGHT RB
-DEF SCENETILE_DOOR0 RB
-DEF SCENETILE_DOOR1 RB
-DEF SCENETILE_DOOR2 RB
-DEF SCENETILE_DOOR3 RB
-DEF SCENETILE_DOOR4 RB
-DEF SCENETILE_DOOR5 RB
-DEF SCENETILE_DOOR6 RB
-DEF SCENETILE_DOOR7 RB
+rsreset
+def SCENETILE_CLEAR rb
+def SCENETILE_WALL rb
+def SCENETILE_EXIT_DOWN rb
+def SCENETILE_EXIT_LEFT rb
+def SCENETILE_EXIT_UP rb
+def SCENETILE_EXIT_RIGHT rb
+def SCENETILE_DOOR0 rb
+def SCENETILE_DOOR1 rb
+def SCENETILE_DOOR2 rb
+def SCENETILE_DOOR3 rb
+def SCENETILE_DOOR4 rb
+def SCENETILE_DOOR5 rb
+def SCENETILE_DOOR6 rb
+def SCENETILE_DOOR7 rb
 
-DEF SCENE_WIDTH EQU 64
-DEF SCENE_HEIGHT EQU 32
+def SCENE_WIDTH equ 64
+def SCENE_HEIGHT equ 32
 
 	struct Scene
 		words 8, Entrances
@@ -57,89 +57,89 @@ DEF SCENE_HEIGHT EQU 32
 
 ; A background object consists of 4 tiles which are used to fill in a region of
 ; the map.
-MACRO scene_background
-	DEF \1_BACKGROUND EQU 1
-	DEF \1_SIZE EQU 4
+macro scene_background
+	def \1_BACKGROUND equ 1
+	def \1_SIZE equ 4
 	PUSHS
-	SECTION "\1 tiledata", ROMX
+	section "\1 tiledata", romx
 	\1_data:
-		INCBIN \2
+		incbin \2
 	.end
 	POPS
-ENDM
+endm
 
 ; A detail is like a small tilemap which can be stamped anywhere in the scene.
-MACRO scene_detail
-	DEF \1_DETAIL EQU 1
-	DEF \1_SIZE EQU \4 * \5
-	DEF \1_WIDTH EQU \4
-	DEF \1_HEIGHT EQU \5
-	DEF \1_COLLISION EQU \6
+macro scene_detail
+	def \1_DETAIL equ 1
+	def \1_SIZE equ \4 * \5
+	def \1_WIDTH equ \4
+	def \1_HEIGHT equ \5
+	def \1_COLLISION equ \6
 	PUSHS
-	SECTION "\1 tiledata", ROMX
+	section "\1 tiledata", romx
 	\1_map:
-		INCBIN \3
+		incbin \3
 	\1_data:
-		INCBIN \2
+		incbin \2
 	.end
 	POPS
-ENDM
+endm
 
 ; Define a new scene, including certain configurations.
-MACRO scene ; (entrance x/y) * 4, width, height, seed, initial script
-	DEF TILE_ID = $80
-	DEF BG_COLOR_ID = 0
-	DEF OB_COLOR_ID = 0
-	DEF ENTITY_ID = 2
+macro scene ; (entrance x/y) * 4, width, height, seed, initial script
+	def TILE_ID = $80
+	def BG_COLOR_ID = 0
+	def OB_COLOR_ID = 0
+	def ENTITY_ID = 2
 
-	DEF SCENE_BOUNDARY_X = 512
-	DEF SCENE_BOUNDARY_Y = 256
-	DEF SCENE_TOP_ENTRANCE_X = 32
-	DEF SCENE_TOP_ENTRANCE_Y = 0
-	DEF SCENE_RIGHT_ENTRANCE_X = 62
-	DEF SCENE_RIGHT_ENTRANCE_Y = 16
-	DEF SCENE_LEFT_ENTRANCE_X = 0
-	DEF SCENE_LEFT_ENTRANCE_Y = 16
-	DEF SCENE_BOTTOM_ENTRANCE_X = 32
-	DEF SCENE_BOTTOM_ENTRANCE_Y = 29
-	REDEF SCENE_ENTRANCE_SCRIPT EQUS "null"
-ENDM
+	def SCENE_BOUNDARY_X = 512
+	def SCENE_BOUNDARY_Y = 256
+	def SCENE_TOP_ENTRANCE_X = 32
+	def SCENE_TOP_ENTRANCE_Y = 0
+	def SCENE_RIGHT_ENTRANCE_X = 62
+	def SCENE_RIGHT_ENTRANCE_Y = 16
+	def SCENE_LEFT_ENTRANCE_X = 0
+	def SCENE_LEFT_ENTRANCE_Y = 16
+	def SCENE_BOTTOM_ENTRANCE_X = 32
+	def SCENE_BOTTOM_ENTRANCE_Y = 29
+	redef SCENE_ENTRANCE_SCRIPT equs "null"
+endm
 
-MACRO begin_draw
+macro begin_draw
 	; Begin with an array of 4 positions, corresponding to each direction
 	dw SCENE_BOTTOM_ENTRANCE_Y * 8.0, SCENE_BOTTOM_ENTRANCE_X * 8.0
 	dw SCENE_LEFT_ENTRANCE_Y * 8.0, (SCENE_LEFT_ENTRANCE_X * 8.0 + 1.0)
 	dw (SCENE_TOP_ENTRANCE_Y * 8.0 + 1.0), SCENE_TOP_ENTRANCE_X * 8.0
 	dw SCENE_RIGHT_ENTRANCE_Y * 8.0, SCENE_RIGHT_ENTRANCE_X * 8.0
-	ASSERT SCENE_BOUNDARY_X <= 512 && SCENE_BOUNDARY_Y <= 256, "Scenes are limited to a 512x256 area"
+	assert SCENE_BOUNDARY_X <= 512 && SCENE_BOUNDARY_Y <= 256, "Scenes are limited to a 512x256 area"
 	db (SCENE_BOUNDARY_X - SCRN_X) / 16, (SCENE_BOUNDARY_Y - SCRN_Y + 32) / 16 ; width/height divided by 16
 	; The seed ensures maps always appear the same.
 	; You can generate 4 bytes for a seed here:
 	; https://www.random.org/bytes/
 	dl random
-	db BANK(SCENE_ENTRANCE_SCRIPT)
+	db bank(SCENE_ENTRANCE_SCRIPT)
 	dw SCENE_ENTRANCE_SCRIPT
 .drawInfo
 	; The drawing information imediately follows.
 		fill_collision SCENETILE_CLEAR, 0, 0, SCENE_BOUNDARY_X / 8, SCENE_BOUNDARY_Y / 8
 		register_exits
-ENDM
+endm
 
-DEF end_scene EQUS "db DRAWSCENE_END"
+def end_scene equs "db DRAWSCENE_END"
 
 ; PRNG for generating natrual-looking maps at buildtime.
 ; Thanks Rangi
-MACRO next_random ; xorshift32
-  DEF random ^= random << 13
-  DEF random ^= random >> 17
-  DEF random ^= random << 5
-ENDM
+macro next_random ; xorshift32
+  def random ^= random << 13
+  def random ^= random >> 17
+  def random ^= random << 5
+endm
 
-MACRO load_tiles
+macro load_tiles
 	db DRAWSCENE_VRAMCOPY
 	dw $8000 + TILE_ID * 16 ; Destination
 	dw \1_SIZE * 16 ; length
-	db BANK(\1_data) ; bank
+	db bank(\1_data) ; bank
 	dw \1_data ; source
 
 	db DRAWSCENE_SETCOLOR
@@ -147,179 +147,179 @@ MACRO load_tiles
 	db \2_PAL_ID
 	db \1_SIZE
 
-	DEF \1_ID = TILE_ID
-	DEF TILE_ID += \1_SIZE
-ENDM
+	def \1_ID = TILE_ID
+	def TILE_ID += \1_SIZE
+endm
 
-MACRO load_objects
+macro load_objects
 	; Make sure that objects' tiles are properly aligned.
-	IF TILE_ID % 2
-		DEF TILE_ID += 1
-	ENDC
+	if TILE_ID % 2
+		def TILE_ID += 1
+	endc
 
 	db DRAWSCENE_VRAMCOPY
 	dw $8000 + TILE_ID * 16
 	dw \1_SIZE * 16 ; length
-	db BANK(\1_data) ; bank
+	db bank(\1_data) ; bank
 	dw \1_data ; source
 
-	ASSERT \1_SIZE % 2 == 0, "Objects must be a multiple of 2 tiles in 8x16 mode."
-	DEF \1_ID = TILE_ID
-	DEF TILE_ID += \1_SIZE
-ENDM
+	assert \1_SIZE % 2 == 0, "Objects must be a multiple of 2 tiles in 8x16 mode."
+	def \1_ID = TILE_ID
+	def TILE_ID += \1_SIZE
+endm
 
-MACRO load_background_palette
+macro load_background_palette
 	db DRAWSCENE_MEMCOPY
 	dw wBGPaletteBuffer + BG_COLOR_ID * 3 * 4
 	dw 3 * 4
-	IF STRSUB("\2", 1, 1) == "\""
+	if strsub("\2", 1, 1) == "\""
 		PUSHS
-		SECTION "\1 data", ROMX
-		INCBIN \2
+		section "\1 data", romx
+		incbin \2
 		POPS
-		db BANK("\1 data")
+		db bank("\1 data")
 		dw STARTOF("\1 data")
-	ELSE
-		db BANK(\2)
+	else
+		db bank(\2)
 		dw \2
-	ENDC
-	DEF \1_PAL_ID = BG_COLOR_ID
+	endc
+	def \1_PAL_ID = BG_COLOR_ID
 
-	DEF BG_COLOR_ID += 1
-	IF BG_COLOR_ID > 8
-		WARN "Ran out of background color palettes for \1"
-	ENDC
-ENDM
+	def BG_COLOR_ID += 1
+	if BG_COLOR_ID > 8
+		warn "Ran out of background color palettes for \1"
+	endc
+endm
 
-MACRO load_object_palette
+macro load_object_palette
 	db DRAWSCENE_MEMCOPY
 	dw wOBJPaletteBuffer + OBJ_COLOR_ID * 3 * 4
-	IF STRSUB("\2", 0, 1) == "\""
+	if strsub("\2", 0, 1) == "\""
 		PUSHS
-		SECTION "\1 data", ROMX
-		INCBIN \2
+		section "\1 data", romx
+		incbin \2
 		POPS
 		dw STARTOF("\1 data")
-	ELSE
+	else
 		dw \2
-	ENDC
-	DEF \1_PAL_ID = OBJ_COLOR_ID
+	endc
+	def \1_PAL_ID = OBJ_COLOR_ID
 
-	DEF OBJ_COLOR_ID += 1
-	IF OBJ_COLOR_ID > 8
-		WARN "Ran out of object color palettes for \1"
-	ENDC
-ENDM
+	def OBJ_COLOR_ID += 1
+	if OBJ_COLOR_ID > 8
+		warn "Ran out of object color palettes for \1"
+	endc
+endm
 
 ; Fill in a flat area, adding random variation.
-MACRO draw_bkg ; bkg detail, x, y, width, height
-	IF _NARG == 1
-		DEF _draw_bkg_X = 0
-		DEF _draw_bkg_Y = 0
-		DEF _draw_bkg_W = SCENE_WIDTH
-		DEF _draw_bkg_H = SCENE_HEIGHT
-	ELSE
-		DEF _draw_bkg_X = \2
-		DEF _draw_bkg_Y = \3
-		DEF _draw_bkg_W = \4
-		DEF _draw_bkg_H = \5
-	ENDC
+macro draw_bkg ; bkg detail, x, y, width, height
+	if _NARG == 1
+		def _draw_bkg_X = 0
+		def _draw_bkg_Y = 0
+		def _draw_bkg_W = SCENE_WIDTH
+		def _draw_bkg_H = SCENE_HEIGHT
+	else
+		def _draw_bkg_X = \2
+		def _draw_bkg_Y = \3
+		def _draw_bkg_W = \4
+		def _draw_bkg_H = \5
+	endc
 
-	ASSERT DEF(\1_BACKGROUND), "\1 is not marked as a background object"
+	assert def(\1_BACKGROUND), "\1 is not marked as a background object"
 	db DRAWSCENE_BKG
 	dw wSceneMap + _draw_bkg_X + _draw_bkg_Y * SCENE_WIDTH
 	db _draw_bkg_W, _draw_bkg_H
 	db \1_ID ; starting id
-ENDM
+endm
 
 ; place a small tilemap on the map.
-MACRO place_detail ; detail, x, y
-	ASSERT DEF(\1_DETAIL), "\1 is not marked as a detail object"
+macro place_detail ; detail, x, y
+	assert def(\1_DETAIL), "\1 is not marked as a detail object"
 	db DRAWSCENE_PLACEDETAIL
 	db \1_WIDTH, \1_HEIGHT
 	db \1_ID
-	db BANK(\1_map)
+	db bank(\1_map)
 	dw wSceneMap + \2 + \3 * SCENE_WIDTH ; Offset for both tiles and collision.
 	dw \1_map
-	IF \1_COLLISION != SCENETILE_CLEAR
+	if \1_COLLISION != SCENETILE_CLEAR
 		fill_collision \1_COLLISION, \2, \3, \1_WIDTH, \1_HEIGHT
-	ENDC
-ENDM
+	endc
+endm
 
 ; Scatters details around a given area.
-MACRO scatter_details_row ; x, y, x boundry, y boundry, x spacing min, x spacing max, [List of details]
-	DEF X = \1
-	DEF SOURCE_Y = \2
-	DEF BOUNDRY_X = \3
-	DEF BOUNDRY_Y = \4 - \2
-	DEF X_SPACING_MIN = \5
-	DEF X_SPACING_MAX = \6 - \5 + 1
+macro scatter_details_row ; x, y, x boundry, y boundry, x spacing min, x spacing max, [List of details]
+	def X = \1
+	def SOURCE_Y = \2
+	def BOUNDRY_X = \3
+	def BOUNDRY_Y = \4 - \2
+	def X_SPACING_MIN = \5
+	def X_SPACING_MAX = \6 - \5 + 1
 	next_random
-	DEF X += random % X_SPACING_MAX
+	def X += random % X_SPACING_MAX
 	next_random
-	REPT $FFFF
-		DEF Y = SOURCE_Y + random % BOUNDRY_Y
+	rept $FFFF
+		def Y = SOURCE_Y + random % BOUNDRY_Y
 		place_detail \7, X, Y
 		next_random
-		DEF X += X_SPACING_MIN + random % X_SPACING_MAX
-		IF X >= BOUNDRY_X
-			BREAK
-		ENDC
-	ENDR
-ENDM
+		def X += X_SPACING_MIN + random % X_SPACING_MAX
+		if X >= BOUNDRY_X
+			break
+		endc
+	endr
+endm
 
 ; Spawn an NPC in a given position.
-MACRO npc
+macro npc
 	db DRAWSCENE_SPAWNNPC
-	IF ENTITY_ID >= 8
-		FAIL "Out of NPCs, only 6 NPCs may exist in a single scene."
-	ENDC
-	db HIGH(wEntity0) + ENTITY_ID
-	DEF ENTITY_ID += 1
-	db BANK(\1)
+	if ENTITY_ID >= 8
+		fail "Out of NPCs, only 6 NPCs may exist in a single scene."
+	endc
+	db high(wEntity0) + ENTITY_ID
+	def ENTITY_ID += 1
+	db bank(\1)
 	dw \1 ; NPC's entity base (source of graphics)
 	dw \3, \2 ; x/y fixed-point positions
 	db \4
-	db BANK(\5) ; Idle Script
+	db bank(\5) ; Idle Script
 	dw \5
-	db BANK(\6) ; Interation Script
+	db bank(\6) ; Interation Script
 	dw \6
-ENDM
+endm
 
 ; Register an area with exit tiles. There are 4 tiles for each potentential exit,
 ; which determines where you will end up if the scene is re-rentered. This is
 ; seperate from a door, which is direct a link between scenes.
-MACRO register_exits
+macro register_exits
 	fill_collision SCENETILE_EXIT_LEFT, 0, 0, 1, SCENE_BOUNDARY_Y / 8
 	fill_collision SCENETILE_EXIT_RIGHT, SCENE_BOUNDARY_X / 8 - 1, 0, 1, SCENE_BOUNDARY_Y / 8
 	fill_collision SCENETILE_EXIT_UP, 0, 0, SCENE_BOUNDARY_X / 8, 1
 	fill_collision SCENETILE_EXIT_DOWN, 0, SCENE_BOUNDARY_Y / 8 - 1, SCENE_BOUNDARY_X / 8, 1
-ENDM
+endm
 
-MACRO register_door
+macro register_door
 	db DRAWSCENE_FILL
 	dw wSceneCollision + (\2) + (\3) * SCENE_WIDTH
 	db 2, 2
 	db SCENETILE_DOOR\1
 	db DRAWSCENE_SETDOOR
 	db \1 ; Which door slot to fill.
-	db BANK(\4)
+	db bank(\4)
 	dw \4 ; next scene pointer
 	dw \5, \6 ; exit x/y
-ENDM
+endm
 
-MACRO fill_tiles
+macro fill_tiles
 	db DRAWSCENE_FILL
 	dw wSceneMap + (\2) + (\3) * SCENE_WIDTH
 	db \4, \5
 	db \1_ID
-ENDM
+endm
 
-MACRO fill_collision
+macro fill_collision
 	db DRAWSCENE_FILL
 	dw wSceneCollision + (\2) + (\3) * SCENE_WIDTH
 	db \4, \5
 	db \1
-ENDM
+endm
 
-ENDC
+endc

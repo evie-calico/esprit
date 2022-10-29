@@ -1,6 +1,6 @@
 
-INCLUDE "hardware.inc"
-INCLUDE "entity.inc"
+include "hardware.inc"
+include "entity.inc"
 
 ; SPDX-License-Identifier: MIT
 ;
@@ -20,51 +20,51 @@ INCLUDE "entity.inc"
 ;
 ; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 ; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; FITNESS for A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE for ANY CLAIM, DAMAGES OR OTHER
 ; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 
 ; Config
-DEF SKIP_HELD_KEYS EQU PADF_B
-DEF SKIP_PRESSED_KEYS EQU PADF_A
+def SKIP_HELD_KEYS equ PADF_B
+def SKIP_PRESSED_KEYS equ PADF_A
 
-DEF CHARSET_0 EQUS "res/ui/optix.vwf"
-DEF NB_CHARSETS EQU 1
+def CHARSET_0 equs "res/ui/optix.vwf"
+def NB_CHARSETS equ 1
 
-DEF EXPORT_CONTROL_CHARS EQU 1
-DEF PRINT_CHARMAP equ 1
+def EXPORT_CONTROL_CHARS equ 1
+def PRINT_CHARMAP equ 1
 
 ; Number of elements the text stack has room for
 ; Having more will cause a soft crash
 ; This must not exceeed $7F, as the return logic discards bit 7 when checking for zero
-DEF TEXT_STACK_CAPACITY EQU 8
+def TEXT_STACK_CAPACITY equ 8
 
 ; IMPORTANT NOTE REGARDING NEWLINES!!!
 ; DO NOT PRINT MORE THAN THIS NEWLINES AT ONCE
 ; THIS **WILL** CAUSE A BUFFER OVERFLOW
-DEF TEXT_NEWLINE_CAPACITY EQU 16
+def TEXT_NEWLINE_CAPACITY equ 16
 
 
 ; `wTextFlags` bits
-RSSET 6
-MACRO text_flag
-	DEF TEXTB_\1 rb 1
-	DEF TEXTF_\1 equ 1 << TEXTB_\1
-	EXPORT TEXTB_\1, TEXTF_\1
-ENDM
+rsset 6
+macro text_flag
+	def TEXTB_\1 rb 1
+	def TEXTF_\1 equ 1 << TEXTB_\1
+	export TEXTB_\1, TEXTF_\1
+endm
 	text_flag WAITBUTTON
 	text_flag SYNC
 
 
-IF !DEF(lb)
-	MACRO lb
+if !def(lb)
+	macro lb
 		assert -128 <= (\2) && (\2) <= 255, "Second argument to `lb` must be 8-bit!"
 		assert -128 <= (\3) && (\3) <= 255, "Third argument to `lb` must be 8-bit!"
 		ld \1, (((\2) << 8) & $FF00) | ((\3) & $FF)
-	ENDM
-ENDC
+	endm
+endc
 
 
 CHARACTER_HEIGHT equ 8
@@ -72,28 +72,28 @@ CHARACTER_SIZE equ CHARACTER_HEIGHT + 1
 
 
 
-SECTION "VWF engine", ROM0
+section "VWF engine", rom0
 
 
 CTRL_CHAR_PTRS equs ""
 	rsreset
-MACRO control_char
-	IF DEF(PRINT_CHARMAP)
+macro control_char
+	if def(PRINT_CHARMAP)
 		PRINT "charmap \"<\1>\", {d:_RS}\n"
-	ENDC
+	endc
 TEXT_\1 rb 1
-	IF DEF(EXPORT_CONTROL_CHARS)
-		EXPORT TEXT_\1
-	ENDC
+	if def(EXPORT_CONTROL_CHARS)
+		export TEXT_\1
+	endc
 
-	IF _NARG > 1
+	if _NARG > 1
 		dw \2
 TMP equs "{CTRL_CHAR_PTRS}\ndw \3"
-		PURGE CTRL_CHAR_PTRS
+		purge CTRL_CHAR_PTRS
 CTRL_CHAR_PTRS equs "{TMP}"
-		PURGE TMP
-	ENDC
-ENDM
+		purge TMP
+	endc
+endm
 
 	;;;;;;;;;;;;;;;;;;;;; "Regular" control chars ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	control_char END
@@ -113,29 +113,29 @@ RefillerControlChars:
 	control_char WAITBTN_SCROLL,  ReaderWaitButtonScroll,        TextWaitButtonScroll
 	control_char ZWS,             _RefillCharBuffer.canNewline,  PrintNextCharInstant
 TEXT_BAD_CTRL_CHAR rb 0
-	IF DEF(EXPORT_CONTROL_CHARS)
-		EXPORT TEXT_BAD_CTRL_CHAR
-	ENDC
+	if def(EXPORT_CONTROL_CHARS)
+		export TEXT_BAD_CTRL_CHAR
+	endc
 
 	assert TEXT_NEWLINE == "\n"
 
 PTRS equs ""
 	rsset 256
-MACRO reader_only_control_char
+macro reader_only_control_char
 _RS = _RS - 1
-	IF DEF(PRINT_CHARMAP)
+	if def(PRINT_CHARMAP)
 		PRINT "charmap \"<\1>\", {d:_RS}\n"
-	ENDC
+	endc
 TEXT_\1 equ _RS
-	IF DEF(EXPORT_CONTROL_CHARS)
-		EXPORT TEXT_\1
-	ENDC
+	if def(EXPORT_CONTROL_CHARS)
+		export TEXT_\1
+	endc
 
 TMP equs "dw \2\n{PTRS}"
-	PURGE PTRS
+	purge PTRS
 PTRS equs "{TMP}"
-	PURGE TMP
-ENDM
+	purge TMP
+endm
 
 	;;;;;;;;;;;;;;;;;;;; Reader-only control chars ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	reader_only_control_char CALL,         ReaderCall
@@ -295,8 +295,8 @@ DrawVWFChars::
 
 TEXT_CONT_STR equ 0
 TEXT_NEW_STR  equ 1
-	EXPORT TEXT_CONT_STR
-	EXPORT TEXT_NEW_STR
+	export TEXT_CONT_STR
+	export TEXT_NEW_STR
 ; Sets up the VWF engine to start printing text
 ; WARNING: If flushing the string, the auto-wordwrapper assumes that a new line is started
 ;          (You might get odd gfx otherwise if the text ended close enough to the tile border)
@@ -342,7 +342,7 @@ PrintVWFText::
 
 	; Force buffer refill by making these two identical
 	; wTextReadPtrLow needs to be this to refill the full buffer
-	ld a, LOW(wTextCharBufferEnd)
+	ld a, low(wTextCharBufferEnd)
 	ld [wTextFillPtrEnd], a
 	ld [wTextReadPtrEnd], a
 	ld [wTextReadPtrLow], a
@@ -397,7 +397,7 @@ FlushVWFBuffer::
 	inc c
 
 	ld a, l
-	cp LOW(wTextTileBuffer + $10)
+	cp low(wTextTileBuffer + $10)
 	jr nz, .copyByte
 
 	; Go to next tile
@@ -433,7 +433,7 @@ PrintVWFChar::
 
 	ldh a, [hCurrentBank]
 	push af
-	ld a, BANK(_PrintVWFChar)
+	ld a, bank(_PrintVWFChar)
 	ldh [hCurrentBank], a
 	ld [rROMB0], a
 	call _PrintVWFChar
@@ -454,10 +454,10 @@ RefillerOnlyControlChar:
 
 	push hl
 	add a, a
-	add a, LOW(RefillerOnlyControlChars)
+	add a, low(RefillerOnlyControlChars)
 	ld l, a
 	ld a, $FF ; If we're here, the value in A is negative
-	adc a, HIGH(RefillerOnlyControlChars)
+	adc a, high(RefillerOnlyControlChars)
 	jr RefillerJumpControlChar
 
 RefillerControlChar:
@@ -469,9 +469,9 @@ RefillerControlChar:
 	push bc
 	inc e ; Otherwise the char isn't counted to be written!
 	push hl
-	add a, LOW(RefillerControlChars - 2)
+	add a, low(RefillerControlChars - 2)
 	ld l, a
-	adc a, HIGH(RefillerControlChars - 2)
+	adc a, high(RefillerControlChars - 2)
 	sub l
 RefillerJumpControlChar:
 	ld h, a
@@ -493,9 +493,9 @@ RefillerTryReturning:
 	dec b
 	ld [hl], b
 	add a, b ; a = stack size * 3 + 2
-	add a, LOW(wTextStack)
+	add a, low(wTextStack)
 	ld l, a
-	adc a, HIGH(wTextStack)
+	adc a, high(wTextStack)
 	sub l
 	ld h, a
 	jr RestartCharBufRefill
@@ -521,9 +521,9 @@ RefillCharBuffer:
 	; Cache charset ptr to speed up calculations
 	ld a, [wTextCharset]
 	ld [wRefillerCharset], a
-	add a, LOW(CharsetPtrs)
+	add a, low(CharsetPtrs)
 	ld l, a
-	adc a, HIGH(CharsetPtrs)
+	adc a, high(CharsetPtrs)
 	sub l
 	ld h, a
 	ld a, [hli]
@@ -578,7 +578,7 @@ _RefillCharBuffer:
 	ld b, a ; Stash this for later
 	; Line length was overflowed, inject newline into buffer
 	; Get ptr to newline injection point
-	ld h, d ; ld h, HIGH(wTextCharBuffer)
+	ld h, d ; ld h, high(wTextCharBuffer)
 	ld a, [wNewlinePtrLow]
 	ld l, a
 	ld d, "\n"
@@ -609,7 +609,7 @@ _RefillCharBuffer:
 	; We're going to shift the entire buffer right, so count an extra char...
 	; ...unless doing so would overflow the buffer.
 	ld a, e
-	cp LOW(wTextCharBufferEnd - 1)
+	cp low(wTextCharBufferEnd - 1)
 	jr z, .bufferFull
 	inc e
 .bufferFull
@@ -625,7 +625,7 @@ _RefillCharBuffer:
 .overwritingNewline
 	ld [hl], d
 	; Restore dest ptr high byte
-	ld d, h ; ld d, HIGH(wTextCharBuffer)
+	ld d, h ; ld d, high(wTextCharBuffer)
 	; Compute the amount of pixels remaining after inserting the newline
 	; pixels now = pixels before word - word length ⇒ word length = pixels before word - pixels now
 	ld a, [wPixelsRemainingAtNewline]
@@ -649,7 +649,7 @@ _RefillCharBuffer:
 
 .afterControlChar
 	ld a, e
-	cp LOW(wTextCharBufferEnd - 2) ; Give ourselves some margin due to multi-byte control chars
+	cp low(wTextCharBufferEnd - 2) ; Give ourselves some margin due to multi-byte control chars
 	jr c, _RefillCharBuffer
 
 	dec e ; Compensate for what's below
@@ -672,7 +672,7 @@ _RefillCharBuffer:
 	ld a, e
 	ld [wTextFillPtrEnd], a
 
-	ld a, BANK(_PrintVWFChar)
+	ld a, bank(_PrintVWFChar)
 	ldh [hCurrentBank], a
 	ld [rROMB0], a
 	; Restart printer's reading
@@ -744,9 +744,9 @@ ReaderRestoreVariant:
 ReaderUpdateCharset:
 	xor c
 	ld [wRefillerCharset], a
-	add a, LOW(CharsetPtrs)
+	add a, low(CharsetPtrs)
 	ld c, a
-	adc a, HIGH(CharsetPtrs)
+	adc a, high(CharsetPtrs)
 	sub c
 	ld b, a
 	ld a, [bc]
@@ -861,10 +861,10 @@ ReaderReturnIfFalse:
 ; NOTE: avoids corruption by preventing too much recursion, but this shouldn't happen at all
 ReaderCall:
 	ld a, [wTextStackSize]
-	IF DEF(STACK_OVERFLOW_HANDLER)
+	if def(STACK_OVERFLOW_HANDLER)
 		cp TEXT_STACK_CAPACITY
 		call nc, STACK_OVERFLOW_HANDLER
-	ENDC
+	endc
 
 	; Read target ptr
 	inc a ; Increase stack size
@@ -874,9 +874,9 @@ ReaderCall:
 	ld b, a
 	add a, a
 	add a, b
-	add a, LOW(wTextStack - 1)
+	add a, low(wTextStack - 1)
 	ld c, a
-	adc a, HIGH(wTextStack - 1)
+	adc a, high(wTextStack - 1)
 	sub c
 	ld b, a
 	; Save ROM bank immediately, as we're gonna bankswitch
@@ -910,10 +910,10 @@ ReaderCall:
 ReaderFormat::
 	push de
 	ld a, [wTextStackSize]
-	IF DEF(STACK_OVERFLOW_HANDLER)
+	if def(STACK_OVERFLOW_HANDLER)
 		cp TEXT_STACK_CAPACITY
 		call nc, STACK_OVERFLOW_HANDLER
-	ENDC
+	endc
 
 	; Read target ptr
 	inc a ; Increase stack size
@@ -923,9 +923,9 @@ ReaderFormat::
 	ld b, a
 	add a, a
 	add a, b
-	add a, LOW(wTextStack - 1)
+	add a, low(wTextStack - 1)
 	ld c, a
-	adc a, HIGH(wTextStack - 1)
+	adc a, high(wTextStack - 1)
 	sub c
 	ld b, a
 	; Save ROM bank immediately, as we're gonna bankswitch
@@ -976,10 +976,10 @@ ReaderFormat::
 ReaderCallPtr::
 	push de
 	ld a, [wTextStackSize]
-	IF DEF(STACK_OVERFLOW_HANDLER)
+	if def(STACK_OVERFLOW_HANDLER)
 		cp TEXT_STACK_CAPACITY
 		call nc, STACK_OVERFLOW_HANDLER
-	ENDC
+	endc
 
 	; Read target ptr
 	inc a ; Increase stack size
@@ -989,9 +989,9 @@ ReaderCallPtr::
 	ld b, a
 	add a, a
 	add a, b
-	add a, LOW(wTextStack - 1)
+	add a, low(wTextStack - 1)
 	ld c, a
-	adc a, HIGH(wTextStack - 1)
+	adc a, high(wTextStack - 1)
 	sub c
 	ld b, a
 	; Save ROM bank immediately, as we're gonna bankswitch
@@ -1028,10 +1028,10 @@ ReaderCallPtr::
 
 ReaderEntityName::
 	ld a, [wTextStackSize]
-	IF DEF(STACK_OVERFLOW_HANDLER)
+	if def(STACK_OVERFLOW_HANDLER)
 		cp TEXT_STACK_CAPACITY
 		call nc, STACK_OVERFLOW_HANDLER
-	ENDC
+	endc
 
 	; Read target ptr
 	inc a ; Increase stack size
@@ -1041,9 +1041,9 @@ ReaderEntityName::
 	ld b, a
 	add a, a
 	add a, b
-	add a, LOW(wTextStack - 1)
+	add a, low(wTextStack - 1)
 	ld c, a
-	adc a, HIGH(wTextStack - 1)
+	adc a, high(wTextStack - 1)
 	sub c
 	ld b, a
 	; Save ROM bank immediately, as we're gonna bankswitch
@@ -1066,13 +1066,13 @@ ReaderEntityName::
 	ld h, [hl]
 	ld l, a
 	ld h, [hl]
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ASSERT EntityData_Name == 4
+	assert EntityData_Name == 4
 	inc hl
 	inc hl
 	inc hl
@@ -1155,10 +1155,10 @@ ReaderU16::
 
 
 	ld a, [wTextStackSize]
-	IF DEF(STACK_OVERFLOW_HANDLER)
+	if def(STACK_OVERFLOW_HANDLER)
 		cp TEXT_STACK_CAPACITY
 		call nc, STACK_OVERFLOW_HANDLER
-	ENDC
+	endc
 
 	; Read target ptr
 	inc a ; Increase stack size
@@ -1168,9 +1168,9 @@ ReaderU16::
 	ld b, a
 	add a, a
 	add a, b
-	add a, LOW(wTextStack - 1)
+	add a, low(wTextStack - 1)
 	ld c, a
-	adc a, HIGH(wTextStack - 1)
+	adc a, high(wTextStack - 1)
 	sub c
 	ld b, a
 	; Save ROM bank immediately, as we're gonna bankswitch
@@ -1193,14 +1193,14 @@ ReaderU16::
 	pop de
 	ret
 
-SECTION "VWF ROMX functions + data", ROMX
+section "VWF romx functions + data", romx
 
 PrintVWFControlChar:
-	IF DEF(BAD_CTRL_CHAR_HANDLER)
+	if def(BAD_CTRL_CHAR_HANDLER)
 		; Check if ctrl char is valid
 		cp TEXT_BAD_CTRL_CHAR
 		call nc, BAD_CTRL_CHAR_HANDLER
-	ENDC
+	endc
 
 	; Control char, run the associated function
 	ld de, _PrintVWFChar.charPrinted
@@ -1208,9 +1208,9 @@ PrintVWFControlChar:
 
 	; Push the func's addr (so we can preserve hl when calling)
 	add a, a
-	add a, LOW(ControlCharFuncs - 2)
+	add a, low(ControlCharFuncs - 2)
 	ld e, a
-	adc a, HIGH(ControlCharFuncs - 2)
+	adc a, high(ControlCharFuncs - 2)
 	sub e
 	ld d, a
 	ld a, [de]
@@ -1222,7 +1222,7 @@ PrintVWFControlChar:
 	ret ; Actually jump to the function, passing `hl` as a parameter for it to read (and advance)
 
 _PrintVWFChar:
-	ld h, HIGH(wTextCharBuffer)
+	ld h, high(wTextCharBuffer)
 	ld a, [wTextReadPtrLow]
 	ld l, a
 
@@ -1237,9 +1237,9 @@ _PrintVWFChar:
 	; Especially since control codes are multi-byte
 	ld a, [wTextReadPtrEnd]
 	cp l
-	IF DEF(OVERREAD_HANDLER)
+	if def(OVERREAD_HANDLER)
 		call c, OVERREAD_HANDLER ; This needs to be first as it's a no-return
-	ENDC
+	endc
 	call z, RefillCharBuffer ; If it was second this function could destroy carry and trigger it
 
 	; Read byte from string stream
@@ -1259,9 +1259,9 @@ _PrintVWFChar:
 
 	; Get ptr to charset table
 	ld a, [wTextCharset]
-	add a, LOW(CharsetPtrs)
+	add a, low(CharsetPtrs)
 	ld l, a
-	adc a, HIGH(CharsetPtrs)
+	adc a, high(CharsetPtrs)
 	sub l
 	ld h, a
 	ld a, [hli]
@@ -1473,26 +1473,26 @@ TextSetColor:
 	jr PrintNextCharInstant
 
 
-MACRO skip_key
-	IF !DEF(\1)
-		FAIL "Please define \1"
-	ELSE
-		; Do not use ELIF to work around https://github.com/gbdev/rgbds/issues/764
-		IF \1 != 0
+macro skip_key
+	if !def(\1)
+		fail "Please define \1"
+	else
+		; Do not use elif to work around https://github.com/gbdev/rgbds/issues/764
+		if \1 != 0
 			ldh a, [\2]
-			IF \1 == 1
+			if \1 == 1
 				rra
 				jr c, \3
-			ELIF \1 == 1 << 7
+			elif \1 == 1 << 7
 				add a, a
 				jr c, \3
-			ELSE
+			else
 				and \1
 				jr nz, \3
-			ENDC
-		ENDC
-	ENDC
-ENDM
+			endc
+		endc
+	endc
+endm
 TextWaitButton:
 	xor a ; FIXME: if other bits than 7 and 6 get used, this is gonna be problematic
 	ld [wTextFlags], a
@@ -1620,9 +1620,9 @@ TextNewline:
 	inc a
 	ld [de], a
 	dec a
-	add a, LOW(wNewlineTiles)
+	add a, low(wNewlineTiles)
 	ld e, a
-	adc a, HIGH(wNewlineTiles)
+	adc a, high(wNewlineTiles)
 	sub e
 	ld d, a
 	ld a, [wTextCurTile]
@@ -1688,7 +1688,7 @@ TextClear::
 	pop hl
 	ret
 
-SECTION "VWF helpers", ROM0
+section "VWF helpers", rom0
 
 ; Generalized engine initialization for simple cases to reduce the
 ; overhead of scattering simple VWF strings all over the place. Originally
@@ -1731,46 +1731,46 @@ Newline::
 	call TextNewline
 	jp ReaderNewline
 
-SECTION "Charset data", ROM0
+section "Charset data", rom0
 
-IF !DEF(NB_CHARSETS)
-	FAIL "Please define NB_CHARSETS!"
-ENDC
+if !def(NB_CHARSETS)
+	fail "Please define NB_CHARSETS!"
+endc
 
 CharsetPtrs::
 	rsreset
-	REPT NB_CHARSETS
+	rept NB_CHARSETS
 CHARSET equs "CHARSET_{d:_RS}"
-CHARSET_DEFINED equs "DEF({CHARSET})"
+CHARSET_DEFINED equs "def({CHARSET})"
 
-		IF CHARSET_DEFINED
+		if CHARSET_DEFINED
 CHARSET_LABEL equs "Charset{d:_RS}"
 			dw CHARSET_LABEL
 			PUSHS
-SECTION "Charset {d:_RS}", ROM0
+section "Charset {d:_RS}", rom0
 CHARSET_LABEL:
-				INCBIN "{{CHARSET}}"
-				IF @ - CHARSET_LABEL > CHARACTER_SIZE * NB_FONT_CHARACTERS
-					WARN "Charset {d:_RS} is larger than expected; keep in mind they can only contain {d:NB_FONT_CHARACTERS} characters"
-				ENDC
+				incbin "{{CHARSET}}"
+				if @ - CHARSET_LABEL > CHARACTER_SIZE * NB_FONT_CHARACTERS
+					warn "Charset {d:_RS} is larger than expected; keep in mind they can only contain {d:NB_FONT_CHARACTERS} characters"
+				endc
 			POPS
-			PURGE CHARSET_LABEL
+			purge CHARSET_LABEL
 
-		ELSE
+		else
 			dw 0
-		ENDC
-		PURGE CHARSET_DEFINED
-		PURGE CHARSET
+		endc
+		purge CHARSET_DEFINED
+		purge CHARSET
 		rsset _RS + 2
-	ENDR
+	endr
 
 
-SECTION "VWF engine memory", WRAM0,ALIGN[7]
+section "VWF engine memory", wram0,ALIGN[7]
 
 wTextCharBuffer::
 	ds 64
 wTextCharBufferEnd:: ; We need this not to be on a 256-byte boundary
-	assert HIGH(wTextCharBuffer) == HIGH(wTextCharBufferEnd)
+	assert high(wTextCharBuffer) == high(wTextCharBufferEnd)
 
 	assert @ & -(1 << 6)
 wTextTileBuffer::
@@ -1900,7 +1900,7 @@ wTextHeight:
 wNumberBuffer:
 	ds 6
 
-SECTION "VWF engine fast memory", HRAM
+section "VWF engine fast memory", hram
 
 ; How many rows are left to be drawn in the current tile
 hVWFRowCount::

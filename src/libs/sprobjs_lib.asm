@@ -4,17 +4,17 @@
 ; sprite objects, including Shadow OAM and OAM DMA, single-entry "simple" sprite
 ; objects, and Q12.4 fixed-point position metasprite rendering.
 ;
-; The library is only 127 bytes of ROM0, 160 bytes of WRAM0 for Shadow OAM, and a
-; single HRAM byte for tracking the current position in OAM.
+; The library is only 127 bytes of rom0, 160 bytes of wram0 for Shadow OAM, and a
+; single hram byte for tracking the current position in OAM.
 ;
 ; The library is relatively simple to use, with 4 steps to rendering:
 ; 1. Call InitSprObjLib during initilizations - This copies the OAMDMA function to
-;    HRAM.
+;    hram.
 ; 2. Call ResetShadowOAM at the beginning of each frame - This hides all sprites
 ;    and resets hOAMIndex, allowing you to render a new frame of sprites.
 ; 3. Call rendering functions - Push simple sprites or metasprites to Shadow OAM.
 ; 4. Wait for VBlank and call hOAMDMA - Copies wShadowOAM to the Game Boy's OAM in
-;    just 160 M-cycles. Make sure to pass HIGH(wShadowOAM) in the a register.
+;    just 160 M-cycles. Make sure to pass high(wShadowOAM) in the a register.
 ;
 ; Copyright 2022, Evie M.
 ;
@@ -35,11 +35,11 @@
 ; 3. This notice may not be removed or altered from any source distribution.
 ;
 
-INCLUDE "hardware.inc"
+include "hardware.inc"
 
-SECTION "OAM DMA Code", ROM0
+section "OAM DMA Code", rom0
 OAMDMACode::
-LOAD "OAM DMA", HRAM
+LOAD "OAM DMA", hram
 ; Begin an OAM DMA, waiting 160 cycles for the DMA to finish.
 ; This quickly copies Shadow OAM to the Game Boy's OAM, allowing the PPU to draw
 ; the objects. hOAMDMA should be called once per frame near the end of your
@@ -58,14 +58,14 @@ hOAMDMA::
 ENDL
 OAMDMACodeEnd::
 
-SECTION "Initialize Sprite Object Library", ROM0
+section "Initialize Sprite Object Library", rom0
 ; Initializes the sprite object library, copying things such as the hOAMDMA
 ; function and reseting hOAMIndex
 ; @clobbers: a, bc, hl
 InitSprObjLib::
 	; Copy OAM DMA.
 	ld b, OAMDMACodeEnd - OAMDMACode
-	ld c, LOW(hOAMDMA)
+	ld c, low(hOAMDMA)
 	ld hl, OAMDMACode
 .memcpy
 	ld a, [hli]
@@ -77,7 +77,7 @@ InitSprObjLib::
 	ldh [hOAMIndex], a ; hOAMIndex must be reset before running ResetShadowOAM.
 	ret
 
-SECTION "Reset Shadow OAM", ROM0
+section "Reset Shadow OAM", rom0
 ; Reset the Y positions of every sprite object that was used in the last frame,
 ; effectily hiding them, and reset hOAMIndex. Run this function each frame
 ; before rendering sprite objects.
@@ -103,7 +103,7 @@ ResetShadowOAM::
 .skip
 	ret
 
-SECTION "Render Simple Sprite", ROM0
+section "Render Simple Sprite", rom0
 ; Render a single object, or sprite, to OAM.
 ; Preserves all arguments
 ; @param b: Y position
@@ -120,7 +120,7 @@ RenderSimpleSprite::
 	ld a, b
 	sub a, [hl]
 	ld b, a
-	ld h, HIGH(wShadowOAM)
+	ld h, high(wShadowOAM)
 	ldh a, [hOAMIndex]
 	ld l, a
 	ld a, b
@@ -137,7 +137,7 @@ RenderSimpleSprite::
 	ldh [hOAMIndex], a
 	ret
 
-SECTION "Render Metasprite", ROM0
+section "Render Metasprite", rom0
 ; Render a metasprite to OAM.
 ; @param bc: Q12.4 fixed-point Y position.
 ; @param de: Q12.4 fixed-point X position.
@@ -166,7 +166,7 @@ RenderMetasprite::
 	rra
 	ld c, a
 	; Load Shadow OAM pointer.
-	ld d, HIGH(wShadowOAM)
+	ld d, high(wShadowOAM)
 	ldh a, [hOAMIndex]
 	ld e, a
 	; Now:
@@ -201,11 +201,11 @@ RenderMetasprite::
 	ldh [hOAMIndex], a
 	ret
 
-SECTION "Shadow OAM", WRAM0, ALIGN[8]
+section "Shadow OAM", wram0, ALIGN[8]
 wShadowOAM::
 	ds 160
 
-SECTION "Shadow OAM Index", HRAM
+section "Shadow OAM Index", hram
 ; The current low byte of shadow OAM.
 hOAMIndex::
 	db

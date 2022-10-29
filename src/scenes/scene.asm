@@ -1,25 +1,25 @@
-INCLUDE "defines.inc"
-INCLUDE "entity.inc"
-INCLUDE "hardware.inc"
-INCLUDE "scene.inc"
+include "defines.inc"
+include "entity.inc"
+include "hardware.inc"
+include "scene.inc"
 
-DEF SCROLL_PADDING_TOP EQU 40
-DEF SCROLL_PADDING_BOTTOM EQU SCRN_Y - 40 - 40
-DEF SCROLL_PADDING_LEFT EQU 40
-DEF SCROLL_PADDING_RIGHT EQU SCRN_X - 56
+def SCROLL_PADDING_TOP equ 40
+def SCROLL_PADDING_BOTTOM equ SCRN_Y - 40 - 40
+def SCROLL_PADDING_LEFT equ 40
+def SCROLL_PADDING_RIGHT equ SCRN_X - 56
 
-DEF NB_NPCS EQU 6
-DEF NPC_SCRIPT_POOL_SIZE EQU 8
+def NB_NPCS equ 6
+def NPC_SCRIPT_POOL_SIZE equ 8
 
-SECTION "Scene State Init", ROM0
+section "Scene State Init", rom0
 InitScene::
 	; Reset all NPC banks
 	xor a, a
 	ld hl, wEntity2_Bank
-	REPT NB_ENTITIES - 2
+	rept NB_ENTITIES - 2
 		ld [hl], a
 		inc h
-	ENDR
+	endr
 	; TODO: we'll need to load the player and ally from the save file here.
 
 	; Push the RNG state onto the stack and restore it later.
@@ -55,7 +55,7 @@ InitScene::
 	ld [wSceneBoundary.x], a
 	ld a, [hli]
 	ld [wSceneBoundary.y], a
-	ASSERT Scene_Width + 2 == Scene_Seed
+	assert Scene_Width + 2 == Scene_Seed
 	ld de, randstate
 	ld a, [hli]
 	ld [de], a
@@ -117,10 +117,10 @@ InitScene::
 	ld [wSceneCamera.x], a
 	ld a, h
 	ld [wSceneCamera.x + 1], a
-	REPT 7
+	rept 7
 		rra
 		rr l
-	ENDR
+	endr
 	ld a, l
 	ld [wSceneCamera.lastX], a
 
@@ -175,21 +175,21 @@ InitScene::
 	ld c, 3
 	rst MemSetSmall
 
-	ld a, BANK(xRenderScene)
+	ld a, bank(xRenderScene)
 	rst SwapBank
 	jp xRenderScene
 
-SECTION "Scene State", ROM0
+section "Scene State", rom0
 SceneState::
 	ld a, [wSceneMovementLocked]
 	and a, a
 	jr nz, .skipLocked
 
-	ld a, BANK(xHandleSceneMovement)
+	ld a, bank(xHandleSceneMovement)
 	rst SwapBank
 	call xHandleSceneMovement
 
-	ld a, BANK(xSceneCheckInteraction)
+	ld a, bank(xSceneCheckInteraction)
 	rst SwapBank
 	call xSceneCheckInteraction
 
@@ -215,7 +215,7 @@ SceneState::
 	ld a, h
 	ld [de], a
 
-	ld a, BANK(xRenderNPCs)
+	ld a, bank(xRenderNPCs)
 	rst SwapBank
 	call xRenderNPCs
 	call UpdateEntityGraphics
@@ -226,22 +226,22 @@ SceneState::
 	call PrintVWFChar
 	call DrawVWFChars
 	
-	ld a, BANK(xHandleSceneCamera)
+	ld a, bank(xHandleSceneCamera)
 	rst SwapBank
 	jp xHandleSceneCamera
 
-SECTION "Scene Run Idle Scripts", ROM0
+section "Scene Run Idle Scripts", rom0
 ExecuteIdleScripts:
-	ld h, HIGH(wEntity2)
+	ld h, high(wEntity2)
 	ld de, wSceneNPCIdleScriptVariables
 .loop
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	and a, a
 	jr z, .next
 	ld a, h
 	ld [wActiveEntity], a
-	ld l, LOW(wEntity0_IdleScript)
+	ld l, low(wEntity0_IdleScript)
 	push hl
 	ld a, [hli]
 	rst SwapBank
@@ -267,12 +267,12 @@ ExecuteIdleScripts:
 
 	inc h
 	ld a, h
-	cp a, HIGH(wEntity0) + NB_ENTITIES
+	cp a, high(wEntity0) + NB_ENTITIES
 	jr nz, .loop
 	ret
 
 
-SECTION "Scene Movement", ROMX
+section "Scene Movement", romx
 xHandleSceneMovement:
 	xor a, a
 	ld [wEntity0_Frame], a
@@ -349,9 +349,9 @@ xHandleSceneMovement:
 	rr b ; Y * 64
 	rra
 	ld c, a
-	ASSERT !LOW(wSceneCollision)
+	assert !low(wSceneCollision)
 	ld a, b
-	add a, HIGH(wSceneCollision)
+	add a, high(wSceneCollision)
 	ld b, a
 
 	; Now adjust and add the X component
@@ -361,10 +361,10 @@ xHandleSceneMovement:
 		ld e, a
 		adc a, d
 		sub a, e
-		REPT 7 ; adjust to an integer and then divide by 8
+		rept 7 ; adjust to an integer and then divide by 8
 			rra
 			rr e
-		ENDR
+		endr
 		ld a, e
 	pop de
 	add a, c
@@ -419,12 +419,12 @@ xHandleSceneMovement:
 	ld a, 1
 	ld [wSceneMovementLocked], a
 	ld hl, wFadeCallback
-	ld a, LOW(InitMap)
+	ld a, low(InitMap)
 	ld [hli], a
-	ld [hl], HIGH(InitMap)
+	ld [hl], high(InitMap)
 	ret
 
-SECTION "Scene check for NPCs", ROMX
+section "Scene check for NPCs", romx
 xSceneCheckInteraction:
 	ldh a, [hNewKeys]
 	bit PADB_A, a
@@ -453,12 +453,12 @@ xSceneCheckInteraction:
 	; de = X (fixed-point)
 
 	; Offset the adjusted position according to the player's direction.
-	ld l, LOW(wEntity0_Direction)
+	ld l, low(wEntity0_Direction)
 	ld a, [hl]
 	add a, a
-	add a, LOW(DirectionVectors)
+	add a, low(DirectionVectors)
 	ld l, a
-	adc a, HIGH(DirectionVectors)
+	adc a, high(DirectionVectors)
 	sub a, l
 	ld h, a
 
@@ -469,14 +469,14 @@ xSceneCheckInteraction:
 	ld a, [hli]
 	add a, b
 	; The Y position now needs to be shifted down so that it may fit into a byte.
-	REPT 4
+	rept 4
 		rra
 		rr c
-	ENDR
+	endr
 	; c = Y (integer)
-	ld h, HIGH(wEntity2)
+	ld h, high(wEntity2)
 .loop
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	and a, a
 	jr z, .next
@@ -486,14 +486,14 @@ xSceneCheckInteraction:
 	; or
 	; position - target > 0 && position - target - 16 < 0
 
-	ld l, LOW(wEntity0_SpriteY)
+	ld l, low(wEntity0_SpriteY)
 	ld a, [hli]
 	ld b, a
 	ld a, [hli]
-	REPT 4
+	rept 4
 		rra
 		rr b
-	ENDR
+	endr
 	; position - target
 	ld a, c
 	sub a, b
@@ -524,7 +524,7 @@ xSceneCheckInteraction:
 	xor a, a
 	ld [wEntity0_Frame], a
 	ld [wEntity1_Frame], a
-	ld l, LOW(wEntity0_InteractionScript)
+	ld l, low(wEntity0_InteractionScript)
 	ld de, wSceneNPCDialogue.pointer
 	ld c, 3
 	rst MemCopySmall
@@ -533,11 +533,11 @@ xSceneCheckInteraction:
 .next
 	inc h
 	ld a, h
-	cp a, HIGH(wEntity0) + NB_ENTITIES
+	cp a, high(wEntity0) + NB_ENTITIES
 	jr nz, .loop
 	ret
 
-SECTION "Handle scene scrolling", ROMX
+section "Handle scene scrolling", romx
 xHandleSceneCamera:
 	; Loosely follow the player, stopping at the edges of the screen.
 	; check if (entity.y <= camera.y + padding)
@@ -710,15 +710,15 @@ xHandleSceneCamera:
 	ld a, [hld]
 	ld b, a
 	ld a, [hli]
-	REPT 4
+	rept 4
 		rr b
 		rra
-	ENDR
+	endr
 	ldh [hShadowSCX], a
-	REPT 3
+	rept 3
 		rr b
 		rra
-	ENDR
+	endr
 	ld b, a
 	ld a, [wSceneCamera.lastX]
 	cp a, b
@@ -729,10 +729,10 @@ xHandleSceneCamera:
 	ld a, [hld]
 	ld b, a
 	ld a, [hli]
-	REPT 4
+	rept 4
 		rr b
 		rra
-	ENDR
+	endr
 	ldh [hShadowSCY], a
 	ret
 
@@ -745,9 +745,9 @@ xRenderColumn:
 	add a, SCRN_X_B
 :
 	and a, 63
-	ASSERT LOW(wSceneMap) == 0
+	assert low(wSceneMap) == 0
 	ld c, a
-	ld b, HIGH(wSceneMap)
+	ld b, high(wSceneMap)
 	and a, 31
 	ld l, a
 	ld h, $98
@@ -767,7 +767,7 @@ xRenderColumn:
 	push bc
 	sub a, $80
 	ld c, a
-	ld b, HIGH(wSceneTileAttributes)
+	ld b, high(wSceneTileAttributes)
 	ld a, [bc]
 	pop bc
 	ld [hl], a
@@ -794,22 +794,22 @@ xRenderScene:
 	ld hl, wSceneCamera.x
 	ld a, [hli]
 	ld h, [hl]
-	REPT 7
+	rept 7
 		srl h
 		rra
-	ENDR
+	endr
 	ld e, a
-	REPT SCRN_X_B
+	rept SCRN_X_B
 		xor a, a ; clear carry
 		ld a, e
 		call xRenderColumn
 		inc e
-	ENDR
+	endr
 	xor a, a ; clear carry
 	ld a, e
 	jp xRenderColumn
 
-SECTION "Draw scene", ROM0
+section "Draw scene", rom0
 DrawScene:
 	ld hl, wActiveScene
 	ld a, [hli]
@@ -826,9 +826,9 @@ DrawScene:
 	push de
 	ld a, [hli]
 	add a, a
-	add a, LOW(.jumpTable)
+	add a, low(.jumpTable)
 	ld e, a
-	adc a, HIGH(.jumpTable)
+	adc a, high(.jumpTable)
 	sub a, e
 	ld d, a
 	ld a, [de]
@@ -841,23 +841,23 @@ DrawScene:
 	ret
 
 .jumpTable
-	ASSERT DRAWSCENE_END == 0
+	assert DRAWSCENE_END == 0
 	dw DrawSceneExit
-	ASSERT DRAWSCENE_VRAMCOPY == 1
+	assert DRAWSCENE_VRAMCOPY == 1
 	dw DrawSceneVramCopy
-	ASSERT DRAWSCENE_BKG == 2
+	assert DRAWSCENE_BKG == 2
 	dw DrawSceneBackground
-	ASSERT DRAWSCENE_PLACEDETAIL == 3
+	assert DRAWSCENE_PLACEDETAIL == 3
 	dw DrawScenePlaceDetail
-	ASSERT DRAWSCENE_SPAWNNPC == 4
+	assert DRAWSCENE_SPAWNNPC == 4
 	dw DrawSceneSpawnNpc
-	ASSERT DRAWSCENE_FILL == 5
+	assert DRAWSCENE_FILL == 5
 	dw DrawSceneFill
-	ASSERT DRAWSCENE_SETDOOR == 6
+	assert DRAWSCENE_SETDOOR == 6
 	dw DrawSceneSetDoor
-	ASSERT DRAWSCENE_MEMCOPY == 7
+	assert DRAWSCENE_MEMCOPY == 7
 	dw DrawSceneMemcopy
-	ASSERT DRAWSCENE_SETCOLOR == 8
+	assert DRAWSCENE_SETCOLOR == 8
 	dw DrawSceneSetColor
 
 DrawSceneExit:
@@ -1015,15 +1015,15 @@ DrawSceneSpawnNpc:
 	ld a, [hli]
 	ld d, a
 	; Copy data pointer
-	ld e, LOW(wEntity0_Bank)
+	ld e, low(wEntity0_Bank)
 	ld c, 3
 	rst MemCopySmall
 	; Copy initial position
-	ld e, LOW(wEntity0_SpriteY)
+	ld e, low(wEntity0_SpriteY)
 	ld c, 4
 	rst MemCopySmall
 	; Force-load graphics
-	ld e, LOW(wEntity0_Direction)
+	ld e, low(wEntity0_Direction)
 	ld a, [hli]
 	ld [de], a
 	inc e
@@ -1033,7 +1033,7 @@ DrawSceneSpawnNpc:
 	xor a, a
 	ld [de], a
 	; Copy Scripts
-	ld e, LOW(wEntity0_IdleScript)
+	ld e, low(wEntity0_IdleScript)
 	ld c, 6
 	rst MemCopySmall
 	ret
@@ -1115,7 +1115,7 @@ DrawSceneSetColor:
 	ld a, [hli]
 	sub a, $80
 	ld e, a
-	ld d, HIGH(wSceneTileAttributes)
+	ld d, high(wSceneTileAttributes)
 	ld a, [hli]
 	ld c, [hl]
 	inc hl
@@ -1126,13 +1126,13 @@ DrawSceneSetColor:
 	jr nz, .loop
 	ret
 
-SECTION "Scene variables", WRAM0
+section "Scene variables", wram0
 wActiveScene:: ds 3
 
-SECTION UNION "State variables", WRAM0, ALIGN[8]
+section UNION "State variables", wram0, ALIGN[8]
 wSceneMap:: ds SCENE_WIDTH * SCENE_HEIGHT
 wSceneCollision:: ds SCENE_WIDTH * SCENE_HEIGHT
-ASSERT !LOW(@)
+assert !low(@)
 wSceneTileAttributes:: ds 128
 
 wSceneCamera::
@@ -1152,6 +1152,6 @@ wSceneNPCDialogue:
 .scriptVariables:: ds NPC_SCRIPT_POOL_SIZE * 2
 
 
-SECTION "Scene Loop counter", HRAM
+section "Scene Loop counter", hram
 hSceneLoopCounter: db
 hSceneTileOffset: db

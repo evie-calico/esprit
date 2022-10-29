@@ -1,6 +1,6 @@
 include "include/hUGE.inc"
 
-SECTION "xLakeMusic Data", ROMX
+section "xLakeMusic Data", romx
 
 xLakeMusic::
 db 8

@@ -1,12 +1,12 @@
-INCLUDE "config.inc"
-INCLUDE "defines.inc"
-INCLUDE "dungeon.inc"
-INCLUDE "entity.inc"
-INCLUDE "hardware.inc"
+include "config.inc"
+include "defines.inc"
+include "dungeon.inc"
+include "entity.inc"
+include "hardware.inc"
 
-DEF FOLLOWER_DISTANCE EQU 4
+def FOLLOWER_DISTANCE equ 4
 
-SECTION "Entity Logic", ROMX
+section "Entity Logic", romx
 xPlayerLogic::
 	; If any movement is queued, the player should refuse to take its turn to
 	; allow all sprites to catch up.
@@ -22,7 +22,7 @@ xPlayerLogic::
 	and a, a
 	call z, StandingCheck
 PUSHS
-SECTION "Standing Check", ROM0
+section "Standing Check", rom0
 StandingCheck:
 	inc a
 	ld [wHasCheckedForItem], a
@@ -42,7 +42,7 @@ StandingCheck:
 		call PickupItem
 	pop de
 	jr z, .full
-	ASSERT TILE_CLEAR == 0
+	assert TILE_CLEAR == 0
 	push bc
 	push hl
 		xor a, a
@@ -84,18 +84,18 @@ StandingCheck:
 	ld [wfmt_xGetItemString_name + 1], a
 	ld a, [hli]
 	ld [wfmt_xGetItemString_name + 2], a
-	ld b, BANK(xGetItemString)
+	ld b, bank(xGetItemString)
 	ld hl, xGetItemString
 	call PrintHUD
-	ld a, BANK(xPlayerLogic)
+	ld a, bank(xPlayerLogic)
 	rst SwapBank
 	ret
 
 .full
-	ld b, BANK(xFullBagString)
+	ld b, bank(xFullBagString)
 	ld hl, xFullBagString
 	call PrintHUD
-	ld a, BANK(xPlayerLogic)
+	ld a, bank(xPlayerLogic)
 	rst SwapBank
 	ret
 
@@ -117,9 +117,9 @@ StandingCheck:
 	jr z, .complete
 	ld a, 1
 	ld [wIsDungeonFading], a
-	ld a, LOW(.generateFloor)
+	ld a, low(.generateFloor)
 	ld [wDungeonFadeCallback], a
-	ld a, HIGH(.generateFloor)
+	ld a, high(.generateFloor)
 	ld [wDungeonFadeCallback + 1], a
 	; Set palettes
 	ld a, %11111111
@@ -129,7 +129,7 @@ StandingCheck:
 	call FadeToWhite
 
 	pop af ; super return
-	ld a, BANK(xPlayerLogic)
+	ld a, bank(xPlayerLogic)
 	rst SwapBank
 	ret
 
@@ -139,11 +139,11 @@ StandingCheck:
 	jp DungeonComplete
 
 .generateFloor
-	ld b, BANK(xEnteredFloorString)
+	ld b, bank(xEnteredFloorString)
 	ld hl, xEnteredFloorString
 	call PrintHUD
 
-	ASSERT DUNGEON_HEIGHT / 2 == DUNGEON_WIDTH / 2
+	assert DUNGEON_HEIGHT / 2 == DUNGEON_WIDTH / 2
 	ld a, DUNGEON_WIDTH / 2
 	ld hl, wEntity0_SpriteY + 1
 	ld [hli], a
@@ -216,7 +216,7 @@ POPS
 	call PadToDir
 	; If no input is given, the player waits a frame to take its turn
 	ret c
-	ld b, HIGH(wEntity0)
+	ld b, high(wEntity0)
 	call UseMove
 	ret z
 	xor a, a
@@ -248,9 +248,9 @@ endc
 		ld [wWindowMode], a
 		ld a, 1
 		ld [wIsDungeonFading], a
-		ld a, LOW(OpenPauseMenu)
+		ld a, low(OpenPauseMenu)
 		ld [wDungeonFadeCallback], a
-		ld a, HIGH(OpenPauseMenu)
+		ld a, high(OpenPauseMenu)
 		ld [wDungeonFadeCallback + 1], a
 		; Set palettes
 		ld a, %11111111
@@ -271,12 +271,12 @@ endc
 	ld [wEntity0_Frame], a
 	; Attempt to move the player.
 	ld a, [wEntity0_Direction]
-	ld h, HIGH(wEntity0)
+	ld h, high(wEntity0)
 	call MoveEntity
-	ASSERT NB_ALLIES - 1 == 2
-	cp a, HIGH(wEntity1)
+	assert NB_ALLIES - 1 == 2
+	cp a, high(wEntity1)
 	jr z, .swapWithAlly
-	cp a, HIGH(wEntity2)
+	cp a, high(wEntity2)
 	jr z, .swapWithAlly
 	ld a, [wMovementQueued]
 	and a, a
@@ -291,9 +291,9 @@ endc
 
 .swapWithAlly
 	ld h, a
-	sub a, HIGH(wEntity0)
+	sub a, high(wEntity0)
 	ld [wSkipAllyTurn], a
-	ld l, LOW(wEntity0_PosX)
+	ld l, low(wEntity0_PosX)
 	ld de, wEntity0_PosX
 	ld b, [hl]
 	ld a, [de]
@@ -306,7 +306,7 @@ endc
 	ld [hli], a
 	ld a, b
 	ld [de], a
-	ld l, LOW(wEntity0_Direction)
+	ld l, low(wEntity0_Direction)
 	ld e, l
 	ld a, [de]
 	add a, 2
@@ -326,14 +326,14 @@ xAllyLogic::
 		ld [hl], 0
 		jp ProcessEntities.next
 :
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	ld h, a
-	ld l, LOW(wEntity0_PosX)
+	ld l, low(wEntity0_PosX)
 	ld a, [hli]
 	ld c, [hl]
 	ld b, a
-	ld h, HIGH(wEntity0) + NB_ALLIES
-	ld a, HIGH(wEntity0) + NB_ENTITIES
+	ld h, high(wEntity0) + NB_ALLIES
+	ld a, high(wEntity0) + NB_ENTITIES
 	call xGetClosestOfEntities
 	ld a, d
 	; abs a
@@ -369,9 +369,9 @@ xAllyLogic::
 	jp c, ProcessEntities.next
 .followLeader
 	ld a, [wActiveEntity]
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	ld h, a
-	ld l, LOW(wEntity0_PosX)
+	ld l, low(wEntity0_PosX)
 	ld a, [hli]
 	ld d, a
 	ld e, [hl]
@@ -455,32 +455,32 @@ xAllyLogic::
 
 	; Now it's time to attempt movement.
 	ld a, [wActiveEntity]
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	ld h, a
 	ld a, [wBestDir]
 	; Try to move
-	ld l, LOW(wEntity0_Direction)
+	ld l, low(wEntity0_Direction)
 	ld [hl], a
 	call MoveEntity
 	and a, a
 	jp z, ProcessEntities.next
 	ld a, [wNextBestDir]
 	; Try to move
-	ld l, LOW(wEntity0_Direction)
+	ld l, low(wEntity0_Direction)
 	ld [hl], a
 	call MoveEntity
 	jp ProcessEntities.next
 
 ; @param a: Contains the value of wActiveEntity
 xEnemyLogic::
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	ld h, a
-	ld l, LOW(wEntity0_PosX)
+	ld l, low(wEntity0_PosX)
 	ld a, [hli]
 	ld c, [hl]
 	ld b, a
-	ld h, HIGH(wEntity0)
-	ld a, HIGH(wEntity0) + NB_ALLIES
+	ld h, high(wEntity0)
+	ld a, high(wEntity0) + NB_ALLIES
 	call xGetClosestOfEntities
 	push hl
 	ld a, 1
@@ -577,7 +577,7 @@ xChaseTarget:
 
 	; Now it's time to attempt movement.
 	ld a, [wActiveEntity]
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	ld h, a
 	ld a, [wBestDir]
 	ld d, a
@@ -602,11 +602,11 @@ xGetClosestOfEntities:
 	ldh [hClosestEntityTarget], a
 	lb de, 64, 64 ; An impossible distance, but not too high.
 .loop
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	and a, a
 	jr z, .next
-	ld l, LOW(wEntity0_PosX)
+	ld l, low(wEntity0_PosX)
 	; Compare total distances first.
 	; Calculate abs(TX - X) + abs(TY - Y)
 	ld a, [hli]
@@ -656,7 +656,7 @@ xGetClosestOfEntities:
 	jr c, .next ; If the new position is more steps away, don't switch to it.
 
 	; Set new distance
-	ld l, LOW(wEntity0_PosX)
+	ld l, low(wEntity0_PosX)
 	ld a, [hli]
 	sub a, b
 	ld d, a
@@ -679,7 +679,7 @@ xGetClosestOfEntities:
 ; @clobbers: a, bc, de, l
 ; @return carry: set upon success.
 xTryStep:
-	ld l, LOW(wEntity0_Direction)
+	ld l, low(wEntity0_Direction)
 	ld a, d
 	add a, 2
 	and a, %11
@@ -687,7 +687,7 @@ xTryStep:
 	jr z, .fail
 
 	; Try to move
-	ld l, LOW(wEntity0_Direction)
+	ld l, low(wEntity0_Direction)
 	ld [hl], d
 	ld a, d
 	call MoveEntity
@@ -700,7 +700,7 @@ xTryStep:
 	xor a, a
 	ret
 
-SECTION "Try Move", ROM0
+section "Try Move", rom0
 ; @param d: X distance
 ; @param e: Y distance
 ; @param hMoveUserTeam: must be configured immediently before or after this call.
@@ -727,9 +727,9 @@ TryMove:
 	ld [wStrongestValidMove.strength], a
 	ld [hCurrentMoveCounter], a
 	ld a, [wActiveEntity]
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	ld h, a
-	ld l, LOW(wEntity0_Moves)
+	ld l, low(wEntity0_Moves)
 .loop
 	ld a, [hli]
 	and a, a
@@ -743,7 +743,7 @@ TryMove:
 	push hl
 	ld h, [hl]
 	ld l, a
-	ASSERT Move_Range == 2
+	assert Move_Range == 2
 	inc hl
 	inc hl
 	; When comparing distances, use the absolute value.
@@ -769,7 +769,7 @@ TryMove:
 	jr z, .strongest
 	ld a, [wStrongestValidMove.strength]
 	inc hl
-	ASSERT Move_Range + 1 == Move_Power
+	assert Move_Range + 1 == Move_Power
 	cp a, [hl]
 	jr nc, .popNext ; If the move's power is greater, set it as the strongest move.
 .strongest
@@ -799,7 +799,7 @@ TryMove:
 	ld b, 2
 	jp nz, BankReturn
 
-	ld l, LOW(wEntity0_Direction)
+	ld l, low(wEntity0_Direction)
 	; Determine best directions
 	ld a, d
 	; abs a
@@ -843,7 +843,7 @@ TryMove:
 	ld b, 1
 	jp BankReturn
 
-SECTION "Move entity", ROM0
+section "Move entity", rom0
 ; @param a: Direction to move in.
 ; @param h: High byte of entity.
 ; @returns a: 0 upon success, 1 if blocked by wall, otherwise the entity blocking movement
@@ -851,18 +851,18 @@ SECTION "Move entity", ROM0
 ; @preserves: h
 MoveEntity:
 	add a, a
-	add a, LOW(DirectionVectors)
+	add a, low(DirectionVectors)
 	ld e, a
-	adc a, HIGH(DirectionVectors)
+	adc a, high(DirectionVectors)
 	sub a, e
 	ld d, a
-	ld l, LOW(wEntity0_PosX)
+	ld l, low(wEntity0_PosX)
 	ld a, [de]
 	add a, [hl]
 	ld b, a
 	inc de
 	inc l
-	ASSERT Entity_PosX + 1 == Entity_PosY
+	assert Entity_PosX + 1 == Entity_PosY
 	ld a, [de]
 	add a, [hl]
 	ld c, a
@@ -870,7 +870,7 @@ MoveEntity:
 	ldh a, [hCurrentBank]
 	push af
 		push hl
-			ld a, BANK(xGetMapPosition)
+			ld a, bank(xGetMapPosition)
 			rst SwapBank
 			call xGetMapPosition
 		pop hl
@@ -878,10 +878,10 @@ MoveEntity:
 		cp a, TILE_WALL
 		jr z, .fail
 		push hl
-			ld a, BANK(xCheckForEntity)
+			ld a, bank(xCheckForEntity)
 			rst SwapBank
-			ld h, HIGH(wEntity0)
-			ld a, HIGH(wEntity0) + NB_ENTITIES
+			ld h, high(wEntity0)
+			ld a, high(wEntity0) + NB_ENTITIES
 			call xCheckForEntity
 			ld a, h
 			and a, a
@@ -890,7 +890,7 @@ MoveEntity:
 		; Move!
 		ld a, c
 		ld [hld], a
-		ASSERT Entity_PosY - 1 == Entity_PosX
+		assert Entity_PosY - 1 == Entity_PosX
 		ld a, b
 		ld [hl], a
 		ld a, 1
@@ -913,20 +913,20 @@ MoveEntity:
 	ld h, b
 	ret
 
-SECTION "Movement Queued", WRAM0
+section "Movement Queued", wram0
 ; nonzero if any entity is ready to move.
 wMovementQueued:: db
 
-SECTION "Pathfinding vars", WRAM0
+section "Pathfinding vars", wram0
 wClosestAllyTemp: db
 wBestDir: db
 wNextBestDir: db
 wStrongestValidMove: db
 .strength: db
 
-SECTION "Get closest entity HRAM", HRAM
+section "Get closest entity hram", hram
 hClosestEntityTarget: db
 hClosestEntityFinal:: db
 
-SECTION "Volatile", HRAM
+section "Volatile", hram
 hCurrentMoveCounter: db

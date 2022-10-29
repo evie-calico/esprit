@@ -1,15 +1,15 @@
-INCLUDE "defines.inc"
-INCLUDE "draw_menu.inc"
-INCLUDE "hardware.inc"
-INCLUDE "menu.inc"
-INCLUDE "structs.inc"
+include "defines.inc"
+include "draw_menu.inc"
+include "hardware.inc"
+include "menu.inc"
+include "structs.inc"
 
-DEF MAIN_CURSOR_X EQU 5
-DEF MAIN_CURSOR_Y EQU 4
+def MAIN_CURSOR_X equ 5
+def MAIN_CURSOR_Y equ 4
 
-SECTION "Pause Menu", ROMX
+section "Pause Menu", romx
 xPauseMenu::
-	db BANK(@)
+	db bank(@)
 	dw xPauseMenuInit
 	; Used Buttons
 	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
@@ -36,7 +36,7 @@ xPauseMenu::
 xDrawPauseMenu:
 	set_region 0, 0, SCRN_VX_B, SCRN_VY_B, idof_vBlankTile
 	load_tiles .frame, 9, vFrame
-	DEF idof_vBlankTile EQU idof_vFrame + 4
+	def idof_vBlankTile equ idof_vFrame + 4
 	dregion vTopMenu, 0, 0, 9, 14
 	set_frame vTopMenu, idof_vFrame
 	print_text 3, 1, "Return"
@@ -60,7 +60,7 @@ xDrawPauseMenu:
 	dtile vPlayer1, 8
 	dtile vPlayer2, 8
 
-.frame INCBIN "res/ui/hud_frame.2bpp"
+.frame incbin "res/ui/hud_frame.2bpp"
 
 xPauseMenuInit:
 	; Set scroll
@@ -147,21 +147,21 @@ xPauseMenuAPress:
 	xor a, a
 	ld [wMenuAction], a
 	ld de, xOptionsMenu
-	ld b, BANK(xOptionsMenu)
+	ld b, bank(xOptionsMenu)
 	jp AddMenu
 
 .party
 	xor a, a
 	ld [wMenuAction], a
 	ld de, xPartyMenu
-	ld b, BANK(xPartyMenu)
+	ld b, bank(xPartyMenu)
 	jp AddMenu
 
 .inventory
 	xor a, a
 	ld [wMenuAction], a
 	ld de, xInventoryMenu
-	ld b, BANK(xInventoryMenu)
+	ld b, bank(xInventoryMenu)
 	jp AddMenu
 
 xPauseMenuClose:
@@ -172,15 +172,15 @@ xPauseMenuClose:
 	ld [wOBJPaletteMask], a
 	call FadeToWhite
 	ld hl, wFadeCallback
-	ld a, LOW(SwitchToDungeonState)
+	ld a, low(SwitchToDungeonState)
 	ld [hli], a
-	ld [hl], HIGH(SwitchToDungeonState)
+	ld [hl], high(SwitchToDungeonState)
 	ret
 
-INCLUDE "menus/inventory.inc"
-INCLUDE "menus/use_item.inc"
-INCLUDE "menus/party.inc"
-INCLUDE "menus/options.inc"
+include "menus/inventory.inc"
+include "menus/use_item.inc"
+include "menus/party.inc"
+include "menus/options.inc"
 
 ; Scroll towards a target position.
 xScrollInterp:
@@ -216,7 +216,7 @@ xScrollInterp:
 	ld [hl], a
 	ret
 
-SECTION "Pause Menu Load Palettes", ROM0
+section "Pause Menu Load Palettes", rom0
 LoadPalettes::
 	ldh a, [hCurrentBank]
 	push af
@@ -227,7 +227,7 @@ LoadPalettes::
 	ld h, [hl]
 	ld l, a
 	; Skip over next pointer.
-	ASSERT MenuPal_Colors == 3
+	assert MenuPal_Colors == 3
 	inc hl
 	inc hl
 	inc hl
@@ -261,7 +261,7 @@ LoadTheme::
 	ld h, [hl]
 	ld l, a
 	; Skip next pointer.
-	ASSERT MenuTheme_Cursor == 3
+	assert MenuTheme_Cursor == 3
 	inc hl
 	inc hl
 	inc hl
@@ -296,12 +296,12 @@ LoadTheme::
 	rst SwapBank
 	ret
 
-SECTION "Scroll interp vars", WRAM0
+section "Scroll interp vars", wram0
 wScrollInterp:
 .x db
 .y db
 
-SECTION "Pause menu cursor", WRAM0
+section "Pause menu cursor", wram0
 	dstruct Cursor, wPauseMenuCursor
 	dstruct Cursor, wSubMenuCursor
 	dstruct Cursor, wUseItemMenuCursor

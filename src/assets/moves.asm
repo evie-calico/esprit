@@ -1,23 +1,23 @@
-INCLUDE "entity.inc"
+include "entity.inc"
 
-DEF percent EQUS "* $FF / 100"
+def percent equs "* $FF / 100"
 
-MACRO move
-SECTION "\2 Move", ROMX
+macro move
+section "\2 Move", romx
 \2::
 	db MOVE_ACTION_\1
-	IF STRIN("\6", "%")
-		DEF PERCENT EQUS STRSUB("\6", 1, STRIN("\6", "%") - 1)
+	if strin("\6", "%")
+		def PERCENT equs strsub("\6", 1, strin("\6", "%") - 1)
 		db PERCENT * $FF / 100
-		PURGE PERCENT
-	ELSE
+		purge PERCENT
+	else
 		db \6
-	ENDC
+	endc
 	db \5
 	db \4
 	db \7
 .name:: db \3, 0
-ENDM
+endm
 
 	;  | Type     | Identifier  | Name          | Power | Range | Chance  | Cost
 	move ATTACK,    xNibble,      "Nibble",        3,      1,      90%,       0

@@ -1,35 +1,35 @@
-INCLUDE "defines.inc"
-INCLUDE "item.inc"
+include "defines.inc"
+include "item.inc"
 
-MACRO item ; label, name, description, graphics
-SECTION "\1 Item", ROMX
+macro item ; label, name, description, graphics
+section "\1 Item", romx
 \1::
 	dw .palette
 	dw .gfx
 	dw .name
 	dw .description
 	db ITEM_NULL
-	ASSERT sizeof_Item == 9
+	assert sizeof_Item == 9
 .name:: db \2, 0
 .description:: db \3, 0
-.gfx:: INCBIN \4
-ENDM
+.gfx:: incbin \4
+endm
 
-MACRO heal ; label, name, description, graphics, strength
-SECTION "\1 Item", ROMX
+macro heal ; label, name, description, graphics, strength
+section "\1 Item", romx
 \1::
 	dw .palette
 	dw .gfx
 	dw .name
 	dw .description
 	db ITEM_HEAL
-	ASSERT sizeof_Item == 9
+	assert sizeof_Item == 9
 	db \5
-	ASSERT sizeof_HealItem == 10
+	assert sizeof_HealItem == 10
 .name:: db \2, 0
 .description:: db \3, 0
-.gfx:: INCBIN \4
-ENDM
+.gfx:: incbin \4
+endm
 
 	heal xRedApple, "Apple", "A small red fruit. Eat it to restore 20 health.", "res/items/apple.2bpp", 20
 	.palette 

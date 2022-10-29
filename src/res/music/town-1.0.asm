@@ -1,6 +1,6 @@
 include "include/hUGE.inc"
 
-SECTION "xTownMusic Data", ROMX
+section "xTownMusic Data", romx
 
 xTownMusic::
 db 6

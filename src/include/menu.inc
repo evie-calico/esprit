@@ -1,31 +1,31 @@
-IF !DEF(MENU_INC)
-DEF MENU_INC EQU 1
+if !def(MENU_INC)
+def MENU_INC equ 1
 
-INCLUDE "structs.inc"
+include "structs.inc"
 
-DEF MENU_STACK_CAPACITY EQU 10
+def MENU_STACK_CAPACITY equ 10
 
 ; Menu actions
-RSRESET
-DEF MENU_ACTION_NONE RB 1
+rsreset
+def MENU_ACTION_NONE rb 1
 ; These are each button's default action
-DEF MENU_ACTION_MOVE_DOWN RB 1
-DEF MENU_ACTION_MOVE_UP RB 1
-DEF MENU_ACTION_MOVE_LEFT RB 1
-DEF MENU_ACTION_MOVE_RIGHT RB 1
-DEF MENU_ACTION_NONE_START RB 1 ; Placeholder since START shouldn't do anything
-DEF MENU_ACTION_NONE_SELECT RB 1
-DEF MENU_ACTION_CANCEL RB 1
-DEF MENU_ACTION_VALIDATE RB 1
+def MENU_ACTION_MOVE_DOWN rb 1
+def MENU_ACTION_MOVE_UP rb 1
+def MENU_ACTION_MOVE_LEFT rb 1
+def MENU_ACTION_MOVE_RIGHT rb 1
+def MENU_ACTION_NONE_START rb 1 ; Placeholder since START shouldn't do anything
+def MENU_ACTION_NONE_SELECT rb 1
+def MENU_ACTION_CANCEL rb 1
+def MENU_ACTION_VALIDATE rb 1
 ; These can only be triggered manually
-DEF MENU_ACTION_NEW_MENU RB 1 ; Followed by a 3-byte pointer to the menu
-DEF MENU_ACTION_INVALID RB 1 ; Any action greater than this is invalid, and does nothing
+def MENU_ACTION_NEW_MENU rb 1 ; Followed by a 3-byte pointer to the menu
+def MENU_ACTION_INVALID rb 1 ; Any action greater than this is invalid, and does nothing
 
 ; Menu closing reasons
-RSRESET
-DEF MENU_NOT_CLOSED RB 1
-DEF MENU_CANCELLED RB 1
-DEF MENU_VALIDATED RB 1
+rsreset
+def MENU_NOT_CLOSED rb 1
+def MENU_CANCELLED rb 1
+def MENU_VALIDATED rb 1
 
 ; When an event is called, the struct can be accessed with:
 /*
@@ -75,4 +75,4 @@ ld l, a
 		bytes 1, Name
 	end_struct
 
-	ENDC
+	endc

@@ -1,13 +1,13 @@
-INCLUDE "defines.inc"
-INCLUDE "scene.inc"
+include "defines.inc"
+include "scene.inc"
 
 	scene_background Grass, "res/scenes/grass_bkg.2bpp"
 	scene_detail Bush, "res/scenes/bush_detail.2bpp", "res/scenes/bush_detail.map", 3, 2, SCENETILE_WALL
 
-SECTION "Village Scene", ROMX
+section "Village Scene", romx
 xVillageScene::
 	scene
-		DEF random = $EA751B27
+		def random = $EA751B27
 	begin_draw
 		load_background_palette GrassGreen, "res/scenes/bush_detail.pal8"
 		load_tiles Grass, GrassGreen

@@ -1,7 +1,7 @@
-INCLUDE "defines.inc"
-INCLUDE "entity.inc"
-INCLUDE "hardware.inc"
-INCLUDE "structs.inc"
+include "defines.inc"
+include "entity.inc"
+include "hardware.inc"
+include "structs.inc"
 
 	struct MapNode
 		bytes 4, Up
@@ -14,57 +14,57 @@ INCLUDE "structs.inc"
 		alias Name
 	end_struct
 
-RSRESET
-DEF MAP_NODE_NONE RB     ; No action; the default
-DEF MAP_NODE_MOVE RB     ; Move to another node
-DEF MAP_NODE_LOCK RB     ; Move to another node if FLAG is set
-DEF MAP_NODE_DUNGEON RB  ; Enter a dungeon
-DEF MAP_NODE_SCENE RB    ; Enter a town
-DEF MAP_NODE_AUTOMOVE RB ; Automatically progress to the next node; do not draw name.
+rsreset
+def MAP_NODE_NONE rb     ; No action; the default
+def MAP_NODE_MOVE rb     ; Move to another node
+def MAP_NODE_LOCK rb     ; Move to another node if FLAG is set
+def MAP_NODE_DUNGEON rb  ; Enter a dungeon
+def MAP_NODE_SCENE rb    ; Enter a town
+def MAP_NODE_AUTOMOVE rb ; Automatically progress to the next node; do not draw name.
 
-MACRO _node_dir
-	REDEF _NODE_\1_TYPE     EQU MAP_NODE_NONE
-	REDEF _NODE_\1_ARG0     EQUS "0"
-	REDEF _NODE_\1_ARG1     EQUS "0"
-	REDEF _NODE_\1_ARG2     EQUS "0"
-ENDM
+macro _node_dir
+	redef _NODE_\1_TYPE     equ MAP_NODE_NONE
+	redef _NODE_\1_ARG0     equs "0"
+	redef _NODE_\1_ARG1     equs "0"
+	redef _NODE_\1_ARG2     equs "0"
+endm
 
-MACRO node
-	REDEF _NODE_IDENTIFIER EQUS "\1"
-	REDEF _NODE_X EQU \3
-	REDEF _NODE_Y EQU \4
-	REDEF _NODE_NAME EQUS \2
+macro node
+	redef _NODE_IDENTIFIER equs "\1"
+	redef _NODE_X equ \3
+	redef _NODE_Y equ \4
+	redef _NODE_NAME equs \2
 	_node_dir UP
 	_node_dir RIGHT
 	_node_dir DOWN
 	_node_dir LEFT
 	_node_dir PRESS
-ENDM
+endm
 
-MACRO _node_entry
-	REDEF _NODE_\1_TYPE EQU MAP_NODE_\2
+macro _node_entry
+	redef _NODE_\1_TYPE equ MAP_NODE_\2
 	; For MOVE, the bank is redundant.
 	; Because of this it is repurposed for LOCK to be a flag ID.
-	IF !STRCMP("LOCK", "\2")
-		REDEF _NODE_\1_ARG0 EQUS "FLAG_\4"
-	ELSE
-		REDEF _NODE_\1_ARG0 EQUS "BANK(\3)"
-	ENDC
-	REDEF _NODE_\1_ARG1 EQUS "LOW(\3)"
-	REDEF _NODE_\1_ARG2 EQUS "HIGH(\3)"
-ENDM
+	if !strcmp("LOCK", "\2")
+		redef _NODE_\1_ARG0 equs "FLAG_\4"
+	else
+		redef _NODE_\1_ARG0 equs "bank(\3)"
+	endc
+	redef _NODE_\1_ARG1 equs "low(\3)"
+	redef _NODE_\1_ARG2 equs "high(\3)"
+endm
 
-DEF up    EQUS "_node_entry UP, "
-DEF right EQUS "_node_entry RIGHT, "
-DEF down  EQUS "_node_entry DOWN, "
-DEF left  EQUS "_node_entry LEFT, "
-DEF press EQUS "_node_entry PRESS, "
+def up    equs "_node_entry UP, "
+def right equs "_node_entry RIGHT, "
+def down  equs "_node_entry DOWN, "
+def left  equs "_node_entry LEFT, "
+def press equs "_node_entry PRESS, "
 
-MACRO _node_define
+macro _node_define
 	db _NODE_\1_TYPE, _NODE_\1_ARG0, _NODE_\1_ARG1, _NODE_\1_ARG2
-ENDM
+endm
 
-MACRO end_node
+macro end_node
 	{_NODE_IDENTIFIER}::
 		_node_define UP
 		_node_define RIGHT
@@ -72,12 +72,12 @@ MACRO end_node
 		_node_define LEFT
 		_node_define PRESS
 		db _NODE_X, _NODE_Y, "{_NODE_NAME}", 0
-ENDM
+endm
 
-DEF NB_DROPLETS EQU 16
-DEF NB_EFFECTS EQU NB_DROPLETS + 2
+def NB_DROPLETS equ 16
+def NB_EFFECTS equ NB_DROPLETS + 2
 
-SECTION "World map nodes", ROMX
+section "World map nodes", romx
 	node xBeginningHouse, "House", 76, 88
 		left MOVE, xVillageNode
 	end_node
@@ -158,25 +158,25 @@ SECTION "World map nodes", ROMX
 		up MOVE, xBlazingPlains
 	end_node
 
-SECTION "World Map", ROMX
+section "World Map", romx
 xWorldMap:
-.tiles INCBIN "res/worldmap/crater.2bpp"
-.map INCBIN "res/worldmap/crater.map"
-.colors INCBIN "res/worldmap/crater.pal8"
-.colormap INCBIN "res/worldmap/crater.pmap"
-.dmgtiles INCBIN "res/worldmap/crater-dmg.2bpp"
-.dmgmap INCBIN "res/worldmap/crater-dmg.map"
-.duck INCBIN "res/worldmap/duck.2bpp"
-.droplet INCBIN "res/worldmap/droplet.2bpp"
-.hoof INCBIN "res/worldmap/hoofprint.2bpp"
-.haze INCBIN "res/worldmap/haze1.2bpp"
-      INCBIN "res/worldmap/haze2.2bpp"
-.dropletPalette INCBIN "res/worldmap/droplet.pal8", 3
-.duckPalette INCBIN "res/worldmap/duck.pal8", 3
-.hoofPalette INCBIN "res/worldmap/hoofprint.pal8", 3
-.hazePalette INCBIN "res/worldmap/haze1.pal8", 3
+.tiles incbin "res/worldmap/crater.2bpp"
+.map incbin "res/worldmap/crater.map"
+.colors incbin "res/worldmap/crater.pal8"
+.colormap incbin "res/worldmap/crater.pmap"
+.dmgtiles incbin "res/worldmap/crater-dmg.2bpp"
+.dmgmap incbin "res/worldmap/crater-dmg.map"
+.duck incbin "res/worldmap/duck.2bpp"
+.droplet incbin "res/worldmap/droplet.2bpp"
+.hoof incbin "res/worldmap/hoofprint.2bpp"
+.haze incbin "res/worldmap/haze1.2bpp"
+      incbin "res/worldmap/haze2.2bpp"
+.dropletPalette incbin "res/worldmap/droplet.pal8", 3
+.duckPalette incbin "res/worldmap/duck.pal8", 3
+.hoofPalette incbin "res/worldmap/hoofprint.pal8", 3
+.hazePalette incbin "res/worldmap/haze1.pal8", 3
 
-SECTION "Map State Init", ROM0
+section "Map State Init", rom0
 InitMap::
 	ldh a, [hCurrentBank]
 	push af
@@ -184,7 +184,7 @@ InitMap::
 	xor a, a
 	ld [wMapLockInput], a
 
-	ld a, BANK(xWorldMap)
+	ld a, bank(xWorldMap)
 	rst SwapBank
 
 	ldh a, [hSystem]
@@ -252,7 +252,7 @@ InitMap::
 	ld l, e
 	call VRAMSetSmall
 
-	DEF HOOFTILE EQU $7F
+	def HOOFTILE equ $7F
 	ld hl, xWorldMap.hoof
 	ld de, $9800 - 16
 	ld c, 16
@@ -266,11 +266,11 @@ InitMap::
 	ld b, NB_DROPLETS
 	ld hl, wEffects
 .initDroplets
-	ld a, BANK(xDropletEffect)
+	ld a, bank(xDropletEffect)
 	ld [hli], a
-	ld a, LOW(xDropletEffect)
+	ld a, low(xDropletEffect)
 	ld [hli], a
-	ld a, HIGH(xDropletEffect)
+	ld a, high(xDropletEffect)
 	ld [hli], a
 	ld a, l
 	add a, 16
@@ -282,19 +282,19 @@ InitMap::
 	jr nz, .initDroplets
 
 	ld hl, wEffects + 19 * NB_DROPLETS
-	ld a, BANK(xDuckEffect)
+	ld a, bank(xDuckEffect)
 	ld [hli], a
-	ld a, LOW(xDuckEffect)
+	ld a, low(xDuckEffect)
 	ld [hli], a
-	ld a, HIGH(xDuckEffect)
+	ld a, high(xDuckEffect)
 	ld [hli], a
 
 	ld hl, wEffects + 19 * (NB_DROPLETS + 1)
-	ld a, BANK(xHazeEffect)
+	ld a, bank(xHazeEffect)
 	ld [hli], a
-	ld a, LOW(xHazeEffect)
+	ld a, low(xHazeEffect)
 	ld [hli], a
-	ld a, HIGH(xHazeEffect)
+	ld a, high(xHazeEffect)
 	ld [hli], a
 
 	call InitUI
@@ -313,36 +313,36 @@ InitMap::
 	xor a, a
 	ld b, a ; clear flags and set b
 	ld a, [hld]
-	REPT 4
+	rept 4
 		rla
 		rl b
-	ENDR
+	endr
 	ld [de], a
 	inc e
 	ld a, b
 	ld [de], a
 	inc e
-	ASSERT Entity_SpriteY + 2 == Entity_SpriteX
-	ASSERT MapNode_Y - 1 == MapNode_X
+	assert Entity_SpriteY + 2 == Entity_SpriteX
+	assert MapNode_Y - 1 == MapNode_X
 	xor a, a
 	ld b, a ; clear flags and set b
 	ld a, [hli]
-	REPT 4
+	rept 4
 		rla
 		rl b
-	ENDR
+	endr
 	ld [de], a
 	inc e
 	ld a, b
 	ld [de], a
 	inc l
-	ASSERT MapNode_Y + 1 == MapNode_Name
+	assert MapNode_Y + 1 == MapNode_Name
 	ldh a, [hCurrentBank]
 	ld b, a
 	call PrintHUD
 	call DrawPrintString
 
-	ld a, BANK(xMapMusic)
+	ld a, bank(xMapMusic)
 	ld de, xMapMusic
 	call StartSong
 
@@ -364,9 +364,9 @@ InitMap::
 	call FadeIn
 
 	ld hl, wSTATTarget
-	ld a, LOW(ShowOnlyTextBox)
+	ld a, low(ShowOnlyTextBox)
 	ld [hli], a
-	ld a, HIGH(ShowOnlyTextBox)
+	ld a, high(ShowOnlyTextBox)
 	ld [hli], a
 	xor a, a
 	ldh [hShadowSCX], a
@@ -376,16 +376,16 @@ InitMap::
 	ld [wGameState], a
 	jp BankReturn
 
-SECTION "Map State", ROM0
+section "Map State", rom0
 MapState::
 	; The player and partner entities are always accessible, as entities are not
 	; within the state union. This means the entity struct and entity renderer
 	; can be reused for the map and town states.
 	call UpdateEntityGraphics
 
-	ld a, BANK(xRenderEntity)
+	ld a, bank(xRenderEntity)
 	rst SwapBank
-	ld h, HIGH(wEntity0)
+	ld h, high(wEntity0)
 	call xRenderEntity
 
 	ld de, wEffects
@@ -423,13 +423,13 @@ MapState::
 
 	ret
 
-SECTION "Map Movement", ROM0
+section "Map Movement", rom0
 ; @return carry: Set if not moving
 MapMovement:
-	FOR Y, 2
-		IF Y
+	for Y, 2
+		if Y
 			.yCheck
-		ENDC
+		endc
 		; Compare the active map node's position to the player's.
 		ld hl, wActiveMapNode
 		ld a, [hli]
@@ -448,19 +448,19 @@ MapMovement:
 		ld c, a
 		inc e
 		ld a, [de]
-		REPT 4
+		rept 4
 			rra
 			rr c
-		ENDR
+		endr
 		ld a, c
 		cp a, b
-		IF Y
+		if Y
 			; If Y matches, set the player to face foward and stand still.
 			jr z, .noMovement
-		ELSE
+		else
 			; If X matches, check Y
 			jr z, .yCheck
-		ENDC
+		endc
 	:
 		ld a, c
 		cp a, b
@@ -474,12 +474,12 @@ MapMovement:
 		ld a, (LEFT + Y) & 3
 	:
 		ld [wEntity0_Direction], a
-		IF Y
+		if Y
 			cp a, DOWN
-		ELSE
-			ASSERT RIGHT == 1
+		else
+			assert RIGHT == 1
 			dec a ; cp a, RIGHT
-		ENDC
+		endc
 		ld de, wEntity0_SpriteX - Y * 2 + 1
 		ld a, [de]
 		ld h, a
@@ -498,7 +498,7 @@ MapMovement:
 		ld [de], a
 		xor a, a
 		ret
-	ENDR
+	endr
 .noMovement
 	ld a, DOWN
 	ld [wEntity0_Direction], a
@@ -507,7 +507,7 @@ MapMovement:
 	scf
 	ret
 
-SECTION "Update Map Node", ROM0
+section "Update Map Node", rom0
 UpdateMapNode:
 	ld hl, wActiveMapNode
 	ld a, [hli]
@@ -526,7 +526,7 @@ UpdateMapNode:
 	; Find the first direction containing MOVE that is not equal to the current direction.
 	ld a, [wEntity0_LastDirection]
 	ld b, a
-	ASSERT MapNode_Press - 4 == MapNode_Left
+	assert MapNode_Press - 4 == MapNode_Left
 	dec hl
 	dec hl
 	dec hl
@@ -538,7 +538,7 @@ UpdateMapNode:
 	cp a, b
 	jp nz, MapNodeMove
 :
-	ASSERT MapNode_Left - 4 == MapNode_Down
+	assert MapNode_Left - 4 == MapNode_Down
 	dec hl
 	dec hl
 	dec hl
@@ -551,7 +551,7 @@ UpdateMapNode:
 	cp a, b
 	jp nz, MapNodeMove
 :
-	ASSERT MapNode_Down - 4 == MapNode_Right
+	assert MapNode_Down - 4 == MapNode_Right
 	dec hl
 	dec hl
 	dec hl
@@ -564,7 +564,7 @@ UpdateMapNode:
 	cp a, b
 	jp nz, MapNodeMove
 :
-	ASSERT MapNode_Right - 4 == MapNode_Up
+	assert MapNode_Right - 4 == MapNode_Up
 	dec hl
 	dec hl
 	dec hl
@@ -617,19 +617,19 @@ UpdateMapNode:
 	; town, or another map node.
 	ld a, [hli]
 	; Of course, a value of zero means no action should be taken.
-	ASSERT MAP_NODE_NONE == 0
+	assert MAP_NODE_NONE == 0
 	and a, a
 	ret z
-	ASSERT MAP_NODE_MOVE == 1
+	assert MAP_NODE_MOVE == 1
 	dec a
 	jr z, MapNodeMove
-	ASSERT MAP_NODE_LOCK == 2
+	assert MAP_NODE_LOCK == 2
 	dec a
 	jr z, MapNodeLock
-	ASSERT MAP_NODE_DUNGEON == 3
+	assert MAP_NODE_DUNGEON == 3
 	dec a
 	jr z, MapNodeDungeon
-	ASSERT MAP_NODE_SCENE == 4
+	assert MAP_NODE_SCENE == 4
 	jr MapNodeScene
 
 MapNodeMove:
@@ -682,9 +682,9 @@ MapNodeDungeon:
 	call FadeToBlack
 
 	ld hl, wFadeCallback
-	ld a, LOW(InitDungeon)
+	ld a, low(InitDungeon)
 	ld [hli], a
-	ld [hl], HIGH(InitDungeon)
+	ld [hl], high(InitDungeon)
 
 	ret
 
@@ -702,17 +702,17 @@ MapNodeScene:
 	call FadeToBlack
 
 	ld hl, wFadeCallback
-	ld a, LOW(InitScene)
+	ld a, low(InitScene)
 	ld [hli], a
-	ld [hl], HIGH(InitScene)
+	ld [hl], high(InitScene)
 	ret
 
-SECTION "map globals", WRAM0
+section "map globals", wram0
 wActiveMapNode:: ds 3
 ; Used for determining what side of a scene the player should start out on.
 wMapLastDirectionMoved:: db
 
-SECTION UNION "State variables", WRAM0
+section UNION "State variables", wram0
 wEffects: ds (3 + 16) * NB_EFFECTS
 
 wMapLockInput: db

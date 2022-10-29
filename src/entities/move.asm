@@ -1,13 +1,13 @@
-INCLUDE "defines.inc"
-INCLUDE "dungeon.inc"
-INCLUDE "entity.inc"
+include "defines.inc"
+include "dungeon.inc"
+include "entity.inc"
 
-RSRESET
-DEF SCAN_ENTITY RB
-DEF SCAN_WALL RB
-DEF SCAN_NONE RB
+rsreset
+def SCAN_ENTITY rb
+def SCAN_WALL rb
+def SCAN_NONE rb
 
-SECTION "Use Move", ROM0
+section "Use Move", rom0
 ; @param a: Move index
 ; @param b: Entity pointer high byte
 ; @param hMoveUserTeam: must be configured immediently before or after this call.
@@ -17,7 +17,7 @@ UseMove::
 	ld c, a
 	add a, a ; a * 2
 	add a, c ; a * 3
-	add a, LOW(wEntity0_Moves)
+	add a, low(wEntity0_Moves)
 	ld c, a
 
 	; Deref move into de.
@@ -36,7 +36,7 @@ UseMove::
 	ld d, a
 	; Save parameters to be used by animation callbacks.
 	ld hl, wMoveState
-	ASSERT wMoveState.userIndex + 1 == wMoveState.moveBank
+	assert wMoveState.userIndex + 1 == wMoveState.moveBank
 	ld a, b
 	ld [hli], a
 	ldh a, [hCurrentBank]
@@ -46,7 +46,7 @@ UseMove::
 	ld [hl], d
 
 	; Check the move's fatigue cost
-	ASSERT Move_Fatigue == 4
+	assert Move_Fatigue == 4
 	inc de
 	inc de
 	inc de
@@ -54,7 +54,7 @@ UseMove::
 	ld h, d
 	ld l, e
 	; hl = Move_Fatigue
-	ld c, LOW(wEntity0_Fatigue)
+	ld c, low(wEntity0_Fatigue)
 	ld a, [bc]
 	sub a, [hl]
 	jr c, .tooTired
@@ -62,7 +62,7 @@ UseMove::
 
 	; Load up printing variables
 	; First the move name
-	ASSERT Move_Fatigue + 1 == Move_Name
+	assert Move_Fatigue + 1 == Move_Name
 	inc de
 	ld hl, wfmt_xUsedMoveString_move
 	ldh a, [hCurrentBank]
@@ -76,17 +76,17 @@ UseMove::
 	ld [wfmt_xUsedMoveString_user], a
 
 	ld hl, wEntityAnimation
-	ld a, LOW(EntityAttackAnimation)
+	ld a, low(EntityAttackAnimation)
 	ld [hli], a
-	ld a, HIGH(EntityAttackAnimation)
+	ld a, high(EntityAttackAnimation)
 	ld [hli], a
-	ld a, LOW(.dispatchMoveAction)
+	ld a, low(.dispatchMoveAction)
 	ld [hli], a
-	ld a, HIGH(.dispatchMoveAction)
+	ld a, high(.dispatchMoveAction)
 	ld [hli], a
 	ld [hl], b
 
-	ld b, BANK(xUsedMoveString)
+	ld b, bank(xUsedMoveString)
 	ld hl, xUsedMoveString
 	call PrintHUD
 
@@ -100,22 +100,22 @@ UseMove::
 	; B must still be the high byte of the entity
 	ld a, b
 	; If the user is the player, print a message explaining that they are too tired.
-	cp a, HIGH(wEntity0) 
+	cp a, high(wEntity0) 
 	jr nz, .fail
 
-	ld b, BANK(xTooTiredString)
+	ld b, bank(xTooTiredString)
 	ld hl, xTooTiredString
 	call PrintHUD
 
 	ld hl, wEntityAnimation
-	ld a, LOW(EntityDelayAnimation)
+	ld a, low(EntityDelayAnimation)
 	ld [hli], a
-	ld a, HIGH(EntityDelayAnimation)
+	ld a, high(EntityDelayAnimation)
 	ld [hli], a
 	xor a, a
 	ld [hli], a
 	ld [hli], a
-	ld a, HIGH(wEntity0)
+	ld a, high(wEntity0)
 	ld [hl], a
 
 .fail
@@ -129,7 +129,7 @@ UseMove::
 	push af
 
 	ld hl, wMoveState
-	ASSERT wMoveState.userIndex + 1 == wMoveState.moveBank
+	assert wMoveState.userIndex + 1 == wMoveState.moveBank
 	ld a, [hli]
 	ld [hSaveUserIndex], a
 	ld b, a
@@ -139,7 +139,7 @@ UseMove::
 	ld e, a
 	ld d, [hl]
 	; Check move action and execute.
-	ASSERT Move_Action == 0
+	assert Move_Action == 0
 	ld a, [de]
 	ld hl, .moveActions
 	call HandleJumpTable
@@ -152,16 +152,16 @@ UseMove::
 ; @param b: Entity pointer high byte
 ; @param de: Move pointer
 .moveActions
-	ASSERT MOVE_ACTION_ATTACK == 0
+	assert MOVE_ACTION_ATTACK == 0
 	dw MoveActionAttack
-	ASSERT MOVE_ACTION_HEAL == 1
+	assert MOVE_ACTION_HEAL == 1
 	dw MoveActionHeal
-	ASSERT MOVE_ACTION_POISON == 2
+	assert MOVE_ACTION_POISON == 2
 	dw MoveActionPoison
-	ASSERT MOVE_ACTION_POISN_ATK == 3
+	assert MOVE_ACTION_POISN_ATK == 3
 	dw MoveActionPoisonAttack
 
-	ASSERT MOVE_ACTION_COUNT == 4
+	assert MOVE_ACTION_COUNT == 4
 
 ; Basic attack. Check <range> tiles in front of <entity>, and attack the first
 ; enemy seen. Deals <power> damage and has a <chance> chance of succeeding.
@@ -171,7 +171,7 @@ MoveActionAttack:
 	call CheckMoveAccuracy
 	jp c, PrintMissed
 	call ScanForEntities
-	ASSERT SCAN_ENTITY == 0
+	assert SCAN_ENTITY == 0
 	and a, a
 	jp nz, PrintMissed
 	rst Rand8
@@ -190,7 +190,7 @@ MoveActionHeal:
 	xor a, 1 ; Flip the team to check around
 	ldh [hMoveUserTeam], a
 	call ScanForEntities
-	ASSERT SCAN_ENTITY == 0
+	assert SCAN_ENTITY == 0
 	and a, a
 	; If an entity was not found, heal ourself
 	jr z, :+
@@ -206,17 +206,17 @@ MoveActionPoison:
 	call CheckMoveAccuracy
 	jp c, PrintMissed
 	call ScanForEntities
-	ASSERT SCAN_ENTITY == 0
+	assert SCAN_ENTITY == 0
 	and a, a
 	jp nz, PrintMissed
 
 	ld a, h
 	ld [wfmt_xGotPoisonedString_target], a
-	ld a, BANK(xGotPoisonedString)
+	ld a, bank(xGotPoisonedString)
 	ld [wPrintString], a
-	ld a, LOW(xGotPoisonedString)
+	ld a, low(xGotPoisonedString)
 	ld [wPrintString + 1], a
-	ld a, HIGH(xGotPoisonedString)
+	ld a, high(xGotPoisonedString)
 	ld [wPrintString + 2], a
 
 	ld b, STATUS_POISON
@@ -228,12 +228,12 @@ MoveActionPoison:
 ; @param de: Move pointer
 MoveActionPoisonAttack:
 	; This type of attack always hits; accuracy only applies to the status.
-	ASSERT Move_Chance == 1
+	assert Move_Chance == 1
 	inc de
 	push de
 		call ScanForEntities
 
-		ASSERT SCAN_ENTITY == 0
+		assert SCAN_ENTITY == 0
 		and a, a
 		jp nz, PrintMissed
 		rst Rand8
@@ -251,7 +251,7 @@ MoveActionPoisonAttack:
 	ld b, STATUS_POISON
 	jp InflictStatus
 
-SECTION "Check move accuracy", ROM0
+section "Check move accuracy", rom0
 ; Jumps to PrintMissed if the move missed.
 ; Skips over caller.
 ; @param de: move pointer
@@ -260,7 +260,7 @@ SECTION "Check move accuracy", ROM0
 ; @preserves b, hl
 ; @clobbers c
 CheckMoveAccuracy:
-	ASSERT Move_Chance == 1
+	assert Move_Chance == 1
 	inc de
 .moveChance
 	rst Rand8
@@ -269,7 +269,7 @@ CheckMoveAccuracy:
 	cp a, c
 	ret
 
-SECTION "Scan for entities", ROM0
+section "Scan for entities", rom0
 ; @param de: Move_Chance
 ; @param hSaveUserIndex: User index
 ; @return a: SCAN_ENTITY, SCAN_WALL, SCAN_NONE
@@ -283,7 +283,7 @@ ScanForEntities:
 
 	ldh a, [hSaveUserIndex]
 	ld h, a
-	ld l, LOW(wEntity0_PosX)
+	ld l, low(wEntity0_PosX)
 	ld a, [hli]
 	ld b, a
 	ld c, [hl]
@@ -291,12 +291,12 @@ ScanForEntities:
 	ldh a, [hSaveUserIndex]
 	ld h, a
 	push de
-		ld l, LOW(wEntity0_Direction)
+		ld l, low(wEntity0_Direction)
 		ld a, [hl]
 		add a, a
-		add a, LOW(DirectionVectors)
+		add a, low(DirectionVectors)
 		ld e, a
-		adc a, HIGH(DirectionVectors)
+		adc a, high(DirectionVectors)
 		sub a, e
 		ld d, a
 		ld a, [de]
@@ -304,7 +304,7 @@ ScanForEntities:
 		ld b, a
 		inc de
 		inc l
-		ASSERT Entity_PosX + 1 == Entity_PosY
+		assert Entity_PosX + 1 == Entity_PosY
 		ld a, [de]
 		add a, c
 		ld c, a
@@ -314,7 +314,7 @@ ScanForEntities:
 	push af
 		; Check for a wall; basic attacks shouldn't go through them
 		push de
-			ld a, BANK(xGetMapPosition)
+			ld a, bank(xGetMapPosition)
 			rst SwapBank
 			call xGetMapPosition
 			ld a, [de]
@@ -326,17 +326,17 @@ ScanForEntities:
 		ld a, SCAN_WALL
 		ret
 :
-		ld a, BANK(xCheckForEntity)
+		ld a, bank(xCheckForEntity)
 		rst SwapBank
 		ldh a, [hMoveUserTeam]
 		and a, a
 		jr nz, .enemyTeam
-		ld h, HIGH(wEntity0) + NB_ALLIES
-		ld a, HIGH(wEntity0) + NB_ENTITIES
+		ld h, high(wEntity0) + NB_ALLIES
+		ld a, high(wEntity0) + NB_ENTITIES
 		jr .entityCheck
 	.enemyTeam
-		ld h, HIGH(wEntity0)
-		ld a, HIGH(wEntity0) + NB_ALLIES
+		ld h, high(wEntity0)
+		ld a, high(wEntity0) + NB_ALLIES
 	.entityCheck
 		call xCheckForEntity
 	pop af
@@ -355,12 +355,12 @@ ScanForEntities:
 	ldh [hRangeCounter], a
 	jr .offsetDirection
 
-SECTION "Deal damage", ROM0
+section "Deal damage", rom0
 ; @param b: damage offset
 ; @param de: Move_Range
 ; @param h: target entity
 DealDamage:
-	ASSERT Move_Range + 1 == Move_Power
+	assert Move_Range + 1 == Move_Power
 	inc de
 	; Damage target with move power.
 	ld a, [de]
@@ -374,16 +374,16 @@ DealDamage:
 	call DamageEntity
 	; Prepare for printing.
 
-	ld b, BANK(xDealtDamageString)
+	ld b, bank(xDealtDamageString)
 	ld hl, xDealtDamageString
 	jp PrintHUD
 
-SECTION "Heal damage", ROM0
+section "Heal damage", rom0
 ; @param b: damage offset
 ; @param de: Move_Range
 ; @param h: target entity
 HealDamage:
-	ASSERT Move_Range + 1 == Move_Power
+	assert Move_Range + 1 == Move_Power
 	inc de
 	; Damage target with move power.
 	ld a, [de]
@@ -396,14 +396,14 @@ HealDamage:
 	; Prepare for printing.
 	ld a, b
 	ld [wfmt_xHealedDamageString_target], a
-	ld b, BANK(xHealedDamageString)
+	ld b, bank(xHealedDamageString)
 	ld hl, xHealedDamageString
 	call PrintHUD
 
 	ld hl, wEntityAnimation
-	ld a, LOW(EntityDelayAnimation)
+	ld a, low(EntityDelayAnimation)
 	ld [hli], a
-	ld a, HIGH(EntityDelayAnimation)
+	ld a, high(EntityDelayAnimation)
 	ld [hli], a
 	xor a, a
 	ld [hli], a
@@ -412,19 +412,19 @@ HealDamage:
 	ld [hl], a
 	ret
 
-SECTION "Print missed text", ROM0
+section "Print missed text", rom0
 ; @hSaveUserIndex: user index
 PrintMissed:
 	ldh a, [hSaveUserIndex]
 	ld h, a
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	ld [wfmt_xMissedString_user], a
 	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ASSERT EntityData_Name == 4
+	assert EntityData_Name == 4
 	inc hl
 	inc hl
 	inc hl
@@ -434,14 +434,14 @@ PrintMissed:
 	ld a, [hl]
 	ld [wfmt_xMissedString_user + 2], a
 
-	ld b, BANK(xMissedString)
+	ld b, bank(xMissedString)
 	ld hl, xMissedString
 	call PrintHUD
 
 	ld hl, wEntityAnimation
-	ld a, LOW(EntityDelayAnimation)
+	ld a, low(EntityDelayAnimation)
 	ld [hli], a
-	ld a, HIGH(EntityDelayAnimation)
+	ld a, high(EntityDelayAnimation)
 	ld [hli], a
 	xor a, a
 	ld [hli], a
@@ -450,11 +450,11 @@ PrintMissed:
 	ld [hl], a
 	ret
 
-SECTION "Defeat check", ROM0
+section "Defeat check", rom0
 DefeatCheck::
 	ld a, [wDefeatCheckTarget]
 	ld h, a
-	ld l, LOW(wEntity0_Health)
+	ld l, low(wEntity0_Health)
 	ld a, [hli]
 	or a, [hl]
 	jr z, .defeat
@@ -463,21 +463,21 @@ DefeatCheck::
 .defeat
 	ld b, h
 	ld hl, wEntityAnimation
-	ld a, LOW(EntityDefeatAnimation)
+	ld a, low(EntityDefeatAnimation)
 	ld [hli], a
-	ld a, HIGH(EntityDefeatAnimation)
+	ld a, high(EntityDefeatAnimation)
 	ld [hli], a
-	ld a, LOW(.final)
+	ld a, low(.final)
 	ld [hli], a
-	ld a, HIGH(.final)
+	ld a, high(.final)
 	ld [hli], a
 	ld [hl], b
 	ldh a, [hSaveUserIndex]
-	cp a, HIGH(wEntity0) + NB_ALLIES
+	cp a, high(wEntity0) + NB_ALLIES
 	ret nc
 	; Now reward XP to the party and print message
 	ld h, b
-	ld l, LOW(wEntity0_Level)
+	ld l, low(wEntity0_Level)
 	ld a, [hl]
 	call GetXpReward
 	ld b, a
@@ -487,11 +487,11 @@ DefeatCheck::
 
 	ld hl, wEntity0
 .rewardParty
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hl]
 	and a, a
 	jr z, .next
-	ld l, LOW(wEntity0_Experience)
+	ld l, low(wEntity0_Experience)
 	ld a, [hli]
 	add a, b
 	ld c, a
@@ -502,36 +502,36 @@ DefeatCheck::
 .next
 	inc h
 	ld a, h
-	cp a, HIGH(wEntity0) + NB_ALLIES
+	cp a, high(wEntity0) + NB_ALLIES
 	jr nz, .rewardParty
 
-	ld b, BANK(xDefeatedString)
+	ld b, bank(xDefeatedString)
 	ld hl, xDefeatedString
 	jp PrintHUD
 
 .final
 	ld a, [wDefeatCheckTarget]
 	ld h, a
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	xor a, a
 	ld [hli], a
 	ret
 
 ; User to save the parameters of UseMove for animation callbacks.
-SECTION "Move state", WRAM0
+section "Move state", wram0
 wMoveState:
 .userIndex db
 .moveBank db
 .movePointer dw
 
-SECTION "Defeat check target", WRAM0
+section "Defeat check target", wram0
 ; High byte of the entity for the coming defeat check to target.
 wDefeatCheckTarget:: db
 
-SECTION "Attack range counter", HRAM
+section "Attack range counter", hram
 hRangeCounter: db
 hSaveUserIndex: db
 
-SECTION "User Team", HRAM
+section "User Team", hram
 ; 0 if current move is being used by allies, 1 if used by enemies
 hMoveUserTeam:: db

@@ -19,13 +19,13 @@
 ;    misrepresented as being the original software.
 ; 3. This notice may not be removed or altered from any source distribution.
 
-SECTION "Call DE", ROM0
+section "Call DE", rom0
 ; Calls the value in `de` by pushing it and returning
 CallDE::
 	push de
 	ret
 
-SECTION "Jump Table", ROM0
+section "Jump Table", rom0
 ; Jumps the the `a`th pointer. 128 pointers max. Place pointers after the call
 ; using `dw`. This function is faster than a decrement table if there are 8 or
 ; more destinations, and is always smaller.

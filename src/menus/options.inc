@@ -1,8 +1,8 @@
-DEF OPTIONS_CURSOR_X EQU SCRN_VX - SCRN_X + 69
-DEF OPTIONS_CURSOR_Y EQU 20
+def OPTIONS_CURSOR_X equ SCRN_VX - SCRN_X + 69
+def OPTIONS_CURSOR_Y equ 20
 
 xOptionsMenu::
-	db BANK(@)
+	db bank(@)
 	dw xOptionsMenuInit
 	; Used Buttons
 	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
@@ -110,7 +110,7 @@ xOptionsMenuAPress:
 	ldh a, [hCurrentBank]
 	call ChangeColorROM0
 PUSHS
-SECTION "Change Color ROM0", ROM0
+section "Change Color rom0", rom0
 ChangeColorROM0:
 	push af
 	ld a, [hli]
@@ -142,7 +142,7 @@ POPS
 	ldh a, [hCurrentBank]
 	call ChangeThemeROM0
 PUSHS
-SECTION "Change Theme ROM0", ROM0
+section "Change Theme rom0", rom0
 ChangeThemeROM0:
 	push af
 	ld a, [hli]
@@ -233,7 +233,7 @@ xOptionsMenuDrawSelections:
 	ld hl, .sticky
 :
 	ld a, 1
-	ld b, BANK(@)
+	ld b, bank(@)
 	call PrintVWFText
 
 	; Text is already mostly initialized by the menu renderer.

@@ -1,17 +1,17 @@
-INCLUDE "hardware.inc"
+include "hardware.inc"
 
-SECTION "Null", ROM0[$0000]
+section "Null", rom0[$0000]
 null::
 	db 0
 Stub::
 	ret
 
-SECTION "Call HL", ROM0[$0008]
+section "Call HL", rom0[$0008]
 ; Used to call the address pointed to by `hl`. Mapped to `rst $08` or `rst CallHL`
 CallHL::
 	jp hl
 
-SECTION "Memcopy Small", ROM0[$0010]
+section "Memcopy Small", rom0[$0010]
 ; A slightly faster version of memcopy that requires less setup but can only do
 ; up to 256 bytes. Destination and source are both offset by length, in case
 ; you want to copy to or from multiple places
@@ -26,7 +26,7 @@ MemCopySmall::
 	jr nz, MemCopySmall
 	ret
 
-SECTION "Memset Small", ROM0[$0018]
+section "Memset Small", rom0[$0018]
 ; A slightly faster version of memset that requires less setup but can only do
 ; up to 256 bytes. Destination and source are both offset by length, in case
 ; you want to copy to or from multiple places
@@ -39,18 +39,18 @@ MemSetSmall::
 	jr nz, MemSetSmall
 	ret
 
-SECTION "Swap Bank", ROM0[$0020 - 1]
+section "Swap Bank", rom0[$0020 - 1]
 BankReturn::
 	pop af
 ; Sets rROMB0 and hCurrentBank to `a`
 ; @param a: Bank
 SwapBank::
-	ASSERT @ == $20
+	assert @ == $20
 	ldh [hCurrentBank], a
 	ld [rROMB0], a
 	ret
 
-SECTION "rand8", ROM0[$0028]
+section "rand8", rom0[$0028]
 ; @returns a: random value
 Rand8::
 	push hl
@@ -60,7 +60,7 @@ Rand8::
 	pop hl
 	ret
 
-SECTION "Crash", ROM0[$0038]
+section "Crash", rom0[$0038]
 Crash::
 	ld b, b
 	jr Crash

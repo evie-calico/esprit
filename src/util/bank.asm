@@ -1,4 +1,4 @@
-SECTION "Memory Copy Far", ROM0
+section "Memory Copy Far", rom0
 ; Switches the bank before performing a copy.
 ; @param  b:  bank
 ; @param  c:  length
@@ -19,6 +19,6 @@ MemCopyFar::
 	rst SwapBank
 	ret
 
-SECTION "Current Bank", HRAM
+section "Current Bank", hram
 hCurrentBank::
-	DS 1
+	ds 1

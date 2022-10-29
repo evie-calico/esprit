@@ -22,24 +22,24 @@
 ;    misrepresented as being the original software.
 ; 3. This notice may not be removed or altered from any source distribution.
 ;
-INCLUDE "hardware.inc"
+include "hardware.inc"
 
 DAS_DELAY equ 15
 DAS_SPEED equ 3
 
-P1F_NONE     EQU $30
-P1F_BUTTONS  EQU $10
-P1F_DPAD     EQU $20
+P1F_NONE     equ $30
+P1F_BUTTONS  equ $10
+P1F_DPAD     equ $20
 
-SECTION "hram_pads", HRAM
+section "hram_pads", hram
 hCurrentKeys:: ds 1
 hNewKeys:: ds 1
 
-SECTION "ram_pads", WRAM0
+section "ram_pads", wram0
 wDasKeys:: ds 1
 wDasTimer:: ds 1
 
-SECTION "rom_pads", ROM0
+section "rom_pads", rom0
 
 ; Controller reading ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

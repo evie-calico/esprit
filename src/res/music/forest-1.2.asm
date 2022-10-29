@@ -1,6 +1,6 @@
 include "include/hUGE.inc"
 
-SECTION "xForestMusic Data", ROMX
+section "xForestMusic Data", romx
 
 xForestMusic::
 db 6

@@ -21,41 +21,41 @@
 ;++++------ Period prescaler s
 
 ; Channels
-DEF PULSE1 EQU 0
-DEF PULSE2 EQU 1
-DEF WAVE EQU 2
-DEF NOISE EQU 3
+def PULSE1 equ 0
+def PULSE2 equ 1
+def WAVE equ 2
+def NOISE equ 3
 
 ; Segments
 ; Define the next byte as an envelope deep parameter.
-DEF ENVF_DPAR EQU $20
+def ENVF_DPAR equ $20
 ; Define the next byte as am envelope pitch parameter.
-DEF ENVF_PITCH EQU $10
+def ENVF_PITCH equ $10
 
 ; Pulse Channel:
-DEF PULQ_DUTY8 EQU 0 << 6
-DEF PULQ_DUTY4 EQU 1 << 6
-DEF PULQ_DUTY2 EQU 2 << 6
-DEF PUL_DECAY_DOWN EQU 0
-DEF PUL_DECAY_UP EQU 1
+def PULQ_DUTY8 equ 0 << 6
+def PULQ_DUTY4 equ 1 << 6
+def PULQ_DUTY2 equ 2 << 6
+def PUL_DECAY_DOWN equ 0
+def PUL_DECAY_UP equ 1
 
 ; Wave Channel:
-DEF WAVQ_VOLUME1 EQU 0 << 6
-DEF WAVQ_VOLUME2 EQU 1 << 6
-DEF WAVQ_VOLUME4 EQU 2 << 6
-DEF WAVQ_VOLUME0 EQU 3 << 6
+def WAVQ_VOLUME1 equ 0 << 6
+def WAVQ_VOLUME2 equ 1 << 6
+def WAVQ_VOLUME4 equ 2 << 6
+def WAVQ_VOLUME0 equ 3 << 6
 
 ; Noise Channel
-DEF NOIP_PER_NOISE EQU 0
-DEF NOIP_PER_TONE EQU 1
-MACRO sound
+def NOIP_PER_NOISE equ 0
+def NOIP_PER_TONE equ 1
+macro sound
     db \3, \4
     dw \1
-    DEF \2 RB 1
-    EXPORT \2
-ENDM
+    def \2 rb 1
+    export \2
+endm
 
-SECTION "Sound Effects", ROMX, ALIGN[4]
+section "Sound Effects", romx, ALIGN[4]
 
 sfx_table::
   sound fx_roll,          SFX_ROLL,          NOISE,  0
@@ -73,101 +73,101 @@ sfx_table::
 
 wavebank::
     ; Toothy Wave
-    DB $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0
+    db $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0, $F0
 
 fx_roll:
-    DB ENVF_DPAR|ENVF_PITCH|1, $10, $6E
-    DB ENVF_PITCH|7, $64
-    DB ENVF_PITCH|5, $57
-    DB ENVF_PITCH|7, $64
-    DB ENVF_PITCH|5, $57
+    db ENVF_DPAR|ENVF_PITCH|1, $10, $6E
+    db ENVF_PITCH|7, $64
+    db ENVF_PITCH|5, $57
+    db ENVF_PITCH|7, $64
+    db ENVF_PITCH|5, $57
 fx_land2:
-    DB ENVF_DPAR|ENVF_PITCH|5, $10, $6C
-    DB ENVF_PITCH|2, $65
-    DB ENVF_PITCH|1, $66
-    DB ENVF_PITCH|1, $67
-    DB $FF
+    db ENVF_DPAR|ENVF_PITCH|5, $10, $6C
+    db ENVF_PITCH|2, $65
+    db ENVF_PITCH|1, $66
+    db ENVF_PITCH|1, $67
+    db $FF
 fx_rolltojump:
-    DB ENVF_DPAR|ENVF_PITCH|1, $10, $5E
-    DB ENVF_PITCH|2, $54
-    DB ENVF_DPAR|ENVF_PITCH|2, $50, $25
-    DB $FF
+    db ENVF_DPAR|ENVF_PITCH|1, $10, $5E
+    db ENVF_PITCH|2, $54
+    db ENVF_DPAR|ENVF_PITCH|2, $50, $25
+    db $FF
 fx_jump:
-    DB ENVF_DPAR|ENVF_PITCH|$80, $59, 45
-    DB ENVF_PITCH|$80, 47
-    DB ENVF_PITCH|$80, 49
-    DB ENVF_DPAR|ENVF_PITCH|$80, $81, 51
-    DB ENVF_PITCH|$80, 53
-    DB ENVF_PITCH|$80, 55
-    DB ENVF_PITCH|$80, 56
-    DB ENVF_PITCH|$80, 57
-    DB $FF
+    db ENVF_DPAR|ENVF_PITCH|$80, $59, 45
+    db ENVF_PITCH|$80, 47
+    db ENVF_PITCH|$80, 49
+    db ENVF_DPAR|ENVF_PITCH|$80, $81, 51
+    db ENVF_PITCH|$80, 53
+    db ENVF_PITCH|$80, 55
+    db ENVF_PITCH|$80, 56
+    db ENVF_PITCH|$80, 57
+    db $FF
 fx_land:
-    DB ENVF_DPAR|ENVF_PITCH|$80, $81, 16
-    DB ENVF_PITCH|$80, 12
-    DB ENVF_PITCH|$80, 9
-    DB ENVF_PITCH|$80, 7
-    DB ENVF_PITCH|$80, 5
-    DB ENVF_PITCH|$81, 3
-    DB ENVF_PITCH|$82, 2
-    DB $FF
+    db ENVF_DPAR|ENVF_PITCH|$80, $81, 16
+    db ENVF_PITCH|$80, 12
+    db ENVF_PITCH|$80, 9
+    db ENVF_PITCH|$80, 7
+    db ENVF_PITCH|$80, 5
+    db ENVF_PITCH|$81, 3
+    db ENVF_PITCH|$82, 2
+    db $FF
 fx_fall:
-    DB ENVF_DPAR|ENVF_PITCH|$81, $4A, 57
-    DB ENVF_PITCH|$81, 56
-    DB ENVF_PITCH|$81, 55
-    DB ENVF_PITCH|$81, 54
-    DB ENVF_DPAR|ENVF_PITCH|$81, $80, 53
-    DB ENVF_PITCH|$81, 52
-    DB ENVF_PITCH|$81, 51
-    DB ENVF_PITCH|$81, 50
-    DB ENVF_DPAR|ENVF_PITCH|$81, $72, 49
-    DB ENVF_PITCH|$81, 48
-    DB ENVF_PITCH|$81, 47
-    DB ENVF_PITCH|$81, 46
-    DB $FF
+    db ENVF_DPAR|ENVF_PITCH|$81, $4A, 57
+    db ENVF_PITCH|$81, 56
+    db ENVF_PITCH|$81, 55
+    db ENVF_PITCH|$81, 54
+    db ENVF_DPAR|ENVF_PITCH|$81, $80, 53
+    db ENVF_PITCH|$81, 52
+    db ENVF_PITCH|$81, 51
+    db ENVF_PITCH|$81, 50
+    db ENVF_DPAR|ENVF_PITCH|$81, $72, 49
+    db ENVF_PITCH|$81, 48
+    db ENVF_PITCH|$81, 47
+    db ENVF_PITCH|$81, 46
+    db $FF
 fx_point:
-    DB ENVF_DPAR|ENVF_PITCH|$84, $C1, 48
-    DB ENVF_DPAR|ENVF_PITCH|$88, $C1, 55
-    DB $FF
+    db ENVF_DPAR|ENVF_PITCH|$84, $C1, 48
+    db ENVF_DPAR|ENVF_PITCH|$88, $C1, 55
+    db $FF
 fx_complete:
-    DB ENVF_DPAR|ENVF_PITCH|$43, $C1, 36
-    DB ENVF_DPAR|ENVF_PITCH|$43, $C1, 38
-    DB ENVF_DPAR|ENVF_PITCH|$43, $C1, 40
-    DB ENVF_DPAR|ENVF_PITCH|$43, $C1, 36
-    DB ENVF_DPAR|ENVF_PITCH|$43, $D1, 40
-    DB ENVF_DPAR|ENVF_PITCH|$43, $E1, 43
-    DB ENVF_DPAR|ENVF_PITCH|$43, $F1, 48
-    DB ENVF_PITCH|$41, 43
-    DB ENVF_PITCH|$43, 48
-    DB ENVF_PITCH|$41, 43
-    DB ENVF_PITCH|$41, 48
-    DB ENVF_PITCH|$41, 43
-    DB ENVF_PITCH|$41, 48
-    DB $FF
+    db ENVF_DPAR|ENVF_PITCH|$43, $C1, 36
+    db ENVF_DPAR|ENVF_PITCH|$43, $C1, 38
+    db ENVF_DPAR|ENVF_PITCH|$43, $C1, 40
+    db ENVF_DPAR|ENVF_PITCH|$43, $C1, 36
+    db ENVF_DPAR|ENVF_PITCH|$43, $D1, 40
+    db ENVF_DPAR|ENVF_PITCH|$43, $E1, 43
+    db ENVF_DPAR|ENVF_PITCH|$43, $F1, 48
+    db ENVF_PITCH|$41, 43
+    db ENVF_PITCH|$43, 48
+    db ENVF_PITCH|$41, 43
+    db ENVF_PITCH|$41, 48
+    db ENVF_PITCH|$41, 43
+    db ENVF_PITCH|$41, 48
+    db $FF
 fx_launch:
-    DB ENVF_DPAR|ENVF_PITCH|$80, $F1, 58
-    DB ENVF_PITCH|$40, 28
-    DB ENVF_PITCH|$8D, 26
-    DB $FF
+    db ENVF_DPAR|ENVF_PITCH|$80, $F1, 58
+    db ENVF_PITCH|$40, 28
+    db ENVF_PITCH|$8D, 26
+    db $FF
 fx_achieve:
-    DB ENVF_DPAR|ENVF_PITCH|$81, $C1, 37
-    DB $42
-    DB $81
-    DB ENVF_DPAR|ENVF_PITCH|$43, $C1, 49
-    DB $42
-    DB $84
-    DB $FF
+    db ENVF_DPAR|ENVF_PITCH|$81, $C1, 37
+    db $42
+    db $81
+    db ENVF_DPAR|ENVF_PITCH|$43, $C1, 49
+    db $42
+    db $84
+    db $FF
 fx_combostop:
-    DB ENVF_DPAR|ENVF_PITCH|$42, $A1, 31
-    DB ENVF_DPAR|ENVF_PITCH|$42, $A1, 36
-    DB ENVF_DPAR|ENVF_PITCH|$41, $A1, 40
-    DB $82
-    DB ENVF_DPAR|ENVF_PITCH|$42, $A1, 31
-    DB ENVF_DPAR|ENVF_PITCH|$42, $A1, 34
-    DB ENVF_DPAR|ENVF_PITCH|$41, $A1, 38
-    DB $86
-    DB $FF
+    db ENVF_DPAR|ENVF_PITCH|$42, $A1, 31
+    db ENVF_DPAR|ENVF_PITCH|$42, $A1, 36
+    db ENVF_DPAR|ENVF_PITCH|$41, $A1, 40
+    db $82
+    db ENVF_DPAR|ENVF_PITCH|$42, $A1, 31
+    db ENVF_DPAR|ENVF_PITCH|$42, $A1, 34
+    db ENVF_DPAR|ENVF_PITCH|$41, $A1, 38
+    db $86
+    db $FF
 fx_lowcombo_bonk:
-    DB ENVF_DPAR|ENVF_PITCH|2, $43, $5D
-    DB ENVF_PITCH|2, $4D
-    DB $FF
+    db ENVF_DPAR|ENVF_PITCH|2, $43, $5D
+    db ENVF_PITCH|2, $4D
+    db $FF

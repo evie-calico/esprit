@@ -1,44 +1,44 @@
-INCLUDE "entity.inc"
+include "entity.inc"
 
-MACRO status
-	IF !DEF(STATUS_COUNT)
-		DEF STATUS_COUNT = 0
-	ENDC
+macro status
+	if !def(STATUS_COUNT)
+		def STATUS_COUNT = 0
+	endc
 
-	DEF STATUS_COUNT += 1
+	def STATUS_COUNT += 1
 
-	DEF \1 EQU STATUS_COUNT
-	EXPORT \1
+	def \1 equ STATUS_COUNT
+	export \1
 
-	DEF STATUS{d:STATUS_COUNT}_NAME EQUS "\2"
-ENDM
+	def STATUS{d:STATUS_COUNT}_NAME equs "\2"
+endm
 
-MACRO turns
-	DEF STATUS{d:STATUS_COUNT}_TURNS EQU (\1) + 1
-ENDM
+macro turns
+	def STATUS{d:STATUS_COUNT}_TURNS equ (\1) + 1
+endm
 
-	DEF STATUS_OK EQU 0
-	EXPORT STATUS_OK
+	def STATUS_OK equ 0
+	export STATUS_OK
 
 	status STATUS_POISON, "Poison"
 		turns 16
 
 ; Export this at the end of the defintions to ensure that the latest value is what is exported
-DEF STATUS_COUNT += 1
-EXPORT STATUS_COUNT
+def STATUS_COUNT += 1
+export STATUS_COUNT
 
-SECTION "Inflict status", ROM0
+section "Inflict status", rom0
 ; @param h: Entity index
 ; @param b: Status effect
 InflictStatus::
 	ldh a, [hCurrentBank]
 	push af
 
-	ld l, LOW(wEntity0_StatusEffect)
+	ld l, low(wEntity0_StatusEffect)
 	ld [hl], b
 	inc l
 
-	ld a, BANK(xStatusGetTurnCount)
+	ld a, bank(xStatusGetTurnCount)
 	rst SwapBank
 	ld a, b
 	call xStatusGetTurnCount
@@ -49,13 +49,13 @@ InflictStatus::
 
 	jp BankReturn
 
-SECTION "Pre-Turn Status Update", ROMX
+section "Pre-Turn Status Update", romx
 ; Update any status effects which occur after the entity's turn.
 ; Eahc handler recieves Entity_StatusEffect in HL.
 ; @param h: Entity index
 ; @clobbers all
 xStatusPostTurnUpdate::
-	ld l, LOW(wEntity0_StatusTurns)
+	ld l, low(wEntity0_StatusTurns)
 	ld a, [hl]
 	and a, a
 	ret z
@@ -68,7 +68,7 @@ xStatusPostTurnUpdate::
 		ld [wForceHudUpdate], a
 		ret
 .turnsRemaining
-	ASSERT Entity_StatusTurns - 1 == Entity_StatusEffect
+	assert Entity_StatusTurns - 1 == Entity_StatusEffect
 	dec l
 
 	; As more effects are added, this may constitute a more efficient check.
@@ -78,7 +78,7 @@ xStatusPostTurnUpdate::
 	ret nz
 ; Deal 1-4 damage to an entity every 8 turns.
 xPoisonPostTurnUpdate:
-	ASSERT Entity_StatusEffect + 1 == Entity_StatusTurns
+	assert Entity_StatusEffect + 1 == Entity_StatusTurns
 	inc l
 	ld a, [hl]
 	dec a
@@ -92,33 +92,33 @@ xPoisonPostTurnUpdate:
 	ld e, a
 	jp DamageEntity
 
-SECTION "Get Status Turn Count", ROMX
+section "Get Status Turn Count", romx
 ; @param a: Status ID
 ; @return a: Status Turns
 ; @clobbers: de
 xStatusGetTurnCount:
-	ASSERT STATUS_COUNT <= 128
-	add a, LOW(.table - 1)
+	assert STATUS_COUNT <= 128
+	add a, low(.table - 1)
 	ld e, a
-	adc a, HIGH(.table - 1)
+	adc a, high(.table - 1)
 	sub a, e
 	ld d, a
 	ld a, [de]
 	ret
 
 .table
-	FOR i, 1, STATUS_COUNT
+	for i, 1, STATUS_COUNT
 		db STATUS{d:i}_TURNS
-	ENDR
+	endr
 
-SECTION "Status Names", ROM0
+section "Status Names", rom0
 ; @param a: Status ID
 xStatusGetName::
-	ASSERT STATUS_COUNT <= 128
+	assert STATUS_COUNT <= 128
 	add a, a
-	add a, LOW(.names - 2)
+	add a, low(.names - 2)
 	ld l, a
-	adc a, HIGH(.names - 2)
+	adc a, high(.names - 2)
 	sub a, l
 	ld h, a
 	ld a, [hli]
@@ -127,13 +127,13 @@ xStatusGetName::
 	ret
 
 .names
-	FOR i, 1, STATUS_COUNT
+	for i, 1, STATUS_COUNT
 		dw .status{d:i}
-	ENDR
+	endr
 
-	FOR i, 1, STATUS_COUNT
+	for i, 1, STATUS_COUNT
 		.status{d:i} db STATUS{d:i}_NAME, 0
-	ENDR
+	endr
 
-SECTION "wInflictStatusTarget", WRAM0
+section "wInflictStatusTarget", wram0
 wInflictStatusTarget: db

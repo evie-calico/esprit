@@ -20,83 +20,83 @@
 ; 3. This notice may not be removed or altered from any source distribution.
 ;
 
-	IF !DEF(VDEF_INC)
-DEF VDEF_INC EQU 1
+	if !def(VDEF_INC)
+def VDEF_INC equ 1
 
-MACRO dtile_section ; address
-	ASSERT _NARG == 1, "Expected 1 argument."
-	REDEF _dtile_section = \1
-ENDM
+macro dtile_section ; address
+	assert _NARG == 1, "Expected 1 argument."
+	redef _dtile_section = \1
+endm
 
-MACRO dtile_align
-	IF _dtile_section & 1
-		REDEF _dtile_section = \1 + 1
-	ENDC
-ENDM
+macro dtile_align
+	if _dtile_section & 1
+		redef _dtile_section = \1 + 1
+	endc
+endm
 
 ; Define a tile in VRAM. Must provide a name for the tile, and optionally its
 ; size in tiles. This produces 2 constants, an address pointing to the beginning
 ; of the tile, and an idof_ constant to get the tile's ID
-MACRO dtile ; Name, [Size in tiles]
-	ASSERT _NARG == 1 || _NARG == 2, "Expected 1 or 2 arguments!"
-	ASSERT DEF(_dtile_section), "Please set dtile_section."
-	ASSERT _dtile_section >= $8000 && _dtile_section < $9800, "Address {_dtile_section} is outside of VRAM tile range!"
-	IF _dtile_section >= $9000
-		DEF idof_\1 EQU (_dtile_section - $9000) / 16
-	ELSE
-		DEF idof_\1 EQU (_dtile_section - $8000) / 16
-	ENDC
-	IF _NARG == 1
-		DEF \1 EQU _dtile_section
-		DEF sizeof_\1 EQU 16
-		REDEF _dtile_section = _dtile_section + 16
-	ELSE
-		DEF \1 EQU _dtile_section
-		DEF sizeof_\1 EQU (\2) * 16
-		REDEF _dtile_section = _dtile_section + (\2) * 16
-	ENDC
-ENDM
+macro dtile ; Name, [Size in tiles]
+	assert _NARG == 1 || _NARG == 2, "Expected 1 or 2 arguments!"
+	assert def(_dtile_section), "Please set dtile_section."
+	assert _dtile_section >= $8000 && _dtile_section < $9800, "Address {_dtile_section} is outside of VRAM tile range!"
+	if _dtile_section >= $9000
+		def idof_\1 equ (_dtile_section - $9000) / 16
+	else
+		def idof_\1 equ (_dtile_section - $8000) / 16
+	endc
+	if _NARG == 1
+		def \1 equ _dtile_section
+		def sizeof_\1 equ 16
+		redef _dtile_section = _dtile_section + 16
+	else
+		def \1 equ _dtile_section
+		def sizeof_\1 equ (\2) * 16
+		redef _dtile_section = _dtile_section + (\2) * 16
+	endc
+endm
 
-MACRO dtile_union ; Name
-	ASSERT _NARG == 1 || _NARG == 2, "Expected 1 argument!"
-	ASSERT DEF(_dtile_section), "Please set dtile_section."
-	ASSERT _dtile_section >= $8000 && _dtile_section < $9800, "Address {_dtile_section} is outside of VRAM tile range!"
-	IF _dtile_section >= $9000
-		DEF idof_\1 EQU (_dtile_section - $9000) / 16
-	ELSE
-		DEF idof_\1 EQU (_dtile_section - $8000) / 16
-	ENDC
-	DEF \1 EQU _dtile_section
-ENDM
+macro dtile_union ; Name
+	assert _NARG == 1 || _NARG == 2, "Expected 1 argument!"
+	assert def(_dtile_section), "Please set dtile_section."
+	assert _dtile_section >= $8000 && _dtile_section < $9800, "Address {_dtile_section} is outside of VRAM tile range!"
+	if _dtile_section >= $9000
+		def idof_\1 equ (_dtile_section - $9000) / 16
+	else
+		def idof_\1 equ (_dtile_section - $8000) / 16
+	endc
+	def \1 equ _dtile_section
+endm
 
-MACRO dtile_anon ; [Size in tiles]
-	ASSERT _NARG == 1, "Expected 1 argument!"
-	ASSERT DEF(_dtile_section), "Please set dtile_section."
-	ASSERT _dtile_section >= $8000 && _dtile_section < $9800, "Address {_dtile_section} is outside of VRAM tile range!"
-	REDEF _dtile_section = _dtile_section + (\1) * 16
-ENDM
+macro dtile_anon ; [Size in tiles]
+	assert _NARG == 1, "Expected 1 argument!"
+	assert def(_dtile_section), "Please set dtile_section."
+	assert _dtile_section >= $8000 && _dtile_section < $9800, "Address {_dtile_section} is outside of VRAM tile range!"
+	redef _dtile_section = _dtile_section + (\1) * 16
+endm
 
-MACRO get_id ; dest
-	IF _dtile_section >= $9000
-		DEF \1 EQU (_dtile_section - $9000) / 16
-	ELSE
-		DEF \1 EQU (_dtile_section - $8000) / 16
-	ENDC
-ENDM
+macro get_id ; dest
+	if _dtile_section >= $9000
+		def \1 equ (_dtile_section - $9000) / 16
+	else
+		def \1 equ (_dtile_section - $8000) / 16
+	endc
+endm
 
 ; Create a tile region in VRAM.
-MACRO dregion ; Name, x, y, width, height, [address]
-	IF _NARG == 5
-		DEF \1 EQU $9800 + \2 + \3 * 32
-	ELIF _NARG == 6
-		DEF \1 EQU \6 + \2 + \3 * 32
-	ELSE
-		ASSERT _NARG == 5 || _NARG == 6, "Expected 5 or 6 arguments!"
-	ENDC
-	DEF \1_X EQU \2
-	DEF \1_Y EQU \3
-	DEF \1_Width EQU \4
-	DEF \1_Height EQU \5
-ENDM
+macro dregion ; Name, x, y, width, height, [address]
+	if _NARG == 5
+		def \1 equ $9800 + \2 + \3 * 32
+	elif _NARG == 6
+		def \1 equ \6 + \2 + \3 * 32
+	else
+		assert _NARG == 5 || _NARG == 6, "Expected 5 or 6 arguments!"
+	endc
+	def \1_X equ \2
+	def \1_Y equ \3
+	def \1_Width equ \4
+	def \1_Height equ \5
+endm
 
-	ENDC
+	endc

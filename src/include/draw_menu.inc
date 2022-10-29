@@ -1,9 +1,9 @@
-IF !DEF(DRAW_MENU_INC)
-DEF DRAW_MENU_INC EQU 1
+if !def(DRAW_MENU_INC)
+def DRAW_MENU_INC equ 1
 
-INCLUDE "structs.inc"
-INCLUDE "vdef.inc"
-INCLUDE "res/ui/optix_glyphs.inc"
+include "structs.inc"
+include "vdef.inc"
+include "res/ui/optix_glyphs.inc"
 
 	struct Cursor
 		bytes 1, X
@@ -12,40 +12,40 @@ INCLUDE "res/ui/optix_glyphs.inc"
 		bytes 1, Attribute
 	end_struct
 
-RSRESET
-DEF MENUDRAW_END RB 1
-DEF MENUDRAW_SET_BACKGROUND RB 1
-DEF MENUDRAW_LOAD_TILES RB 1
-DEF MENUDRAW_PRINT_TEXT RB 1
-DEF MENUDRAW_SET_SLACK RB 1
-DEF MENUDRAW_END_DMG RB 1
-DEF MENUDRAW_END_CGB RB 1
+rsreset
+def MENUDRAW_END rb 1
+def MENUDRAW_SET_BACKGROUND rb 1
+def MENUDRAW_LOAD_TILES rb 1
+def MENUDRAW_PRINT_TEXT rb 1
+def MENUDRAW_SET_SLACK rb 1
+def MENUDRAW_END_DMG rb 1
+def MENUDRAW_END_CGB rb 1
 
-DEF MENUDRAW_MAX RB 0
+def MENUDRAW_MAX rb 0
 
 	dtile_section $8800
 	; Scratch space, used for allocating additional graphics
 	dtile_union vScratchSpace
 
-DEF end_menu EQUS "db MENUDRAW_END"
-DEF end_dmg  EQUS "db MENUDRAW_END_DMG"
-DEF end_cgb  EQUS "db MENUDRAW_END_CGB"
+def end_menu equs "db MENUDRAW_END"
+def end_dmg  equs "db MENUDRAW_END_DMG"
+def end_cgb  equs "db MENUDRAW_END_CGB"
 
-MACRO set_region ; tile id
+macro set_region ; tile id
 	db MENUDRAW_SET_BACKGROUND
 	db \3, \4, \5
-	IF _NARG > 5
+	if _NARG > 5
 		dw (\6) + (\1) + (\2) * 32
-	ELSE
+	else
 		dw $9800 + (\1) + (\2) * 32
-	ENDC
-ENDM
+	endc
+endm
 
-MACRO set_tile; tile id
+macro set_tile; tile id
 	set_region \1, \2, 1, 1, \3
-ENDM
+endm
 
-MACRO set_frame ; region, frame
+macro set_frame ; region, frame
 	set_tile \1_X, \1_Y, \2 ; Top left
 	set_region \1_X + 1, \1_Y, \1_Width - 2, 1, \2 + 1 ; Top
 	set_tile \1_X + \1_Width - 1, \1_Y, \2 + 2 ; Top right
@@ -54,17 +54,17 @@ MACRO set_frame ; region, frame
 	set_tile \1_X, \1_Y + \1_Height - 1, \2 + 6; Bottom left
 	set_region \1_X + 1, \1_Y + \1_Height - 1, \1_Width - 2, 1, \2 + 7 ; Bottom
 	set_tile \1_X + \1_Width - 1, \1_Y + \1_Height - 1, \2 + 8 ; Bottom right
-ENDM
+endm
 
-MACRO load_tiles ; tile ptr, tile count, name
+macro load_tiles ; tile ptr, tile count, name
 	dtile \3, (\2)
 	db MENUDRAW_LOAD_TILES
-	db BANK(\1)
+	db bank(\1)
 	dw (\2) * 16
 	dw (\1)
-ENDM
+endm
 
-MACRO print_text ; X, Y, string, [length hint]
+macro print_text ; X, Y, string, [length hint]
 	db MENUDRAW_PRINT_TEXT
 	; Ask vdef for the current tile ID and place it first.
 	get_id CUR_ID
@@ -72,19 +72,19 @@ MACRO print_text ; X, Y, string, [length hint]
 
 	; This macro can loosely guess at the length of a string if the user can't
 	; be bothered to figure it out.
-	IF _NARG == 4
-		WARN "Unneeded length hint"
-	ENDC
+	if _NARG == 4
+		warn "Unneeded length hint"
+	endc
 
-	DEF WIDTH = 1
-	FOR I, 1, STRLEN(\3)
-		DEF GLYPH = CHARSUB(\3, I)
-		DEF WIDTH += glyph{d:GLYPH}
-	ENDR
+	def WIDTH = 1
+	for I, 1, strlen(\3)
+		def GLYPH = CHARSUB(\3, I)
+		def WIDTH += glyph{d:GLYPH}
+	endr
 	db CUR_ID + (WIDTH / 8) + 1
 	dtile_anon (WIDTH / 8) + 1
 
-	PURGE CUR_ID, WIDTH, GLYPH
+	purge CUR_ID, WIDTH, GLYPH
 
 	; Now place the tilemap address
 	dw $9800 + \1 + \2 * 32
@@ -92,13 +92,13 @@ MACRO print_text ; X, Y, string, [length hint]
 	; And inline the string
 	db \3
 	db 0
-ENDM
+endm
 
 ; Set the VRAM slack to a given address. This is intended for creating overlayed
 ; menus without once menu overwriting the other.
-MACRO set_slack ; address
+macro set_slack ; address
 	db MENUDRAW_SET_SLACK
 	dw \1
-ENDM
+endm
 
-ENDC
+endc

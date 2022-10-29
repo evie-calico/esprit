@@ -1,5 +1,5 @@
 xPartyMenu::
-	db BANK(@)
+	db bank(@)
 	dw xPartyMenuInit
 	; Used Buttons
 	db PADF_A | PADF_B | PADF_UP | PADF_DOWN

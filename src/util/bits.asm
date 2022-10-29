@@ -1,4 +1,4 @@
-SECTION "Get Bit A", ROM0
+section "Get Bit A", rom0
 ; Returns the mask of the input value
 ; @ input:
 ; @ a:  Value

@@ -1,60 +1,60 @@
-INCLUDE "defines.inc"
-INCLUDE "dungeon.inc"
+include "defines.inc"
+include "dungeon.inc"
 
 ; name, tileset, type, floors, completion flag, music, tick function
 ; item0, item1, item2, item3, items per floor,
 ; (entity ptr, entity level) * DUNGEON_ENTITY_COUNT
-MACRO dungeon
-	REDEF NAME EQUS "\1"
-	REDEF TILESET EQUS "\2"
-	REDEF TYPE EQUS "\3"
-	REDEF FLOORS EQUS "\4"
-	REDEF FLAG EQUS "\5"
-	REDEF MUSIC EQUS "\6"
-	REDEF TICK_FUNCTION EQUS "\7"
-	SECTION "{NAME} Dungeon", ROMX
+macro dungeon
+	redef NAME equs "\1"
+	redef TILESET equs "\2"
+	redef TYPE equs "\3"
+	redef FLOORS equs "\4"
+	redef FLAG equs "\5"
+	redef MUSIC equs "\6"
+	redef TICK_FUNCTION equs "\7"
+	section "{NAME} Dungeon", romx
 	{NAME}:: dw .tileset, .palette
 
-	SHIFT 7
+	shift 7
 	farptr \1
 	farptr \2
 	farptr \3
 	farptr \4
 	db DUNGEON_TYPE_{TYPE}, (FLOORS) + 1, (\5)
 
-	SHIFT 5 - 2
-	REPT DUNGEON_ENTITY_COUNT
-		SHIFT 2
+	shift 5 - 2
+	rept DUNGEON_ENTITY_COUNT
+		shift 2
 		db \2
 		farptr \1
-	ENDR
+	endr
 
 	db {FLAG}
 
 	dw {MUSIC}
-	db BANK({MUSIC})
+	db bank({MUSIC})
 
 	dw {TICK_FUNCTION}
 
-	ASSERT sizeof_Dungeon == 57
-	.tileset INCBIN {TILESET}
-ENDM
+	assert sizeof_Dungeon == 57
+	.tileset incbin {TILESET}
+endm
 
-MACRO dungeon_palette
+macro dungeon_palette
 .palette
-	REDEF BACKGROUND_RED EQU \1
-	REDEF BACKGROUND_GREEN EQU \2
-	REDEF BACKGROUND_BLUE EQU \3
-	REPT 3
+	redef BACKGROUND_RED equ \1
+	redef BACKGROUND_GREEN equ \2
+	redef BACKGROUND_BLUE equ \3
+	rept 3
 		rgb BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE
-		SHIFT 3
+		shift 3
 		rgb \1, \2, \3
-		SHIFT 3
+		shift 3
 		rgb \1, \2, \3
-		SHIFT 3
+		shift 3
 		rgb \1, \2, \3
-	ENDR
-ENDM
+	endr
+endm
 
 	dungeon xForestDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, xForestMusic, null, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
@@ -135,9 +135,9 @@ xLakeAnimationFunction:
 	add a, a ; a * 4 (36)
 	add a, a ; a * 8 (72)
 	add a, a ; a * 16 (144)
-	add a, LOW(xLakeAnimationFrames / 4)
+	add a, low(xLakeAnimationFrames / 4)
 	ld l, a
-	adc a, HIGH(xLakeAnimationFrames / 4)
+	adc a, high(xLakeAnimationFrames / 4)
 	sub a, l
 	ld h, a
 	add hl, hl
@@ -148,9 +148,9 @@ xLakeAnimationFunction:
 	jp VRAMCopySmall
 
 ALIGN 2
-xLakeAnimationFrames: INCBIN "res/dungeons/lake_animation.2bpp"
+xLakeAnimationFrames: incbin "res/dungeons/lake_animation.2bpp"
 
-SECTION FRAGMENT "dungeon BSS", WRAM0
+section FRAGMENT "dungeon BSS", wram0
 wLakeAnimationCounter: db
 
 	dungeon xPlainsDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_PLAINS_COMPLETE, xLakeMusic, null, \

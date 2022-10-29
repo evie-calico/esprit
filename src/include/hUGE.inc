@@ -1,10 +1,10 @@
 ; This file is to be included by generated songs as well.
 
-MACRO dn ;; (note, instr, effect)
+macro dn ;; (note, instr, effect)
     db (\1 | ((\2 & %00010000) << 3))
     db (((\2 << 4) & $FF) | (\3 >> 8))
-    db LOW(\3)
-ENDM
+    db low(\3)
+endm
 
 rsreset
 def C_3 rb

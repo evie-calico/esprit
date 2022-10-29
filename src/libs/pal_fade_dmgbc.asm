@@ -1,12 +1,12 @@
-INCLUDE "hardware.inc"
+include "hardware.inc"
 
-SECTION "Fading", ROM0
+section "Fading", rom0
 
-MACRO wait_vram
+macro wait_vram
 :	ldh a, [rSTAT]
 	and a, STATF_BUSY
 	jr nz, :-
-ENDM
+endm
 
 ; Reload current colors
 ; @param a: Background palette mask
@@ -24,7 +24,7 @@ ReloadColor::
 	ret
 
 FadeDMGToWhite:
-	ld c, LOW(hBGP)
+	ld c, low(hBGP)
 	ld hl, wBGP
 .fadeDMGPalToWhite
 	ld a, [hli]
@@ -46,7 +46,7 @@ FadeDMGToWhite:
 	ldh [c], a
 	ld a, c
 	inc c
-	cp LOW(hOBP1)
+	cp low(hOBP1)
 	jr nz, .fadeDMGPalToWhite
 	ret
 
@@ -78,7 +78,7 @@ FadePaletteBuffers:: ;; --------- ENTRY POINT ------
 	ld [hli], a
 	assert wFadeAmount + 1 == wBGPaletteMask
 	add a, a ; Test sign bit
-	ld c, LOW(rBCPS)
+	ld c, low(rBCPS)
 	jr nc, .fadeToBlack
 
 	ld d, a
@@ -97,7 +97,7 @@ FadePaletteBuffers:: ;; --------- ENTRY POINT ------
 	jr nc, .noWhiteFade
 	ld b, 4
 	ld a, c
-	cp LOW(rOCPD)
+	cp low(rOCPD)
 	jr nz, .fadeColorToWhite
 	dec b
 	; Do two dummy writes to advance index
@@ -145,7 +145,7 @@ FadePaletteBuffers:: ;; --------- ENTRY POINT ------
 	jr nz, .fadePaletteToWhite
 	inc c
 	ld a, c
-	cp LOW(rOCPS)
+	cp low(rOCPS)
 	jr z, .fadeBufferToWhite
 	ret
 
@@ -183,7 +183,7 @@ FadePaletteBuffers:: ;; --------- ENTRY POINT ------
 	ld b, 4
 	; OBJ palettes only have 3 colors
 	ld a, c
-	cp LOW(rOCPD)
+	cp low(rOCPD)
 	jr nz, .fadeColorToBlack
 	dec b
 	; Do two dummy writes to advance index
@@ -231,7 +231,7 @@ FadePaletteBuffers:: ;; --------- ENTRY POINT ------
 	jr nz, .fadePaletteToBlack
 	inc c
 	ld a, c
-	cp LOW(rOCPS)
+	cp low(rOCPS)
 	jr z, .fadeBufferToBlack
 	ret
 
@@ -250,7 +250,7 @@ FadePaletteBuffers:: ;; --------- ENTRY POINT ------
 	jr .fadedPaletteBlack
 
 .fadeDMGToBlack
-	ld c, LOW(hBGP)
+	ld c, low(hBGP)
 	ld hl, wBGP
 .fadeDMGPalToBlack
 	ld a, [hli]
@@ -272,16 +272,16 @@ FadePaletteBuffers:: ;; --------- ENTRY POINT ------
 	ldh [c], a
 	ld a, c
 	inc c
-	cp LOW(hOBP1)
+	cp low(hOBP1)
 	jr nz, .fadeDMGPalToBlack
 	ret
 
 PUSHS
-SECTION UNION "Scratch buffer", HRAM
+section UNION "Scratch buffer", hram
 
 hPaletteMask: db
 
-SECTION "Fade state memory", WRAM0
+section "Fade state memory", wram0
 
 wFadeSteps:: db ; Number of fade steps to take
 wFadeDelta:: db ; Value to add to wFadeAmount on each step
@@ -303,7 +303,7 @@ wBGP:: db
 wOBP0:: db
 wOBP1:: db
 
-SECTION "Shadow Pals", HRAM
+section "Shadow Pals", hram
 hBGP:: db
 hOBP0:: db
 hOBP1:: db

@@ -1,20 +1,20 @@
-INCLUDE "entity.inc"
+include "entity.inc"
 
-DEF PLAYER_SPACING EQU 24
+def PLAYER_SPACING equ 24
 
-DEF vPlayerDescriptions EQU $9540
-DEF idof_vPlayerDescriptions EQU (vPlayerDescriptions >> 4) & $FF
+def vPlayerDescriptions equ $9540
+def idof_vPlayerDescriptions equ (vPlayerDescriptions >> 4) & $FF
 
-RSRESET
-DEF USE_ITEM_ANIM_STOPPED RB 1
-DEF USE_ITEM_ANIM_BEGIN RB 11
-DEF USE_ITEM_ANIM_HURT RB 8
-DEF USE_ITEM_ANIM_ATTK RB 8
-DEF USE_ITEM_ANIM_IDLE RB 16
-DEF USE_ITEM_ANIM_END RB 0
+rsreset
+def USE_ITEM_ANIM_STOPPED rb 1
+def USE_ITEM_ANIM_BEGIN rb 11
+def USE_ITEM_ANIM_HURT rb 8
+def USE_ITEM_ANIM_ATTK rb 8
+def USE_ITEM_ANIM_IDLE rb 16
+def USE_ITEM_ANIM_END rb 0
 
 xUseItemMenu::
-	db BANK(@)
+	db bank(@)
 	dw xUseItemMenuInit
 	; Used Buttons
 	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
@@ -58,18 +58,18 @@ xUseItemMenuInit:
 	ld a, 12 * 8
 	call TextInit
 	ld hl, wUseItemCurrentPalette
-	ld a, LOW(wOBJPaletteBuffer + 3 * 3 * 2)
+	ld a, low(wOBJPaletteBuffer + 3 * 3 * 2)
 	ld [hli], a
-	ld [hl], HIGH(wOBJPaletteBuffer + 3 * 3 * 2)
-	FOR I, 3
+	ld [hl], high(wOBJPaletteBuffer + 3 * 3 * 2)
+	for I, 3
 		ld hl, wCurrentTextPosition
-		ld a, LOW($9800 + 17 + (19 + I * 3) * 32)
+		ld a, low($9800 + 17 + (19 + I * 3) * 32)
 		ld [hli], a
-		ld [hl], HIGH($9800 + 17 + (19 + I * 3) * 32)
-		ld h, HIGH(wEntity{d:I})
+		ld [hl], high($9800 + 17 + (19 + I * 3) * 32)
+		ld h, high(wEntity{d:I})
 		ld de, vPlayer{d:I}
 		call UseItemLoadEntity
-	ENDR
+	endr
 
 	xor a, a
 	ld [wUseAnimationTimer], a
@@ -132,7 +132,7 @@ xUseItemMenuRedraw:
 		; redraw stats.
 		push bc
 		ld a, b
-		add a, HIGH(wEntity0)
+		add a, high(wEntity0)
 		ld b, a
 		ld a, [wInventorySelection]
 		call InventoryUseItem
@@ -150,14 +150,14 @@ xUseItemMenuRedraw:
 	.load
 		call UseItemLoadAnimation
 		PUSHS
-		SECTION "Use Item Handle Animation", ROM0
+		section "Use Item Handle Animation", rom0
 		UseItemLoadAnimation:
 			; b: selection
 			; de: Entity graphic offset
 			ld a, b
-			add a, HIGH(wEntity0)
+			add a, high(wEntity0)
 			ld h, a
-			ld l, LOW(wEntity0_Bank)
+			ld l, low(wEntity0_Bank)
 			ld a, [hli]
 			; There's no way bank can be null if we're in the middle of an
 			; animation
@@ -165,24 +165,24 @@ xUseItemMenuRedraw:
 			ld a, [hli]
 			ld h, [hl]
 			ld l, a
-			ASSERT EntityData_Graphics == 0
+			assert EntityData_Graphics == 0
 			ld a, [hli]
 			ld h, [hl]
 			ld l, a
 			add hl, de
 			ld de, (vPlayer0 & $7FFF) << 1
-			ASSERT (vPlayer1 - vPlayer0) << 1 == 256
+			assert (vPlayer1 - vPlayer0) << 1 == 256
 		.mult
 			inc d
 			dec b
 			jr nz, .mult
-			ASSERT vPlayer0 & $8000 != 0
+			assert vPlayer0 & $8000 != 0
 			scf
 			rr d
 			rr e
 			ld c, 64
 			call VRAMCopySmall
-			ld a, BANK("Pause Menu")
+			ld a, bank("Pause Menu")
 			rst SwapBank
 			ret
 		POPS
@@ -223,9 +223,9 @@ xUseItemMenuA:
 	ld l, a
 	inc hl
 	ld a, [hli]
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	ld h, a
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hl]
 	and a, a
 	ret z
@@ -272,9 +272,9 @@ xUseItemDrawPlayer:
 	jp RenderSimpleSprite
 
 PUSHS
-SECTION "Use item Menu ROM0", ROM0
+section "Use item Menu rom0", rom0
 UseItemLoadEntity:
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	and a, a
 	jr nz, .exists
@@ -298,13 +298,13 @@ UseItemLoadEntity:
 		ld a, [hli]
 		ld h, [hl]
 		ld l, a
-		ASSERT EntityData_Graphics == 0
+		assert EntityData_Graphics == 0
 		ld a, [hli]
 		push hl
 			ld h, [hl]
 			ld l, a
 			; Now get the facing forward idle frames
-			ASSERT SPRITE_DIRECTION_SIZE * DOWN >> 8 == 3
+			assert SPRITE_DIRECTION_SIZE * DOWN >> 8 == 3
 			inc h
 			inc h
 			inc h
@@ -316,7 +316,7 @@ UseItemLoadEntity:
 		ld a, [hli]
 		ld h, [hl]
 		ld l, a
-		ASSERT EntityData_Palette == 2
+		assert EntityData_Palette == 2
 		ld de, wUseItemCurrentPalette
 		ld a, [de]
 		inc de
@@ -334,7 +334,7 @@ UseItemLoadEntity:
 	pop hl
 	; Now throw in the level, health, and max health.
 	ld b, h
-	ld l, LOW(wEntity0_Level)
+	ld l, low(wEntity0_Level)
 	ld a, [hli]
 	call GetMaxHealth
 	ld a, l
@@ -342,7 +342,7 @@ UseItemLoadEntity:
 	ld a, h
 	ld [wfmt_xPauseStatusString_maxHealth + 1], a
 	ld h, b
-	ld l, LOW(wEntity0_Health)
+	ld l, low(wEntity0_Health)
 	ld a, [hli]
 	ld [wfmt_xPauseStatusString_health], a
 	ld a, [hli]
@@ -350,7 +350,7 @@ UseItemLoadEntity:
 
 	; Finally, print!
 	ld a, 1
-	ld b, BANK(xPauseStatusString)
+	ld b, bank(xPauseStatusString)
 	ld hl, xPauseStatusString
 	call PrintVWFText
 	lb de, 12, 4
@@ -361,11 +361,11 @@ UseItemLoadEntity:
 	call TextDefineBox
 	call PrintVWFChar
 	call DrawVWFChars
-	ld a, BANK("Pause Menu")
+	ld a, bank("Pause Menu")
 	rst SwapBank
 	ret
 
-SECTION "Use Item vars", WRAM0
+section "Use Item vars", wram0
 wUseItemCurrentPalette: dw
 wCurrentTextPosition: dw
 wUseAnimationTimer: db

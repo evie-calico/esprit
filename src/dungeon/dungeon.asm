@@ -1,10 +1,10 @@
-INCLUDE "defines.inc"
-INCLUDE "dungeon.inc"
-INCLUDE "entity.inc"
-INCLUDE "hardware.inc"
-INCLUDE "item.inc"
+include "defines.inc"
+include "dungeon.inc"
+include "entity.inc"
+include "hardware.inc"
+include "item.inc"
 
-SECTION "Init dungeon", ROM0
+section "Init dungeon", rom0
 ; Switch to the dungeon state.
 ; @clobbers: bank
 InitDungeon::
@@ -25,14 +25,14 @@ InitDungeon::
 
 	ld [wSkipAllyTurn], a
 
-	lb bc, BANK(xLuvui), 5
+	lb bc, bank(xLuvui), 5
 	ld de, xLuvui
-	ld h, HIGH(wEntity0)
+	ld h, high(wEntity0)
 	call SpawnEntity
 
-	lb bc, BANK(xAris), 6
+	lb bc, bank(xAris), 6
 	ld de, xAris
-	ld h, HIGH(wEntity1)
+	ld h, high(wEntity1)
 	call SpawnEntity
 
 	ld hl, wActiveDungeon
@@ -70,16 +70,16 @@ SwitchToDungeonState::
 
 	call InitUI
 
-	ld h, HIGH(wEntity0)
+	ld h, high(wEntity0)
 .loop
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	and a, a
 	call nz, LoadEntityGraphics
 .next
 	inc h
 	ld a, h
-	cp a, HIGH(wEntity0) + NB_ENTITIES
+	cp a, high(wEntity0) + NB_ENTITIES
 	jp nz, .loop
 
 	; Load the active dungeon.
@@ -92,7 +92,7 @@ SwitchToDungeonState::
 	ld l, a
 	push hl
 		; Deref tileset
-		ASSERT Dungeon_Tileset == 0
+		assert Dungeon_Tileset == 0
 		ld a, [hli]
 		ld h, [hl]
 		ld l, a
@@ -113,7 +113,7 @@ SwitchToDungeonState::
 		ld a, %11111111
 		ld [wOBJPaletteMask], a
 
-		ASSERT Dungeon_Palette == 2
+		assert Dungeon_Palette == 2
 		inc hl
 		inc hl
 		ld a, [hli]
@@ -157,7 +157,7 @@ SwitchToDungeonState::
 		inc hl
 		inc hl
 		inc hl
-		ASSERT Dungeon_Items == 4
+		assert Dungeon_Items == 4
 		; Push each item onto the stack :)
 		ld b, DUNGEON_ITEM_COUNT
 	.pushItems
@@ -179,7 +179,7 @@ SwitchToDungeonState::
 		pop hl
 		pop af
 		rst SwapBank
-		ASSERT Item_Palette == 0
+		assert Item_Palette == 0
 		ld a, [hli]
 		ld h, [hl]
 		ld l, a
@@ -204,7 +204,7 @@ SwitchToDungeonState::
 	inc hl
 	inc hl
 	inc hl
-	ASSERT Dungeon_Items == 4
+	assert Dungeon_Items == 4
 	; Push each item onto the stack :)
 	ld b, DUNGEON_ITEM_COUNT
 .pushItems2
@@ -228,7 +228,7 @@ SwitchToDungeonState::
 	rst SwapBank
 	inc hl
 	inc hl
-	ASSERT Item_Graphics == 2
+	assert Item_Graphics == 2
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -247,21 +247,21 @@ SwitchToDungeonState::
 	call SetPreviousHudStats
 	call DrawAttackWindow
 
-	ld a, BANK(xFocusCamera)
+	ld a, bank(xFocusCamera)
 	rst SwapBank
 	call xFocusCamera
 	ld a, [wDungeonCameraX + 1]
 	ld [wLastDungeonCameraX], a
 	ld a, [wDungeonCameraY + 1]
 	ld [wLastDungeonCameraY], a
-	ld a, BANK(xUpdateScroll)
+	ld a, bank(xUpdateScroll)
 	rst SwapBank
 	call xUpdateScroll
-	ld a, BANK(xDrawDungeon)
+	ld a, bank(xDrawDungeon)
 	rst SwapBank
 	jp xDrawDungeon
 
-SECTION "Dungeon State", ROM0
+section "Dungeon State", rom0
 DungeonState::
 	; If fading out, do nothing but animate entities and wait for the fade to
 	; complete.
@@ -317,7 +317,7 @@ DungeonState::
 	cp a, [hl]
 	jr nz, .updateStatus
 	inc hl
-	ld e, LOW(wEntity0_Fatigue)
+	ld e, low(wEntity0_Fatigue)
 	ld a, [de]
 	cp a, TIRED_THRESHOLD
 	ld a, 0
@@ -332,7 +332,7 @@ DungeonState::
 	ld a, [de]
 	and a, a
 	jr z, .skipUpdateStatus
-	ld e, LOW(wEntity0_Health)
+	ld e, low(wEntity0_Health)
 	ld a, [de]
 	inc e
 	cp a, [hl]
@@ -342,7 +342,7 @@ DungeonState::
 	cp a, [hl]
 	jr nz, .updateStatus
 	inc hl
-	ld e, LOW(wEntity0_Fatigue)
+	ld e, low(wEntity0_Fatigue)
 	ld a, [de]
 	cp a, TIRED_THRESHOLD
 	ld a, 0
@@ -387,13 +387,13 @@ DungeonState::
 .checkForLevelUp
 	; Iterate through each party member to check if their XP has changed.
 	ld de, wPartyLastXp
-	ld h, HIGH(wEntity0)
+	ld h, high(wEntity0)
 .levelUpLoop
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hl]
 	and a, a
 	jr z, .levelUpNext
-	ld l, LOW(wEntity0_Experience)
+	ld l, low(wEntity0_Experience)
 	ld a, [de]
 	cp a, [hl]
 	jr nz, .callCheck
@@ -405,7 +405,7 @@ DungeonState::
 	jr z, .levelUpNext
 .callCheck
 	; If XP has changed, check if we can level up
-	ld a, BANK(xCheckForLevelUp)
+	ld a, bank(xCheckForLevelUp)
 	rst SwapBank
 	push hl
 		push de
@@ -432,15 +432,15 @@ DungeonState::
 	inc de
 	inc h
 	ld a, h
-	cp a, HIGH(wEntity0) + NB_ALLIES
+	cp a, high(wEntity0) + NB_ALLIES
 	jr nz, .levelUpLoop
 .skipLevelUp
-	ld a, BANK(xUpdateAttackWindow)
+	ld a, bank(xUpdateAttackWindow)
 	rst SwapBank
 	jp xUpdateAttackWindow
 
 OpenPauseMenu::
-	ld b, BANK(xPauseMenu)
+	ld b, bank(xPauseMenu)
 	ld de, xPauseMenu
 	call AddMenu
 	ld a, GAMESTATE_MENU
@@ -450,20 +450,20 @@ OpenPauseMenu::
 	ld [wSTATTarget + 1], a
 	ret
 
-SECTION "Set previous hud stats", ROM0
+section "Set previous hud stats", rom0
 SetPreviousHudStats:
 	ld hl, wPreviousStats
 	ld de, wEntity0_Bank
 	ld a, [de]
 	and a, a
 	jr z, :+
-	ld e, LOW(wEntity0_Health)
+	ld e, low(wEntity0_Health)
 	ld a, [de]
 	inc e
 	ld [hli], a
 	ld a, [de]
 	ld [hli], a
-	ld e, LOW(wEntity0_Fatigue)
+	ld e, low(wEntity0_Fatigue)
 	ld a, [de]
 	cp a, TIRED_THRESHOLD
 	ld a, 0
@@ -476,13 +476,13 @@ SetPreviousHudStats:
 	ld a, [de]
 	and a, a
 	ret z
-	ld e, LOW(wEntity0_Health)
+	ld e, low(wEntity0_Health)
 	ld a, [de]
 	inc e
 	ld [hli], a
 	ld a, [de]
 	ld [hli], a
-	ld e, LOW(wEntity0_Fatigue)
+	ld e, low(wEntity0_Fatigue)
 	ld a, [de]
 	cp a, TIRED_THRESHOLD
 	ld a, 0
@@ -492,7 +492,7 @@ SetPreviousHudStats:
 	ld [hli], a
 	ret
 
-SECTION "Dungeon complete!", ROM0
+section "Dungeon complete!", rom0
 DungeonComplete::
 	ld hl, wActiveDungeon
 	ld a, [hli]
@@ -512,12 +512,12 @@ DungeonComplete::
 	call FadeToBlack
 
 	ld hl, wFadeCallback
-	ld a, LOW(InitMap)
+	ld a, low(InitMap)
 	ld [hli], a
-	ld [hl], HIGH(InitMap)
+	ld [hl], high(InitMap)
 	ret
 
-SECTION "Get Item", ROM0
+section "Get Item", rom0
 ; Get a dungeon item given an index in b
 ; @param b: Item ID
 ; @return b: Item bank
@@ -530,7 +530,7 @@ GetDungeonItem::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ASSERT Dungeon_Items == 4
+	assert Dungeon_Items == 4
 	inc hl
 	inc hl
 	inc hl
@@ -550,7 +550,7 @@ GetDungeonItem::
 	ld l, a
 	ret
 
-SECTION "Focus Camera", ROMX
+section "Focus Camera", romx
 xFocusCamera::
 	ld bc, wEntity0_SpriteY
 	ld a, [bc]
@@ -589,7 +589,7 @@ xFocusCamera::
 	ld [wDungeonCameraX + 1], a
 	ret
 
-SECTION "Generate Floor", ROM0
+section "Generate Floor", rom0
 ; Generate a new floor
 ; @clobbers bank
 DungeonGenerateFloor::
@@ -620,9 +620,9 @@ DungeonGenerateFloor::
 	ld b, a
 	add a, b
 	add a, b
-	add a, LOW(.jumpTable)
+	add a, low(.jumpTable)
 	ld l, a
-	adc a, HIGH(.jumpTable)
+	adc a, high(.jumpTable)
 	sub a, l
 	ld h, a
 	ld a, [hli]
@@ -643,7 +643,7 @@ DungeonGenerateFloor::
 	ld b, [hl]
 
 .generateItem
-	ld a, BANK(xGenerateItems)
+	ld a, bank(xGenerateItems)
 	rst SwapBank
 	ld hl, xGenerateItems
 	push bc
@@ -661,37 +661,37 @@ DungeonGenerateFloor::
 	ret
 
 .jumpTable
-	ASSERT DUNGEON_TYPE_SCRAPER == 0
+	assert DUNGEON_TYPE_SCRAPER == 0
 	farptr xGenerateScraper
-	ASSERT DUNGEON_TYPE_HALLS == 1
+	assert DUNGEON_TYPE_HALLS == 1
 	farptr xGenerateHalls
 
-SECTION "Update Scroll", ROMX
+section "Update Scroll", romx
 xUpdateScroll:
 	ld a, [wDungeonCameraX + 1]
 	ld b, a
 	ld a, [wDungeonCameraX]
-	REPT 4
+	rept 4
 		srl b
 		rra
-	ENDR
+	endr
 	ldh [hShadowSCX], a
 	ld a, [wDungeonCameraY + 1]
 	ld b, a
 	ld a, [wDungeonCameraY]
-	REPT 4
+	rept 4
 		srl b
 		rra
-	ENDR
+	endr
 	ldh [hShadowSCY], a
 	ret
 
 ; Variables which must be accessible from all states.
-SECTION "dungeon globals", WRAM0
+section "dungeon globals", wram0
 ; A far pointer to the current dungeon. Bank, Low, High.
 wActiveDungeon:: ds 3
 
-SECTION UNION "State variables", WRAM0, ALIGN[8]
+section UNION "State variables", wram0, ALIGN[8]
 ; This map uses 4096 bytes of WRAM, but is only ever used in dungeons.
 ; If more RAM is needed for other game states, it should be unionized with this
 ; map.
@@ -714,7 +714,7 @@ wPreviousStats::
 
 wSkipAllyTurn:: db
 
-SECTION FRAGMENT "dungeon BSS", WRAM0
+section FRAGMENT "dungeon BSS", wram0
 wPartyLastXp: ds 6
 ; Ticks remaining to show levelup menu.
 wLevelUpMessageLifetime: db

@@ -1,9 +1,9 @@
 ; ISSOtm's Menu System, adapted for use in the VuiBui engine.
 
-INCLUDE "hardware.inc"
-INCLUDE "menu.inc"
+include "hardware.inc"
+include "menu.inc"
 
-SECTION "Menu system", ROM0
+section "Menu system", rom0
 
 ; Adds a menu on top of the menu stack
 ; @param de A pointer to the menu's header in ROM
@@ -189,9 +189,9 @@ ProcessMenus::
 	; Perform the requested action
 	push hl
 	add a, a
-	add a, LOW(.menuActions)
+	add a, low(.menuActions)
 	ld e, a
-	adc a, HIGH(.menuActions)
+	adc a, high(.menuActions)
 	sub e
 	ld d, a
 	ld a, [de]
@@ -246,16 +246,16 @@ ProcessMenus::
 
 
 .menuActions
-	DW MenuMoveDown  ; DOWN
-	DW MenuMoveUp    ; UP
-	DW MenuDoNothing ; LEFT
-	DW MenuDoNothing ; RIGHT
-	DW MenuDoNothing ; START
-	DW MenuDoNothing ; SELECT
-	DW MenuCancel    ; B
-	DW MenuValidate  ; A
+	dw MenuMoveDown  ; DOWN
+	dw MenuMoveUp    ; UP
+	dw MenuDoNothing ; LEFT
+	dw MenuDoNothing ; RIGHT
+	dw MenuDoNothing ; START
+	dw MenuDoNothing ; SELECT
+	dw MenuCancel    ; B
+	dw MenuValidate  ; A
 
-	DW MenuAddNew
+	dw MenuAddNew
 
 
 MenuMoveDown:
@@ -342,7 +342,7 @@ UnwindMenus::
 	ld l, a
 	jp hl
 
-SECTION "Menu system vars", WRAM0
+section "Menu system vars", wram0
 
 wNbMenus::
 	db
@@ -351,8 +351,8 @@ wNbMenus::
 
 ; What action to take after processing the menu
 wMenuAction::
-	DB ; Action type
-	DS 3 ; Action args
+	db ; Action type
+	ds 3 ; Action args
 ; The reason why this menu should be closed
 wMenuClosingReason::
 	db

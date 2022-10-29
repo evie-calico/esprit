@@ -1,4 +1,4 @@
-SECTION "Get Flag", ROM0
+section "Get Flag", rom0
 ; @param c: flag id
 ; @return a: flag mask
 ; @return hl: flag pointer
@@ -15,6 +15,6 @@ GetFlag::
     add hl, bc
     ret
 
-SECTION "Flag memory", WRAM0
+section "Flag memory", wram0
 wFlags::
     ds 256 / 8

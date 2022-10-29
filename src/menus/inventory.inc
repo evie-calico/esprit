@@ -1,10 +1,10 @@
-INCLUDE "item.inc"
+include "item.inc"
 
-DEF INVENTORY_CURSOR_X EQU SCRN_VX - SCRN_X + 69
-DEF INVENTORY_CURSOR_Y EQU 20
+def INVENTORY_CURSOR_X equ SCRN_VX - SCRN_X + 69
+def INVENTORY_CURSOR_Y equ 20
 
 xInventoryMenu::
-	db BANK(@)
+	db bank(@)
 	dw xInventoryMenuInit
 	; Used Buttons
 	db PADF_A | PADF_B | PADF_START | PADF_UP | PADF_DOWN
@@ -85,16 +85,16 @@ xInventoryDrawItemNames:
 
 	; Print item names
 	ld hl, wInventoryDrawPosition
-	ld a, LOW($9800 + 23 + 3 * 32 - 32)
+	ld a, low($9800 + 23 + 3 * 32 - 32)
 	ld [hli], a
-	ld [hl], HIGH($9800 + 23 + 3 * 32 - 32)
+	ld [hl], high($9800 + 23 + 3 * 32 - 32)
 	ld hl, wInventory
 	ld a, [hl]
 	and a, a
 	jr nz, .next
 		ld a, 1
 		ld [wInventoryIsEmpty], a
-		ld b, BANK(.emptyString)
+		ld b, bank(.emptyString)
 		ld hl, .emptyString
 		call PrintVWFText
 		lb de, 8, 1
@@ -109,7 +109,7 @@ xInventoryDrawItemNames:
 	push hl
 		call GetNextItemName
 	PUSHS
-	SECTION "Get Next Item Name", ROM0
+	section "Get Next Item Name", rom0
 	GetNextItemName:
 		rst SwapBank
 		ld b, a
@@ -120,13 +120,13 @@ xInventoryDrawItemNames:
 		inc hl
 		inc hl
 		inc hl
-		ASSERT Item_Name == 4
+		assert Item_Name == 4
 		ld a, [hli]
 		ld h, [hl]
 		ld l, a
 		ld a, 1
 		call PrintVWFText
-		ld a, BANK(xInventoryDrawItemNames)
+		ld a, bank(xInventoryDrawItemNames)
 		rst SwapBank
 		ret
 	POPS
@@ -149,10 +149,10 @@ xInventoryDrawItemNames:
 	inc hl
 	inc hl
 	ld a, l
-	cp a, LOW(wInventory.end)
+	cp a, low(wInventory.end)
 	jr nz, .next
 	ld a, h
-	cp a, HIGH(wInventory.end)
+	cp a, high(wInventory.end)
 	jr nz, .next
 
 	ret
@@ -236,14 +236,14 @@ xInventoryA:
 	ld a, [hl]
 	add a, a ; a * 2
 	add a, [hl] ; a * 3
-	add a, LOW(wInventory)
+	add a, low(wInventory)
 	ld e, a
-	adc a, HIGH(wInventory)
+	adc a, high(wInventory)
 	sub a, e
 	ld d, a
 	call InventoryUsableCheck
 PUSHS
-SECTION "Inventory Usable Check", ROM0
+section "Inventory Usable Check", rom0
 InventoryUsableCheck:
 	ld a, [de]
 	inc de
@@ -261,7 +261,7 @@ InventoryUsableCheck:
 	ld d, a
 	ld a, [de]
 	and a, a
-	ld a, BANK(xInventoryA)
+	ld a, bank(xInventoryA)
 	rst SwapBank
 	ret
 POPS
@@ -269,7 +269,7 @@ POPS
 	ld a, [hl]
 	ld [wInventorySelection], a
 	ld de, xUseItemMenu
-	ld b, BANK(xUseItemMenu)
+	ld b, bank(xUseItemMenu)
 	jp AddMenu
 
 .cannotUse
@@ -282,7 +282,7 @@ POPS
 	ld a, 10 * 8
 	call TextInit
 	ld a, 1
-	ld b, BANK(.cannotUseString)
+	ld b, bank(.cannotUseString)
 	ld hl, .cannotUseString
 	call PrintVWFText
 	lb de, 10, 3
@@ -301,7 +301,7 @@ xInventoryStart:
 	inc hl
 	ld a, [hl]
 	ld [wInventorySelection], a
-	ld b, BANK(xTossItemMenu)
+	ld b, bank(xTossItemMenu)
 	ld de, xTossItemMenu
 	jp AddMenu
 
@@ -323,9 +323,9 @@ xInventoryLoadItemSelection:
 	ld b, a
 	add a, b ; a * 2
 	add a, b ; a * 3
-	add a, LOW(wInventory)
+	add a, low(wInventory)
 	ld l, a
-	adc a, HIGH(wInventory)
+	adc a, high(wInventory)
 	sub a, l
 	ld h, a
 	ld a, [hli]
@@ -342,7 +342,7 @@ xInventoryLoadItemSelection:
 	jp VRAMSetSmall
 
 PUSHS
-SECTION "Load Inventory Item Graphic", ROM0
+section "Load Inventory Item Graphic", rom0
 InventoryLoadItemSelection:
 	ld a, b
 	rst SwapBank
@@ -360,7 +360,7 @@ InventoryLoadItemSelection:
 			call ReloadColor
 		pop hl
 	.skipColor
-		ASSERT Item_Graphics == 2
+		assert Item_Graphics == 2
 		inc hl
 		inc hl
 		ld a, [hli]
@@ -380,7 +380,7 @@ InventoryLoadItemSelection:
 			ld c, 16
 			call VRAMCopySmall
 		pop hl
-		ASSERT Item_Graphics + 4 == Item_Description
+		assert Item_Graphics + 4 == Item_Description
 		inc hl
 		inc hl
 		inc hl
@@ -399,11 +399,11 @@ InventoryLoadItemSelection:
 	call TextDefineBox
 	call PrintVWFChar
 	call DrawVWFChars
-	ld a, BANK("Pause Menu")
+	ld a, bank("Pause Menu")
 	rst SwapBank
 	ret
 
-SECTION "Inventory Draw Position", WRAM0
+section "Inventory Draw Position", wram0
 wInventoryDrawPosition: dw
 wInventoryRedrawDesc: db
 wInventorySelection: db
@@ -411,7 +411,7 @@ wInventoryIsEmpty: db
 POPS
 
 xTossItemMenu:
-	db BANK(@)
+	db bank(@)
 	dw xTossItemMenuInit
 	; Used Buttons
 	db PADF_A | PADF_B | PADF_UP | PADF_DOWN
@@ -452,7 +452,7 @@ xTossItemMenuInit:
 	ld a, 10 * 8
 	call TextInit
 	ld a, 1
-	ld b, BANK(.tossString)
+	ld b, bank(.tossString)
 	ld hl, .tossString
 	call PrintVWFText
 	lb de, 10, 3
@@ -501,9 +501,9 @@ xTossItemMenuA:
 	ld c, a
 	add a, c
 	add a, c
-	add a, LOW(wInventory)
+	add a, low(wInventory)
 	ld l, a
-	adc a, HIGH(wInventory)
+	adc a, high(wInventory)
 	sub a, l
 	ld h, a
 	ld d, h
@@ -518,10 +518,10 @@ xTossItemMenuA:
 	inc de
 .moveCondition
 	ld a, l
-	cp a, LOW(wInventory + 3 * INVENTORY_SIZE)
+	cp a, low(wInventory + 3 * INVENTORY_SIZE)
 	jr nz, .move
 	ld a, h
-	cp a, HIGH(wInventory + 3 * INVENTORY_SIZE)
+	cp a, high(wInventory + 3 * INVENTORY_SIZE)
 	jr nz, .move
 	xor a, a
 	ld [de], a

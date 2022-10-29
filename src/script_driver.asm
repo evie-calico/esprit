@@ -1,8 +1,8 @@
-INCLUDE "defines.inc"
-INCLUDE "dungeon.inc"
-INCLUDE "entity.inc"
+include "defines.inc"
+include "dungeon.inc"
+include "entity.inc"
 
-SECTION "evscript Driver", ROM0
+section "evscript Driver", rom0
 ; @param de: Variable pool
 ; @param hl: Script pointer
 ; @param bank: Script bank
@@ -16,9 +16,9 @@ ExecuteScript::
 .next
 	ld a, [hli]
 	push hl
-	add a, LOW(EvscriptBytecodeTable >> 1)
+	add a, low(EvscriptBytecodeTable >> 1)
 	ld l, a
-	adc a, HIGH(EvscriptBytecodeTable >> 1)
+	adc a, high(EvscriptBytecodeTable >> 1)
 	sub a, l
 	ld h, a
 	add hl, hl
@@ -37,7 +37,7 @@ ExecuteScript::
 	push bc
 	ret
 
-SECTION "evscript Bytecode table", ROM0, ALIGN[1]
+section "evscript Bytecode table", rom0, ALIGN[1]
 EvscriptBytecodeTable:
 	; Control
 	dw StdReturn
@@ -83,7 +83,7 @@ EvscriptBytecodeTable:
 	dw ScriptNPCLockPlayer
 	dw ScriptNPCFacePlayer
 
-SECTION "evscript Return", ROM0
+section "evscript Return", rom0
 StdReturn:
 	ld hl, 0
 StdYield:
@@ -91,7 +91,7 @@ StdYield:
 	pop de ; pop pool pointer
 	ret
 
-SECTION "evscript Goto", ROM0
+section "evscript Goto", rom0
 StdJump:
 	ld a, [hli]
 	ld h, [hl]
@@ -128,7 +128,7 @@ StdJumpIfFalse:
 	inc hl
 	ret
 
-SECTION "evscript Put", ROM0
+section "evscript Put", rom0
 StdPut:
 	ld a, [hli]
 	add a, e
@@ -140,7 +140,7 @@ StdPut:
 	ld [bc], a
 	ret
 
-SECTION "evscript Mov", ROM0
+section "evscript Mov", rom0
 StdMove:
 	; Load dest
 	ld a, [hli]
@@ -161,7 +161,7 @@ StdMove:
 	ld [bc], a
 	ret
 
-SECTION "evscript 8-bit Operations", ROM0
+section "evscript 8-bit Operations", rom0
 ; @param de: pool
 ; @param hl: script pointer
 ; @return a: lhs
@@ -287,7 +287,7 @@ StoreEpilogue:
 	ld [de], a
 	ret
 
-SECTION "evscript ScriptRand", ROM0
+section "evscript ScriptRand", rom0
 ScriptRand:
 	rst Rand8
 	ld b, a
@@ -301,7 +301,7 @@ ScriptRand:
 	ld [de], a
 	ret
 
-SECTION "evscript ScriptIsCgb", ROM0
+section "evscript ScriptIsCgb", rom0
 ScriptIsCgb:
 	ld a, [hli]
 	add a, e
@@ -319,7 +319,7 @@ ScriptIsCgb:
 	ld [de], a
 	ret
 
-SECTION "evscript ScriptPrint", ROM0
+section "evscript ScriptPrint", rom0
 ScriptSay:
 	ld a, 2
 	ld [wTextLetterDelay], a
@@ -335,7 +335,7 @@ ScriptPrint:
 	ld [de], a
 	jp StdYield
 
-SECTION "evscript ScriptPrintWait", ROM0
+section "evscript ScriptPrintWait", rom0
 ScriptPrintWait:
 	ld a, [wTextSrcPtr + 1]
 	inc a
@@ -343,7 +343,7 @@ ScriptPrintWait:
 	dec hl
 	jp StdYield
 
-SECTION "evscript ScriptGetFlag", ROM0
+section "evscript ScriptGetFlag", rom0
 ScriptGetFlag:
 	ld a, [hli]
 	add a, e
@@ -371,7 +371,7 @@ ScriptGetFlag:
 	ld [de], a
 	ret
 
-SECTION "Map Get/Put Prologue", ROM0
+section "Map Get/Put Prologue", rom0
 MapGetPutPrologue:
 	push de
 	ld a, [hli]
@@ -433,7 +433,7 @@ MapGetPutPrologue:
 	ld d, a
 	ld a, [de]
 	push hl
-		ASSERT DUNGEON_WIDTH * 4 == 256
+		assert DUNGEON_WIDTH * 4 == 256
 		add a, a ; a * 2
 		add a, a ; a * 4
 		ld l, a
@@ -442,7 +442,7 @@ MapGetPutPrologue:
 		add hl, hl ; a * 16
 		add hl, hl ; a * 32
 		add hl, hl ; a * 64
-		ASSERT DUNGEON_WIDTH == 64
+		assert DUNGEON_WIDTH == 64
 		ld de, wDungeonMap
 		add hl, de
 		ld a, b
@@ -455,7 +455,7 @@ MapGetPutPrologue:
 	pop de
 	ret
 
-SECTION "evscript ScriptMapPutTile", ROM0
+section "evscript ScriptMapPutTile", rom0
 ScriptMapPutTile:
 	call MapGetPutPrologue
 	; get return register
@@ -470,7 +470,7 @@ ScriptMapPutTile:
 	ld [bc], a
 	ret
 
-SECTION "evscript ScriptMapGetTile", ROM0
+section "evscript ScriptMapGetTile", rom0
 ScriptMapGetTile:
 	call MapGetPutPrologue
 	; get return register
@@ -485,7 +485,7 @@ ScriptMapGetTile:
 	ld [de], a
 	ret
 
-SECTION "evscript ScriptMapStepDir", ROM0
+section "evscript ScriptMapStepDir", rom0
 ScriptMapStepDir:
 	ld a, [hli]
 	push hl
@@ -495,9 +495,9 @@ ScriptMapStepDir:
 		ld a, [hl]
 	pop hl
 	add a, a
-	add a, LOW(DirectionVectors)
+	add a, low(DirectionVectors)
 	ld c, a
-	adc a, HIGH(DirectionVectors)
+	adc a, high(DirectionVectors)
 	sub a, c
 	ld b, a
 	ld a, [hli]
@@ -521,7 +521,7 @@ ScriptMapStepDir:
 	pop hl
 	ret
 
-SECTION "evscript ScriptDrawSprite", ROM0
+section "evscript ScriptDrawSprite", rom0
 ScriptDrawSprite:
 	; TODO: this would be a good application for structs in evscript.
 	; We know these 4 variables are always going to exist in a group, so we
@@ -544,17 +544,17 @@ ScriptDrawSprite:
 	pop hl
 	ret
 
-SECTION "evscript ScriptNPCWalk", ROM0
+section "evscript ScriptNPCWalk", rom0
 ScriptNPCWalk:
 	; TODO: Most NPC operations are simply manipulating data in memory. This would be a good application for pointers, arrays, and function support.
 	; For now, we use this bytecode instead.
 	ld a, [hli]
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	jr nc, :+
 	ld a, [wActiveEntity]
 :
 	ld d, a
-	ld e, LOW(wEntity0_SpriteY)
+	ld e, low(wEntity0_SpriteY)
 	ld a, [de]
 	ld c, a
 	inc e
@@ -587,17 +587,17 @@ ScriptNPCWalk:
 	ld [de], a
 	ret
 
-SECTION "evscript ScriptNPCSetFrame", ROM0
+section "evscript ScriptNPCSetFrame", rom0
 ScriptNPCSetFrame:
-	ld e, LOW(wEntity0_Frame)
+	ld e, low(wEntity0_Frame)
 	jr ScriptNPCSet
 
 ScriptNPCSetDirection:
-	ld e, LOW(wEntity0_Direction)
+	ld e, low(wEntity0_Direction)
 ; @param e: field to set
 ScriptNPCSet:
 	ld a, [hli]
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	jr nc, :+
 	ld a, [wActiveEntity]
 :
@@ -606,21 +606,21 @@ ScriptNPCSet:
 	ld [de], a
 	ret
 
-SECTION "evscript ScriptNPCLockPlayer", ROM0
+section "evscript ScriptNPCLockPlayer", rom0
 ScriptNPCLockPlayer:
 	ld a, [wSceneMovementLocked]
 	xor a, 1
 	ld [wSceneMovementLocked], a
 	ret
 
-SECTION "evscript ScriptNPCFacePlayer", ROM0
+section "evscript ScriptNPCFacePlayer", rom0
 ScriptNPCFacePlayer:
 	push hl
 
 	ld de, wEntity0_SpriteY
 	ld a, [wActiveEntity]
 	ld h, a
-	ld l, LOW(wEntity0_SpriteY)
+	ld l, low(wEntity0_SpriteY)
 	ld a, [de]
 	sub a, [hl]
 	ld c, a
@@ -630,7 +630,7 @@ ScriptNPCFacePlayer:
 	sbc a, [hl]
 	ld b, a
 	push bc ; Push Y difference
-		ASSERT Entity_SpriteY + 2 == Entity_SpriteX
+		assert Entity_SpriteY + 2 == Entity_SpriteX
 		inc e
 		inc l
 		ld a, [de]
@@ -687,16 +687,16 @@ ScriptNPCFacePlayer:
 	ld a, DOWN
 	bit 0, l
 	jr z, .store
-	ASSERT UP == 0
+	assert UP == 0
 	xor a, a
 .store
-	ld l, LOW(wEntity0_Direction)
+	ld l, low(wEntity0_Direction)
 	ld [hl], a
 
 	pop hl
 	ret
 
-SECTION "evscript ScriptPlayMusic", ROM0
+section "evscript ScriptPlayMusic", rom0
 ScriptPlayMusic:
 	ldh a, [hCurrentBank]
 	push af

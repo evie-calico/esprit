@@ -1,13 +1,13 @@
-INCLUDE "defines.inc"
-INCLUDE "entity.inc"
-INCLUDE "hardware.inc"
+include "defines.inc"
+include "entity.inc"
+include "hardware.inc"
 
-SECTION "Header", ROM0[$100]
+section "Header", rom0[$100]
 	di
 	jp InitializeSystem
 	ds $150 - @, 0
 
-SECTION "Initialize", ROM0
+section "Initialize", rom0
 ; Inits system value based off `a` and `b`. Do not jump to this!
 InitializeSystem:
 	cp a, $11 ; The CGB boot rom sets `a` to $11
@@ -18,7 +18,7 @@ InitializeSystem:
 	ld a, SYSTEM_AGB
 	jr .store
 .dmg
-	ASSERT SYSTEM_DMG == 0
+	assert SYSTEM_DMG == 0
 	xor a, a ; ld a, SYSTEM_DMG
 	jr .store
 .cgb
@@ -107,17 +107,17 @@ Initialize::
 	ld a, $FF
 	ld [wTextSrcPtr + 1], a
 	; Set a default theme.
-	ld a, BANK(PinkMenuPalette)
+	ld a, bank(PinkMenuPalette)
 	ld [wActiveMenuPalette], a
-	ld a, LOW(PinkMenuPalette)
+	ld a, low(PinkMenuPalette)
 	ld [wActiveMenuPalette + 1], a
-	ld a, HIGH(PinkMenuPalette)
+	ld a, high(PinkMenuPalette)
 	ld [wActiveMenuPalette + 2], a
-	ld a, BANK(PawprintMenuTheme)
+	ld a, bank(PawprintMenuTheme)
 	ld [wActiveMenuTheme], a
-	ld a, LOW(PawprintMenuTheme)
+	ld a, low(PawprintMenuTheme)
 	ld [wActiveMenuTheme + 1], a
-	ld a, HIGH(PawprintMenuTheme)
+	ld a, high(PawprintMenuTheme)
 	ld [wActiveMenuTheme + 2], a
 	ld a, 42
 	ld [randstate], a
@@ -134,7 +134,7 @@ Initialize::
 	ld a, %11010000
 	ld [wOBP0], a
 
-	ld b, BANK(xTitleScreen)
+	ld b, bank(xTitleScreen)
 	ld de, xTitleScreen
 	call AddMenu
 	ld a, GAMESTATE_MENU
@@ -142,7 +142,7 @@ Initialize::
 
 	; Initialize OAM
 	call InitSprObjLib
-	ld a, HIGH(wShadowOAM)
+	ld a, high(wShadowOAM)
 	call hOAMDMA
 
 	call audio_init
@@ -168,12 +168,12 @@ Initialize::
 	ei
 	jp Main
 
-SECTION "Stack", WRAM0
+section "Stack", wram0
 wStack:
 	ds 32 * 2
 .top
 
-SECTION "System type", HRAM
+section "System type", hram
 ; The type of system the program is running on.
 ; Nonzero values indicate CGB features.
 ; @ 0: DMG

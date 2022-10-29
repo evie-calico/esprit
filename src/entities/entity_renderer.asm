@@ -1,13 +1,13 @@
-INCLUDE "entity.inc"
-INCLUDE "hardware.inc"
+include "entity.inc"
+include "hardware.inc"
 
-SECTION "Load Entity Graphics", ROM0
+section "Load Entity Graphics", rom0
 ; Flag an entity as needing an update and reload their palettes.
 ; @param h: high byte of entity pointer
 ; @clobbers bank
 LoadEntityGraphics::
 	; Forcefully load entity graphics.
-	ld l, LOW(wEntity0_LastDirection)
+	ld l, low(wEntity0_LastDirection)
 	ld [hl], -1
 
 	ldh a, [hSystem]
@@ -17,16 +17,16 @@ LoadEntityGraphics::
 	push hl
 
 	ld a, h
-	sub a, HIGH(wEntity0)
+	sub a, high(wEntity0)
 	ld b, a
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 
 	ld a, [hli]
 	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ASSERT EntityData_Palette == 2
+	assert EntityData_Palette == 2
 	inc hl
 	inc hl
 	ld a, [hli]
@@ -39,9 +39,9 @@ LoadEntityGraphics::
 	add a, a ; a * 4
 	add a, a ; a * 8
 	add a, b ; a * 9
-	add a, LOW(wOBJPaletteBuffer)
+	add a, low(wOBJPaletteBuffer)
 	ld e, a
-	adc a, HIGH(wOBJPaletteBuffer)
+	adc a, high(wOBJPaletteBuffer)
 	sub a, e
 	ld d, a
 	ld c, 9
@@ -50,41 +50,41 @@ LoadEntityGraphics::
 	pop hl
 	ret
 
-SECTION "Update entity graphics", ROM0
+section "Update entity graphics", rom0
 ; Check each entity to see if their graphics must be updated.
 UpdateEntityGraphics::
-	ld h, HIGH(wEntity0)
+	ld h, high(wEntity0)
 .loop
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	and a, a
 	jr z, .next
-	ld l, LOW(wEntity0_Direction)
+	ld l, low(wEntity0_Direction)
 	ld a, [hli]
-	ASSERT Entity_Direction + Entity_LastDirection
+	assert Entity_Direction + Entity_LastDirection
 	cp a, [hl]
 	jr z, .next
 	ld [hl], a
 	ld c, a
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
-	ASSERT Entity_Bank + 1 == Entity_Data
+	assert Entity_Bank + 1 == Entity_Data
 	rst SwapBank
 	push hl
 		; Save the index in B for later
 		ld a, h
-		sub a, HIGH(wEntity0)
+		sub a, high(wEntity0)
 		ld b, a
 		; Dereference data and graphics.
 		ld a, [hli]
 		ld h, [hl]
 		ld l, a
-		ASSERT EntityData_Graphics == 0
+		assert EntityData_Graphics == 0
 		ld a, [hli]
 		ld h, [hl]
 		ld l, a
 		; Offset graphics by direction
-		ASSERT SPRITE_DIRECTION_SIZE == 384
+		assert SPRITE_DIRECTION_SIZE == 384
 		; Begin by adding (Direction * 256)
 		ld a, h
 		add a, c
@@ -112,25 +112,25 @@ UpdateEntityGraphics::
 .next
 	inc h
 	ld a, h
-	cp a, HIGH(wEntity0) + NB_ENTITIES
+	cp a, high(wEntity0) + NB_ENTITIES
 	jr nz, .loop
 	ret
 
-SECTION "Render entities", ROMX
+section "Render entities", romx
 ; Render each on-screen entity to OAM.
 xRenderEntities::
 	; Load OAM pointer.
-	ld d, HIGH(wShadowOAM)
+	ld d, high(wShadowOAM)
 	ldh a, [hOAMIndex]
 	ld e, a
 	; Initialize entity index.
-	ld h, HIGH(wEntity0)
+	ld h, high(wEntity0)
 .loop
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	and a, a
 	jp z, .next
-	ASSERT Entity_Bank + 4 == Entity_SpriteY + 1
+	assert Entity_Bank + 4 == Entity_SpriteY + 1
 	inc l
 	inc l
 	inc l
@@ -142,7 +142,7 @@ xRenderEntities::
 :   add a, 9
 	cp a, [hl]
 	jp c, .next
-	ASSERT Entity_SpriteY + 3 == Entity_SpriteX + 1
+	assert Entity_SpriteY + 3 == Entity_SpriteX + 1
 	inc l
 	inc l
 	ld a, [wDungeonCameraX + 1]
@@ -152,7 +152,7 @@ xRenderEntities::
 :   add a, 11
 	cp a, [hl]
 	jp c, .next
-	ASSERT Entity_SpriteX - 2 == Entity_SpriteY
+	assert Entity_SpriteX - 2 == Entity_SpriteY
 	dec l
 	dec l
 	; Read Y position.
@@ -162,15 +162,15 @@ xRenderEntities::
 	ld b, a
 	ld a, [hli]
 	; Adjust 12.4 position down to a 12-bit integer.
-	REPT 4
+	rept 4
 		srl b
 		rra
-	ENDR
+	endr
 	add a, 16
 	sub a, c
 	ldh [hRenderTempByte], a
 
-	ASSERT Entity_SpriteY + 2 == Entity_SpriteX
+	assert Entity_SpriteY + 2 == Entity_SpriteX
 	inc l
 	inc l
 	; Read X position.
@@ -180,10 +180,10 @@ xRenderEntities::
 	ld b, a
 	ld a, [hli]
 	; Adjust 12.4 position down to a 12-bit integer.
-	REPT 4
+	rept 4
 		srl b
 		rra
-	ENDR
+	endr
 	add a, 8
 	sub a, c
 	ld b, a
@@ -202,21 +202,21 @@ xRenderEntities::
 .next
 	inc h
 	ld a, h
-	cp a, HIGH(wEntity0) + NB_ENTITIES
+	cp a, high(wEntity0) + NB_ENTITIES
 	jp nz, .loop
 	ret
 
 ; Similar to xRenderEntities, but for the scene state.
 xRenderNPCs::
-	ld h, HIGH(wEntity0)
+	ld h, high(wEntity0)
 .loop
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	and a, a
 	jp z, .next
 
 	; Check if the entity is within the camera bounds
-	ld l, LOW(wEntity0_SpriteX) + 1
+	ld l, low(wEntity0_SpriteX) + 1
 	ld a, [wSceneCamera.x + 1]
 	cp a, [hl]
 	jr z, :+
@@ -231,95 +231,95 @@ xRenderNPCs::
 	ld d, a
 	ld a, [bc]
 	inc bc
-	REPT 4
+	rept 4
 		rra
 		rr d
-	ENDR
+	endr
 	ld a, [bc]
 	inc bc
 	ld e, a
 	ld a, [bc]
 	inc bc
-	REPT 4
+	rept 4
 		rra
 		rr e
-	ENDR
-	ld l, LOW(wEntity0_SpriteY)
+	endr
+	ld l, low(wEntity0_SpriteY)
 	ld a, [hli]
 	ld b, [hl]
-	REPT 4
+	rept 4
 		rr b
 		rra
-	ENDR
+	endr
 	add a, 16
 	sub a, e
 	ldh [hRenderTempByte], a
 	inc l
 	ld a, [hli]
 	ld b, [hl]
-	REPT 4
+	rept 4
 		rr b
 		rra
-	ENDR
+	endr
 	add a, 8
 	sub a, d
 	ld b, a
 	ldh a, [hOAMIndex]
 	ld e, a
-	ld d, HIGH(wShadowOAM)
+	ld d, high(wShadowOAM)
 	call xRenderEntity.customArgs
 .next
 	inc h
 	ld a, h
-	cp a, HIGH(wEntity0) + NB_ENTITIES
+	cp a, high(wEntity0) + NB_ENTITIES
 	jp nz, .loop
 	ret
 
 ; @param h: Entity pointer high byte
 xRenderEntity::
-	ld l, LOW(wEntity0_SpriteY)
+	ld l, low(wEntity0_SpriteY)
 	ld a, [hli]
 	ld b, [hl]
-	REPT 4
+	rept 4
 		rr b
 		rra
-	ENDR
+	endr
 	add a, 16
 	ldh [hRenderTempByte], a
 	inc l
 	ld a, [hli]
 	ld b, [hl]
-	REPT 4
+	rept 4
 		rr b
 		rra
-	ENDR
+	endr
 	add a, 8
 	ld b, a
 	ldh a, [hOAMIndex]
 	ld e, a
-	ld d, HIGH(wShadowOAM)
+	ld d, high(wShadowOAM)
 ; @param b: X
 ; @param de: OAM pointer
 ; @param h: Entity pointer high byte
 ; @param hRenderTempByte: Y
 .customArgs::
-	FOR I, 2
+	for I, 2
 		; The following is an unrolled loop which writes both halves of the sprite.
 		ldh a, [hRenderTempByte]
 		ld [de], a
 		inc e
 		ld a, b
-		IF I
+		if I
 			add a, 8
-		ENDC
+		endc
 		ld [de], a
 		inc e
 		; Determine entity index and render.
 		ld a, h
-		sub a, HIGH(wEntity0)
+		sub a, high(wEntity0)
 		swap a ; a * 16
 		ld c, a
-		ld l, LOW(wEntity0_Frame)
+		ld l, low(wEntity0_Frame)
 		ld a, [hl]
 		cp a, ENTITY_FRAME_ATTK
 		ld a, 0
@@ -329,14 +329,14 @@ xRenderEntity::
 		rra
 		rra
 :
-		IF I
+		if I
 			add a, 2
-		ENDC
+		endc
 		add a, c
 		ld c, a
-		IF !I
-			ld l, LOW(wEntity0_Frame)
-		ENDC
+		if !I
+			ld l, low(wEntity0_Frame)
+		endc
 		ld a, [hl]
 		and a, a
 		jr z, :+
@@ -346,16 +346,16 @@ xRenderEntity::
 		inc e
 		; Use the index and use it as the color palette.
 		ld a, h
-		sub a, HIGH(wEntity0)
+		sub a, high(wEntity0)
 		ld [de], a
 		inc e
-	ENDR
+	endr
 	; Store final OAM index.
 	ld a, e
 	ldh [hOAMIndex], a
 	ret
 
-SECTION "Update animation", ROMX
+section "Update animation", romx
 xUpdateAnimation::
 	ld a, [wEntityAnimation.timer]
 	and a, a
@@ -409,7 +409,7 @@ xUpdateAnimation::
 .frame
 	ld a, [wEntityAnimation.target]
 	ld d, a
-	ld e, LOW(wEntity0_Frame)
+	ld e, low(wEntity0_Frame)
 	ld a, [hli]
 	ld [de], a
 	call UpdateAnimationFrame
@@ -417,7 +417,7 @@ xUpdateAnimation::
 .hide
 	ld a, [wEntityAnimation.target]
 	ld d, a
-	ld e, LOW(wEntity0_SpriteY)
+	ld e, low(wEntity0_SpriteY)
 	ld a, $F0
 	ld [de], a
 	inc e
@@ -431,19 +431,19 @@ xUpdateAnimation::
 .show
 	ld a, [wEntityAnimation.target]
 	ld d, a
-	ld e, LOW(wEntity0_PosY)
+	ld e, low(wEntity0_PosY)
 	ld a, [de]
-	ASSERT Entity_PosY - 1 == Entity_PosX
+	assert Entity_PosY - 1 == Entity_PosX
 	dec e
 	ld b, a
 	ld a, [de]
-	ASSERT Entity_PosX - 2 == Entity_SpriteX
+	assert Entity_PosX - 2 == Entity_SpriteX
 	dec e
 	ld [de], a
 	dec e
 	xor a, a
 	ld [de], a
-	ASSERT Entity_SpriteX - 2 == Entity_SpriteY
+	assert Entity_SpriteX - 2 == Entity_SpriteY
 	dec e
 	ld a, b
 	ld [de], a
@@ -454,7 +454,7 @@ xUpdateAnimation::
 .forward
 	ld a, [wEntityAnimation.target]
 	ld d, a
-	ld e, LOW(wEntity0_Direction)
+	ld e, low(wEntity0_Direction)
 	ld a, [de]
 .backwardHook
 	and a, a
@@ -467,7 +467,7 @@ xUpdateAnimation::
 .backward
 	ld a, [wEntityAnimation.target]
 	ld d, a
-	ld e, LOW(wEntity0_Direction)
+	ld e, low(wEntity0_Direction)
 	ld a, [de]
 	add a, 2
 	and a, %11
@@ -475,7 +475,7 @@ xUpdateAnimation::
 .up
 	ld a, [wEntityAnimation.target]
 	ld d, a
-	ld e, LOW(wEntity0_SpriteY)
+	ld e, low(wEntity0_SpriteY)
 .leftHook
 	ld a, [de]
 	ld c, a
@@ -498,7 +498,7 @@ xUpdateAnimation::
 .down
 	ld a, [wEntityAnimation.target]
 	ld d, a
-	ld e, LOW(wEntity0_SpriteY)
+	ld e, low(wEntity0_SpriteY)
 .rightHook
 	ld a, [de]
 	ld c, a
@@ -520,12 +520,12 @@ xUpdateAnimation::
 .left
 	ld a, [wEntityAnimation.target]
 	ld d, a
-	ld e, LOW(wEntity0_SpriteX)
+	ld e, low(wEntity0_SpriteX)
 	jr .leftHook
 .right
 	ld a, [wEntityAnimation.target]
 	ld d, a
-	ld e, LOW(wEntity0_SpriteX)
+	ld e, low(wEntity0_SpriteX)
 	jr .rightHook
 
 EntityAttackAnimation::
@@ -543,56 +543,56 @@ EntityAttackAnimation::
 EntityHurtAnimation::
 	ea_frame ENTITY_FRAME_HURT
 	; Get knocked back.
-	REPT 3
+	rept 3
 		ea_backward
 		ea_wait 2
-	ENDR
+	endr
 	; Then shake.
-	REPT 3
+	rept 3
 		ea_forward
 		ea_wait 4
 		ea_backward
 		ea_wait 4
-	ENDR
-	REPT 3
+	endr
+	rept 3
 		ea_forward
 		ea_wait 2
-	ENDR
+	endr
 	ea_frame ENTITY_FRAME_IDLE
 	ea_end
 
 EntityDefeatAnimation::
 	ea_frame ENTITY_FRAME_HURT
-	REPT 10
+	rept 10
 		ea_hide
 		ea_wait 2
 		ea_show
 		ea_backward
 		ea_backward
 		ea_wait 2
-	ENDR
+	endr
 	ea_end
 
 EntityDelayAnimation::
 	ea_wait 16
 	ea_end
 
-SECTION "Entity animation graphics update", ROM0
+section "Entity animation graphics update", rom0
 UpdateAnimationFrame:
 	push hl
 
 	; Dereference the entity's data
 	; Save the entity's frame for later.
-	ld e, LOW(wEntity0_Frame)
+	ld e, low(wEntity0_Frame)
 	ld a, [de]
 	cp a, ENTITY_FRAME_STEP ; The idle and step frames should defer updates.
 	jr nc, :+
-	ld e, LOW(wEntity0_LastDirection)
+	ld e, low(wEntity0_LastDirection)
 	ld a, -1
 	ld [de], a
 	jr .exit
 :   ldh [hRenderTempByte], a
-	ld e, LOW(wEntity0_Bank)
+	ld e, low(wEntity0_Bank)
 	ld a, [de]
 	rst SwapBank
 	inc e
@@ -601,21 +601,21 @@ UpdateAnimationFrame:
 	inc e
 	ld a, [de]
 	ld h, a
-	ASSERT EntityData_Graphics == 0
+	assert EntityData_Graphics == 0
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	; Determine index
 	ld a, d
-	sub a, HIGH(wEntity0)
+	sub a, high(wEntity0)
 	ld b, a
 	; Save the entity's direction for later.
-	ld e, LOW(wEntity0_Direction)
+	ld e, low(wEntity0_Direction)
 	ld a, [de]
 	ld c, a
 	; Determine the source and destination address.
 		; Offset graphics by direction
-		ASSERT SPRITE_DIRECTION_SIZE == 384
+		assert SPRITE_DIRECTION_SIZE == 384
 		; Begin by adding (Direction * 256)
 		ld a, h
 		add a, c
@@ -652,17 +652,17 @@ UpdateAnimationFrame:
 .copy
 	call VRAMCopySmall
 .exit
-	ld a, BANK(xUpdateAnimation)
+	ld a, bank(xUpdateAnimation)
 	rst SwapBank
 	pop hl
 	ret
 
-SECTION FRAGMENT "dungeon BSS", WRAM0
+section FRAGMENT "dungeon BSS", wram0
 wEntityAnimation::
 .pointer:: dw
 .callback:: dw
 .target:: db
 .timer db
 
-SECTION "Render Temp", HRAM
+section "Render Temp", hram
 hRenderTempByte:: db

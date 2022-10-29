@@ -1,7 +1,7 @@
-INCLUDE "defines.inc"
-INCLUDE "hardware.inc"
+include "defines.inc"
+include "hardware.inc"
 
-SECTION "Main", ROM0
+section "Main", rom0
 Main::
 	; Poll player input and move as needed.
 	call UpdateInput
@@ -17,9 +17,9 @@ Main::
 	; State-specific logic.
 	ld a, [wGameState]
 	add a, a
-	add a, LOW(.stateTable)
+	add a, low(.stateTable)
 	ld l, a
-	adc a, HIGH(.stateTable)
+	adc a, high(.stateTable)
 	sub a, l
 	ld h, a
 	ld a, [hli]
@@ -118,12 +118,12 @@ ReloadPalettes::
 	ld [wFadeDelta], a
 	ret
 
-SECTION "Game State", WRAM0
+section "Game State", wram0
 ; The current process to run within the main loop.
 wGameState:: db
 
-SECTION "Fade callback", WRAM0
+section "Fade callback", wram0
 wFadeCallback:: dw
 
-SECTION "General Script Pool", WRAM0
+section "General Script Pool", wram0
 wScriptPool:: ds 16

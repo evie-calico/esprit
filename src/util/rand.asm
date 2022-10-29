@@ -23,10 +23,10 @@
 ; 3. This notice may not be removed or altered from any source distribution.
 ;
 
-section "rand_ram",WRAM0
+section "rand_ram",wram0
 randstate:: ds 4
 
-section "rand",ROM0
+section "rand",rom0
 
 ;;
 ; Generates a pseudorandom 16-bit integer in DE

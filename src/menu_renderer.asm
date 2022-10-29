@@ -1,25 +1,25 @@
 ; A simple interface for drawing elements on-screen.
 
-INCLUDE "defines.inc"
-INCLUDE "draw_menu.inc"
-INCLUDE "hardware.inc"
+include "defines.inc"
+include "draw_menu.inc"
+include "hardware.inc"
 
-SECTION "Menu Renderer", ROM0
+section "Menu Renderer", rom0
 ; @param hl: Menu to draw. This should exist in the current bank, which will
 ; be preserved.
 DrawMenu::
-	ld a, LOW(vScratchSpace)
+	ld a, low(vScratchSpace)
 	ld [wVramSlack], a
-	ld a, HIGH(vScratchSpace)
+	ld a, high(vScratchSpace)
 	ld [wVramSlack + 1], a
 .readByte
 	ld a, [hli]
 	add a, a
-	ASSERT MENUDRAW_END == 0
+	assert MENUDRAW_END == 0
 	ret z ; a value of 0 will immediately exit.
-	add a, LOW(.jumpTable - 2)
+	add a, low(.jumpTable - 2)
 	ld e, a
-	adc a, HIGH(.jumpTable - 2)
+	adc a, high(.jumpTable - 2)
 	sub a, e
 	ld d, a
 	ld a, [de]
@@ -40,9 +40,9 @@ DrawMenu::
 	dw MenuSetSlack
 	dw MenuEndDMG
 	dw MenuEndCGB
-	ASSERT MENUDRAW_MAX == 7
+	assert MENUDRAW_MAX == 7
 
-SECTION "Menu Set Region", ROM0
+section "Menu Set Region", rom0
 MenuSetBackground:
 	ld a, [hli]
 	ld b, a
@@ -59,7 +59,7 @@ MenuSetBackground:
 	inc hl
 	jp DrawMenu.readByte
 
-SECTION "Menu Load Tiles", ROM0
+section "Menu Load Tiles", rom0
 MenuLoadTiles:
 	ldh a, [hCurrentBank]
 	push af
@@ -156,7 +156,7 @@ MenuPrint:
 	rst SwapBank
 	jp DrawMenu.readByte
 
-SECTION "Menu Set Slack", ROM0
+section "Menu Set Slack", rom0
 MenuSetSlack:
 	ld a, [hli]
 	ld [wVramSlack], a
@@ -164,7 +164,7 @@ MenuSetSlack:
 	ld [wVramSlack + 1], a
 	jp DrawMenu.readByte
 
-SECTION "Menu End DMG", ROM0
+section "Menu End DMG", rom0
 MenuEndDMG:
 	ldh a, [hSystem]
 	and a, a
@@ -173,13 +173,13 @@ MenuEndDMG:
 	ldh [rVBK], a
 	jp DrawMenu.readByte
 
-SECTION "Menu End CGB", ROM0
+section "Menu End CGB", rom0
 MenuEndCGB:
 	xor a, a
 	ldh [rVBK], a
 	ret
 
-SECTION "Cursor Renderer", ROM0
+section "Cursor Renderer", rom0
 
 ; Draws a cursor without a target position
 DrawCursorStatic::
@@ -244,7 +244,7 @@ DrawCursor::
 	ld c, a
 	jp RenderSimpleSprite
 
-SECTION "Map Region", ROM0
+section "Map Region", rom0
 ; @param b: Width
 ; @param c: Height
 ; @param de: VRAM destination
@@ -276,7 +276,7 @@ MapRegion::
 	ld d, a
 	jr .copy
 
-SECTION "Fill Region", ROM0
+section "Fill Region", rom0
 ; @param b: Width
 ; @param c: Height
 ; @param d: Value
@@ -307,5 +307,5 @@ FillRegion::
 	ld h, a
 	jr .copy
 
-SECTION "Draw Menu vars", WRAM0
+section "Draw Menu vars", wram0
 wVramSlack: dw

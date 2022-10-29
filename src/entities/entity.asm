@@ -1,13 +1,13 @@
-INCLUDE "defines.inc"
-INCLUDE "dungeon.inc"
-INCLUDE "entity.inc"
-INCLUDE "hardware.inc"
+include "defines.inc"
+include "dungeon.inc"
+include "entity.inc"
+include "hardware.inc"
 
 ; How fast the entity should move during animations. Should be a power of two.
-DEF MOVEMENT_SPEED EQU 16
-DEF RUNNING_SPEED EQU 64
+def MOVEMENT_SPEED equ 16
+def RUNNING_SPEED equ 64
 
-SECTION "Process entities", ROM0
+section "Process entities", rom0
 ; Iterate through the entities.
 ; The individual logic functions can choose to return on their own to end logic
 ; processing. This is used to queue up movements to occur simultaneuously.
@@ -17,13 +17,13 @@ ProcessEntities::
 	ret nz
 .loop
 	; Beginning-of-turn bookkeeping
-	ld a, BANK("Entity Logic")
+	ld a, bank("Entity Logic")
 	rst SwapBank
 
 	ld a, [wActiveEntity]
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	ld h, a
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hl]
 	and a, a
 	jr nz, :+
@@ -46,17 +46,17 @@ EndTurn::
 	; End-of-turn bookkeeping
 	; Handle status effect updates which happen at the end of each turn.
 	ld a, [wActiveEntity]
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	ld h, a
-	ld a, BANK(xStatusPostTurnUpdate)
+	ld a, bank(xStatusPostTurnUpdate)
 	rst SwapBank
 	call xStatusPostTurnUpdate ; may clobber h
 
 	; Restore 1% fatigue
 	ld a, [wActiveEntity]
-	add a, HIGH(wEntity0)
+	add a, high(wEntity0)
 	ld h, a
-	ld l, LOW(wEntity0_Fatigue)
+	ld l, low(wEntity0_Fatigue)
 	ld a, [hl]
 	inc a
 	cp a, 101
@@ -72,31 +72,31 @@ EndTurn::
 :   ld [wActiveEntity], a
 	ret
 
-SECTION "Move entities", ROMX
+section "Move entities", romx
 xMoveEntities::
 	xor a, a
 	ld [wMoveEntityCounter], a
 	ld b, MOVEMENT_SPEED
-	ld h, HIGH(wEntity0)
+	ld h, high(wEntity0)
 .loop
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	and a, a
 	jr z, .skip
 .yCheck
-	ld l, LOW(wEntity0_PosY)
+	ld l, low(wEntity0_PosY)
 	ld d, [hl]
 	; DE: Target position in 12.4
 	; [HL]: Sprite position
 	; Compare the positions to check if they need to be interpolated.
-	ld l, LOW(wEntity0_SpriteY + 1)
+	ld l, low(wEntity0_SpriteY + 1)
 	ld a, [hld]
 	cp a, d
 	jr z, .yCheckLow
 	jr c, .yGreater
 	; Fallthrough to yLesser.
 .yLesser
-	ld l, LOW(wEntity0_SpriteY)
+	ld l, low(wEntity0_SpriteY)
 	ld a, [hl]
 	sub a, b
 	ld [hli], a
@@ -110,7 +110,7 @@ xMoveEntities::
 	jr nc, .yLesser
 	; Fallthrough to yGreater.
 .yGreater
-	ld l, LOW(wEntity0_SpriteY)
+	ld l, low(wEntity0_SpriteY)
 	ld a, [hl]
 	add a, b
 	ld [hli], a
@@ -119,19 +119,19 @@ xMoveEntities::
 	jr .next
 
 .xCheck
-	ld l, LOW(wEntity0_PosX)
+	ld l, low(wEntity0_PosX)
 	ld d, [hl]
 	; DE: Target position in 12.4
 	; [HL]: Sprite position
 	; Compare the positions to check if they need to be interpolated.
-	ld l, LOW(wEntity0_SpriteX + 1)
+	ld l, low(wEntity0_SpriteX + 1)
 	ld a, [hld]
 	cp a, d
 	jr z, .xCheckLow
 	jr c, .xGreater
 	; Fallthrough to xLesser.
 .xLesser
-	ld l, LOW(wEntity0_SpriteX)
+	ld l, low(wEntity0_SpriteX)
 	ld a, [hl]
 	sub a, b
 	ld [hli], a
@@ -145,7 +145,7 @@ xMoveEntities::
 	jr nc, .xLesser
 	; Fallthrough to xGreater.
 .xGreater
-	ld l, LOW(wEntity0_SpriteX)
+	ld l, low(wEntity0_SpriteX)
 	ld a, [hl]
 	add a, b
 	ld [hli], a
@@ -160,17 +160,17 @@ xMoveEntities::
 	jr :+
 .skip
 	xor a, a
-:   ld l, LOW(wEntity0_Frame)
+:   ld l, low(wEntity0_Frame)
 	ld [hl], a
 	inc h
 	ld a, h
-	cp a, HIGH(wEntity0) + NB_ENTITIES
+	cp a, high(wEntity0) + NB_ENTITIES
 	jr nz, .loop
 	ld a, [wMoveEntityCounter]
 	ld [wMovementQueued], a
 	ret
 
-SECTION "Step in direction", ROM0
+section "Step in direction", rom0
 ; @param a: direction
 ; @param b: X
 ; @param c: Y
@@ -212,7 +212,7 @@ StepDir:
 	dec b
 	ret
 
-SECTION "Joypad to direction", ROM0
+section "Joypad to direction", rom0
 ; Reads hCurrentKeys and returns the currently selected pad direction in A.
 ; If no direction is selected, sets the carry flag.
 PadToDir::
@@ -232,13 +232,13 @@ PadToDir::
 	ret
 :	bit PADB_UP, a
 	jr z, :+
-	ASSERT UP == 0
+	assert UP == 0
 	xor a, a
 	ret
 :	scf
 	ret
 
-SECTION "Check for entity", ROMX
+section "Check for entity", romx
 ; Checks for an entity at a given position, returning its index if found.
 ; Otherwise, returns 0.
 ; @param a: High byte of last entity
@@ -252,15 +252,15 @@ xCheckForEntity::
 	xor a, a
 	ld [wMoveEntityCounter], a
 .loop
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	and a, a
 	jr z, .next
-	ld l, LOW(wEntity0_PosX)
+	ld l, low(wEntity0_PosX)
 	ld a, b
 	cp a, [hl]
 	jr nz, .next
-	ASSERT Entity_PosX + 1 == Entity_PosY
+	assert Entity_PosX + 1 == Entity_PosY
 	inc l
 	ld a, c
 	cp a, [hl]
@@ -273,7 +273,7 @@ xCheckForEntity::
 	ld h, 0
 	ret
 
-SECTION "Direction vectors", ROM0
+section "Direction vectors", rom0
 ; An array of vectors used to offset positions using a direction.
 DirectionVectors::
 	db 0, -1
@@ -281,7 +281,7 @@ DirectionVectors::
 	db 0, 1
 	db -1, 0
 
-SECTION "Spawn entity", ROM0
+section "Spawn entity", rom0
 ; @param b: Entity data bank.
 ; @param c: Entity level.
 ; @param de: Entity data pointer.
@@ -294,13 +294,13 @@ SpawnEntity::
 	push bc
 		; Clear out entity struct
 		xor a, a
-		ld l, LOW(wEntity0)
+		ld l, low(wEntity0)
 		ld c, sizeof_Entity
 		call MemSetSmall
 		dec h ; correct high byte (MemSet causes it to overflow)
-		ASSERT DUNGEON_HEIGHT / 2 == DUNGEON_WIDTH / 2
+		assert DUNGEON_HEIGHT / 2 == DUNGEON_WIDTH / 2
 		ld a, DUNGEON_WIDTH / 2
-		ld l, LOW(wEntity0_SpriteY + 1)
+		ld l, low(wEntity0_SpriteY + 1)
 		ld [hli], a
 		inc l
 		ld [hli], a
@@ -308,9 +308,9 @@ SpawnEntity::
 		ld [hli], a
 		ld a, b
 		rst SwapBank
-		ld l, LOW(wEntity0_Bank)
+		ld l, low(wEntity0_Bank)
 		ld [hli], a
-		ASSERT Entity_Bank + 1 == Entity_Data
+		assert Entity_Bank + 1 == Entity_Data
 		ld a, e
 		ld [hli], a
 		ld a, d
@@ -318,16 +318,16 @@ SpawnEntity::
 	pop bc
 
 	; Start with 100% fatigue
-	ld l, LOW(wEntity0_Fatigue)
+	ld l, low(wEntity0_Fatigue)
 	ld [hl], 100
 
 	; Set level
-	ld l, LOW(wEntity0_Level)
+	ld l, low(wEntity0_Level)
 	ld a, c
 	ld [hli], a
 
 	; Use level to determine health.
-	ASSERT Entity_Level + 1 == Entity_Health
+	assert Entity_Level + 1 == Entity_Health
 	push hl
 		call GetMaxHealth
 		ld a, l
@@ -342,7 +342,7 @@ SpawnEntity::
 
 	jp BankReturn
 
-SECTION "Spawn Enemy", ROM0
+section "Spawn Enemy", rom0
 SpawnEnemy::
 	call Rand
 	and a, 63
@@ -350,7 +350,7 @@ SpawnEnemy::
 	ld a, e
 	and a, 63
 	ld c, a
-	ASSERT DUNGEON_WIDTH * 4 == 256
+	assert DUNGEON_WIDTH * 4 == 256
 	add a, a ; a * 2
 	add a, a ; a * 4
 	ld l, a
@@ -359,7 +359,7 @@ SpawnEnemy::
 	add hl, hl ; a * 16
 	add hl, hl ; a * 32
 	add hl, hl ; a * 64
-	ASSERT DUNGEON_WIDTH == 64
+	assert DUNGEON_WIDTH == 64
 	ld de, wDungeonMap
 	add hl, de
 	ld a, b
@@ -369,7 +369,7 @@ SpawnEnemy::
 	sub a, l
 	ld h, a
 	ld a, [hl]
-	ASSERT TILE_CLEAR == 0
+	assert TILE_CLEAR == 0
 	and a, a
 	jr nz, SpawnEnemy
 	; b = X
@@ -378,11 +378,11 @@ SpawnEnemy::
 	push bc
 		call Rand
 		and a, 7
-		ASSERT sizeof_SpawnEntityInfo == 4
+		assert sizeof_SpawnEntityInfo == 4
 		add a, a
 		add a, a
 		add a, Dungeon_Entities
-		ASSERT sizeof_Dungeon < 256
+		assert sizeof_Dungeon < 256
 		ld b, a
 		ld hl, wActiveDungeon
 		ld a, [hli]
@@ -404,15 +404,15 @@ SpawnEnemy::
 		; de = ptr
 		; b = bank
 		; c = level
-		ld h, HIGH(wEntity0) + NB_ALLIES
+		ld h, high(wEntity0) + NB_ALLIES
 	.loop
-		ld l, LOW(wEntity0_Bank)
+		ld l, low(wEntity0_Bank)
 		ld a, [hli]
 		and a, a
 		jr z, .spawn
 		inc h
 		ld a, h
-		cp a, HIGH(wEntity0) + NB_ENTITIES
+		cp a, high(wEntity0) + NB_ENTITIES
 		jr nz, .loop
 		pop bc
 		ret
@@ -420,7 +420,7 @@ SpawnEnemy::
 	.spawn
 		call SpawnEntity
 	pop bc
-	ld l, LOW(wEntity0_SpriteY + 1)
+	ld l, low(wEntity0_SpriteY + 1)
 	ld [hl], c
 	inc hl
 	inc hl
@@ -430,7 +430,7 @@ SpawnEnemy::
 	ld [hl], c
 	ret
 
-SECTION "Get Max Health", ROM0
+section "Get Max Health", rom0
 ; This function encapsulates the maximum level formula, allowing it to
 ; be easily changed in the future.
 ; @param a: Level
@@ -449,7 +449,7 @@ GetMaxHealth::
 	ld h, a
 	ret
 
-SECTION "Get Experience Target", ROM0
+section "Get Experience Target", rom0
 ; This function encapsulates the experience target formula, allowing it to
 ; be easily changed in the future.
 ; @param a: Level
@@ -472,7 +472,7 @@ GetXpTarget::
 	add hl, hl ; hl * 12
 	ret
 
-SECTION "Get Experience Reward", ROM0
+section "Get Experience Reward", rom0
 ; This function encapsulates the experience reward formula, allowing it to
 ; be easily changed in the future.
 ; @param a: Level
@@ -487,11 +487,11 @@ GetXpReward::
 	add a, 15
 	ret
 
-SECTION "Check for Level Up", ROMX
+section "Check for Level Up", romx
 ; @param h: Entity high byte
 ; @param c: Set if check succeeded
 xCheckForLevelUp::
-	ld l, LOW(wEntity0_Level)
+	ld l, low(wEntity0_Level)
 	ld a, [hl]
 	push hl
 		call GetXpTarget
@@ -499,7 +499,7 @@ xCheckForLevelUp::
 		ld e, l
 	pop hl
 	ld c, 0
-	ld l, LOW(wEntity0_Experience + 1)
+	ld l, low(wEntity0_Experience + 1)
 	ld a, d
 	cp a, [hl]
 	jr c, .levelUp
@@ -509,11 +509,11 @@ xCheckForLevelUp::
 	cp a, [hl]
 	ret nc
 .levelUp
-	ld l, LOW(wEntity0_Experience)
+	ld l, low(wEntity0_Experience)
 	xor a, a
 	ld [hli], a
 	ld [hl], a
-	ld l, LOW(wEntity0_Level)
+	ld l, low(wEntity0_Level)
 	ld a, [hl]
 	cp a, ENTITY_MAXIMUM_LEVEL
 	ret z
@@ -534,9 +534,9 @@ xCheckForLevelUp::
 	dec e
 	dec e
 	ld a, e
-	cp a, LOW(wEntity0_Moves) - 3
+	cp a, low(wEntity0_Moves) - 3
 	jr nz, :+
-	ld e, LOW(wEntity0_Moves) + (ENTITY_MOVE_COUNT - 1) * 3
+	ld e, low(wEntity0_Moves) + (ENTITY_MOVE_COUNT - 1) * 3
 :
 	ld hl, wfmt_xLeveledUpString_moveName
 	ld a, [de]
@@ -558,18 +558,18 @@ xCheckForLevelUp::
 	ld a, 1
 .noNewMoves
 	ld [wfmt_xLeveledUpString_newMove], a
-	ld b, BANK(xLeveledUpString)
+	ld b, bank(xLeveledUpString)
 	ld hl, xLeveledUpString
 	call PrintHUD
 	ld a, SFX_COMPLETE
 	jp audio_play_fx
 
-SECTION "Entity take damage", ROM0
+section "Entity take damage", rom0
 ; @param e: Damage
 ; @param h: entity index
 ; @clobbers: b, l
 DamageEntity::
-	ld l, LOW(wEntity0_Health)
+	ld l, low(wEntity0_Health)
 	ld a, [hl]
 	sub a, e
 	ld [hli], a
@@ -579,20 +579,20 @@ DamageEntity::
 
 	ld b, h
 	ld hl, wEntityAnimation
-	ld a, LOW(EntityHurtAnimation)
+	ld a, low(EntityHurtAnimation)
 	ld [hli], a
-	ld a, HIGH(EntityHurtAnimation)
+	ld a, high(EntityHurtAnimation)
 	ld [hli], a
-	ld a, LOW(DefeatCheck)
+	ld a, low(DefeatCheck)
 	ld [hli], a
-	ld a, HIGH(DefeatCheck)
+	ld a, high(DefeatCheck)
 	ld [hli], a
 	ld [hl], b
 	ld a, b
 	ld [wDefeatCheckTarget], a
 	ret
 
-SECTION "Check for new moves", ROM0
+section "Check for new moves", rom0
 ; @param h: Entity high byte
 ; @return c: Set if any moves were new to the current level.
 ; @return de: pointer to last move slot, subtract 4 and account for wrapping to get the new move.
@@ -605,10 +605,10 @@ UpdateMoves::
 	; Iterate through each of the entity's moves and learn every move up to the
 	; current level.
 	ld d, h
-	ld l, LOW(wEntity0_Level)
+	ld l, low(wEntity0_Level)
 	ld b, [hl]
 	inc b
-	ld l, LOW(wEntity0_Bank)
+	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	rst SwapBank
 	ld a, [hli]
@@ -621,7 +621,7 @@ UpdateMoves::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld e, LOW(wEntity0_Moves)
+	ld e, low(wEntity0_Moves)
 	ld c, 0
 .loop
 	ld a, [hli]
@@ -643,20 +643,20 @@ UpdateMoves::
 	ld a, [hli]
 	ld [de], a
 	inc e
-	ld a, LOW(wEntity0_Moves) + ENTITY_MOVE_COUNT * 3
+	ld a, low(wEntity0_Moves) + ENTITY_MOVE_COUNT * 3
 	cp a, e
 	jr nz, .loop
-	ld e, LOW(wEntity0_Moves)
+	ld e, low(wEntity0_Moves)
 	jp .loop
 
-SECTION "Heal Entity", ROM0
+section "Heal Entity", rom0
 ; @param b: entity high byte
 ; @param e: Heal amount
 HealEntity::
-	ld c, LOW(wEntity0_Level)
+	ld c, low(wEntity0_Level)
 	ld a, [bc]
 	call GetMaxHealth
-	ASSERT Entity_Level + 1 == Entity_Health
+	assert Entity_Level + 1 == Entity_Health
 	inc c
 	ld a, [bc]
 	inc c
@@ -687,18 +687,18 @@ HealEntity::
 
 ; This loop creates page-aligned entity structures. This is a huge benefit to
 ; the engine as it allows very quick structure seeking and access.
-FOR I, NB_ENTITIES
-	SECTION "Entity {I}", WRAM0[$C100 - sizeof_Entity + I * $100]
-	IF I == 0
+for I, NB_ENTITIES
+	section "Entity {I}", wram0[$C100 - sizeof_Entity + I * $100]
+	if I == 0
 wAllies::
-	ELIF I == 3
+	elif I == 3
 wEnemies::
-	ENDC
+	endc
 		dstruct Entity, wEntity{d:I}
-ENDR
+endr
 
 ; This "BSS" section is used to 0-init private vars from another TU.
-SECTION FRAGMENT "dungeon BSS", WRAM0
+section FRAGMENT "dungeon BSS", wram0
 ; The next entity to be processed.
 wActiveEntity:: db
 wMoveEntityCounter: db

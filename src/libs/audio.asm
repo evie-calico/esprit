@@ -26,26 +26,26 @@
 ; Additionally, the `audio_update` function was updated to swap to the SFX bank,
 ; and the engine now mutes channels in GBT player as needed.
 
-INCLUDE "hardware.inc"
+include "hardware.inc"
 
-DEF LOG_SIZEOF_CHANNEL equ 3
-DEF LOG_SIZEOF_SFX equ 2
-DEF NUM_CHANNELS equ 4
+def LOG_SIZEOF_CHANNEL equ 3
+def LOG_SIZEOF_SFX equ 2
+def NUM_CHANNELS equ 4
 
-DEF ENVB_DPAR equ 5
-DEF ENVB_PITCH equ 4
-DEF ENVF_QPAR equ $C0
-DEF ENVF_DPAR equ $20
-DEF ENVF_PITCH equ $10
-DEF ENVF_DURATION equ $0F
+def ENVB_DPAR equ 5
+def ENVB_PITCH equ 4
+def ENVF_QPAR equ $C0
+def ENVF_DPAR equ $20
+def ENVF_PITCH equ $10
+def ENVF_DURATION equ $0F
 
-section "audio_wram", WRAM0, ALIGN[LOG_SIZEOF_CHANNEL]
+section "audio_wram", wram0, ALIGN[LOG_SIZEOF_CHANNEL]
 audio_channels: ds NUM_CHANNELS << LOG_SIZEOF_CHANNEL
-DEF Channel_envseg_cd = 0
-DEF Channel_envptr = 1
-DEF Channel_envpitch = 3
+def Channel_envseg_cd = 0
+def Channel_envptr = 1
+def Channel_envpitch = 3
 
-section "audioengine", ROM0
+section "audioengine", rom0
 
 ; Starting sequences ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -85,7 +85,7 @@ audio_play_fx::
   ld h, a
   ldh a, [hCurrentBank]
   push af
-  ld a, BANK("Sound Effects")
+  ld a, bank("Sound Effects")
   rst SwapBank
   ld a, h
   ld h,high(sfx_table >> 2)
@@ -347,12 +347,12 @@ update_wave:
   xor a
   ldh [rNR30],a  ; give CPU access to waveram
 
-  DEF WAVEPTR = _AUD3WAVERAM
+  def WAVEPTR = _AUD3WAVERAM
 
   rept 16
     ld a,[hl+]
     ldh [WAVEPTR],a
-  DEF WAVEPTR += 1
+  def WAVEPTR += 1
   endr
   ld a,$80
   ldh [rNR30],a  ; give APU access to waveram
@@ -362,7 +362,7 @@ update_wave:
   jr set_pitch_hl_to_d
 
 ; Precomputed pitch table
-section "pitch_table",ROM0,align[1]
+section "pitch_table",rom0,align[1]
 pitch_table::
   dw   51,  163,  269,  368,  463,  552,  636,  715
   dw  790,  860,  927,  990, 1049, 1105, 1158, 1208

@@ -1,7 +1,7 @@
-INCLUDE "dungeon.inc"
-INCLUDE "hardware.inc"
+include "dungeon.inc"
+include "hardware.inc"
 
-SECTION "Draw dungeon", ROMX
+section "Draw dungeon", romx
 xDrawDungeon::
 	call xGetCurrentVram
 	push hl
@@ -93,7 +93,7 @@ xHandleMapScroll::
 	ret
 .checkY
 	ld a, [wDungeonCameraY + 1]
-	ASSERT wLastDungeonCameraX + 1 == wLastDungeonCameraY
+	assert wLastDungeonCameraX + 1 == wLastDungeonCameraY
 	inc hl
 	cp a, [hl]
 	ret z
@@ -375,8 +375,8 @@ xGetMapAbove:
 	jr nc, :+
 	dec d
 :   ld a, d
-	ASSERT LOW(wDungeonMap) == 0
-	cp a, HIGH(wDungeonMap)
+	assert low(wDungeonMap) == 0
+	cp a, high(wDungeonMap)
 	jr c, .forceTrue
 	ld a, [de]
 	ret
@@ -391,8 +391,8 @@ xGetMapBelow:
 	adc a, d
 	sub a, e
 	ld d, a
-	ASSERT LOW(wDungeonMap + 64 * 64) == 0
-	cp a, HIGH(wDungeonMap + 64 * 64)
+	assert low(wDungeonMap + 64 * 64) == 0
+	cp a, high(wDungeonMap + 64 * 64)
 	jr nc, .forceTrue
 	ld a, [de]
 	ret
@@ -400,6 +400,6 @@ xGetMapBelow:
 	ld a, 1
 	ret
 
-SECTION "Map drawing counters", HRAM
+section "Map drawing counters", hram
 hMapDrawX: db
 hMapDrawY: db

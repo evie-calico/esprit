@@ -12,7 +12,7 @@ struct sprite {
 macro play_music
 	db script@_play_music
 	dw \1
-	db BANK(\1)
+	db bank(\1)
 endm
 #end
 

@@ -1,46 +1,46 @@
-IF !DEF(ENTITY_INC)
-DEF ENTITY_INC EQU 1
+if !def(ENTITY_INC)
+def ENTITY_INC equ 1
 
-INCLUDE "structs.inc"
+include "structs.inc"
 
-DEF NB_ALLIES EQU 3
-DEF NB_ENEMIES EQU 5
-DEF NB_ENTITIES EQU 8
+def NB_ALLIES equ 3
+def NB_ENEMIES equ 5
+def NB_ENTITIES equ 8
 
-DEF ENTITY_MOVE_COUNT EQU 4
-DEF ENTITY_MAXIMUM_LEVEL EQU 20
+def ENTITY_MOVE_COUNT equ 4
+def ENTITY_MAXIMUM_LEVEL equ 20
 
-DEF SPRITE_DIRECTION_SIZE EQU 128 * 3
-DEF ENTITY_FRAME_IDLE EQU 0
-DEF ENTITY_FRAME_STEP EQU 1
-DEF ENTITY_FRAME_ATTK EQU 2
-DEF ENTITY_FRAME_HURT EQU 3
-RSRESET
-DEF ENTITY_FRAME_IDLE_OFFSET RB 128
-DEF ENTITY_FRAME_STEP_OFFSET RB 128
-DEF ENTITY_FRAME_ATTK_OFFSET RB 64
-DEF ENTITY_FRAME_HURT_OFFSET RB 64
+def SPRITE_DIRECTION_SIZE equ 128 * 3
+def ENTITY_FRAME_IDLE equ 0
+def ENTITY_FRAME_STEP equ 1
+def ENTITY_FRAME_ATTK equ 2
+def ENTITY_FRAME_HURT equ 3
+rsreset
+def ENTITY_FRAME_IDLE_OFFSET rb 128
+def ENTITY_FRAME_STEP_OFFSET rb 128
+def ENTITY_FRAME_ATTK_OFFSET rb 64
+def ENTITY_FRAME_HURT_OFFSET rb 64
 
 ; Move actions. Must not exceed 128, as this is the limit for a jump table.
-RSRESET
-DEF MOVE_ACTION_ATTACK RB 1 ; A simple attack, dealing damage to an enemy in front of the user.
-DEF MOVE_ACTION_HEAL RB 1 ; Heals an ally in front of the user
-DEF MOVE_ACTION_POISON RB 1 ; Inflicts poison on an enemy in front of the user.
-DEF MOVE_ACTION_POISN_ATK RB 1 ; Inflicts poison on and deals damage to an enemy in front of the user.
-DEF MOVE_ACTION_COUNT RB 1
+rsreset
+def MOVE_ACTION_ATTACK rb 1 ; A simple attack, dealing damage to an enemy in front of the user.
+def MOVE_ACTION_HEAL rb 1 ; Heals an ally in front of the user
+def MOVE_ACTION_POISON rb 1 ; Inflicts poison on an enemy in front of the user.
+def MOVE_ACTION_POISN_ATK rb 1 ; Inflicts poison on and deals damage to an enemy in front of the user.
+def MOVE_ACTION_COUNT rb 1
 
 ; Animation bytecode
-RSRESET
-DEF ENTITY_ANIMATION_WAIT RB 1
-DEF ENTITY_ANIMATION_FRAME RB 1
-DEF ENTITY_ANIMATION_HIDE RB 1
-DEF ENTITY_ANIMATION_SHOW RB 1
-DEF ENTITY_ANIMATION_FORWARD RB 1
-DEF ENTITY_ANIMATION_BACKWARD RB 1
-DEF ENTITY_ANIMATION_END RB 1
+rsreset
+def ENTITY_ANIMATION_WAIT rb 1
+def ENTITY_ANIMATION_FRAME rb 1
+def ENTITY_ANIMATION_HIDE rb 1
+def ENTITY_ANIMATION_SHOW rb 1
+def ENTITY_ANIMATION_FORWARD rb 1
+def ENTITY_ANIMATION_BACKWARD rb 1
+def ENTITY_ANIMATION_END rb 1
 
 ; This determines when the "Tired" status should appear.
-DEF TIRED_THRESHOLD EQU 35
+def TIRED_THRESHOLD equ 35
 
 	; Constant data about an entity, such as graphics, moves, and stats.
 	struct EntityData
@@ -139,19 +139,19 @@ DEF TIRED_THRESHOLD EQU 35
 	end_struct
 
 	; Wait a number of frames before continuing the script.
-	DEF ea_wait     EQUS "db ENTITY_ANIMATION_WAIT,"
+	def ea_wait     equs "db ENTITY_ANIMATION_WAIT,"
 	; Change the entity's frame.
-	DEF ea_frame    EQUS "db ENTITY_ANIMATION_FRAME,"
+	def ea_frame    equs "db ENTITY_ANIMATION_FRAME,"
 	; Moves the entity's sprite to an unreachable position.
-	DEF ea_hide     EQUS "db ENTITY_ANIMATION_HIDE"
+	def ea_hide     equs "db ENTITY_ANIMATION_HIDE"
 	; Resets the position of the entity's sprite.
-	DEF ea_show     EQUS "db ENTITY_ANIMATION_SHOW"
+	def ea_show     equs "db ENTITY_ANIMATION_SHOW"
 	; Move the entity forward by one pixel.
-	DEF ea_forward  EQUS "db ENTITY_ANIMATION_FORWARD"
+	def ea_forward  equs "db ENTITY_ANIMATION_FORWARD"
 	; Move the entity backward by one pixel.
-	DEF ea_backward EQUS "db ENTITY_ANIMATION_BACKWARD"
+	def ea_backward equs "db ENTITY_ANIMATION_BACKWARD"
 	; End the animation and jump to the callback function, before returning to
 	; normal gameplay
-	DEF ea_end      EQUS "db ENTITY_ANIMATION_END"
+	def ea_end      equs "db ENTITY_ANIMATION_END"
 
-ENDC
+endc

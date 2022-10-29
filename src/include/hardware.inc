@@ -38,31 +38,31 @@
 ; NOTE: REVISION NUMBER CHANGES MUST BE REFLECTED
 ; IN `rev_Check_hardware_inc` BELOW!
 
-IF __RGBDS_MAJOR__ == 0 && __RGBDS_MINOR__ < 5
-    FAIL "This version of 'hardware.inc' requires RGBDS version 0.5.0 or later."
-ENDC
+if __RGBDS_MAJOR__ == 0 && __RGBDS_MINOR__ < 5
+    fail "This version of 'hardware.inc' requires RGBDS version 0.5.0 or later."
+endc
 
 ; If all of these are already defined, don't do it again.
 
-    IF !DEF(HARDWARE_INC)
-DEF HARDWARE_INC EQU 1
+    if !def(HARDWARE_INC)
+def HARDWARE_INC equ 1
 
 ; Usage: rev_Check_hardware_inc <min_ver>
 ; Examples: rev_Check_hardware_inc 4.1.2
 ;           rev_Check_hardware_inc 4.1 (equivalent to 4.1.0)
 ;           rev_Check_hardware_inc 4 (equivalent to 4.0.0)
-MACRO rev_Check_hardware_inc
-    DEF CUR_VER equs "4,7,1"    ; ** UPDATE THIS LINE WHEN CHANGING THE REVISION NUMBER **
-    DEF MIN_VER equs STRRPL("\1", ".", ",")
-    DEF INTERNAL_CHK equs """MACRO ___internal
-    IF \\1 != \\4 || \\2 < \\5 || (\\2 == \\5 && \\3 < \\6)
-    	FAIL "Version \\1.\\2.\\3 of 'hardware.inc' is incompatible with requested version \\4.\\5.\\6"
-    ENDC
+macro rev_Check_hardware_inc
+    def CUR_VER equs "4,7,1"    ; ** UPDATE THIS LINE WHEN CHANGING THE REVISION NUMBER **
+    def MIN_VER equs STRRPL("\1", ".", ",")
+    def INTERNAL_CHK equs """macro ___internal
+    if \\1 != \\4 || \\2 < \\5 || (\\2 == \\5 && \\3 < \\6)
+    	fail "Version \\1.\\2.\\3 of 'hardware.inc' is incompatible with requested version \\4.\\5.\\6"
+    endc
 \nENDM"""
     INTERNAL_CHK
     ___internal {CUR_VER}, {MIN_VER},0,0
-    PURGE CUR_VER, MIN_VER, INTERNAL_CHK, ___internal
-ENDM
+    purge CUR_VER, MIN_VER, INTERNAL_CHK, ___internal
+endm
 
 
 ;***************************************************************************
@@ -71,16 +71,16 @@ ENDM
 ;*
 ;***************************************************************************
 
-DEF _VRAM        EQU $8000 ; $8000->$9FFF
-DEF _SCRN0       EQU $9800 ; $9800->$9BFF
-DEF _SCRN1       EQU $9C00 ; $9C00->$9FFF
-DEF _SRAM        EQU $A000 ; $A000->$BFFF
-DEF _RAM         EQU $C000 ; $C000->$CFFF / $C000->$DFFF
-DEF _RAMBANK     EQU $D000 ; $D000->$DFFF
-DEF _OAMRAM      EQU $FE00 ; $FE00->$FE9F
-DEF _IO          EQU $FF00 ; $FF00->$FF7F,$FFFF
-DEF _AUD3WAVERAM EQU $FF30 ; $FF30->$FF3F
-DEF _HRAM        EQU $FF80 ; $FF80->$FFFE
+def _VRAM        equ $8000 ; $8000->$9FFF
+def _SCRN0       equ $9800 ; $9800->$9BFF
+def _SCRN1       equ $9C00 ; $9C00->$9FFF
+def _SRAM        equ $A000 ; $A000->$BFFF
+def _RAM         equ $C000 ; $C000->$CFFF / $C000->$DFFF
+def _RAMBANK     equ $D000 ; $D000->$DFFF
+def _OAMRAM      equ $FE00 ; $FE00->$FE9F
+def _IO          equ $FF00 ; $FF00->$FF7F,$FFFF
+def _AUD3WAVERAM equ $FF30 ; $FF30->$FF3F
+def _HRAM        equ $FF80 ; $FF80->$FFFE
 
 
 ;***************************************************************************
@@ -95,20 +95,20 @@ DEF _HRAM        EQU $FF80 ; $FF80->$FFFE
 ; -- RAMG ($0000-$1FFF)
 ; -- Controls whether access to SRAM (and the MBC3 RTC registers) is allowed (W)
 ; --
-DEF rRAMG EQU $0000
+def rRAMG equ $0000
 
-DEF CART_SRAM_ENABLE  EQU $0A
-DEF CART_SRAM_DISABLE EQU $00
+def CART_SRAM_ENABLE  equ $0A
+def CART_SRAM_DISABLE equ $00
 
 
 ; --
 ; -- ROMB0 ($2000-$3FFF)
-; -- Selects which ROM bank is mapped to the ROMX space ($4000-$7FFF) (W)
+; -- Selects which ROM bank is mapped to the romx space ($4000-$7FFF) (W)
 ; --
 ; -- The range of accepted values, as well as the behavior of writing $00,
 ; -- varies depending on the MBC.
 ; --
-DEF rROMB0 EQU $2000
+def rROMB0 equ $2000
 
 ; --
 ; -- RAMB ($4000-$5FFF)
@@ -116,17 +116,17 @@ DEF rROMB0 EQU $2000
 ; --
 ; -- The range of accepted values varies depending on the cartridge configuration.
 ; --
-DEF rRAMB EQU $4000
+def rRAMB equ $4000
 
 
 ; *** MBC3-specific registers ***
 
 ; Write one of these to rRAMG to map the corresponding RTC register to all SRAM space
-DEF RTC_S  EQU $08 ; Seconds  (0-59)
-DEF RTC_M  EQU $09 ; Minutes  (0-59)
-DEF RTC_H  EQU $0A ; Hours    (0-23)
-DEF RTC_DL EQU $0B ; Lower 8 bits of Day Counter ($00-$FF)
-DEF RTC_DH EQU $0C ; Bit 7 - Day Counter Carry Bit (1=Counter Overflow)
+def RTC_S  equ $08 ; Seconds  (0-59)
+def RTC_M  equ $09 ; Minutes  (0-59)
+def RTC_H  equ $0A ; Hours    (0-23)
+def RTC_DL equ $0B ; Lower 8 bits of Day Counter ($00-$FF)
+def RTC_DH equ $0C ; Bit 7 - Day Counter Carry Bit (1=Counter Overflow)
                    ; Bit 6 - Halt (0=Active, 1=Stop Timer)
                    ; Bit 0 - Most significant bit of Day Counter (Bit 8)
 
@@ -135,7 +135,7 @@ DEF RTC_DH EQU $0C ; Bit 7 - Day Counter Carry Bit (1=Counter Overflow)
 ; -- RTCLATCH ($6000-$7FFF)
 ; -- Write $00 then $01 to latch the current time into the RTC registers (W)
 ; --
-DEF rRTCLATCH EQU $6000
+def rRTCLATCH equ $6000
 
 
 ; *** MBC5-specific register ***
@@ -146,11 +146,11 @@ DEF rRTCLATCH EQU $6000
 ; --
 ; -- Also note that rROMB0 thus only spans $2000-$2FFF.
 ; --
-DEF rROMB1 EQU $3000
+def rROMB1 equ $3000
 
 
 ; Bit 3 of RAMB enables the rumble motor (if any)
-DEF CART_RUMBLE_ON EQU 1 << 3
+def CART_RUMBLE_ON equ 1 << 3
 
 
 ;***************************************************************************
@@ -163,83 +163,83 @@ DEF CART_RUMBLE_ON EQU 1 << 3
 ; -- P1 ($FF00)
 ; -- Register for reading joy pad info. (R/W)
 ; --
-DEF rP1 EQU $FF00
+def rP1 equ $FF00
 
-DEF P1F_5 EQU %00100000 ; P15 out port, set to 0 to get buttons
-DEF P1F_4 EQU %00010000 ; P14 out port, set to 0 to get dpad
-DEF P1F_3 EQU %00001000 ; P13 in port
-DEF P1F_2 EQU %00000100 ; P12 in port
-DEF P1F_1 EQU %00000010 ; P11 in port
-DEF P1F_0 EQU %00000001 ; P10 in port
+def P1F_5 equ %00100000 ; P15 out port, set to 0 to get buttons
+def P1F_4 equ %00010000 ; P14 out port, set to 0 to get dpad
+def P1F_3 equ %00001000 ; P13 in port
+def P1F_2 equ %00000100 ; P12 in port
+def P1F_1 equ %00000010 ; P11 in port
+def P1F_0 equ %00000001 ; P10 in port
 
-DEF P1F_GET_DPAD EQU P1F_5
-DEF P1F_GET_BTN  EQU P1F_4
-DEF P1F_GET_NONE EQU P1F_4 | P1F_5
+def P1F_GET_DPAD equ P1F_5
+def P1F_GET_BTN  equ P1F_4
+def P1F_GET_NONE equ P1F_4 | P1F_5
 
 
 ; --
 ; -- SB ($FF01)
 ; -- Serial Transfer Data (R/W)
 ; --
-DEF rSB EQU $FF01
+def rSB equ $FF01
 
 
 ; --
 ; -- SC ($FF02)
 ; -- Serial I/O Control (R/W)
 ; --
-DEF rSC EQU $FF02
+def rSC equ $FF02
 
-DEF SCF_START  EQU %10000000 ; Transfer Start Flag (1=Transfer in progress, or requested)
-DEF SCF_SPEED  EQU %00000010 ; Clock Speed (0=Normal, 1=Fast) ** CGB Mode Only **
-DEF SCF_SOURCE EQU %00000001 ; Shift Clock (0=External Clock, 1=Internal Clock)
+def SCF_START  equ %10000000 ; Transfer Start Flag (1=Transfer in progress, or requested)
+def SCF_SPEED  equ %00000010 ; Clock Speed (0=Normal, 1=Fast) ** CGB Mode Only **
+def SCF_SOURCE equ %00000001 ; Shift Clock (0=External Clock, 1=Internal Clock)
 
-DEF SCB_START  EQU 7
-DEF SCB_SPEED  EQU 1
-DEF SCB_SOURCE EQU 0
+def SCB_START  equ 7
+def SCB_SPEED  equ 1
+def SCB_SOURCE equ 0
 
 ; --
 ; -- DIV ($FF04)
 ; -- Divider register (R/W)
 ; --
-DEF rDIV EQU $FF04
+def rDIV equ $FF04
 
 
 ; --
 ; -- TIMA ($FF05)
 ; -- Timer counter (R/W)
 ; --
-DEF rTIMA EQU $FF05
+def rTIMA equ $FF05
 
 
 ; --
 ; -- TMA ($FF06)
 ; -- Timer modulo (R/W)
 ; --
-DEF rTMA EQU $FF06
+def rTMA equ $FF06
 
 
 ; --
 ; -- TAC ($FF07)
 ; -- Timer control (R/W)
 ; --
-DEF rTAC EQU $FF07
+def rTAC equ $FF07
 
-DEF TACF_START  EQU %00000100
-DEF TACF_STOP   EQU %00000000
-DEF TACF_4KHZ   EQU %00000000
-DEF TACF_16KHZ  EQU %00000011
-DEF TACF_65KHZ  EQU %00000010
-DEF TACF_262KHZ EQU %00000001
+def TACF_START  equ %00000100
+def TACF_STOP   equ %00000000
+def TACF_4KHZ   equ %00000000
+def TACF_16KHZ  equ %00000011
+def TACF_65KHZ  equ %00000010
+def TACF_262KHZ equ %00000001
 
-DEF TACB_START  EQU 2
+def TACB_START  equ 2
 
 
 ; --
-; -- IF ($FF0F)
+; -- if ($FF0F)
 ; -- Interrupt Flag (R/W)
 ; --
-DEF rIF EQU $FF0F
+def rIF equ $FF0F
 
 
 ; --
@@ -253,11 +253,11 @@ DEF rIF EQU $FF0F
 ; -- Bit 2-0 - Number of sweep shift (# 0-7)
 ; -- Sweep Time: (n*7.8ms)
 ; --
-DEF rNR10 EQU $FF10
-DEF rAUD1SWEEP EQU rNR10
+def rNR10 equ $FF10
+def rAUD1SWEEP equ rNR10
 
-DEF AUD1SWEEP_UP   EQU %00000000
-DEF AUD1SWEEP_DOWN EQU %00001000
+def AUD1SWEEP_UP   equ %00000000
+def AUD1SWEEP_DOWN equ %00001000
 
 
 ; --
@@ -267,8 +267,8 @@ DEF AUD1SWEEP_DOWN EQU %00001000
 ; -- Bit 7-6 - Wave Pattern Duty (00:12.5% 01:25% 10:50% 11:75%)
 ; -- Bit 5-0 - Sound length data (# 0-63)
 ; --
-DEF rNR11 EQU $FF11
-DEF rAUD1LEN EQU rNR11
+def rNR11 equ $FF11
+def rAUD1LEN equ rNR11
 
 
 ; --
@@ -281,16 +281,16 @@ DEF rAUD1LEN EQU rNR11
 ; --           1: Range of increase
 ; -- Bit 2-0 - Number of envelope sweep (# 0-7)
 ; --
-DEF rNR12 EQU $FF12
-DEF rAUD1ENV EQU rNR12
+def rNR12 equ $FF12
+def rAUD1ENV equ rNR12
 
 
 ; --
 ; -- AUD1LOW/NR13 ($FF13)
 ; -- Frequency low byte (W)
 ; --
-DEF rNR13 EQU $FF13
-DEF rAUD1LOW EQU rNR13
+def rNR13 equ $FF13
+def rAUD1LOW equ rNR13
 
 
 ; --
@@ -301,8 +301,8 @@ DEF rAUD1LOW EQU rNR13
 ; -- Bit 6   - Counter/consecutive selection
 ; -- Bit 2-0 - Frequency's higher 3 bits
 ; --
-DEF rNR14 EQU $FF14
-DEF rAUD1HIGH EQU rNR14
+def rNR14 equ $FF14
+def rAUD1HIGH equ rNR14
 
 
 ; --
@@ -311,8 +311,8 @@ DEF rAUD1HIGH EQU rNR14
 ; --
 ; -- see AUD1LEN for info
 ; --
-DEF rNR21 EQU $FF16
-DEF rAUD2LEN EQU rNR21
+def rNR21 equ $FF16
+def rAUD2LEN equ rNR21
 
 
 ; --
@@ -321,16 +321,16 @@ DEF rAUD2LEN EQU rNR21
 ; --
 ; -- see AUD1ENV for info
 ; --
-DEF rNR22 EQU $FF17
-DEF rAUD2ENV EQU rNR22
+def rNR22 equ $FF17
+def rAUD2ENV equ rNR22
 
 
 ; --
 ; -- AUD2LOW/NR23 ($FF18)
 ; -- Frequency low byte (W)
 ; --
-DEF rNR23 EQU $FF18
-DEF rAUD2LOW EQU rNR23
+def rNR23 equ $FF18
+def rAUD2LOW equ rNR23
 
 
 ; --
@@ -339,8 +339,8 @@ DEF rAUD2LOW EQU rNR23
 ; --
 ; -- see AUD1HIGH for info
 ; --
-DEF rNR24 EQU $FF19
-DEF rAUD2HIGH EQU rNR24
+def rNR24 equ $FF19
+def rAUD2HIGH equ rNR24
 
 
 ; --
@@ -349,11 +349,11 @@ DEF rAUD2HIGH EQU rNR24
 ; --
 ; -- Bit 7   - Sound ON/OFF (1=ON,0=OFF)
 ; --
-DEF rNR30 EQU $FF1A
-DEF rAUD3ENA EQU rNR30
+def rNR30 equ $FF1A
+def rAUD3ENA equ rNR30
 
-DEF AUD3ENA_OFF EQU %00000000
-DEF AUD3ENA_ON  EQU %10000000
+def AUD3ENA_OFF equ %00000000
+def AUD3ENA_ON  equ %10000000
 
 
 ; --
@@ -362,8 +362,8 @@ DEF AUD3ENA_ON  EQU %10000000
 ; --
 ; -- Bit 7-0 - Sound length
 ; --
-DEF rNR31 EQU $FF1B
-DEF rAUD3LEN EQU rNR31
+def rNR31 equ $FF1B
+def rAUD3LEN equ rNR31
 
 
 ; --
@@ -376,13 +376,13 @@ DEF rAUD3LEN EQU rNR31
 ; --           10: 1/2
 ; --           11: 1/4
 ; --
-DEF rNR32 EQU $FF1C
-DEF rAUD3LEVEL EQU rNR32
+def rNR32 equ $FF1C
+def rAUD3LEVEL equ rNR32
 
-DEF AUD3LEVEL_MUTE EQU %00000000
-DEF AUD3LEVEL_100  EQU %00100000
-DEF AUD3LEVEL_50   EQU %01000000
-DEF AUD3LEVEL_25   EQU %01100000
+def AUD3LEVEL_MUTE equ %00000000
+def AUD3LEVEL_100  equ %00100000
+def AUD3LEVEL_50   equ %01000000
+def AUD3LEVEL_25   equ %01100000
 
 
 ; --
@@ -391,8 +391,8 @@ DEF AUD3LEVEL_25   EQU %01100000
 ; --
 ; -- see AUD1LOW for info
 ; --
-DEF rNR33 EQU $FF1D
-DEF rAUD3LOW EQU rNR33
+def rNR33 equ $FF1D
+def rAUD3LOW equ rNR33
 
 
 ; --
@@ -401,8 +401,8 @@ DEF rAUD3LOW EQU rNR33
 ; --
 ; -- see AUD1HIGH for info
 ; --
-DEF rNR34 EQU $FF1E
-DEF rAUD3HIGH EQU rNR34
+def rNR34 equ $FF1E
+def rAUD3HIGH equ rNR34
 
 
 ; --
@@ -411,8 +411,8 @@ DEF rAUD3HIGH EQU rNR34
 ; --
 ; -- Bit 5-0 - Sound length data (# 0-63)
 ; --
-DEF rNR41 EQU $FF20
-DEF rAUD4LEN EQU rNR41
+def rNR41 equ $FF20
+def rAUD4LEN equ rNR41
 
 
 ; --
@@ -421,8 +421,8 @@ DEF rAUD4LEN EQU rNR41
 ; --
 ; -- see AUD1ENV for info
 ; --
-DEF rNR42 EQU $FF21
-DEF rAUD4ENV EQU rNR42
+def rNR42 equ $FF21
+def rAUD4ENV equ rNR42
 
 
 ; --
@@ -439,11 +439,11 @@ DEF rAUD4ENV EQU rNR42
 ; --           000: f/4   001: f/8   010: f/16  011: f/24
 ; --           100: f/32  101: f/40  110: f/48  111: f/56  (f=4.194304 Mhz)
 ; --
-DEF rNR43 EQU $FF22
-DEF rAUD4POLY EQU rNR43
+def rNR43 equ $FF22
+def rAUD4POLY equ rNR43
 
-DEF AUD4POLY_15STEP EQU %00000000
-DEF AUD4POLY_7STEP  EQU %00001000
+def AUD4POLY_15STEP equ %00000000
+def AUD4POLY_7STEP  equ %00001000
 
 
 ; --
@@ -452,8 +452,8 @@ DEF AUD4POLY_7STEP  EQU %00001000
 ; -- Bit 7 -   Initial (when set, sound restarts)
 ; -- Bit 6 -   Counter/consecutive selection
 ; --
-DEF rNR44 EQU $FF23
-DEF rAUD4GO EQU rNR44
+def rNR44 equ $FF23
+def rAUD4GO equ rNR44
 
 
 ; --
@@ -465,11 +465,11 @@ DEF rAUD4GO EQU rNR44
 ; -- Bit 3   - Vin->SO1 ON/OFF (right)
 ; -- Bit 2-0 - SO1 output level (right speaker) (# 0-7)
 ; --
-DEF rNR50 EQU $FF24
-DEF rAUDVOL EQU rNR50
+def rNR50 equ $FF24
+def rAUDVOL equ rNR50
 
-DEF AUDVOL_VIN_LEFT  EQU %10000000 ; SO2
-DEF AUDVOL_VIN_RIGHT EQU %00001000 ; SO1
+def AUDVOL_VIN_LEFT  equ %10000000 ; SO2
+def AUDVOL_VIN_RIGHT equ %00001000 ; SO1
 
 
 ; --
@@ -485,19 +485,19 @@ DEF AUDVOL_VIN_RIGHT EQU %00001000 ; SO1
 ; -- Bit 1   - Output channel 2 to SO1 terminal (right)
 ; -- Bit 0   - Output channel 1 to SO1 terminal (right)
 ; --
-DEF rNR51 EQU $FF25
-DEF rAUDTERM EQU rNR51
+def rNR51 equ $FF25
+def rAUDTERM equ rNR51
 
 ; SO2
-DEF AUDTERM_4_LEFT  EQU %10000000
-DEF AUDTERM_3_LEFT  EQU %01000000
-DEF AUDTERM_2_LEFT  EQU %00100000
-DEF AUDTERM_1_LEFT  EQU %00010000
+def AUDTERM_4_LEFT  equ %10000000
+def AUDTERM_3_LEFT  equ %01000000
+def AUDTERM_2_LEFT  equ %00100000
+def AUDTERM_1_LEFT  equ %00010000
 ; SO1
-DEF AUDTERM_4_RIGHT EQU %00001000
-DEF AUDTERM_3_RIGHT EQU %00000100
-DEF AUDTERM_2_RIGHT EQU %00000010
-DEF AUDTERM_1_RIGHT EQU %00000001
+def AUDTERM_4_RIGHT equ %00001000
+def AUDTERM_3_RIGHT equ %00000100
+def AUDTERM_2_RIGHT equ %00000010
+def AUDTERM_1_RIGHT equ %00000001
 
 
 ; --
@@ -510,44 +510,44 @@ DEF AUDTERM_1_RIGHT EQU %00000001
 ; -- Bit 1   - Sound 2 ON flag (read only)
 ; -- Bit 0   - Sound 1 ON flag (read only)
 ; --
-DEF rNR52 EQU $FF26
-DEF rAUDENA EQU rNR52
+def rNR52 equ $FF26
+def rAUDENA equ rNR52
 
-DEF AUDENA_ON    EQU %10000000
-DEF AUDENA_OFF   EQU %00000000  ; sets all audio regs to 0!
+def AUDENA_ON    equ %10000000
+def AUDENA_OFF   equ %00000000  ; sets all audio regs to 0!
 
 
 ; --
 ; -- LCDC ($FF40)
 ; -- LCD Control (R/W)
 ; --
-DEF rLCDC EQU $FF40
+def rLCDC equ $FF40
 
-DEF LCDCF_OFF     EQU %00000000 ; LCD Control Operation
-DEF LCDCF_ON      EQU %10000000 ; LCD Control Operation
-DEF LCDCF_WIN9800 EQU %00000000 ; Window Tile Map Display Select
-DEF LCDCF_WIN9C00 EQU %01000000 ; Window Tile Map Display Select
-DEF LCDCF_WINOFF  EQU %00000000 ; Window Display
-DEF LCDCF_WINON   EQU %00100000 ; Window Display
-DEF LCDCF_BG8800  EQU %00000000 ; BG & Window Tile Data Select
-DEF LCDCF_BG8000  EQU %00010000 ; BG & Window Tile Data Select
-DEF LCDCF_BG9800  EQU %00000000 ; BG Tile Map Display Select
-DEF LCDCF_BG9C00  EQU %00001000 ; BG Tile Map Display Select
-DEF LCDCF_OBJ8    EQU %00000000 ; OBJ Construction
-DEF LCDCF_OBJ16   EQU %00000100 ; OBJ Construction
-DEF LCDCF_OBJOFF  EQU %00000000 ; OBJ Display
-DEF LCDCF_OBJON   EQU %00000010 ; OBJ Display
-DEF LCDCF_BGOFF   EQU %00000000 ; BG Display
-DEF LCDCF_BGON    EQU %00000001 ; BG Display
+def LCDCF_OFF     equ %00000000 ; LCD Control Operation
+def LCDCF_ON      equ %10000000 ; LCD Control Operation
+def LCDCF_WIN9800 equ %00000000 ; Window Tile Map Display Select
+def LCDCF_WIN9C00 equ %01000000 ; Window Tile Map Display Select
+def LCDCF_WINOFF  equ %00000000 ; Window Display
+def LCDCF_WINON   equ %00100000 ; Window Display
+def LCDCF_BG8800  equ %00000000 ; BG & Window Tile Data Select
+def LCDCF_BG8000  equ %00010000 ; BG & Window Tile Data Select
+def LCDCF_BG9800  equ %00000000 ; BG Tile Map Display Select
+def LCDCF_BG9C00  equ %00001000 ; BG Tile Map Display Select
+def LCDCF_OBJ8    equ %00000000 ; OBJ Construction
+def LCDCF_OBJ16   equ %00000100 ; OBJ Construction
+def LCDCF_OBJOFF  equ %00000000 ; OBJ Display
+def LCDCF_OBJON   equ %00000010 ; OBJ Display
+def LCDCF_BGOFF   equ %00000000 ; BG Display
+def LCDCF_BGON    equ %00000001 ; BG Display
 
-DEF LCDCB_ON      EQU 7 ; LCD Control Operation
-DEF LCDCB_WIN9C00 EQU 6 ; Window Tile Map Display Select
-DEF LCDCB_WINON   EQU 5 ; Window Display
-DEF LCDCB_BG8000  EQU 4 ; BG & Window Tile Data Select
-DEF LCDCB_BG9C00  EQU 3 ; BG Tile Map Display Select
-DEF LCDCB_OBJ16   EQU 2 ; OBJ Construction
-DEF LCDCB_OBJON   EQU 1 ; OBJ Display
-DEF LCDCB_BGON    EQU 0 ; BG Display
+def LCDCB_ON      equ 7 ; LCD Control Operation
+def LCDCB_WIN9C00 equ 6 ; Window Tile Map Display Select
+def LCDCB_WINON   equ 5 ; Window Display
+def LCDCB_BG8000  equ 4 ; BG & Window Tile Data Select
+def LCDCB_BG9C00  equ 3 ; BG Tile Map Display Select
+def LCDCB_OBJ16   equ 2 ; OBJ Construction
+def LCDCB_OBJON   equ 1 ; OBJ Display
+def LCDCB_BGON    equ 0 ; BG Display
 ; "Window Character Data Select" follows BG
 
 
@@ -555,38 +555,38 @@ DEF LCDCB_BGON    EQU 0 ; BG Display
 ; -- STAT ($FF41)
 ; -- LCDC Status   (R/W)
 ; --
-DEF rSTAT EQU $FF41
+def rSTAT equ $FF41
 
-DEF STATF_LYC     EQU  %01000000 ; LYC=LY Coincidence (Selectable)
-DEF STATF_MODE10  EQU  %00100000 ; Mode 10
-DEF STATF_MODE01  EQU  %00010000 ; Mode 01 (V-Blank)
-DEF STATF_MODE00  EQU  %00001000 ; Mode 00 (H-Blank)
-DEF STATF_LYCF    EQU  %00000100 ; Coincidence Flag
-DEF STATF_HBL     EQU  %00000000 ; H-Blank
-DEF STATF_VBL     EQU  %00000001 ; V-Blank
-DEF STATF_OAM     EQU  %00000010 ; OAM-RAM is used by system
-DEF STATF_LCD     EQU  %00000011 ; Both OAM and VRAM used by system
-DEF STATF_BUSY    EQU  %00000010 ; When set, VRAM access is unsafe
+def STATF_LYC     equ  %01000000 ; LYC=LY Coincidence (Selectable)
+def STATF_MODE10  equ  %00100000 ; Mode 10
+def STATF_MODE01  equ  %00010000 ; Mode 01 (V-Blank)
+def STATF_MODE00  equ  %00001000 ; Mode 00 (H-Blank)
+def STATF_LYCF    equ  %00000100 ; Coincidence Flag
+def STATF_HBL     equ  %00000000 ; H-Blank
+def STATF_VBL     equ  %00000001 ; V-Blank
+def STATF_OAM     equ  %00000010 ; OAM-RAM is used by system
+def STATF_LCD     equ  %00000011 ; Both OAM and VRAM used by system
+def STATF_BUSY    equ  %00000010 ; When set, VRAM access is unsafe
 
-DEF STATB_LYC     EQU  6
-DEF STATB_MODE10  EQU  5
-DEF STATB_MODE01  EQU  4
-DEF STATB_MODE00  EQU  3
-DEF STATB_LYCF    EQU  2
-DEF STATB_BUSY    EQU  1
+def STATB_LYC     equ  6
+def STATB_MODE10  equ  5
+def STATB_MODE01  equ  4
+def STATB_MODE00  equ  3
+def STATB_LYCF    equ  2
+def STATB_BUSY    equ  1
 
 ; --
 ; -- SCY ($FF42)
 ; -- Scroll Y (R/W)
 ; --
-DEF rSCY EQU $FF42
+def rSCY equ $FF42
 
 
 ; --
 ; -- SCX ($FF43)
 ; -- Scroll X (R/W)
 ; --
-DEF rSCX EQU $FF43
+def rSCX equ $FF43
 
 
 ; --
@@ -595,7 +595,7 @@ DEF rSCX EQU $FF43
 ; --
 ; -- Values range from 0->153. 144->153 is the VBlank period.
 ; --
-DEF rLY EQU $FF44
+def rLY equ $FF44
 
 
 ; --
@@ -604,14 +604,14 @@ DEF rLY EQU $FF44
 ; --
 ; -- When LY==LYC, STATF_LYCF will be set in STAT
 ; --
-DEF rLYC EQU $FF45
+def rLYC equ $FF45
 
 
 ; --
 ; -- DMA ($FF46)
 ; -- DMA Transfer and Start Address (W)
 ; --
-DEF rDMA EQU $FF46
+def rDMA equ $FF46
 
 
 ; --
@@ -623,7 +623,7 @@ DEF rDMA EQU $FF46
 ; -- Bit 3-2 - Intensity for %01
 ; -- Bit 1-0 - Intensity for %00
 ; --
-DEF rBGP EQU $FF47
+def rBGP equ $FF47
 
 
 ; --
@@ -632,7 +632,7 @@ DEF rBGP EQU $FF47
 ; --
 ; -- See BGP for info
 ; --
-DEF rOBP0 EQU $FF48
+def rOBP0 equ $FF48
 
 
 ; --
@@ -641,7 +641,7 @@ DEF rOBP0 EQU $FF48
 ; --
 ; -- See BGP for info
 ; --
-DEF rOBP1 EQU $FF49
+def rOBP1 equ $FF49
 
 
 ; --
@@ -651,7 +651,7 @@ DEF rOBP1 EQU $FF49
 ; -- 0 <= WY <= 143
 ; -- When WY = 0, the window is displayed from the top edge of the LCD screen.
 ; --
-DEF rWY EQU $FF4A
+def rWY equ $FF4A
 
 
 ; --
@@ -662,20 +662,20 @@ DEF rWY EQU $FF4A
 ; -- When WX = 7, the window is displayed from the left edge of the LCD screen.
 ; -- Values of 0-6 and 166 are unreliable due to hardware bugs.
 ; --
-DEF rWX EQU $FF4B
+def rWX equ $FF4B
 
-DEF WX_OFS EQU 7 ; add this to a screen position to get a WX position
+def WX_OFS equ 7 ; add this to a screen position to get a WX position
 
 
 ; --
 ; -- SPEED ($FF4D)
 ; -- Select CPU Speed (R/W)
 ; --
-DEF rKEY1 EQU $FF4D
-DEF rSPD  EQU rKEY1
+def rKEY1 equ $FF4D
+def rSPD  equ rKEY1
 
-DEF KEY1F_DBLSPEED EQU %10000000 ; 0=Normal Speed, 1=Double Speed (R)
-DEF KEY1F_PREPARE  EQU %00000001 ; 0=No, 1=Prepare (R/W)
+def KEY1F_DBLSPEED equ %10000000 ; 0=Normal Speed, 1=Double Speed (R)
+def KEY1F_PREPARE  equ %00000001 ; 0=No, 1=Prepare (R/W)
 
 
 ; --
@@ -684,7 +684,7 @@ DEF KEY1F_PREPARE  EQU %00000001 ; 0=No, 1=Prepare (R/W)
 ; --
 ; -- Bit 0 - Bank Specification (0: Specify Bank 0; 1: Specify Bank 1)
 ; --
-DEF rVBK EQU $FF4F
+def rVBK equ $FF4F
 
 
 ; --
@@ -692,7 +692,7 @@ DEF rVBK EQU $FF4F
 ; -- High byte for Horizontal Blanking/General Purpose DMA source address (W)
 ; -- CGB Mode Only
 ; --
-DEF rHDMA1 EQU $FF51
+def rHDMA1 equ $FF51
 
 
 ; --
@@ -700,7 +700,7 @@ DEF rHDMA1 EQU $FF51
 ; -- Low byte for Horizontal Blanking/General Purpose DMA source address (W)
 ; -- CGB Mode Only
 ; --
-DEF rHDMA2 EQU $FF52
+def rHDMA2 equ $FF52
 
 
 ; --
@@ -708,7 +708,7 @@ DEF rHDMA2 EQU $FF52
 ; -- High byte for Horizontal Blanking/General Purpose DMA destination address (W)
 ; -- CGB Mode Only
 ; --
-DEF rHDMA3 EQU $FF53
+def rHDMA3 equ $FF53
 
 
 ; --
@@ -716,7 +716,7 @@ DEF rHDMA3 EQU $FF53
 ; -- Low byte for Horizontal Blanking/General Purpose DMA destination address (W)
 ; -- CGB Mode Only
 ; --
-DEF rHDMA4 EQU $FF54
+def rHDMA4 equ $FF54
 
 
 ; --
@@ -724,14 +724,14 @@ DEF rHDMA4 EQU $FF54
 ; -- Transfer length (in tiles minus 1)/mode/start for Horizontal Blanking, General Purpose DMA (R/W)
 ; -- CGB Mode Only
 ; --
-DEF rHDMA5 EQU $FF55
+def rHDMA5 equ $FF55
 
-DEF HDMA5F_MODE_GP  EQU %00000000 ; General Purpose DMA (W)
-DEF HDMA5F_MODE_HBL EQU %10000000 ; HBlank DMA (W)
-DEF HDMA5B_MODE EQU 7 ; DMA mode select (W)
+def HDMA5F_MODE_GP  equ %00000000 ; General Purpose DMA (W)
+def HDMA5F_MODE_HBL equ %10000000 ; HBlank DMA (W)
+def HDMA5B_MODE equ 7 ; DMA mode select (W)
 
 ; -- Once DMA has started, use HDMA5F_BUSY to check when the transfer is complete
-DEF HDMA5F_BUSY EQU %10000000 ; 0=Busy (DMA still in progress), 1=Transfer complete (R)
+def HDMA5F_BUSY equ %10000000 ; 0=Busy (DMA still in progress), 1=Transfer complete (R)
 
 
 ; --
@@ -739,57 +739,57 @@ DEF HDMA5F_BUSY EQU %10000000 ; 0=Busy (DMA still in progress), 1=Transfer compl
 ; -- Infrared Communications Port (R/W)
 ; -- CGB Mode Only
 ; --
-DEF rRP EQU $FF56
+def rRP equ $FF56
 
-DEF RPF_ENREAD   EQU %11000000
-DEF RPF_DATAIN   EQU %00000010 ; 0=Receiving IR Signal, 1=Normal
-DEF RPF_WRITE_HI EQU %00000001
-DEF RPF_WRITE_LO EQU %00000000
+def RPF_ENREAD   equ %11000000
+def RPF_DATAIN   equ %00000010 ; 0=Receiving IR Signal, 1=Normal
+def RPF_WRITE_HI equ %00000001
+def RPF_WRITE_LO equ %00000000
 
-DEF RPB_LED_ON   EQU 0
-DEF RPB_DATAIN   EQU 1
+def RPB_LED_ON   equ 0
+def RPB_DATAIN   equ 1
 
 
 ; --
 ; -- BCPS/BGPI ($FF68)
 ; -- Background Color Palette Specification (aka Background Palette Index) (R/W)
 ; --
-DEF rBCPS EQU $FF68
-DEF rBGPI EQU rBCPS
+def rBCPS equ $FF68
+def rBGPI equ rBCPS
 
-DEF BCPSF_AUTOINC EQU %10000000 ; Auto Increment (0=Disabled, 1=Increment after Writing)
-DEF BCPSB_AUTOINC EQU 7
-DEF BGPIF_AUTOINC EQU BCPSF_AUTOINC
-DEF BGPIB_AUTOINC EQU BCPSB_AUTOINC
+def BCPSF_AUTOINC equ %10000000 ; Auto Increment (0=Disabled, 1=Increment after Writing)
+def BCPSB_AUTOINC equ 7
+def BGPIF_AUTOINC equ BCPSF_AUTOINC
+def BGPIB_AUTOINC equ BCPSB_AUTOINC
 
 
 ; --
 ; -- BCPD/BGPD ($FF69)
 ; -- Background Color Palette Data (aka Background Palette Data) (R/W)
 ; --
-DEF rBCPD EQU $FF69
-DEF rBGPD EQU rBCPD
+def rBCPD equ $FF69
+def rBGPD equ rBCPD
 
 
 ; --
 ; -- OCPS/OBPI ($FF6A)
 ; -- Object Color Palette Specification (aka Object Background Palette Index) (R/W)
 ; --
-DEF rOCPS EQU $FF6A
-DEF rOBPI EQU rOCPS
+def rOCPS equ $FF6A
+def rOBPI equ rOCPS
 
-DEF OCPSF_AUTOINC EQU %10000000 ; Auto Increment (0=Disabled, 1=Increment after Writing)
-DEF OCPSB_AUTOINC EQU 7
-DEF OBPIF_AUTOINC EQU OCPSF_AUTOINC
-DEF OBPIB_AUTOINC EQU OCPSB_AUTOINC
+def OCPSF_AUTOINC equ %10000000 ; Auto Increment (0=Disabled, 1=Increment after Writing)
+def OCPSB_AUTOINC equ 7
+def OBPIF_AUTOINC equ OCPSF_AUTOINC
+def OBPIB_AUTOINC equ OCPSB_AUTOINC
 
 
 ; --
 ; -- OCPD/OBPD ($FF6B)
 ; -- Object Color Palette Data (aka Object Background Palette Data) (R/W)
 ; --
-DEF rOCPD EQU $FF6B
-DEF rOBPD EQU rOCPD
+def rOCPD equ $FF6B
+def rOBPD equ rOCPD
 
 
 ; --
@@ -798,8 +798,8 @@ DEF rOBPD EQU rOCPD
 ; --
 ; -- Bit 2-0 - Bank Specification (0,1: Specify Bank 1; 2-7: Specify Banks 2-7)
 ; --
-DEF rSVBK EQU $FF70
-DEF rSMBK EQU rSVBK
+def rSVBK equ $FF70
+def rSMBK equ rSVBK
 
 
 ; --
@@ -809,7 +809,7 @@ DEF rSMBK EQU rSVBK
 ; -- Bit 7-4 - Copy of sound channel 2's PCM amplitude
 ; -- Bit 3-0 - Copy of sound channel 1's PCM amplitude
 ; --
-DEF rPCM12 EQU $FF76
+def rPCM12 equ $FF76
 
 
 ; --
@@ -819,26 +819,26 @@ DEF rPCM12 EQU $FF76
 ; -- Bit 7-4 - Copy of sound channel 4's PCM amplitude
 ; -- Bit 3-0 - Copy of sound channel 3's PCM amplitude
 ; --
-DEF rPCM34 EQU $FF77
+def rPCM34 equ $FF77
 
 
 ; --
 ; -- IE ($FFFF)
 ; -- Interrupt Enable (R/W)
 ; --
-DEF rIE EQU $FFFF
+def rIE equ $FFFF
 
-DEF IEF_HILO   EQU %00010000 ; Transition from High to Low of Pin number P10-P13
-DEF IEF_SERIAL EQU %00001000 ; Serial I/O transfer end
-DEF IEF_TIMER  EQU %00000100 ; Timer Overflow
-DEF IEF_STAT   EQU %00000010 ; STAT
-DEF IEF_VBLANK EQU %00000001 ; V-Blank
+def IEF_HILO   equ %00010000 ; Transition from High to Low of Pin number P10-P13
+def IEF_SERIAL equ %00001000 ; Serial I/O transfer end
+def IEF_TIMER  equ %00000100 ; Timer Overflow
+def IEF_STAT   equ %00000010 ; STAT
+def IEF_VBLANK equ %00000001 ; V-Blank
 
-DEF IEB_HILO   EQU 4
-DEF IEB_SERIAL EQU 3
-DEF IEB_TIMER  EQU 2
-DEF IEB_STAT   EQU 1
-DEF IEB_VBLANK EQU 0
+def IEB_HILO   equ 4
+def IEB_SERIAL equ 3
+def IEB_TIMER  equ 2
+def IEB_STAT   equ 1
+def IEB_VBLANK equ 0
 
 
 ;***************************************************************************
@@ -853,10 +853,10 @@ DEF IEB_VBLANK EQU 0
 ; -- Can be used with AUD1LEN and AUD2LEN
 ; -- See AUD1LEN for more info
 ; --
-DEF AUDLEN_DUTY_12_5    EQU %00000000 ; 12.5%
-DEF AUDLEN_DUTY_25      EQU %01000000 ; 25%
-DEF AUDLEN_DUTY_50      EQU %10000000 ; 50%
-DEF AUDLEN_DUTY_75      EQU %11000000 ; 75%
+def AUDLEN_DUTY_12_5    equ %00000000 ; 12.5%
+def AUDLEN_DUTY_25      equ %01000000 ; 25%
+def AUDLEN_DUTY_50      equ %10000000 ; 50%
+def AUDLEN_DUTY_75      equ %11000000 ; 75%
 
 
 ; --
@@ -865,8 +865,8 @@ DEF AUDLEN_DUTY_75      EQU %11000000 ; 75%
 ; -- Can be used with AUD1ENV, AUD2ENV, AUD4ENV
 ; -- See AUD1ENV for more info
 ; --
-DEF AUDENV_UP           EQU %00001000
-DEF AUDENV_DOWN         EQU %00000000
+def AUDENV_UP           equ %00001000
+def AUDENV_DOWN         equ %00000000
 
 
 ; --
@@ -875,9 +875,9 @@ DEF AUDENV_DOWN         EQU %00000000
 ; -- Can be used with AUD1HIGH, AUD2HIGH, AUD3HIGH
 ; -- See AUD1HIGH for more info
 ; --
-DEF AUDHIGH_RESTART     EQU %10000000
-DEF AUDHIGH_LENGTH_ON   EQU %01000000
-DEF AUDHIGH_LENGTH_OFF  EQU %00000000
+def AUDHIGH_RESTART     equ %10000000
+def AUDHIGH_LENGTH_ON   equ %01000000
+def AUDHIGH_LENGTH_OFF  equ %00000000
 
 
 ;***************************************************************************
@@ -886,14 +886,14 @@ DEF AUDHIGH_LENGTH_OFF  EQU %00000000
 ;*
 ;***************************************************************************
 
-DEF BOOTUP_A_DMG    EQU $01 ; Dot Matrix Game
-DEF BOOTUP_A_CGB    EQU $11 ; Color GameBoy
-DEF BOOTUP_A_MGB    EQU $FF ; Mini GameBoy (Pocket GameBoy)
+def BOOTUP_A_DMG    equ $01 ; Dot Matrix Game
+def BOOTUP_A_CGB    equ $11 ; Color GameBoy
+def BOOTUP_A_MGB    equ $FF ; Mini GameBoy (Pocket GameBoy)
 
 ; if a=BOOTUP_A_CGB, bit 0 in b can be checked to determine if real CGB or
 ; other system running in GBC mode
-DEF BOOTUP_B_CGB    EQU %00000000
-DEF BOOTUP_B_AGB    EQU %00000001   ; GBA, GBA SP, Game Boy Player, or New GBA SP
+def BOOTUP_B_CGB    equ %00000000
+def BOOTUP_B_AGB    equ %00000001   ; GBA, GBA SP, Game Boy Player, or New GBA SP
 
 
 ;***************************************************************************
@@ -906,75 +906,75 @@ DEF BOOTUP_B_AGB    EQU %00000001   ; GBA, GBA SP, Game Boy Player, or New GBA S
 ;* Nintendo scrolling logo
 ;* (Code won't work on a real GameBoy)
 ;* (if next lines are altered.)
-MACRO NINTENDO_LOGO
-    DB  $CE,$ED,$66,$66,$CC,$0D,$00,$0B,$03,$73,$00,$83,$00,$0C,$00,$0D
-    DB  $00,$08,$11,$1F,$88,$89,$00,$0E,$DC,$CC,$6E,$E6,$DD,$DD,$D9,$99
-    DB  $BB,$BB,$67,$63,$6E,$0E,$EC,$CC,$DD,$DC,$99,$9F,$BB,$B9,$33,$3E
-ENDM
+macro NINTENDO_LOGO
+    db  $CE,$ED,$66,$66,$CC,$0D,$00,$0B,$03,$73,$00,$83,$00,$0C,$00,$0D
+    db  $00,$08,$11,$1F,$88,$89,$00,$0E,$DC,$CC,$6E,$E6,$DD,$DD,$D9,$99
+    db  $BB,$BB,$67,$63,$6E,$0E,$EC,$CC,$DD,$DC,$99,$9F,$BB,$B9,$33,$3E
+endm
 
 ; $0143 Color GameBoy compatibility code
-DEF CART_COMPATIBLE_DMG     EQU $00
-DEF CART_COMPATIBLE_DMG_GBC EQU $80
-DEF CART_COMPATIBLE_GBC     EQU $C0
+def CART_COMPATIBLE_DMG     equ $00
+def CART_COMPATIBLE_DMG_GBC equ $80
+def CART_COMPATIBLE_GBC     equ $C0
 
 ; $0146 GameBoy/Super GameBoy indicator
-DEF CART_INDICATOR_GB       EQU $00
-DEF CART_INDICATOR_SGB      EQU $03
+def CART_INDICATOR_GB       equ $00
+def CART_INDICATOR_SGB      equ $03
 
 ; $0147 Cartridge type
-DEF CART_ROM                     EQU $00
-DEF CART_ROM_MBC1                EQU $01
-DEF CART_ROM_MBC1_RAM            EQU $02
-DEF CART_ROM_MBC1_RAM_BAT        EQU $03
-DEF CART_ROM_MBC2                EQU $05
-DEF CART_ROM_MBC2_BAT            EQU $06
-DEF CART_ROM_RAM                 EQU $08
-DEF CART_ROM_RAM_BAT             EQU $09
-DEF CART_ROM_MMM01               EQU $0B
-DEF CART_ROM_MMM01_RAM           EQU $0C
-DEF CART_ROM_MMM01_RAM_BAT       EQU $0D
-DEF CART_ROM_MBC3_BAT_RTC        EQU $0F
-DEF CART_ROM_MBC3_RAM_BAT_RTC    EQU $10
-DEF CART_ROM_MBC3                EQU $11
-DEF CART_ROM_MBC3_RAM            EQU $12
-DEF CART_ROM_MBC3_RAM_BAT        EQU $13
-DEF CART_ROM_MBC5                EQU $19
-DEF CART_ROM_MBC5_BAT            EQU $1A
-DEF CART_ROM_MBC5_RAM_BAT        EQU $1B
-DEF CART_ROM_MBC5_RUMBLE         EQU $1C
-DEF CART_ROM_MBC5_RAM_RUMBLE     EQU $1D
-DEF CART_ROM_MBC5_RAM_BAT_RUMBLE EQU $1E
-DEF CART_ROM_MBC7_RAM_BAT_GYRO   EQU $22
-DEF CART_ROM_POCKET_CAMERA       EQU $FC
-DEF CART_ROM_BANDAI_TAMA5        EQU $FD
-DEF CART_ROM_HUDSON_HUC3         EQU $FE
-DEF CART_ROM_HUDSON_HUC1         EQU $FF
+def CART_ROM                     equ $00
+def CART_ROM_MBC1                equ $01
+def CART_ROM_MBC1_RAM            equ $02
+def CART_ROM_MBC1_RAM_BAT        equ $03
+def CART_ROM_MBC2                equ $05
+def CART_ROM_MBC2_BAT            equ $06
+def CART_ROM_RAM                 equ $08
+def CART_ROM_RAM_BAT             equ $09
+def CART_ROM_MMM01               equ $0B
+def CART_ROM_MMM01_RAM           equ $0C
+def CART_ROM_MMM01_RAM_BAT       equ $0D
+def CART_ROM_MBC3_BAT_RTC        equ $0F
+def CART_ROM_MBC3_RAM_BAT_RTC    equ $10
+def CART_ROM_MBC3                equ $11
+def CART_ROM_MBC3_RAM            equ $12
+def CART_ROM_MBC3_RAM_BAT        equ $13
+def CART_ROM_MBC5                equ $19
+def CART_ROM_MBC5_BAT            equ $1A
+def CART_ROM_MBC5_RAM_BAT        equ $1B
+def CART_ROM_MBC5_RUMBLE         equ $1C
+def CART_ROM_MBC5_RAM_RUMBLE     equ $1D
+def CART_ROM_MBC5_RAM_BAT_RUMBLE equ $1E
+def CART_ROM_MBC7_RAM_BAT_GYRO   equ $22
+def CART_ROM_POCKET_CAMERA       equ $FC
+def CART_ROM_BANDAI_TAMA5        equ $FD
+def CART_ROM_HUDSON_HUC3         equ $FE
+def CART_ROM_HUDSON_HUC1         equ $FF
 
 ; $0148 ROM size
 ; these are kilobytes
-DEF CART_ROM_32KB   EQU $00 ; 2 banks
-DEF CART_ROM_64KB   EQU $01 ; 4 banks
-DEF CART_ROM_128KB  EQU $02 ; 8 banks
-DEF CART_ROM_256KB  EQU $03 ; 16 banks
-DEF CART_ROM_512KB  EQU $04 ; 32 banks
-DEF CART_ROM_1024KB EQU $05 ; 64 banks
-DEF CART_ROM_2048KB EQU $06 ; 128 banks
-DEF CART_ROM_4096KB EQU $07 ; 256 banks
-DEF CART_ROM_8192KB EQU $08 ; 512 banks
-DEF CART_ROM_1152KB EQU $52 ; 72 banks
-DEF CART_ROM_1280KB EQU $53 ; 80 banks
-DEF CART_ROM_1536KB EQU $54 ; 96 banks
+def CART_ROM_32KB   equ $00 ; 2 banks
+def CART_ROM_64KB   equ $01 ; 4 banks
+def CART_ROM_128KB  equ $02 ; 8 banks
+def CART_ROM_256KB  equ $03 ; 16 banks
+def CART_ROM_512KB  equ $04 ; 32 banks
+def CART_ROM_1024KB equ $05 ; 64 banks
+def CART_ROM_2048KB equ $06 ; 128 banks
+def CART_ROM_4096KB equ $07 ; 256 banks
+def CART_ROM_8192KB equ $08 ; 512 banks
+def CART_ROM_1152KB equ $52 ; 72 banks
+def CART_ROM_1280KB equ $53 ; 80 banks
+def CART_ROM_1536KB equ $54 ; 96 banks
 
 ; $0149 SRAM size
 ; these are kilobytes
-DEF CART_SRAM_NONE  EQU 0
-DEF CART_SRAM_8KB   EQU 2 ; 1 bank
-DEF CART_SRAM_32KB  EQU 3 ; 4 banks
-DEF CART_SRAM_128KB EQU 4 ; 16 banks
+def CART_SRAM_NONE  equ 0
+def CART_SRAM_8KB   equ 2 ; 1 bank
+def CART_SRAM_32KB  equ 3 ; 4 banks
+def CART_SRAM_128KB equ 4 ; 16 banks
 
 ; $014A Destination code
-DEF CART_DEST_JAPANESE     EQU $00
-DEF CART_DEST_NON_JAPANESE EQU $01
+def CART_DEST_JAPANESE     equ $00
+def CART_DEST_NON_JAPANESE equ $01
 
 
 ;***************************************************************************
@@ -983,23 +983,23 @@ DEF CART_DEST_NON_JAPANESE EQU $01
 ;*
 ;***************************************************************************
 
-DEF PADF_DOWN   EQU $80
-DEF PADF_UP     EQU $40
-DEF PADF_LEFT   EQU $20
-DEF PADF_RIGHT  EQU $10
-DEF PADF_START  EQU $08
-DEF PADF_SELECT EQU $04
-DEF PADF_B      EQU $02
-DEF PADF_A      EQU $01
+def PADF_DOWN   equ $80
+def PADF_UP     equ $40
+def PADF_LEFT   equ $20
+def PADF_RIGHT  equ $10
+def PADF_START  equ $08
+def PADF_SELECT equ $04
+def PADF_B      equ $02
+def PADF_A      equ $01
 
-DEF PADB_DOWN   EQU $7
-DEF PADB_UP     EQU $6
-DEF PADB_LEFT   EQU $5
-DEF PADB_RIGHT  EQU $4
-DEF PADB_START  EQU $3
-DEF PADB_SELECT EQU $2
-DEF PADB_B      EQU $1
-DEF PADB_A      EQU $0
+def PADB_DOWN   equ $7
+def PADB_UP     equ $6
+def PADB_LEFT   equ $5
+def PADB_RIGHT  equ $4
+def PADB_START  equ $3
+def PADB_SELECT equ $2
+def PADB_B      equ $1
+def PADB_A      equ $0
 
 
 ;***************************************************************************
@@ -1008,15 +1008,15 @@ DEF PADB_A      EQU $0
 ;*
 ;***************************************************************************
 
-DEF SCRN_X    EQU 160 ; Width of screen in pixels
-DEF SCRN_Y    EQU 144 ; Height of screen in pixels. Also corresponds to the value in LY at the beginning of VBlank.
-DEF SCRN_X_B  EQU 20  ; Width of screen in bytes
-DEF SCRN_Y_B  EQU 18  ; Height of screen in bytes
+def SCRN_X    equ 160 ; Width of screen in pixels
+def SCRN_Y    equ 144 ; Height of screen in pixels. Also corresponds to the value in LY at the beginning of VBlank.
+def SCRN_X_B  equ 20  ; Width of screen in bytes
+def SCRN_Y_B  equ 18  ; Height of screen in bytes
 
-DEF SCRN_VX   EQU 256 ; Virtual width of screen in pixels
-DEF SCRN_VY   EQU 256 ; Virtual height of screen in pixels
-DEF SCRN_VX_B EQU 32  ; Virtual width of screen in bytes
-DEF SCRN_VY_B EQU 32  ; Virtual height of screen in bytes
+def SCRN_VX   equ 256 ; Virtual width of screen in pixels
+def SCRN_VY   equ 256 ; Virtual height of screen in pixels
+def SCRN_VX_B equ 32  ; Virtual width of screen in bytes
+def SCRN_VY_B equ 32  ; Virtual height of screen in bytes
 
 
 ;***************************************************************************
@@ -1027,43 +1027,43 @@ DEF SCRN_VY_B EQU 32  ; Virtual height of screen in bytes
 
 ; OAM attributes
 ; each entry in OAM RAM is 4 bytes (sizeof_OAM_ATTRS)
-RSRESET
-DEF OAMA_Y              RB  1   ; y pos plus 16
-DEF OAMA_X              RB  1   ; x pos plus 8
-DEF OAMA_TILEID         RB  1   ; tile id
-DEF OAMA_FLAGS          RB  1   ; flags (see below)
-DEF sizeof_OAM_ATTRS    RB  0
+rsreset
+def OAMA_Y              rb  1   ; y pos plus 16
+def OAMA_X              rb  1   ; x pos plus 8
+def OAMA_TILEID         rb  1   ; tile id
+def OAMA_FLAGS          rb  1   ; flags (see below)
+def sizeof_OAM_ATTRS    rb  0
 
-DEF OAM_Y_OFS EQU 16 ; add this to a screen-relative Y position to get an OAM Y position
-DEF OAM_X_OFS EQU 8  ; add this to a screen-relative X position to get an OAM X position
+def OAM_Y_OFS equ 16 ; add this to a screen-relative Y position to get an OAM Y position
+def OAM_X_OFS equ 8  ; add this to a screen-relative X position to get an OAM X position
 
-DEF OAM_COUNT           EQU 40  ; number of OAM entries in OAM RAM
+def OAM_COUNT           equ 40  ; number of OAM entries in OAM RAM
 
 ; flags
-DEF OAMF_PRI        EQU %10000000 ; Priority
-DEF OAMF_YFLIP      EQU %01000000 ; Y flip
-DEF OAMF_XFLIP      EQU %00100000 ; X flip
-DEF OAMF_PAL0       EQU %00000000 ; Palette number; 0,1 (DMG)
-DEF OAMF_PAL1       EQU %00010000 ; Palette number; 0,1 (DMG)
-DEF OAMF_BANK0      EQU %00000000 ; Bank number; 0,1 (GBC)
-DEF OAMF_BANK1      EQU %00001000 ; Bank number; 0,1 (GBC)
+def OAMF_PRI        equ %10000000 ; Priority
+def OAMF_YFLIP      equ %01000000 ; Y flip
+def OAMF_XFLIP      equ %00100000 ; X flip
+def OAMF_PAL0       equ %00000000 ; Palette number; 0,1 (DMG)
+def OAMF_PAL1       equ %00010000 ; Palette number; 0,1 (DMG)
+def OAMF_BANK0      equ %00000000 ; Bank number; 0,1 (GBC)
+def OAMF_BANK1      equ %00001000 ; Bank number; 0,1 (GBC)
 
-DEF OAMF_PALMASK    EQU %00000111 ; Palette (GBC)
+def OAMF_PALMASK    equ %00000111 ; Palette (GBC)
 
-DEF OAMB_PRI        EQU 7 ; Priority
-DEF OAMB_YFLIP      EQU 6 ; Y flip
-DEF OAMB_XFLIP      EQU 5 ; X flip
-DEF OAMB_PAL1       EQU 4 ; Palette number; 0,1 (DMG)
-DEF OAMB_BANK1      EQU 3 ; Bank number; 0,1 (GBC)
+def OAMB_PRI        equ 7 ; Priority
+def OAMB_YFLIP      equ 6 ; Y flip
+def OAMB_XFLIP      equ 5 ; X flip
+def OAMB_PAL1       equ 4 ; Palette number; 0,1 (DMG)
+def OAMB_BANK1      equ 3 ; Bank number; 0,1 (GBC)
 
 
 ; Deprecated constants. Please avoid using.
 
-DEF IEF_LCDC   EQU %00000010 ; LCDC (see STAT)
-DEF _VRAM8000  EQU _VRAM
-DEF _VRAM8800  EQU _VRAM+$800
-DEF _VRAM9000  EQU _VRAM+$1000
-DEF CART_SRAM_2KB   EQU 1 ; 1 incomplete bank
+def IEF_LCDC   equ %00000010 ; LCDC (see STAT)
+def _VRAM8000  equ _VRAM
+def _VRAM8800  equ _VRAM+$800
+def _VRAM9000  equ _VRAM+$1000
+def CART_SRAM_2KB   equ 1 ; 1 incomplete bank
 
 
-    ENDC ;HARDWARE_INC
+    endc ;HARDWARE_INC

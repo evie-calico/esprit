@@ -1,7 +1,7 @@
-INCLUDE "dungeon.inc"
-INCLUDE "item.inc"
+include "dungeon.inc"
+include "item.inc"
 
-SECTION "Pickup Item", ROM0
+section "Pickup Item", rom0
 ; @param b: Item ID
 ; @return b: Item bank
 ; @return hl: Item pointer
@@ -39,16 +39,16 @@ PickupItem::
 	inc a
 	ret
 
-SECTION "Inventory Use Item", ROM0
+section "Inventory Use Item", rom0
 ; @param a: Item index
 ; @param b: Entity high byte
 InventoryUseItem::
 	ld c, a
 	add a, c
 	add a, c
-	add a, LOW(wInventory)
+	add a, low(wInventory)
 	ld l, a
-	adc a, HIGH(wInventory)
+	adc a, high(wInventory)
 	sub a, l
 	ld h, a
 	ld a, [hli]
@@ -70,10 +70,10 @@ InventoryUseItem::
 	inc de
 .moveCondition
 	ld a, l
-	cp a, LOW(wInventory + 3 * INVENTORY_SIZE)
+	cp a, low(wInventory + 3 * INVENTORY_SIZE)
 	jr nz, .move
 	ld a, h
-	cp a, HIGH(wInventory + 3 * INVENTORY_SIZE)
+	cp a, high(wInventory + 3 * INVENTORY_SIZE)
 	jr nz, .move
 	xor a, a
 	ld [de], a
@@ -95,9 +95,9 @@ InventoryUseItem::
 	jp z, BankReturn
 	ld de, BankReturn
 	push de ; Push a "return address" to restore the bank.
-	add a, LOW(.table - 2)
+	add a, low(.table - 2)
 	ld e, a
-	adc a, HIGH(.table - 2)
+	adc a, high(.table - 2)
 	sub a, e
 	ld d, a
 	ld a, [de]
@@ -109,19 +109,19 @@ InventoryUseItem::
 	push de
 	ret
 .table
-	ASSERT ITEM_HEAL == 1
+	assert ITEM_HEAL == 1
 	dw HealHandler
-	ASSERT ITEM_MAX == 2
+	assert ITEM_MAX == 2
 
-SECTION "Heal Handler", ROM0
+section "Heal Handler", rom0
 ; @param b: User pointer high byte
 ; @param hl: Heal data ptr
 HealHandler:
-	ASSERT HealItem_Strength - sizeof_Item == 0
+	assert HealItem_Strength - sizeof_Item == 0
 	ld e, [hl]
 	jp HealEntity
 
-SECTION FRAGMENT "dungeon BSS", WRAM0
+section FRAGMENT "dungeon BSS", wram0
 wInventory::
 	ds 3 * INVENTORY_SIZE
 .end::
