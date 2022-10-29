@@ -33,8 +33,8 @@ Main::
 	and a, a
 	jr z, .noFade
 	; Only fade out music when fading to black
-	ld a, [wFadeDelta]
-	bit 7, a
+	ld a, [wFadeMusic]
+	and a, a
 	jr z, .notSound
 	ldh a, [rNR50]
 	sub a, $11
@@ -88,9 +88,13 @@ FadeToBlack::
 	ld [wFadeAmount], a
 	ld a, -8
 	ld [wFadeDelta], a
+	ld a, 1
+	ld [wFadeMusic], a
 	ret
 
 FadeIn::
+	xor a, a
+	ld [wFadeMusic], a
 	ld a, $0F
 	ld [wFadeSteps], a
 	ld a, [wFadeDelta]
@@ -124,6 +128,7 @@ wGameState:: db
 
 section "Fade callback", wram0
 wFadeCallback:: dw
+wFadeMusic:: db
 
 section "General Script Pool", wram0
 wScriptPool:: ds 16
