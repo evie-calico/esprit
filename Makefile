@@ -93,7 +93,7 @@ endif
 # How to build a ROM
 bin/%.gb bin/%.sym bin/%.map: $(OBJS)
 	@mkdir -p $(@D)
-	printf "section \"Version\", rom0\nVersion:: db \"Vuiiger v%s\\\\nBuilt on {d:__UTC_YEAR__}-{d:__UTC_MONTH__}-{d:__UTC_DAY__}\\\\nUsing RGBDS {__RGBDS_VERSION__}\", 0\n" `git describe --tags --always --dirty` \
+	printf "section \"Version\", rom0\nVersion:: db \"Esprit v%s\\\\nBuilt on {d:__UTC_YEAR__}-{d:__UTC_MONTH__}-{d:__UTC_DAY__}\\\\nUsing RGBDS {__RGBDS_VERSION__}\", 0\n" `git describe --tags --always --dirty` \
 	| rgbasm $(ASFLAGS) -o obj/version.o -
 	rgblink $(LDFLAGS) -m bin/$*.map -n bin/$*.sym -o bin/$*.gb $^ obj/version.o  \
 	&& rgbfix $(FIXFLAGS) bin/$*.gb
@@ -153,9 +153,9 @@ res/%.2bpp res/%.map: res/%.map.png
 	rgbgfx $(GFXFLAGS) -u -o res/$*.2bpp -t res/$*.map $<
 
 # Convert .png files into .h.2bpp files (-h flag).
-res/%.2bpp: res/%.h.png
+res/%.2bpp res/%.pal: res/%.h.png
 	@mkdir -p $(@D)
-	rgbgfx -Z -o $@ $<
+	rgbgfx -Z -o res/$*.2bpp -p res/$*.pal $<
 
 # Convert .png files into .h.1bpp files (-h flag).
 res/%.1bpp: res/%.h.png
