@@ -37,16 +37,19 @@ InitDungeon::
 	ld [hli], a
 	call RestoreEntity
 
-	ld a, DUNGEON_WIDTH / 2
+	ld a, DUNGEON_HEIGHT / 2
 	ld hl, wEntity1_SpriteY
 	ld [hl], 0
 	inc l
 	ld [hli], a
 	ld [hl], 0
 	inc l
+	inc a
 	ld [hli], a
 	ld [hli], a
+	dec a
 	ld [hli], a
+	ld [hl], LEFT
 	call RestoreEntity
 
 	ld hl, wActiveDungeon
@@ -71,6 +74,11 @@ InitDungeon::
 	ld a, 1
 	ld [wDungeonCurrentFloor], a
 	call DungeonGenerateFloor
+
+	; Make sure to clear the tile to the right for the partner
+	xor a, a
+	ld [wDungeonMap + DUNGEON_WIDTH / 2 + 1 + DUNGEON_HEIGHT / 2 * DUNGEON_WIDTH], a
+
 ; Re-initializes some aspects of the dungeon, such as rendering the map.
 ; @clobbers: bank
 SwitchToDungeonState::
