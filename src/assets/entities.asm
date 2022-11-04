@@ -19,8 +19,6 @@ endm
 		rgb 144, 32, 48
 		rgb 32, 0, 0
 	.moveTable
-		level 1, xPoison
-
 		level 1, xScratch
 		level 6, xBite
 		level 7, xPounce
