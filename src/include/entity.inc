@@ -119,6 +119,8 @@ def TIRED_THRESHOLD equ 35
 		bytes 1, StatusEffect
 		; How many turns are left until the status is cured.
 		bytes 1, StatusTurns
+		; If this is set, use the moving sprite for one more frame
+		bytes 1, WasMovingLastFrame
 	end_struct
 
 	struct Move

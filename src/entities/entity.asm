@@ -82,7 +82,7 @@ xMoveEntities::
 	ld l, low(wEntity0_Bank)
 	ld a, [hli]
 	and a, a
-	jr z, .skip
+	jr z, .null
 .yCheck
 	ld l, low(wEntity0_PosY)
 	ld d, [hl]
@@ -157,11 +157,16 @@ xMoveEntities::
 	inc a
 	ld [wMoveEntityCounter], a
 	ld a, 1
+	ld l, low(wEntity0_WasMovingLastFrame)
+	ld [hl], a
 	jr :+
 .skip
-	xor a, a
+	ld l, low(wEntity0_WasMovingLastFrame)
+	ld a, [hl]
+	ld [hl], 0
 :   ld l, low(wEntity0_Frame)
 	ld [hl], a
+.null
 	inc h
 	ld a, h
 	cp a, high(wEntity0) + NB_ENTITIES
