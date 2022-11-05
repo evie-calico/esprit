@@ -1,5 +1,5 @@
-include "include/hardware.inc" ; Bread & butter: check.
-include "include/hUGE.inc" ; Get the note constants.
+INCLUDE "include/hardware.inc" ; Bread & butter: check.
+INCLUDE "include/hUGE.inc" ; Get the note constants.
 
 	rev_Check_hardware_inc 4.2
 
@@ -19,27 +19,29 @@ def PATTERN_LENGTH equ 64 ; How many rows in a pattern.
 def ROW_SIZE equ 3 ; How many bytes per row.
 def ORDER_WIDTH equ 2 ; How many bytes in each order entry.
 
-macro No ; For "empty" entries in the JR tables.
+MACRO No ; For "empty" entries in the JR tables.
 	ret
 	ds 1
-endm
+ENDM
 
-if def(PREVIEW_MODE)
-	def TAKE_REG_SNAPSHOT equs "db $f4" ; Signal tracker to take a snapshot of audio regs (for VGM export).
-	def REFRESH_ORDER equs "db $fc" ; Signal tracker to re-read the order index.
-	def REFRESH_ROW equs "db $fd" ; Signal tracker to re-read the row index.
-else
-	def TAKE_REG_SNAPSHOT equs ""
-	def REFRESH_ORDER equs ""
-	def REFRESH_ROW equs ""
-endc
-
-section "fortissimo", rom0
+IF DEF(PREVIEW_MODE)
+	DEF TAKE_REG_SNAPSHOT equs "db $f4" ; Signal tracker to take a snapshot of audio regs (for VGM export).
+	DEF REFRESH_ORDER equs "db $fc" ; Signal tracker to re-read the order index.
+	DEF REFRESH_ROW equs "db $fd" ; Signal tracker to re-read the row index.
+ELSE
+	DEF TAKE_REG_SNAPSHOT equs ""
+	DEF REFRESH_ORDER equs ""
+	DEF REFRESH_ROW equs ""
+ENDC
 
 ; Note: SDCC's linker is crippled by the lack of alignment support.
 ; So we can't assume any song data nor RAM variables are aligned, as useful as that would be.
+;
+; SDCC calling conventions: https://sdcc.sourceforge.net/doc/sdccman.pdf#subsubsection.4.3.5.1
 
-; @param a: Song bank
+SECTION "fortissimo", ROM0
+
+_hUGE_StartSong:: ; C interface.
 ; @param de: Pointer to the "song descriptor" to load.
 StartSong::
 	; Set song bank
@@ -77,7 +79,6 @@ StartSong::
 	ld b, a
 	inc de
 	ld a, [bc]
-	; TODO: this transform is probably wrong
 	; TODO: have tracker do this
 	sub 2
 	ld [hli], a
@@ -121,13 +122,13 @@ StartSong::
 	dec c
 	jr nz, .copyPointers
 
-if def(PREVIEW_MODE)
+IF DEF(PREVIEW_MODE)
 	assert whUGE.waves + 2 == whUGE.loopPatterns
 	inc hl ; TODO: does `loopPatterns` need to be init'd?
 	assert whUGE.loopPatterns + 1 == whUGE.orderIdx
-else
+ELSE
 	assert whUGE.waves + 2 == whUGE.orderIdx
-endc
+ENDC
 
 	; Orders begin at 0
 	xor a
@@ -135,6 +136,7 @@ endc
 	assert whUGE.orderIdx + 1 == whUGE.patternIdx
 	inc hl ; No need to init that
 	assert whUGE.patternIdx + 1 == whUGE.forceRow
+	assert PATTERN_LENGTH == 1 << 6, "Pattern length must be a power of 2"
 	ld a, -PATTERN_LENGTH
 	ld [hli], a ; Begin by forcing row 0.
 
@@ -180,11 +182,12 @@ endc
 	ret
 
 
+_hUGE_TickSound:: ; C interface.
 TickMusic::
 	; Disable all muted channels.
-	ld hl, hMutedChannels
+	ld hl, hUGE_MutedChannels
 	ld a, [hli]
-	assert hMutedChannels + 1 == hUGE_AllowedChannels
+	assert hUGE_MutedChannels + 1 == hUGE_AllowedChannels
 	cpl
 	and [hl]
 	ld [hl], a
@@ -208,9 +211,9 @@ TickMusic::
 	ld a, [whUGE.ticksPerRow]
 	ld [hli], a ; TODO: loose
 
-	; TODO: check if there is a row or pattern break, and act accordingly
+	; Check if there is a row or pattern break, and act accordingly:
 	; Pattern break + row break at the same time must switch to row R on pattern P!
-	; But row break on last row must not change the pattern
+	; But row break on last row must not change the pattern.
 
 	; Switch to next row.
 	ld hl, whUGE.forceRow
@@ -221,14 +224,14 @@ TickMusic::
 	inc [hl]
 	jr nz, .samePattern
 	; Reload index.
-	assert PATTERN_LENGTH == 1 << 6, "Pattern length must be a power of 2" ; If changing this, look for other instances of `PATTERN_LENGTH`.
+	assert PATTERN_LENGTH == 1 << 6, "Pattern length must be a power of 2"
 	ld [hl], -PATTERN_LENGTH ; pow2 is required to be able to mask off these two bits.
-if def(PREVIEW_MODE)
+IF DEF(PREVIEW_MODE)
 	; If looping is enabled, don't switch patterns.
 	ld a, [whUGE.loopPatterns]
 	and a
 	jr nz, .samePattern
-endc
+ENDC
 	; Switch to next patterns.
 	dec hl
 	assert whUGE.patternIdx - 1 == whUGE.orderIdx
@@ -250,9 +253,10 @@ endc
 .samePattern
 	; Compute the offset into the pattern.
 	ld a, [hli]
+	assert PATTERN_LENGTH == 1 << 6, "Pattern length must be a power of 2"
 	and PATTERN_LENGTH - 1
 	ld b, a
-	inc a ; Plus two 'cause we read rows backwards. TODO: have the tracker do this
+	inc a ; Plus two 'cause we read rows backwards. TODO: have the tracker do this, but it requires reworking the subpattern code as well!
 	add a, a
 	add a, b
 	ld b, a
@@ -271,14 +275,14 @@ endc
 	call ReadRow
 	ld hl, whUGEch1.instrAndFX
 	ld e, hUGE_CH1_MASK
-	ld c, low(rNR10)
+	ld c, LOW(rNR10)
 	call nz, PlayDutyNote
 
 	ld hl, whUGEch2.order
 	call ReadRow
 	ld hl, whUGEch2.instrAndFX
 	ld e, hUGE_CH2_MASK
-	ld c, low(rNR21 - 1) ; NR20 doesn't exist.
+	ld c, LOW(rNR21 - 1) ; NR20 doesn't exist.
 	call nz, PlayDutyNote
 
 	ld hl, whUGEch3.order
@@ -318,13 +322,13 @@ endc
 	call RunTick0Fx
 	ld hl, whUGEch4.ctrlMask
 	ld c, hUGE_CH4_MASK
-if !def(PREVIEW_MODE)
+IF !DEF(PREVIEW_MODE)
 	assert @ == TickSubpattern ; fallthrough
-else
+ELSE
 	call TickSubpattern
 	TAKE_REG_SNAPSHOT
 	ret
-endc
+ENDC
 
 
 ; @param hl: Pointer to the channel's "control mask".
@@ -374,9 +378,9 @@ TickSubpattern:
 	jr nz, .ch4
 	; Compute the note's period.
 	add a, a
-	add a, low(PeriodTable)
+	add a, LOW(PeriodTable)
 	ld e, a
-	adc a, high(PeriodTable)
+	adc a, HIGH(PeriodTable)
 	sub e
 	ld d, a
 	; Compute the pointer to NRx3, bit twiddling courtesy of @calc84maniac.
@@ -384,7 +388,7 @@ TickSubpattern:
 	; a = 1 (CH1), 2 (CH2), or 4 (CH3).
 	xor $11  ; 10, 13, 15
 	add a, c ; 11, 15, 19
-	cp low(rNR23)
+	cp LOW(rNR23)
 	adc a, c ; 13, 18, 1D
 	ld c, a
 	; Write the period, together with the control mask.
@@ -428,9 +432,9 @@ TickSubpattern:
 	and $0F ; Keep the FX bits only.
 	ld b, [hl] ; Read the row's FX params.
 	add a, a
-	add a, low(.fxPointers)
+	add a, LOW(.fxPointers)
 	ld l, a
-	adc a, high(.fxPointers)
+	adc a, HIGH(.fxPointers)
 	sub l
 	ld h, a
 	; Deref the pointer, and jump to it.
@@ -477,7 +481,7 @@ TickSubpattern:
 ; @destroy e a
 ReadRow:
 	; Compute the pointer to the current pattern.
-	ld a, [whUGE.orderIdx] ; TODO: cache this in a reg?
+	ld a, [whUGE.orderIdx] ; TODO: cache this in a reg across calls?
 	add a, [hl]
 	ld e, a
 	inc hl
@@ -520,14 +524,14 @@ ReadRow:
 	ret
 
 
-; @param c:  low(rNRx0)
+; @param c:  LOW(rNRx0)
 ; @param e:  The channel's bit mask in the muted/allowed channel bytes.
 ; @param d:  The channel's note ID.
 ; @param hl: Pointer to the channel's fx/instrument byte.
 ; @destroy c de hl a
 PlayDutyNote:
 	; If the channel is inhibited, don't perform any writes.
-	ld a, [hMutedChannels]
+	ld a, [hUGE_MutedChannels]
 	and e
 	ret nz
 	; If the channel is not inhibited, allow it to be used by FX as well.
@@ -591,18 +595,18 @@ PlayDutyNote:
 	pop af ; Retrieve the note ID (from d to a).
 	; Compute a pointer to the note's period.
 	add a, a
-	add a, low(PeriodTable)
+	add a, LOW(PeriodTable)
 	ld e, a
-	adc a, high(PeriodTable)
+	adc a, HIGH(PeriodTable)
 	sub e
 	ld d, a
 	; Write it.
-	ld a, [de] ; low(Period).
+	ld a, [de] ; LOW(Period).
 	ld [hli], a
 	ldh [c], a
 	inc c ; Skip NRx3.
 	inc de
-	ld a, [de] ; high(Period).
+	ld a, [de] ; HIGH(Period).
 	ld [hld], a
 	dec hl
 	assert whUGEch1.period - 1 == whUGEch1.ctrlMask
@@ -626,7 +630,7 @@ PlayDutyNote:
 ; @destroy c de hl a
 PlayWaveNote:
 	; If the channel is inhibited, don't perform any writes.
-	ld a, [hMutedChannels]
+	ld a, [hUGE_MutedChannels]
 	and hUGE_CH3_MASK
 	ret nz
 	; If the channel is not inhibited, allow it to be used by FX as well.
@@ -673,10 +677,10 @@ PlayWaveNote:
 	ld a, [hl] ; NRx4 mask.
 	ld [whUGEch3.ctrlMask], a
 	; Check if a new wave must be loaded.
-	ld a, [wLoadedWaveID]
+	ld a, [hUGE_LoadedWaveID]
 	cp e
 	call nz, LoadWave
-	db $C4 ; call nz, <res 7, [hl]>
+	db $21 ; ld hl, <res 7, [hl]> ; This is OK because HL does not get used below.
 .noWaveInstr
 	res 7, [hl] ; If no instrument, remove trigger bit from control mask.
 
@@ -684,9 +688,9 @@ PlayWaveNote:
 	ld a, d ; Retrieve the note ID.
 	; Compute a pointer to the note's period.
 	add a, a
-	add a, low(PeriodTable)
+	add a, LOW(PeriodTable)
 	ld e, a
-	adc a, high(PeriodTable)
+	adc a, HIGH(PeriodTable)
 	sub e
 	ld d, a
 	; Careful—triggering CH3 while it's reading wave RAM can corrupt it.
@@ -696,11 +700,11 @@ PlayWaveNote:
 	ld [hl], h ; This has bit 7 set, re-enabling the channel.
 	; Write it.
 	ld hl, whUGEch3.period
-	ld a, [de] ; low(Period).
+	ld a, [de] ; LOW(Period).
 	ld [hli], a
 	inc de
 	ldh [rNR33], a
-	ld a, [de] ; high(Period).
+	ld a, [de] ; HIGH(Period).
 	ld [hld], a
 	dec hl
 	assert whUGEch3.period - 1 == whUGEch3.ctrlMask
@@ -712,7 +716,7 @@ PlayWaveNote:
 ; @destroy c de hl a
 PlayNoiseNote:
 	; If the channel is inhibited, don't perform any writes.
-	ld a, [hMutedChannels]
+	ld a, [hUGE_MutedChannels]
 	and hUGE_CH4_MASK
 	ret nz
 	; If the channel is not inhibited, allow it to be used by FX as well.
@@ -786,13 +790,12 @@ PlayNoiseNote:
 
 
 ; @param e: The ID of the wave to load.
-; @return zero: Set.
 ; @destroy hl a
 LoadWave:
 	; Compute a pointer to the wave.
 	ld a, e
 .waveInA
-	ld [wLoadedWaveID], a
+	ld [hUGE_LoadedWaveID], a
 	swap a ; TODO: it would be more useful if this was already multiplied by 16
 	ld hl, whUGE.waves
 	add a, [hl]
@@ -806,13 +809,12 @@ LoadWave:
 	xor a
 	ldh [rNR30], a ; Disable CH3's DAC while loading wave RAM.
 	; TODO: should we remove CH3 from NR51 to improve GBA quality?
-	for OFS, 0, 16
+	FOR OFS, 0, 16
 		ld a, [hli]
 		ldh [_AUD3WAVERAM + OFS], a
-	endr
+	ENDR
 	ld a, AUD3ENA_ON
 	ldh [rNR30], a ; Re-enable CH3's DAC.
-	xor a
 	ret
 
 
@@ -826,26 +828,16 @@ RunTick0Fx:
 	assert whUGEch1.fxParams + 1 == whUGEch1.instrAndFX
 	ld a, [de]
 	and $0F ; Strip instrument bits.
-	cp FX_NOTE_CUT
-	jr z, .hack
 	add a, a ; Each entry in the table is 2 bytes.
-	add a, low(Tick0Fx)
+	add a, LOW(Tick0Fx)
 	ld l, a
-	adc a, high(Tick0Fx)
+	adc a, HIGH(Tick0Fx)
 	sub l
 	ld h, a
 	assert whUGEch1.instrAndFX + 1 == whUGEch1.note
 	inc de
+	; WARNING: `NoteCutTick0Trampoline` assumes that it's jumped to with `a == h`.
 	jp hl
-
-; TODO: this hack is because I couldn't figure out a cleaner way to jump all the way there.
-; I'm sorry.
-; It should be possible to insert this stub somewhere between all the functions by saving three more bytes *somewhere*.
-; The hack doesn't cost much, since it's only run once per tick... but still. :(
-.hack
-	; We're on tick 0, so check for tick 0.
-	xor a
-	jp FxNoteCut.gotTick
 
 
 ; All of the FX functions follow the same calling convention:
@@ -862,9 +854,9 @@ FxTonePortaSetup:
 	ld a, [de]
 	; Compute the target period from the note ID.
 	add a, a
-	add a, low(PeriodTable)
+	add a, LOW(PeriodTable)
 	ld l, a
-	adc a, high(PeriodTable)
+	adc a, HIGH(PeriodTable)
 	sub l
 	ld h, a
 	ld a, [hli]
@@ -886,17 +878,7 @@ FxResetVibCounter:
 	ret
 
 
-FxSetMasterVolume:
-	ld a, b ; Read the FX's params.
-	ldh [rNR50], a
-	ret
-
-
-FxSetPanning:
-	ld a, b ; Read the FX's params.
-	ldh [rNR51], a
-	ret
-
+; This one is slightly out of order so it can `jr LoadWave.waveInA`.
 
 ; For CH1 and CH2, this is written as-is to NRx1;
 ; for CH3, this is the ID of the wave to load;
@@ -913,7 +895,7 @@ FxSetDutyCycle:
 	jr c, .ch2
 	rra
 	ld a, b ; Read the FX's params.
-	jp c, LoadWave.waveInA ; TODO: if this could be made into a `jr` it would be pog
+	jr c, LoadWave.waveInA
 .ch4
 	; Keep the polynom bits, but replace the LFSR width bit.
 	ldh a, [rNR43]
@@ -932,9 +914,23 @@ FxSetDutyCycle:
 	ret
 
 
+FxSetMasterVolume:
+	ld a, b ; Read the FX's params.
+	ldh [rNR50], a
+	ret
+
+
+FxSetPanning:
+	ld a, b ; Read the FX's params.
+	ldh [rNR51], a
+	ret
+
+
+; FxSetDutyCycle is a bit above.
+
+
 FxPatternBreak:
 	ld a, b
-	or -PATTERN_LENGTH ; TODO: have tracker do this
 	ld [whUGE.forceRow], a
 	ret
 
@@ -951,7 +947,7 @@ FxVolumeSlide:
 	xor 2 ; 3, 0, A
 	inc a ; 4, 1, B
 	xor 4 ; 0, 5, F
-	add a, low(rNR12)
+	add a, LOW(rNR12)
 	ld c, a
 	; Prepare the FX params.
 	ld a, b
@@ -974,13 +970,13 @@ FxVolumeSlide:
 	jr nc, :+
 	ld a, b ; Clamp.
 :
-	; TODO: this only needs to apply when a = 0, which is clamping... plus Z on the `sub`.
+	; TODO: this only needs to apply when a = 0, which is equivalent to clamping... or Z on the `sub`.
 	or AUDENV_UP ; Ensure that writing $00 does *not* kill the channel (reduces pops).
 .applyVolume
 	ldh [c], a ; Yes, this kills the envelope, but we must retrigger, which sounds bad with envelope anyway.
 	; Speaking of, retrigger the channel.
-	inc c ; low(rNRx3)
-	inc c ; low(rNRx4)
+	inc c ; LOW(rNRx3)
+	inc c ; LOW(rNRx4)
 	; CH4 doesn't have a period, so this'll read garbage;
 	; however, this is OK, because the lower 3 bits are ignored by the hardware register anyway.
 	; We only need to mask off the upper bits which might be set.
@@ -1011,7 +1007,7 @@ Tick0Fx:
 	jr FxPosJump
 	jr FxSetVolume
 	jr FxPatternBreak
-	No note cut
+	jr NoteCutTick0Trampoline
 FxSetSpeed:
 	ld a, b
 	ld [whUGE.ticksPerRow], a
@@ -1019,17 +1015,16 @@ FxSetSpeed:
 
 
 FxPosJump:
-	; TODO: this should be safe? I think?
+	; Writing to `orderIdx` directly is safe, because it is only read by `ReadRow`,
+	; all calls to which happen before any FX processing. (The rows are cached in RAM.)
 	ld hl, whUGE.orderIdx
 	ld a, b
-	dec a ; TODO: have tracker do this
-	add a, a ; TODO: have tracker do this
 	ld [hli], a
 	; Set the necessary bits to make this non-zero;
 	; if a row is already being forced, this keeps it, but will select row 0 otherwise.
 	inc hl
 	assert whUGE.orderIdx + 2 == whUGE.forceRow
-	assert low(-PATTERN_LENGTH) == $C0 ; Set the corresponding bits.
+	assert LOW(-PATTERN_LENGTH) == $C0 ; Set the corresponding bits.
 	set 7, [hl]
 	set 6, [hl]
 	ret
@@ -1048,9 +1043,8 @@ FxSetVolume:
 	xor 2 ; 3, 0, A
 	inc a ; 4, 1, B
 	xor 4 ; 0, 5, F
-	add a, low(rNR12)
+	add a, LOW(rNR12)
 	ld c, a
-	swap b ; TODO: have tracker do this
 	; FIXME: hUGEDriver preserves envelope bits for pulse channels, but not for CH4;
 	;        according to Coffee Bat, the envelope bits should be preserved if B's lower nibble
 	;        (post-`swap`) is non-zero. Decide on a behaviour, and implement it.
@@ -1068,11 +1062,11 @@ FxSetVolume:
 	; "Quantize" the more finely grained volume control down to one of 4 values.
 	; FIXME: this is not very linear
 	ld a, b
-	cp 10
+	cp 10 << 4
 	jr nc, .one
-	cp 5
+	cp 5 << 4
 	jr nc, .two
-	or a
+	and $F0 ; Discard the envelope bits (which are irrelevant to CH3).
 	jr z, .done ; Zero maps to zero.
 .three:
 	ld a, AUD3LEVEL_25
@@ -1084,6 +1078,7 @@ FxSetVolume:
 	ld a, AUD3LEVEL_100
 .done:
 	ldh [rAUD3LEVEL], a
+	; CH3 doesn't need a retrigger after writing to NR32.
 	ret
 
 
@@ -1103,7 +1098,7 @@ FxArpeggio:
 	; a = 1 (CH1), 2 (CH2), or 4 (CH3).
 	xor $11  ; 10, 13, 15
 	add a, c ; 11, 15, 19
-	cp low(rNR23)
+	cp LOW(rNR23)
 	adc a, c ; 13, 18, 1D
 	ld c, a
 	; Pick an offset from the base note.
@@ -1133,27 +1128,30 @@ FxArpeggio:
 FxCallRoutine:
 	; Compute pointer to the routine.
 	ld a, b
-	add a, a ; TODO: have tracker do this
-	add a, low(whUGE.routines)
+	add a, LOW(whUGE.routines)
 	ld l, a
-	adc a, high(whUGE.routines)
+	adc a, HIGH(whUGE.routines)
 	sub l
 	ld h, a
 	; Deref the pointer, and call it.
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	; FIXME: use legacy parameters for compatibility for now, but figure out a better way
-	ld a, [whUGE.rowTimer]
-	ld b, a
-	ld a, [whUGE.ticksPerRow]
-if !def(GBDK)
-	sub b
 	jp hl
-else
-	; Wrapper is too big for the `jr`s, but performance isn't a big concern anyway.
-	jp RoutineWrapper
-endc
+
+
+; This is a hack to be able to reach `FxNoteCut` from the "tick 0" table.
+NoteCutTick0Trampoline:
+	; The function we're jumping to computes the current tick count (counting upwards; our row timer
+	; instead ticks downwards for performance's sake), and then cuts the note if on the specified tick.
+	; Since we are here, we are on tick 0, so that's what we need `a` to be equal to.
+	; For performance's but moreso size's sake (we're very space-bound here), we can't afford a
+	; `xor a`.
+	; Instead, we rely on this function being called with `a == h` (from `RunTick0Fx`), and jumps to
+	; a `sub h`, which is then used as the tick count.
+	; This is madness, yes, but this is also efficient, and helps compensate the trampoline's
+	; performance penalty.
+	jp FxNoteCut.computeTick
 
 
 ; And these FX are "continuous" only.
@@ -1168,7 +1166,7 @@ FxPortaUp:
 	; a = 1 (CH1), 2 (CH2), or 4 (CH3).
 	xor $11  ; 10, 13, 15
 	add a, c ; 11, 15, 19
-	cp low(rNR23)
+	cp LOW(rNR23)
 	adc a, c ; 13, 18, 1D
 	ld c, a
 	; Cache control mask for writing to NRx4.
@@ -1202,7 +1200,7 @@ FxPortaDown:
 	; a = 1 (CH1), 2 (CH2), or 4 (CH3).
 	xor $11  ; 10, 13, 15
 	add a, c ; 11, 15, 19
-	cp low(rNR23)
+	cp LOW(rNR23)
 	adc a, c ; 13, 18, 1D
 	ld c, a
 	; Cache control mask for writing to NRx4.
@@ -1242,7 +1240,7 @@ ContinuousFx:
 	No pos jump
 	No set volume
 	No pattern break
-	jr FxNoteCut ; TODO: can use a single-byte instruction and `db $FE` to skip `ret` below
+	jr FxNoteCut
 	ret ; No set speed.
 
 
@@ -1262,7 +1260,7 @@ FxVibrato:
 	; a = 1 (CH1), 2 (CH2), or 4 (CH3).
 	xor $11  ; 10, 13, 15
 	add a, c ; 11, 15, 19
-	cp low(rNR23)
+	cp LOW(rNR23)
 	adc a, c ; 13, 18, 1D
 	ld c, a
 	; Tick the vibrato.
@@ -1279,9 +1277,9 @@ FxVibrato:
 	assert whUGEch1.vibratoCounter - 3 == whUGEch1.period + 1
 	xor b ; Get back the previous value (the offset to be applied).
 	ld e, a
-	ld d, [hl] ; Read high(period).
+	ld d, [hl] ; Read HIGH(period).
 	dec hl
-	ld a, [hld] ; Read low(period).
+	ld a, [hld] ; Read LOW(period).
 	assert whUGEch1.period - 1 == whUGEch1.ctrlMask
 	add a, e
 	ldh [c], a
@@ -1293,7 +1291,7 @@ FxVibrato:
 	ldh [c], a
 	ret
 
-.noUnderflow ; TODO: merge back?
+.noUnderflow
 	ld [hl], a
 	ret
 
@@ -1309,12 +1307,10 @@ FxTonePorta:
 	; a = 1 (CH1), 2 (CH2), or 4 (CH3).
 	xor $11  ; 10, 13, 15
 	add a, c ; 11, 15, 19
-	cp low(rNR23)
+	cp LOW(rNR23)
 	adc a, c ; 13, 18, 1D
 	ld c, a
 	; Load the target period.
-	; TODO: reading by increasing HL might lead to better reg usage; however,
-	;       changing this code might introduce more bugs, so do this once everything else works.
 	ld hl, whUGEch1.portaTarget + 1 - whUGEch1.note
 	add hl, de
 	ld a, [hld]
@@ -1324,7 +1320,7 @@ FxTonePorta:
 	assert whUGEch1.period == whUGEch1.portaTarget - 2
 	; TODO: I don't like that `push`, can we do better?
 	dec hl
-	push hl ; Save the pointer to low(period).
+	push hl ; Save the pointer to LOW(period).
 	ld a, [hli]
 	ld h, [hl]
 	; Compute the delta between `current` and `target`.
@@ -1366,22 +1362,22 @@ FxNoteDelay:
 	dec hl
 	assert whUGEch1.note - 1 == whUGEch1.instrAndFX
 	ld e, c ; Transfer the bit mask, since we already have it.
-	; We must now compute low(rNRx4): $10 for CH1, $15 for CH2.
+	; We must now compute LOW(rNRx4): $10 for CH1, $15 for CH2.
 	srl c ; 00 / 01
 	jr z, :+
 	set 2, c ; 05
 :
 	set 4, c ; 10 / 15
-	jp PlayDutyNote ; TODO: `jr`/fallthrough this?
+	jp PlayDutyNote
 
 
 FxNoteCut:
 	; Should the note be cut now?
 	ld a, [whUGE.rowTimer]
-	ld e, a ; How many ticks are remaining.
+	ld h, a ; How many ticks are remaining.
 	ld a, [whUGE.ticksPerRow]
-	sub e ; How many ticks have elapsed.
-.gotTick
+.computeTick ; WARNING: see comments in `NoteCutTick0Trampoline` about register usage.
+	sub h ; How many ticks have elapsed.
 	cp b
 	ret nz ; Wait until the time is right.
 	; Make sure to disable the subpattern as well.
@@ -1449,7 +1445,7 @@ FxTonePorta2:
 	; Write it back.
 	ld a, l
 	ld d, h ; Save this from being overwritten.
-	pop hl ; Get back a pointer to low(period).
+	pop hl ; Get back a pointer to LOW(period).
 	ld [hli], a
 	ldh [c], a
 	inc c
@@ -1524,14 +1520,14 @@ ContinueFx: ; TODO: if this is short enough, swapping it with the other path may
 	call .runFx
 	ld hl, whUGEch4.ctrlMask
 	ld c, hUGE_CH4_MASK
-if !def(PREVIEW_MODE)
+IF !DEF(PREVIEW_MODE)
 	jp TickSubpattern
-else
+ELSE
 	call TickSubpattern
 
 	TAKE_REG_SNAPSHOT
 	ret
-endc
+ENDC
 
 ; @param de: Pointer to the channel's FX params.
 ; @param c:  The channel's ID (0 for CH1, 1 for CH2, etc.)
@@ -1545,26 +1541,28 @@ endc
 	ld d, h
 	and $0F ; Strip instrument bits.
 	add a, a ; Each entry in the table is 2 bytes.
-	add a, low(ContinuousFx)
+	add a, LOW(ContinuousFx)
 	ld l, a
-	adc a, high(ContinuousFx)
+	adc a, HIGH(ContinuousFx)
 	sub l
 	ld h, a
 	jp hl
 
 
 PeriodTable:
-	include "include/hUGE_note_table.inc"
+	INCLUDE "include/hUGE_note_table.inc"
 
 
 PUSHS
-section "hUGE music driver RAM", wram0 ; TODO: allow configuring
+SECTION "hUGE music driver RAM", WRAM0 ; TODO: allow configuring
 
 ; While a channel can be safely tinkered with while muted, if wave RAM is modified,
 ; `hUGE_NO_WAVE` must be written to this variable before unmuting channel 3.
-wLoadedWaveID:: db ; ID of the wave the driver currently has loaded in RAM.
-	def hUGE_NO_WAVE equ 100
-	export hUGE_NO_WAVE
+_hUGE_LoadedWaveID::
+wLoadedWaveID::
+hUGE_LoadedWaveID:: db ; ID of the wave the driver currently has loaded in RAM.
+	DEF hUGE_NO_WAVE equ 100
+	EXPORT hUGE_NO_WAVE
 
 whUGE: ; TODO: this label is actually a bit pointless.
 
@@ -1586,16 +1584,16 @@ whUGE: ; TODO: this label is actually a bit pointless.
 
 ; Global variables.
 
-if def(PREVIEW_MODE)
+IF DEF(PREVIEW_MODE)
 .loopPatterns: db ; If non-zero, instead of falling through to the next pattern, loop the current one.
-endc
+ENDC
 
 .orderIdx: db ; Index into the orders, *in bytes*.
 .patternIdx: db ; Index into the current patterns, with the two high bits set.
 .forceRow: db ; If non-zero, will be written (verbatim) to `patternIdx` on the next tick 0, bypassing the increment.
 
 ; Individual channels.
-macro channel
+MACRO channel
 	; Pointer to the channel's order; never changes mid-song.
 	; (Part of the "song cache", in a way, but per-channel.)
 	.order: dw
@@ -1608,7 +1606,7 @@ macro channel
 	.subPattern: dw ; Pointer to the channel's subpattern.
 	.subPatternRow: db ; Which row the subpattern is currently in.
 	.ctrlMask: db ; The upper 2 bits written to NRx4.
-	if (\1) != 4
+	IF (\1) != 4
 		; The current "period" (what gets written to NRx3/NRx4).
 		; This must be cached for effects like toneporta, which decouple this from the note.
 		.period: dw
@@ -1616,14 +1614,14 @@ macro channel
 		; (Redundant with the "note", but makes the "continuous" FX code faster.)
 		.portaTarget: dw
 		.vibratoCounter: db ; Upper 4 bits count down, lower 4 bits contain the next offset from the base note.
-	else ; CH4 is a lil' different.
+	ELSE ; CH4 is a lil' different.
 		; The LFSR width bit (as in NR43).
 		.lfsrWidth: db
 		; The current "polynom" (what gets written to NR43).
 		.polynom: db
 		ds 3 ; Ensures that both branches are the same size
-	endc
-endm
+	ENDC
+ENDM
 
 whUGEch1:  channel 1
 whUGEch2:  channel 2
@@ -1631,38 +1629,30 @@ whUGEch3:  channel 3
 whUGEch4:  channel 4
 
 
-section "hUGE music driver hram", hram
-
-; 0 = no song
-hSongBank:: db
+SECTION "hUGE music driver HRAM", HRAM
 
 ; `hUGE_AllowedChannels` is accessed directly a *lot* in FX code, and the 1-byte save from `ldh`
 ; helps keeping all the code in `jr` range.
 
-; A channel is inhibited as soon as it's muted, but it can only leave that state when playing a note.
-hMutedChannels:: db ; Bit mask of which channels must be left alone by the driver; but see `wLoadedWaveID` above.
+
+; As soon as a channel's bit gets set in this variable, the driver will stop updating any of its registers.
+; This is useful, for example, for playing sound effects: temporarily "mute" one of the song's channels,
+; play the SFX on it, and un-mute it to "release" it back to the driver.
+;
+; Note that the driver will not touch the channel until a new note plays on it.
+;
+; IMPORTANT: muting CH3 (the wave channel) requires special attention: if wave RAM is modified, you
+;            must set `hUGE_LoadedWaveID` to `hUGE_NO_WAVE` before unmuting the channel.
+_hUGE_MutedChannels:: ; C interface.
+hUGE_MutedChannels::
+hMutedChannels:: db
 hUGE_AllowedChannels: db ; Bit mask of which channels the driver is allowed to use.
+hSongBank:: db
 ; The two variables above use these masks.
-	def hUGE_CH1_MASK equ 1 << 0
-	def hUGE_CH2_MASK equ 1 << 1
-	def hUGE_CH3_MASK equ 1 << 2
-	def hUGE_CH4_MASK equ 1 << 3
-	export hUGE_CH1_MASK, hUGE_CH2_MASK, hUGE_CH3_MASK, hUGE_CH4_MASK
+	DEF hUGE_CH1_MASK equ 1 << 0
+	DEF hUGE_CH2_MASK equ 1 << 1
+	DEF hUGE_CH3_MASK equ 1 << 2
+	DEF hUGE_CH4_MASK equ 1 << 3
+	EXPORT hUGE_CH1_MASK, hUGE_CH2_MASK, hUGE_CH3_MASK, hUGE_CH4_MASK
 
 POPS
-
-
-if def(GBDK)
-	; TODO: wrappers
-
-RoutineWrapper:
-	sub b ; Missing instruction because the `jp` is too big.
-	push af
-	inc sp
-	push bc ; TODO: what for?
-	call .callHL
-	add sp, 3
-	ret
-.callHL
-	jp hl
-endc
