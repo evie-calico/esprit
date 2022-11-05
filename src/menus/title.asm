@@ -2,6 +2,7 @@ include "config.inc"
 include "defines.inc"
 include "draw_menu.inc"
 include "hardware.inc"
+include "menu.inc"
 
 section "Title screen", romx
 xTitleScreen::
@@ -145,6 +146,11 @@ StartSongTrampoline:
 POPS
 
 xTitleScreenRedraw:
+if SKIP_TITLE
+	ld a, MENU_VALIDATED
+	ld [wMenuClosingReason], a
+	ret
+endc
 	call Rand
 
 	def LUVUI_POSITION EQUS "97, 87"
