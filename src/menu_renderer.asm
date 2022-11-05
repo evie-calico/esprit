@@ -81,7 +81,7 @@ MenuLoadTiles:
 	ld e, a
 	ld a, [wVramSlack + 1]
 	ld d, a
-	call VRAMCopy
+	call VramCopy
 	ld a, e
 	ld [wVramSlack], a
 	ld a, d

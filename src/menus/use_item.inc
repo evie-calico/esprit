@@ -181,7 +181,7 @@ xUseItemMenuRedraw:
 			rr d
 			rr e
 			ld c, 64
-			call VRAMCopySmall
+			call VramCopySmall
 			ld a, bank("Pause Menu")
 			rst SwapBank
 			ret
@@ -289,7 +289,7 @@ UseItemLoadEntity:
 		ld h, d
 		ld l, e
 		lb bc, 0, 128
-		jp VRAMSetSmall
+		jp VramSetSmall
 .exists
 	rst SwapBank
 	ld a, h
@@ -310,7 +310,7 @@ UseItemLoadEntity:
 			inc h
 			; Copy both
 			ld c, 128
-			call VRAMCopySmall
+			call VramCopySmall
 		pop hl
 		inc hl
 		ld a, [hli]

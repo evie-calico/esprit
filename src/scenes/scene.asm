@@ -883,7 +883,7 @@ DrawSceneVramCopy:
 	ld l, a
 	pop af
 	rst SwapBank
-	call VRAMCopy
+	call VramCopy
 	pop hl
 	inc hl
 	inc hl

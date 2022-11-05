@@ -64,7 +64,7 @@ xTitleScreenInit:
 	ld bc, xSleepingProtags.end - xSleepingProtags
 	ld de, $8000
 	ld hl, xSleepingProtags
-	call VRAMCopy
+	call VramCopy
 
 	ldh a, [hSystem]
 	and a, a
@@ -72,11 +72,11 @@ xTitleScreenInit:
 		ld bc, 128 * 16
 		ld de, $9000
 		ld hl, xTitleTiles
-		call VRAMCopy
+		call VramCopy
 
 		ld bc, 128 * 16
 		ld de, $8800
-		call VRAMCopy
+		call VramCopy
 
 		ld a, 1
 		ldh [rVBK], a
@@ -106,11 +106,11 @@ xTitleScreenInit:
 		ld bc, 128 * 16
 		ld de, $9000
 		ld hl, xTitleTilesDmg
-		call VRAMCopy
+		call VramCopy
 
 		ld bc, 128 * 16
 		ld de, $8800
-		call VRAMCopy
+		call VramCopy
 
 		lb bc, SCRN_X_B, SCRN_Y_B
 		ld de, $9800

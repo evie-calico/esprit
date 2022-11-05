@@ -1594,7 +1594,7 @@ TextScroll:
 	ld b, 0
 	ld a, [wTextWidth]
 	ld c, a
-	call VRAMSetSmall
+	call VramSetSmall
 
 	ld hl, wPenPosition
 	ld a, [hl]
@@ -1649,7 +1649,7 @@ TextClear::
 	ld b, 0
 	ld a, [wTextWidth]
 	ld c, a
-	call VRAMSetSmall
+	call VramSetSmall
 	; Negate textbox width
 	ld a, [wTextWidth]
 	cpl

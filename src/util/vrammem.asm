@@ -27,7 +27,7 @@ section "VRAM Memory Copy", rom0
 ; @param bc: length
 ; @param de: destination
 ; @param hl: source
-VRAMCopy::
+VramCopy::
 	dec bc
 	inc b
 	inc c
@@ -51,15 +51,15 @@ section "VRAM Small Memory Copy", rom0
 ; @param  c: length
 ; @param de: destination
 ; @param hl: source
-VRAMCopySmall::
+VramCopySmall::
 	ldh a, [rSTAT]
 	and STATF_BUSY
-	jr nz, VRAMCopySmall
+	jr nz, VramCopySmall
 	ld a, [hli]
 	ld [de], a
 	inc de
 	dec c
-	jr nz, VRAMCopySmall
+	jr nz, VramCopySmall
 	ret
 
 section "VRAM Memory Set", rom0
@@ -67,7 +67,7 @@ section "VRAM Memory Set", rom0
 ; @param  d: source (is preserved)
 ; @param bc: length
 ; @param hl: destination
-VRAMSet::
+VramSet::
 	inc b
 	inc c
 	jr .decCounter
@@ -90,13 +90,13 @@ section "VRAM Memory Set Small", rom0
 ; @param  b: source (is preserved)
 ; @param  c: length
 ; @param hl: destination
-VRAMSetSmall::
+VramSetSmall::
 	ldh a, [rSTAT]
 	and STATF_BUSY
-	jr nz, VRAMSetSmall
+	jr nz, VramSetSmall
 
 	ld a, b
 	ld [hli], a
 	dec c
-	jr nz, VRAMSetSmall
+	jr nz, VramSetSmall
 	ret

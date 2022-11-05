@@ -268,7 +268,7 @@ LoadTheme::
 	; First is the cursor. We can seek over it by loading!
 	ld de, vCursor
 	ld c, 16 * 4
-	call VRAMCopySmall
+	call VramCopySmall
 	; After this is the emblem tiles
 	; First read the length
 	ld a, [hli]
@@ -281,7 +281,7 @@ LoadTheme::
 	ld h, [hl]
 	ld l, a
 	ld de, $9000
-	call VRAMCopy
+	call VramCopy
 	pop hl
 	inc hl
 

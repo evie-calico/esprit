@@ -339,7 +339,7 @@ xInventoryLoadItemSelection:
 	xor a, a
 	ld hl, vItemCursor
 	lb bc, 0, 64
-	jp VRAMSetSmall
+	jp VramSetSmall
 
 PUSHS
 section "Load Inventory Item Graphic", rom0
@@ -369,16 +369,16 @@ InventoryLoadItemSelection:
 			ld l, a
 			ld de, vItemCursor
 			ld c, 16
-			call VRAMCopySmall
+			call VramCopySmall
 			ld de, vItemCursor + 32
 			ld c, 16
-			call VRAMCopySmall
+			call VramCopySmall
 			ld de, vItemCursor + 16
 			ld c, 16
-			call VRAMCopySmall
+			call VramCopySmall
 			ld de, vItemCursor + 48
 			ld c, 16
-			call VRAMCopySmall
+			call VramCopySmall
 		pop hl
 		assert Item_Graphics + 4 == Item_Description
 		inc hl

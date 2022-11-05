@@ -145,7 +145,7 @@ xLakeAnimationFunction:
 
 	ld de, $88C0 ; Address of full-wall tile
 	ld c, 16 * 4
-	jp VRAMCopySmall
+	jp VramCopySmall
 
 ALIGN 2
 xLakeAnimationFrames: incbin "res/dungeons/lake_animation.2bpp"

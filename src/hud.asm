@@ -50,11 +50,11 @@ InitUI::
 	ld c, xUIFrame.end - xUIFrame
 	ld de, vUIFrameTop
 	ld hl, xUIFrame
-	call VRAMCopySmall
+	call VramCopySmall
 
 	lb bc, 0, 16
 	ld hl, vBlankTile
-	call VRAMSetSmall
+	call VramSetSmall
 
 	xor a, a
 	ld [wPrintString], a
@@ -62,18 +62,18 @@ InitUI::
 
 	lb bc, idof_vBlankTile, vHUD_Width - 2
 	ld hl, vHUD + 33
-	call VRAMSetSmall
+	call VramSetSmall
 	ld c, vHUD_Width - 2
 	ld hl, vHUD + 65
-	call VRAMSetSmall
+	call VramSetSmall
 	ld c, vHUD_Width - 2
 	ld hl, vHUD + 97
-	call VRAMSetSmall
+	call VramSetSmall
 	call DrawStatusBar
 
 	lb bc, idof_vUIFrameTop, vHUD_Width - 2
 	ld hl, vHUD + 1
-	call VRAMSetSmall
+	call VramSetSmall
 :       ldh a, [rSTAT]
 		and a, STATF_BUSY
 		jr nz, :-
@@ -135,7 +135,7 @@ InitUI::
 		ld d, 7
 		ld bc, $400
 		ld hl, $9C00
-		call VRAMSet
+		call VramSet
 		xor a, a
 		ldh [rVBK], a
 .skipCGB
@@ -410,7 +410,7 @@ xDrawTurningWindow:
 	ld [vAttackWindow + 64], a ; 16
 	lb bc, idof_vUIFrameTop, vAttackWindow_Width + 2
 	ld hl, vAttackWindow + 1
-	call VRAMSetSmall
+	call VramSetSmall
 	; We actually have ~7 cycles coming out of this function.
 	ld a, idof_vUIFrameLeft ; 2
 	ld [vAttackWindow + 128], a ; 6
@@ -464,7 +464,7 @@ DrawAttackWindow::
 	ld [vAttackWindow + 64], a ; 16
 	lb bc, idof_vUIFrameTop, vAttackWindow_Width + 2
 	ld hl, vAttackWindow + 1
-	call VRAMSetSmall
+	call VramSetSmall
 	; We actually have ~7 cycles coming out of this function.
 	ld a, idof_vUIFrameLeft ; 2
 	ld [vAttackWindow + 128], a ; 6

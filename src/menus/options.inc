@@ -167,13 +167,13 @@ xOptionsMenuDrawSelections:
 	; Clear the tiles of text where we will draw.
 	ld hl, $9800 + 23 + 4 * 32
 	lb bc, idof_vBlankTile, 8
-	call VRAMSetSmall
+	call VramSetSmall
 	ld hl, $9800 + 23 + 7 * 32
 	lb bc, idof_vBlankTile, 8
-	call VRAMSetSmall
+	call VramSetSmall
 	ld hl, $9800 + 23 + 10 * 32
 	lb bc, idof_vBlankTile, 8
-	call VRAMSetSmall
+	call VramSetSmall
 
 	; Print palette name.
 	ld hl, wActiveMenuPalette

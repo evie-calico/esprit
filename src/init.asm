@@ -90,7 +90,7 @@ Initialize::
 	ld bc, $2000
 	ld d, a
 	ld hl, _VRAM
-	call VRAMSet
+	call VramSet
 	ld c, $10 * 2
 	ld hl, wTextTileBuffer
 	rst MemSetSmall

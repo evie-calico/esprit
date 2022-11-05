@@ -107,7 +107,7 @@ UpdateEntityGraphics::
 		ld d, a
 		ld e, 0
 		ld c, 0
-		call VRAMCopySmall
+		call VramCopySmall
 	pop hl
 .next
 	inc h
@@ -650,7 +650,7 @@ UpdateAnimationFrame:
 	inc h ; add hl, 256
 	ld c, 64
 .copy
-	call VRAMCopySmall
+	call VramCopySmall
 .exit
 	ld a, bank(xUpdateAnimation)
 	rst SwapBank

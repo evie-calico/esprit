@@ -213,7 +213,7 @@ InitMap::
 	ld hl, xWorldMap.tiles
 	ld de, $8800
 	ld bc, xWorldMap.map - xWorldMap.tiles
-	call VRAMCopy
+	call VramCopy
 
 	lb bc, SCRN_X_B, SCRN_Y_B
 	ld de, $9800
@@ -225,7 +225,7 @@ InitMap::
 	ld hl, xWorldMap.dmgtiles
 	ld de, $8800
 	ld bc, xWorldMap.map - xWorldMap.tiles
-	call VRAMCopy
+	call VramCopy
 
 	lb bc, SCRN_X_B, SCRN_Y_B
 	ld de, $9800
@@ -237,31 +237,31 @@ InitMap::
 	ld hl, xWorldMap.droplet
 	ld de, $8000 + $7E * 16
 	ld c, 16
-	call VRAMCopySmall
+	call VramCopySmall
 	lb bc, 0, 16
 	ld h, d
 	ld l, e
-	call VRAMSetSmall
+	call VramSetSmall
 
 	ld hl, xWorldMap.duck
 	ld de, $8000 + $7C * 16
 	ld c, 16
-	call VRAMCopySmall
+	call VramCopySmall
 	lb bc, 0, 16
 	ld h, d
 	ld l, e
-	call VRAMSetSmall
+	call VramSetSmall
 
 	def HOOFTILE equ $7F
 	ld hl, xWorldMap.hoof
 	ld de, $9800 - 16
 	ld c, 16
-	call VRAMCopySmall
+	call VramCopySmall
 
 	ld hl, xWorldMap.haze
 	ld de, $8000 + $6E * 16
 	ld c, 16 * 12
-	call VRAMCopySmall
+	call VramCopySmall
 
 	ld b, NB_DROPLETS
 	ld hl, wEffects

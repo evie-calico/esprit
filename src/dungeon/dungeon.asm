@@ -120,7 +120,7 @@ SwitchToDungeonState::
 		ld l, a
 		ld bc, 20 * 16
 		ld de, $8000 + BLANK_METATILE_ID * 16
-		call VRAMCopy
+		call VramCopy
 	pop hl
 
 	call FadeIn
@@ -255,7 +255,7 @@ SwitchToDungeonState::
 	ld h, [hl]
 	ld l, a
 	ld c, 16 * 4
-	call VRAMCopySmall
+	call VramCopySmall
 	ld a, e
 	sub a, 128
 	ld e, a
