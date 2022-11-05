@@ -43,6 +43,7 @@ endm
 		rgb 16, 24, 0
 	.moveTable
 		level 1, xNibble
+		level 5, xScratch
 		db 0
 
 	entity xFieldRat, "Field Rat", "res/sprites/rat.2bpp"
@@ -52,7 +53,7 @@ endm
 		rgb 16, 24, 0
 	.moveTable
 		level 1, xScratch
-		level 6, xPounce
+		level 5, xPounce
 		db 0
 
 	entity xPlatypus, "Platypus", "res/sprites/platypus.2bpp"
@@ -62,4 +63,13 @@ endm
 		rgb 0, 16, 16
 	.moveTable
 		level 1, xNibble
+		db 0
+
+	entity xSnake, "Snake", "res/sprites/snake.2bpp"
+	.palette
+		hex ff8e00
+		hex ac2c44
+		hex 000000
+	.moveTable
+		level 1, xPoisonFangs
 		db 0

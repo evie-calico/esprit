@@ -59,6 +59,10 @@ macro rgb
 	db \2, \1, \3
 endm
 
+macro hex
+	db (($\1) >> 8) & $FF, (($\1) >> 16) & $FF, ($\1) & $FF
+endm
+
 macro rgb_lim
 	rgb (\1) * 8, (\2) * 8, (\3) * 8
 endm

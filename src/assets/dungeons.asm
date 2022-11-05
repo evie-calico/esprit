@@ -81,12 +81,12 @@ endm
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat,  2, \
 	        xForestRat, 3, \
-	        xForestRat, 3, \
 	        xFieldRat,  3, \
+	        xSnake,     3, \
 	        xFieldRat,  4, \
-	        xFieldRat,  5, \
-	        xFieldRat,  6, \
-	        xFieldRat,  6
+	        xSnake,     4, \
+	        xForestRat, 5, \
+	        xFieldRat,  5
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
 	                 24,  64,  24, \
