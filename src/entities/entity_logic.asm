@@ -352,6 +352,35 @@ xAllyLogic::
 	inc a
 :
 	add a, b
+	cp a, 2
+	jr nc, .followLeader
+
+	add a, high(wEntity0)
+	ld h, a
+	ld l, low(wEntity0_PosX)
+	ld a, [hli]
+	ld c, [hl]
+	ld b, a
+	ld h, high(wEntity0) + NB_ALLIES
+	ld a, high(wEntity0) + NB_ENTITIES
+	call xGetClosestOfEntities
+	ld a, d
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	ld b, a
+
+	ld a, e
+	; abs a
+	bit 7, a
+	jr z, :+
+	cpl
+	inc a
+:
+	add a, b
 	cp a, FOLLOWER_DISTANCE
 	jr nc, .followLeader
 	push hl
