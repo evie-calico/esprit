@@ -917,14 +917,13 @@ DrawSceneBackground:
 		push bc
 		rst Rand8
 		pop bc
-		and a, 15 ; 1/16 chance
+		and a, 3
 		jr z, .four
-		dec a ; 1/16 chance
+		dec a
 		jr z, .three
-		cp a, 6 ; 7/16 chance
-		ld a, 0
-		jr nc, .two
-		; 7/16 chance
+		dec a
+		jr z, .two
+		dec a
 		jr .one
 	.four
 		inc a
