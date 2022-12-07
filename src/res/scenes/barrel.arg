@@ -1,0 +1,3 @@
+-t res/scenes/barrel.map
+-o res/scenes/barrel.2bpp
+-c embedded

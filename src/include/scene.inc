@@ -5,31 +5,32 @@ include "hardware.inc"
 include "structs.inc"
 
 rsreset
-def DRAWSCENE_END rb         ; End drawing.
-def DRAWSCENE_VRAMCOPY rb    ; Copy data to VRAM
-def DRAWSCENE_BKG rb         ; Fill in an area of the map with three ground tiles.
+def DRAWSCENE_END         rb ; End drawing.
+def DRAWSCENE_VRAMCOPY    rb ; Copy data to VRAM
+def DRAWSCENE_BKG         rb ; Fill in an area of the map with three ground tiles.
 def DRAWSCENE_PLACEDETAIL rb ; Place a small tilemap somewhere on the map.
-def DRAWSCENE_SPAWNNPC rb    ; Allocate space for an NPC and assign it a position.
-def DRAWSCENE_FILL rb        ; Fill an area of the scene
-def DRAWSCENE_SETDOOR rb     ; Define a door pointing to another scene.
-def DRAWSCENE_MEMCOPY rb     ; Copy data
-def DRAWSCENE_SETCOLOR rb    ; Assign an attribute to a tile id
+def DRAWSCENE_SPAWNNPC    rb ; Allocate space for an NPC and assign it a position.
+def DRAWSCENE_FILL        rb ; Fill an area of the scene
+def DRAWSCENE_SETDOOR     rb ; Define a door pointing to another scene.
+def DRAWSCENE_MEMCOPY     rb ; Copy data
+def DRAWSCENE_SETCOLOR    rb ; Assign an attribute to a tile id
+def DRAWSCENE_ENDDMG      rb ; End drawing if on DMG
 
 rsreset
-def SCENETILE_CLEAR rb
-def SCENETILE_WALL rb
-def SCENETILE_EXIT_DOWN rb
-def SCENETILE_EXIT_LEFT rb
-def SCENETILE_EXIT_UP rb
+def SCENETILE_CLEAR      rb
+def SCENETILE_WALL       rb
+def SCENETILE_EXIT_DOWN  rb
+def SCENETILE_EXIT_LEFT  rb
+def SCENETILE_EXIT_UP    rb
 def SCENETILE_EXIT_RIGHT rb
-def SCENETILE_DOOR0 rb
-def SCENETILE_DOOR1 rb
-def SCENETILE_DOOR2 rb
-def SCENETILE_DOOR3 rb
-def SCENETILE_DOOR4 rb
-def SCENETILE_DOOR5 rb
-def SCENETILE_DOOR6 rb
-def SCENETILE_DOOR7 rb
+def SCENETILE_DOOR0      rb
+def SCENETILE_DOOR1      rb
+def SCENETILE_DOOR2      rb
+def SCENETILE_DOOR3      rb
+def SCENETILE_DOOR4      rb
+def SCENETILE_DOOR5      rb
+def SCENETILE_DOOR6      rb
+def SCENETILE_DOOR7      rb
 
 def SCENE_WIDTH equ 64
 def SCENE_HEIGHT equ 32
@@ -57,7 +58,7 @@ def SCENE_HEIGHT equ 32
 
 ; A background object consists of 4 tiles which are used to fill in a region of
 ; the map.
-macro scene_background
+macro def_background
 	def \1_BACKGROUND equ 1
 	def \1_SIZE equ 4
 	PUSHS
@@ -69,7 +70,7 @@ macro scene_background
 endm
 
 ; A detail is like a small tilemap which can be stamped anywhere in the scene.
-macro scene_detail
+macro def_detail
 	def \1_DETAIL equ 1
 	def \1_SIZE equ \4 * \5
 	def \1_WIDTH equ \4
@@ -168,7 +169,7 @@ macro load_objects
 	def TILE_ID += \1_SIZE
 endm
 
-macro load_background_palette
+macro load_bgp
 	db DRAWSCENE_MEMCOPY
 	dw wBGPaletteBuffer + BG_COLOR_ID * 3 * 4
 	dw 3 * 4
@@ -191,7 +192,7 @@ macro load_background_palette
 	endc
 endm
 
-macro load_object_palette
+macro load_obp
 	db DRAWSCENE_MEMCOPY
 	dw wOBJPaletteBuffer + OBJ_COLOR_ID * 3 * 4
 	if strsub("\2", 0, 1) == "\""
@@ -233,6 +234,7 @@ macro draw_bkg ; bkg detail, x, y, width, height
 endm
 
 ; place a small tilemap on the map.
+def pd equs "place_detail"
 macro place_detail ; detail, x, y
 	assert def(\1_DETAIL), "\1 is not marked as a detail object"
 	db DRAWSCENE_PLACEDETAIL

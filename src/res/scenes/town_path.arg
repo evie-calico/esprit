@@ -1,0 +1,3 @@
+-t res/scenes/town_path.map
+-o res/scenes/town_path.2bpp
+-c embedded
