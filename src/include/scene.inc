@@ -72,7 +72,7 @@ endm
 ; A detail is like a small tilemap which can be stamped anywhere in the scene.
 macro def_detail
 	def \1_DETAIL equ 1
-	def \1_SIZE equ \4 * \5
+	def \1_SIZE equs "(\1_data.end - \1_data) / 16"
 	def \1_WIDTH equ \4
 	def \1_HEIGHT equ \5
 	def \1_COLLISION equ \6
