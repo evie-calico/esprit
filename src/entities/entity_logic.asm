@@ -332,8 +332,8 @@ xAllyLogic::
 	ld a, [hli]
 	ld c, [hl]
 	ld b, a
-	ld h, high(wEntity0) + NB_ALLIES
-	ld a, high(wEntity0) + NB_ENTITIES
+	ld h, high(wEntity0)
+	ld a, high(wEntity0) + 1
 	call xGetClosestOfEntities
 	ld a, d
 	; abs a

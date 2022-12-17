@@ -32,8 +32,8 @@ endm
 		rgb 0, 0, 32
 	.moves
 		level 1, xScratch
+		level 2, xPounce
 		level 5, xBite
-		level 7, xPounce
 		db 0
 
 	entity xForestRat, "Forest Rat", "res/sprites/rat.2bpp"
