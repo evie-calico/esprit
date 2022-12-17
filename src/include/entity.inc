@@ -29,6 +29,8 @@ def MOVE_ACTION_POISON rb 1 ; Inflicts poison on an enemy in front of the user.
 def MOVE_ACTION_POISN_ATK rb 1 ; Inflicts poison on and deals damage to an enemy in front of the user.
 def MOVE_ACTION_COUNT rb 1
 
+def MOVE_MAXIMUM_LENGTH equ 16
+
 ; Animation bytecode
 rsreset
 def ENTITY_ANIMATION_WAIT rb 1

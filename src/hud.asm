@@ -679,7 +679,7 @@ section "Print string", wram0
 wPrintString:: ds 3
 
 section "Move Window Buffer", wram0
-wMoveWindowBuffer: ds 8 * 4
+wMoveWindowBuffer: ds (MOVE_MAXIMUM_LENGTH + 3) * ENTITY_MOVE_COUNT
 
 section "Force HUD update", wram0
 wForceHudUpdate:: db

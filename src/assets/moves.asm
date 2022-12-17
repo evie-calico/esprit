@@ -16,6 +16,8 @@ section "\2 Move", romx
 	db \5
 	db \4
 	db \7
+
+assert STRLEN(\3) <= MOVE_MAXIMUM_LENGTH
 .name:: db \3, 0
 endm
 
