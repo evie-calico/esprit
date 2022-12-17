@@ -5,9 +5,11 @@ include "src/include/script.evs";
 	include "entity.inc";
 #end
 
-npc xWalkAround {
+script xInitVillage {
 	play_music(xTownMusic);
+}
 
+npc xWalkAround {
 	lock();
 	face_player();
 

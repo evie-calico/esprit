@@ -12,6 +12,7 @@ section "Village Scene", romx
 xVillageScene::
 	scene
 		def random = $e0c8a0b6
+		redef SCENE_ENTRANCE_SCRIPT equs "xInitVillage"
 	begin_draw
 		load_bgp GrassGreen, "res/scenes/bush_detail.pal8"
 		load_bgp RedTentPal, "res/scenes/tent.pal8"

@@ -68,7 +68,16 @@ InitScene::
 	inc de
 	ld a, [hli]
 	ld [de], a
-
+	assert Scene_Seed + 4 == Scene_IntroScript
+	ld de, wScenePrimaryScript.pointer
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
 	; load initial position based on the direction we came from on the map.
 	ld hl, wActiveScene + 1
 	ld a, [hli]
@@ -171,9 +180,6 @@ InitScene::
 
 	xor a, a
 	ld [wSceneMovementLocked], a
-	ld hl, wSceneNPCDialogue.pointer
-	ld c, 3
-	rst MemSetSmall
 
 	ld a, bank(xRenderScene)
 	rst SwapBank
@@ -197,15 +203,15 @@ SceneState::
 
 	call ExecuteIdleScripts
 
-	ld hl, wSceneNPCDialogue.pointer
+	ld hl, wScenePrimaryScript.pointer
 	ld a, [hli]
 	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, wSceneNPCDialogue.scriptVariables
+	ld de, wScenePrimaryScript.scriptVariables
 	call ExecuteScript
-	ld de, wSceneNPCDialogue.pointer
+	ld de, wScenePrimaryScript.pointer
 	ldh a, [hCurrentBank]
 	ld [de], a
 	inc de
@@ -525,7 +531,7 @@ xSceneCheckInteraction:
 	ld [wEntity0_Frame], a
 	ld [wEntity1_Frame], a
 	ld l, low(wEntity0_InteractionScript)
-	ld de, wSceneNPCDialogue.pointer
+	ld de, wScenePrimaryScript.pointer
 	ld c, 3
 	rst MemCopySmall
 	ret
@@ -1146,7 +1152,7 @@ wSceneMovementLocked:: db
 
 wSceneNPCIdleScriptVariables:: ds NPC_SCRIPT_POOL_SIZE * NB_NPCS
 
-wSceneNPCDialogue:
+wScenePrimaryScript:
 .pointer ds 3
 .scriptVariables:: ds NPC_SCRIPT_POOL_SIZE * 2
 
