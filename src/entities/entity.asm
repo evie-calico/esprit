@@ -157,13 +157,9 @@ xMoveEntities::
 	inc a
 	ld [wMoveEntityCounter], a
 	ld a, 1
-	ld l, low(wEntity0_WasMovingLastFrame)
-	ld [hl], a
 	jr :+
 .skip
-	ld l, low(wEntity0_WasMovingLastFrame)
-	ld a, [hl]
-	ld [hl], 0
+	xor a, a
 :   ld l, low(wEntity0_Frame)
 	ld [hl], a
 .null

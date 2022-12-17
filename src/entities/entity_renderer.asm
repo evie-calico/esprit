@@ -321,6 +321,20 @@ xRenderEntity::
 		ld c, a
 		ld l, low(wEntity0_Frame)
 		ld a, [hl]
+		ld l, low(wEntity0_WasMovingLastFrame)
+		cp a, ENTITY_FRAME_STEP
+		jr nz, .notMoving\@
+		ld [hl], 3
+		jr .moving\@
+.notMoving\@
+		ld a, [hl]
+		and a, a
+		jr z, .moving\@
+		dec [hl]
+.moving\@
+
+		ld l, low(wEntity0_Frame)
+		ld a, [hl]
 		cp a, ENTITY_FRAME_ATTK
 		ld a, 0
 		jr nc, :+
@@ -334,10 +348,10 @@ xRenderEntity::
 		endc
 		add a, c
 		ld c, a
-		if !I
-			ld l, low(wEntity0_Frame)
-		endc
+		ld l, low(wEntity0_Frame)
 		ld a, [hl]
+		ld l, low(wEntity0_WasMovingLastFrame)
+		or a, [hl]
 		and a, a
 		jr z, :+
 		ld a, 8
