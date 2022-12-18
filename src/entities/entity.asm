@@ -7,6 +7,9 @@ include "hardware.inc"
 def MOVEMENT_SPEED equ 16
 def RUNNING_SPEED equ 64
 
+; Determines whether health should be restored on a given turn.
+def HEALING_TURN_MASK equ 3 ; every 4th turn.
+
 section "Process entities", rom0
 ; Iterate through the entities.
 ; The individual logic functions can choose to return on their own to end logic
@@ -52,6 +55,21 @@ EndTurn::
 	rst SwapBank
 	call xStatusPostTurnUpdate ; may clobber h
 
+/* The following code *would* regenerate health, but is currently disabled for the sake of balance
+	; Restore 1hp every few turns
+	ld a, [wActiveEntity]
+	cp a, NB_ALLIES
+	jr nc, .skipHealing
+		ld a, [wTurnCounter]
+		and a, HEALING_TURN_MASK
+		jr nz, .skipHealing
+			ld a, [wActiveEntity]
+			add a, high(wEntity0)
+			ld b, a
+			ld e, 1
+			call HealEntity
+.skipHealing
+*/
 	; Restore 1% fatigue
 	ld a, [wActiveEntity]
 	add a, high(wEntity0)
@@ -60,16 +78,20 @@ EndTurn::
 	ld a, [hl]
 	inc a
 	cp a, 101
-	jr nc, .skip
-	ld [hl], a
+	jr nc, .skipFatigue
+		ld [hl], a
+.skipFatigue
 .skip::
 	; Move on to the next entity
 	ld a, [wActiveEntity]
 	inc a
 	cp a, NB_ENTITIES
 	jr nz, :+
-	xor a, a
-:   ld [wActiveEntity], a
+		ld hl, wTurnCounter
+		inc [hl]
+		xor a, a
+	:
+	ld [wActiveEntity], a
 	ret
 
 section "Move entities", romx

@@ -57,15 +57,15 @@ macro dungeon_palette
 endm
 
 	dungeon xForestDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, xForestMusic, null, \
-	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
+	        xRedApple, xGreenApple, xGrapes, xPepper, 1, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
+	        xForestRat, 1, \
+	        xForestRat, 2, \
 	        xForestRat, 2, \
 	        xForestRat, 2, \
 	        xForestRat, 3, \
-	        xFieldRat,  3, \
-	        xForestRat, 4, \
-	        xForestRat, 5
+	        xFieldRat,  1
 	dungeon_palette 128, 255, 144, \ ; Blank
 	                  0, 120,   0, \ ; Ground
 	                  0,  88,  24, \
@@ -78,15 +78,15 @@ endm
 	                  0,   0,  64, \
 
 	dungeon xFieldDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_FIELDS_COMPLETE, xTownMusic, null, \
-	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
-	        xFieldRat,  2, \
+	        xRedApple, xGreenApple, xGrapes, xPepper, 1, \
 	        xForestRat, 3, \
-	        xFieldRat,  3, \
+	        xForestRat, 3, \
+	        xForestRat, 4, \
 	        xSnake,     3, \
-	        xFieldRat,  4, \
 	        xSnake,     4, \
-	        xForestRat, 5, \
-	        xFieldRat,  5
+	        xFieldRat,  2, \
+	        xFieldRat,  3, \
+	        xFieldRat,  4
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
 	                 24,  64,  24, \
@@ -103,8 +103,8 @@ endm
 	        xFieldRat,  2, \
 	        xForestRat, 3, \
 	        xForestRat, 3, \
-	        xFieldRat,  3, \
-	        xFieldRat,  4, \
+	        xFirefly,   3, \
+	        xFirefly,   4, \
 	        xFieldRat,  5, \
 	        xFieldRat,  6, \
 	        xFieldRat,  6

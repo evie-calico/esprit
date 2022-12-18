@@ -8,6 +8,7 @@ def INVENTORY_SIZE equ 8
 rsreset
 def ITEM_NULL rb 1 ; An item that cannot be used.
 def ITEM_HEAL rb 1 ; An item that restores health.
+def ITEM_FATIGUE_HEAL rb 1 ; An item that restores health and fatigue.
 def ITEM_MAX rb 0
 
 	struct Item

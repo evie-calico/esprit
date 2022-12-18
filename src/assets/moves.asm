@@ -24,8 +24,8 @@ endm
 	;  | Type     | Identifier  | Name          | Power | Range | Chance  | Cost
 	move ATTACK,    xNibble,      "Nibble",        3,      1,      90%,       0
 	move ATTACK,    xScratch,     "Scratch",       8,      1,     100%,       0
-	move ATTACK,    xBite,        "Bite",         12,      1,      85%,       5
-	move ATTACK,    xPounce,      "Pounce",        8,      2,      85%,       5
+	move ATTACK,    xBite,        "Bite",         12,      1,      85%,      15
+	move ATTACK,    xPounce,      "Pounce",        8,      2,      85%,      15
 	move HEAL,      xHeal,        "Heal",          5,      1,      60%,      20
 	move POISON,    xPoison,      "Poison",        0,      1,     100%,      20
-	move POISN_ATK, xPoisonFangs, "Poison Fangs",  8,      1,      50%,      10
+	move POISN_ATK, xPoisonFangs, "Poison Fangs",  8,      1,      50%,       0

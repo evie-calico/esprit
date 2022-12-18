@@ -111,12 +111,25 @@ InventoryUseItem::
 .table
 	assert ITEM_HEAL == 1
 	dw HealHandler
-	assert ITEM_MAX == 2
+	assert ITEM_FATIGUE_HEAL == 2
+	dw FatigueHealHandler
+	assert ITEM_MAX == 3
 
 section "Heal Handler", rom0
 ; @param b: User pointer high byte
 ; @param hl: Heal data ptr
 HealHandler:
+	assert HealItem_Strength - sizeof_Item == 0
+	ld e, [hl]
+	jp HealEntity
+
+section "Fatigue Heal Handler", rom0
+; @param b: User pointer high byte
+; @param hl: Heal data ptr
+FatigueHealHandler:
+	ld c, low(wEntity0_Fatigue)
+	ld a, 100
+	ld [bc], a
 	assert HealItem_Strength - sizeof_Item == 0
 	ld e, [hl]
 	jp HealEntity

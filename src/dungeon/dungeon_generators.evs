@@ -34,6 +34,11 @@ script xGenerateHalls {
 		y += 1;
 	}
 
+	// Generate one item in the starting room.
+	// This will be the last tile to be placed.
+	u8 itemX = x + (rand() & 3);
+	u8 itemY = y - (rand() & 3) - 1;
+
 	repeat 9 {
 		repeat (rand() & 1) + 2 {
 			repeat (rand() & 7) + 4 {
@@ -92,6 +97,8 @@ script xGenerateHalls {
 	x += 1;
 	y -= 2;
 	map_put_tile(x, y, TILE_EXIT);
+
+	map_put_tile(itemX, itemY, (rand() & 1) + TILE_ITEM0);
 }
 
 script xGenerateItems {

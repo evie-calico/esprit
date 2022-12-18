@@ -91,6 +91,10 @@ SwitchToDungeonState::
 	ld [hli], a
 
 	call InitUI
+	
+	ld b, bank(xEnteredFloorString)
+	ld hl, xEnteredFloorString
+	call PrintHUD
 
 	ld h, high(wEntity0)
 .loop
@@ -740,3 +744,4 @@ section FRAGMENT "dungeon BSS", wram0
 wPartyLastXp: ds 6
 ; Ticks remaining to show levelup menu.
 wLevelUpMessageLifetime: db
+wTurnCounter:: db

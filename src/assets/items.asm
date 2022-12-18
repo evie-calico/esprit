@@ -31,6 +31,22 @@ section "\1 Item", romx
 .gfx:: incbin \4
 endm
 
+macro fatigue_heal ; label, name, description, graphics, strength
+section "\1 Item", romx
+\1::
+	dw .palette
+	dw .gfx
+	dw .name
+	dw .description
+	db ITEM_FATIGUE_HEAL
+	assert sizeof_Item == 9
+	db \5
+	assert sizeof_HealItem == 10
+.name:: db \2, 0
+.description:: db \3, 0
+.gfx:: incbin \4
+endm
+
 	heal xRedApple, "Apple", "A small red fruit. Eat it to restore 20 health.", "res/items/apple.2bpp", 20
 	.palette 
 		rgb 255,   0,   0
@@ -49,7 +65,7 @@ endm
 		rgb 128,   0, 128
 		rgb  64,   0,  64
 
-	item xPepper, "Pepper", "A spicy little pepper! It doesn't seem to do anything.", "res/items/pepper.2bpp"
+	fatigue_heal xPepper, "Pepper", "A spicy little pepper! Makes you feel less tired and heals 20 HP.", "res/items/pepper.2bpp", 20
 	.palette
 		rgb 250, 173,  36
 		rgb 128,  64,  64

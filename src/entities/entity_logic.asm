@@ -4,7 +4,10 @@ include "dungeon.inc"
 include "entity.inc"
 include "hardware.inc"
 
-def FOLLOWER_DISTANCE equ 4
+; The distance from the player at which followers will give up and chase the player.
+def FOLLOWER_RECALL_DISTANCE equ 3
+; THe distance from an enemy at which the follower will begin pursuing them.
+def FOLLOWER_PURSUIT_DISTANCE equ 3
 
 section "Entity Logic", romx
 xPlayerLogic::
@@ -128,6 +131,27 @@ StandingCheck:
 	ld [wOBJPaletteMask], a
 	call FadeToWhite
 
+	; Heal the player and allies by a small amount
+	ld b, high(wEntity0)
+.healEntities
+	ld c, low(wEntity0_Bank)
+	ld a, [bc]
+	and a, a
+	jr z, .nextHeal
+	push bc
+		; Restore 10-25 health upon reaching a new floor
+		rst Rand8
+	pop bc
+	and a, 15
+	add a, 10
+	ld e, a
+	call HealEntity
+.nextHeal
+	inc b
+	ld a, b
+	cp a, high(wEntity0) + NB_ALLIES
+	jr nz, .healEntities
+
 	pop af ; super return
 	ld a, bank(xPlayerLogic)
 	rst SwapBank
@@ -139,10 +163,6 @@ StandingCheck:
 	jp DungeonComplete
 
 .generateFloor
-	ld b, bank(xEnteredFloorString)
-	ld hl, xEnteredFloorString
-	call PrintHUD
-
 	assert DUNGEON_HEIGHT / 2 == DUNGEON_WIDTH / 2
 	ld a, DUNGEON_WIDTH / 2
 	ld hl, wEntity0_SpriteY + 1
@@ -352,9 +372,10 @@ xAllyLogic::
 	inc a
 :
 	add a, b
-	cp a, 2
+	cp a, FOLLOWER_RECALL_DISTANCE
 	jr nc, .followLeader
 
+	ld a, [wActiveEntity]
 	add a, high(wEntity0)
 	ld h, a
 	ld l, low(wEntity0_PosX)
@@ -381,7 +402,7 @@ xAllyLogic::
 	inc a
 :
 	add a, b
-	cp a, FOLLOWER_DISTANCE
+	cp a, FOLLOWER_PURSUIT_DISTANCE
 	jr nc, .followLeader
 	push hl
 	xor a, a
