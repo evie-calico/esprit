@@ -117,10 +117,8 @@ def TIRED_THRESHOLD equ 35
 		; Each move has a fatigue cost to prevent rapidly using powerful moves.
 		; Every couple of steps recovers 1% of fatigue.
 		bytes 1, Fatigue
-		; 0/OK == no effect
-		bytes 1, StatusEffect
-		; How many turns are left until the status is cured.
-		bytes 1, StatusTurns
+		; How many turns are left until poison is cured. 0 = No poison
+		bytes 1, PoisonTurns
 		; If this is set, use the moving sprite for one more frame
 		bytes 1, WasMovingLastFrame
 	end_struct

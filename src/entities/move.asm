@@ -219,8 +219,9 @@ MoveActionPoison:
 	ld a, high(xGotPoisonedString)
 	ld [wPrintString + 2], a
 
-	ld b, STATUS_POISON
-	jp InflictStatus
+	ld l, low(wEntity0_PoisonTurns)
+	ld [hl], 16
+	ret
 
 ; Basic attack. Check <range> tiles in front of <entity>, and attack the first
 ; enemy seen. Deals <power> damage and has a <chance> chance of succeeding.
@@ -248,8 +249,9 @@ MoveActionPoisonAttack:
 	call CheckMoveAccuracy.moveChance
 	ret c
 
-	ld b, STATUS_POISON
-	jp InflictStatus
+	ld l, low(wEntity0_PoisonTurns)
+	ld [hl], 16
+	ret
 
 section "Check move accuracy", rom0
 ; Jumps to PrintMissed if the move missed.

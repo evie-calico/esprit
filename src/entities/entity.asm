@@ -51,9 +51,29 @@ EndTurn::
 	ld a, [wActiveEntity]
 	add a, high(wEntity0)
 	ld h, a
-	ld a, bank(xStatusPostTurnUpdate)
-	rst SwapBank
-	call xStatusPostTurnUpdate ; may clobber h
+
+	; Check for poison
+	ld l, low(wEntity0_PoisonTurns)
+	ld a, [hl]
+	and a, a
+	jr z, .noPoison
+	ld b, b
+	dec [hl]
+	jr nz, :+
+		ld a, 1
+		ld [wForceHudUpdate], a
+		jr .noPoison
+	:
+	; Only deal damage every 4th turn
+	and a, 3
+	ret nz
+	; Deal 1-4 damage
+	rst Rand8
+	and a, 3
+	inc a
+	ld e, a
+	call DamageEntity
+.noPoison
 
 /* The following code *would* regenerate health, but is currently disabled for the sake of balance
 	; Restore 1hp every few turns

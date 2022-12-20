@@ -1023,6 +1023,10 @@ DrawSceneSpawnNpc:
 	ld e, low(wEntity0_Bank)
 	ld c, 3
 	rst MemCopySmall
+	xor a, a
+	ld e, low(wEntity0_WasMovingLastFrame)
+	ld [de], a
+
 	; Copy initial position
 	ld e, low(wEntity0_SpriteY)
 	ld c, 4

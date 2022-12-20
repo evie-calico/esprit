@@ -2,7 +2,7 @@ include "format.inc"
 
 ; Contains all formatted text in a central location
 
-	format xStatusString, "[entity:name]: [u16:health]/[u16:maxHealth] HP[condition:hasStatus] - [str:status]"
+	format xStatusString, "[entity:name]: [u16:health]/[u16:maxHealth] HP[condition:hasStatus] <SET_COLOR><2>-<SET_COLOR><3> [str:status]"
 	format xPauseStatusString, "[entity:target]\nHP: [u16:health]/[u16:maxHealth]"
 
 	format xUsedMoveString, "[entity:user] used [str:move]!"
@@ -21,3 +21,4 @@ include "format.inc"
 	format xFullBagString, "Your bag is full."
 
 	format xTiredStatus, "Tired"
+	format xPoisonedStatus, "Poisoned"

@@ -126,4 +126,9 @@ endm
     add_type "entity",    TEXT_ENTITY_NAME, 1
     add_type "condition", TEXT_RET_FALSE,   1
 
+    ; Add a helper charmap for literal values
+    FOR i, 256
+    	charmap "<{d:i}>", i
+    ENDR
+
 endc

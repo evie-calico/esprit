@@ -211,7 +211,7 @@ xRenderNPCs::
 	ld h, high(wEntity0)
 .loop
 	ld l, low(wEntity0_Bank)
-	ld a, [hli]
+	ld a, [hl]
 	and a, a
 	jp z, .next
 

@@ -265,35 +265,26 @@ DrawStatusBar::
 	ld [wfmt_xStatusString_health + 1], a
 
 	; Display any active status effect
-	ld l, low(wEntity0_StatusEffect)
+	ld l, low(wEntity0_PoisonTurns)
 	ld a, [hl]
-	assert STATUS_OK == 0
 	and a, a
-	jr z, .noStatus
-	ld a, bank(xStatusGetName)
-	rst SwapBank
-	ld a, [hl]
-	call xStatusGetName
-	ld a, 1
-	ld [wfmt_xStatusString_hasStatus], a
-	ld a, bank("Status Names")
+	jr z, .notPoisoned
+
+	ld a, bank(xPoisonedStatus)
 	ld [wfmt_xStatusString_status], a
-	ld a, l
+	ld a, low(xPoisonedStatus)
 	ld [wfmt_xStatusString_status + 1], a
-	ld a, h
+	ld a, high(xPoisonedStatus)
 	ld [wfmt_xStatusString_status + 2], a
 	jr .statusComplete
-.noStatus
+.notPoisoned
 
 	; Show a tired status if fatigue is below a certain amount and no other effects are active.
 	ld l, low(wEntity0_Fatigue)
 	ld a, [hl]
 	cp a, TIRED_THRESHOLD
-	ld a, 0
-	jr nc, :+
-	inc a
-:
-	ld [wfmt_xStatusString_hasStatus], a
+	jr nc, .noStatus
+
 	ld a, bank(xTiredStatus)
 	ld [wfmt_xStatusString_status], a
 	ld a, low(xTiredStatus)
@@ -301,16 +292,13 @@ DrawStatusBar::
 	ld a, high(xTiredStatus)
 	ld [wfmt_xStatusString_status + 2], a
 .statusComplete
+	; This loads (and skips) the next byte, xor, which is $AF
+	; Since this is nonzero, it properly sets this flag.
+	db $3E ; ld a
+.noStatus
+	xor a, a
+	ld [wfmt_xStatusString_hasStatus], a
 
-	; If garbage is shown on the status bar after the partner dies, move this
-	; check outside this function and clear the text tiles.
-	bit 7, a
-	jr z, :+
-		xor a, a
-		ld [de], a
-		dec de
-		ld [de], a
-:
 	ret
 
 section "Attack window", romx

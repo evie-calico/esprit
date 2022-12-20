@@ -57,5 +57,6 @@ xVillageScene::
 		pd RedTent, 9, 4
 		pd BlueTent, 6, 10
 
+		; TODO: actually load the NPC palette
 		npc xPlatypus, 72.0, 76.0, LEFT, null, xWalkAround
 	end_scene
