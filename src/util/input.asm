@@ -32,8 +32,8 @@ P1F_BUTTONS  equ $10
 P1F_DPAD     equ $20
 
 section "hram_pads", hram
-hCurrentKeys:: ds 1
-hNewKeys:: ds 1
+hCurrentKeys:: db
+hNewKeys:: db
 
 section "ram_pads", wram0
 wDasKeys:: ds 1
@@ -92,42 +92,4 @@ UpdateInput::
 	ldh a,[rP1]     ; this read counts
 	or $F0   ; A7-4 = 1; A3-0 = unpressed keys
 .knownret:
-	ret
-
-
-;;
-; Adds held keys to hNewKeys, DAS_DELAY frames after press and
-; every DAS_SPEED frames thereafter
-; @param B which keys are eligible for autorepeat
-AutoRepeat::
-	; If no eligible keys are held, skip all autorepeat processing
-	ldh a,[hCurrentKeys]
-	and b
-	ret z
-	ld c,a  ; C: Currently held
-
-	; If any keys were newly pressed, set the eligible keys among them
-	; as the autorepeating set.  For example, changing from Up to
-	; Up+Right sets Right as the new autorepeating set.
-	ldh a,[hNewKeys]
-	ld d,a  ; D: hNewKeys
-	or a
-	jr z,.no_restart_das
-	and b
-	ld [wDasKeys],a
-	ld a,DAS_DELAY
-	jr .have_wDasTimer
-.no_restart_das:
-
-	; If time has expired, merge in the autorepeating set
-	ld a,[wDasTimer]
-	dec a
-	jr nz,.have_wDasTimer
-	ld a,[wDasKeys]
-	and c
-	or d
-	ldh [hNewKeys],a
-	ld a,DAS_SPEED
-.have_wDasTimer:
-	ld [wDasTimer],a
 	ret

@@ -23,6 +23,7 @@ InitDungeon::
 	dec b
 	jr nz, .clearEntities
 
+	dec a
 	ld [wSkipAllyTurn], a
 
 	ld a, DUNGEON_WIDTH / 2
@@ -276,6 +277,10 @@ SwitchToDungeonState::
 	ld a, bank(xFocusCamera)
 	rst SwapBank
 	call xFocusCamera
+	ld hl, wDungeonLerpCameraX
+	ld de, wDungeonCameraX
+	ld c, 4
+	rst MemCopySmall
 	ld a, [wDungeonCameraX + 1]
 	ld [wLastDungeonCameraX], a
 	ld a, [wDungeonCameraY + 1]
@@ -317,7 +322,13 @@ DungeonState::
 .dungeonRendering
 	; Scroll the map after moving entities.
 	bankcall xHandleMapScroll
-	bankcall xFocusCamera
+	ld a, bank(xFocusCamera)
+	rst SwapBank
+	call xFocusCamera
+	assert bank(xFocusCamera) == bank(xLerpCamera)
+	call xLerpCamera
+	call xLerpCamera
+	call xLerpCamera
 	bankcall xUpdateScroll
 
 	; Render entities after scrolling.
@@ -577,8 +588,11 @@ GetDungeonItem::
 	ret
 
 section "Focus Camera", romx
-xFocusCamera::
-	ld bc, wEntity0_SpriteY
+xFocusCamera:
+	ld a, [wFocusedEntity]
+	add a, high(wEntity0)
+	ld b, a
+	ld c, low(wEntity0_SpriteY)
 	ld a, [bc]
 	inc c
 	ld l, a
@@ -593,9 +607,9 @@ xFocusCamera::
 	cp a, 64 - 9
 	jr nc, :+
 	ld a, l
-	ld [wDungeonCameraY], a
+	ld [wDungeonLerpCameraY], a
 	ld a, h
-	ld [wDungeonCameraY + 1], a
+	ld [wDungeonLerpCameraY + 1], a
 :   ld a, [bc]
 	inc c
 	ld l, a
@@ -610,9 +624,78 @@ xFocusCamera::
 	cp a, 64 - 10
 	ret nc
 	ld a, l
+	ld [wDungeonLerpCameraX], a
+	ld a, h
+	ld [wDungeonLerpCameraX + 1], a
+	ret
+
+xLerpCamera:
+	ld a, [wDungeonLerpCameraX + 1]
+	ld b, a
+	ld a, [wDungeonCameraX + 1]
+	cp a, b
+	jr c, .higherX
+	jr z, :+
+	jr nc, .lowerX
+:
+	ld a, [wDungeonLerpCameraX]
+	and a, $F0
+	ld b, a
+	ld a, [wDungeonCameraX]
+	and a, $F0
+	cp a, b
+	jr c, .higherX
+	jr z, .noXMovement
+.lowerX
+	ld bc, -1.0
+	jr .writeX
+.higherX
+	ld bc, 1.0
+.writeX
+	ld hl, wDungeonCameraX
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+
+	add hl, bc
+	ld a, l
 	ld [wDungeonCameraX], a
 	ld a, h
 	ld [wDungeonCameraX + 1], a
+.noXMovement
+
+	ld a, [wDungeonLerpCameraY + 1]
+	ld b, a
+	ld a, [wDungeonCameraY + 1]
+	cp a, b
+	jr c, .higherY
+	jr z, :+
+	jr nc, .lowerY
+:
+	ld a, [wDungeonLerpCameraY]
+	and a, $F0
+	ld b, a
+	ld a, [wDungeonCameraY]
+	and a, $F0
+	cp a, b
+	jr c, .higherY
+	ret z
+.lowerY
+	ld bc, -1.0
+	jr .writeY
+.higherY
+	ld bc, 1.0
+.writeY
+	ld hl, wDungeonCameraY
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+
+	add hl, bc
+	ld a, l
+	ld [wDungeonCameraY], a
+	ld a, h
+	ld [wDungeonCameraY + 1], a
 	ret
 
 section "Generate Floor", rom0
@@ -724,7 +807,10 @@ section UNION "State variables", wram0, ALIGN[8]
 wDungeonMap:: ds DUNGEON_WIDTH * DUNGEON_HEIGHT
 wDungeonCameraX:: dw
 wDungeonCameraY:: dw
-; Only the neccessarily info is saved; the high byte.
+; These are the actual locations that appear on screen
+wDungeonLerpCameraX:: dw
+wDungeonLerpCameraY:: dw
+; Only the high byte needs to be saved.
 wLastDungeonCameraX:: db
 wLastDungeonCameraY:: db
 wIsDungeonFading:: db
@@ -738,6 +824,8 @@ wPreviousStats::
 .player ds 3 ; Health and fatigue
 .partner ds 3
 
+; TODO: rather than skipping a turn, this should just disable movement.
+; If the player tries to move, tell them why they can't.
 wSkipAllyTurn:: db
 
 section FRAGMENT "dungeon BSS", wram0

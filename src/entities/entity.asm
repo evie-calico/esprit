@@ -34,11 +34,13 @@ ProcessEntities::
 		jr .loop
 :
 	ld a, [wActiveEntity]
-	and a, a
-	jp z, xPlayerLogic
 	cp a, NB_ALLIES
-	jp c, xAllyLogic
-	jp xEnemyLogic
+	jp nc, xEnemyLogic
+	ld b, a
+	ld a, [wTrackedEntity]
+	cp a, b
+	jp z, xPlayerLogic
+	jp xAllyLogic
 
 ; All entity logic jumps here to end their turn.
 .next::
@@ -49,8 +51,19 @@ EndTurn::
 	; End-of-turn bookkeeping
 	; Handle status effect updates which happen at the end of each turn.
 	ld a, [wActiveEntity]
+	ld b, a
 	add a, high(wEntity0)
 	ld h, a
+
+	ld a, [wManualControlMode]
+	and a, a
+	jr z, :+
+		ld a, [wTrackedEntity]
+		cp a, b
+		jr nz, :+
+		xor a, 1
+		ld [wTrackedEntity], a
+	:
 
 	; Check for poison
 	ld l, low(wEntity0_PoisonTurns)

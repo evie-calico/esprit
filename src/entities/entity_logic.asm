@@ -11,16 +11,26 @@ def FOLLOWER_PURSUIT_DISTANCE equ 3
 
 section "Entity Logic", romx
 xPlayerLogic::
+	ld a, [wActiveEntity]
+	ld hl, wSkipAllyTurn
+	cp a, [hl]
+	jr nz, :+
+		ld [hl], -1
+		jp ProcessEntities.next
+:
 	; If any movement is queued, the player should refuse to take its turn to
 	; allow all sprites to catch up.
 	ld a, [wMovementQueued]
 	and a, a
-	jr z, .noHide
-	xor a, a
-	ld [wWindowMode], a
-	ret
+	jr z, :+
+		xor a, a
+		ld [wWindowMode], a
+		ret
+	:
 
-.noHide
+	ld a, [wActiveEntity]
+	ld [wFocusedEntity], a
+
 	ld a, [wHasCheckedForItem]
 	and a, a
 	call z, StandingCheck
@@ -131,6 +141,7 @@ StandingCheck:
 	ld [wOBJPaletteMask], a
 	call FadeToWhite
 
+/* This code would heal the players upon entering stairs
 	; Heal the player and allies by a small amount
 	ld b, high(wEntity0)
 .healEntities
@@ -151,6 +162,7 @@ StandingCheck:
 	ld a, b
 	cp a, high(wEntity0) + NB_ALLIES
 	jr nz, .healEntities
+*/
 
 	pop af ; super return
 	ld a, bank(xPlayerLogic)
@@ -196,20 +208,19 @@ POPS
 .loose
 	; First, check for buttons to see if the player is selecting a move.
 	ldh a, [hCurrentKeys]
-	and a, PADF_A | PADF_B
-	cp a, PADF_A | PADF_B
-	jr nz, .notTurning
-	ld a, WINDOW_TURNING
-	ld [wWindowMode], a
-	jr .turning
-
-.notTurning
-	ldh a, [hCurrentKeys]
 	bit PADB_A, a
-	jr z, .movementCheck
+	jr z, .notUsingMove
 	ld a, WINDOW_SHOW_MOVES
 	ld [wWindowMode], a
 	jr .useMove
+
+.notUsingMove
+	ldh a, [hCurrentKeys]
+	bit PADB_B, a
+	jr z, .movementCheck
+	ld a, WINDOW_TURNING
+	ld [wWindowMode], a
+	jr .turning
 
 .sticky
 	ldh a, [hCurrentKeys]
@@ -234,9 +245,28 @@ POPS
 	jr z, .movementCheck
 	; Read the joypad to see if the player is attempting to use a move.
 	call PadToDir
-	; If no input is given, the player waits a frame to take its turn
-	ret c
-	ld b, high(wEntity0)
+	; If no input is given, check if the B button is pressed
+	jr nc, :+
+		ldh a, [hNewKeys]
+		cp a, PADF_B
+		ret nz
+		ld a, [wManualControlMode]
+		xor a, 1
+		ld [wManualControlMode], a
+		jr z, .auto
+			ld b, bank(xSwitchedToManual)
+			ld hl, xSwitchedToManual
+			jp PrintHUD
+		.auto
+			ld b, bank(xSwitchedToAutomatic)
+			ld hl, xSwitchedToAutomatic
+			jp PrintHUD
+	:
+	ld c, a
+	ld a, [wActiveEntity]
+	add a, high(wEntity0)
+	ld b, a
+	ld a, c
 	call UseMove
 	ret z
 	xor a, a
@@ -246,7 +276,12 @@ POPS
 .turning
 	call PadToDir
 	ret c
-	ld [wEntity0_Direction], a
+	ld b, a
+	ld a, [wActiveEntity]
+	add a, high(wEntity0)
+	ld h, a
+	ld l, low(wEntity0_Direction)
+	ld [hl], b
 	ret
 
 .movementCheck
@@ -259,9 +294,8 @@ if DEBUG_SELECT
 	jp z, DungeonComplete
 else
 	jp z, EndTurn
-endc	
+endc
 
-	ld a, [hCurrentKeys]
 	cp a, PADF_START
 	jr nz, :+
 		xor a, a
@@ -284,16 +318,25 @@ endc
 	call PadToDir
 	; If no input is given, the player waits a frame to take its turn
 	ret c
+
 	; Turn the player according to the given direction.
-	ld [wEntity0_Direction], a
+	ld b, a
+	ld a, [wActiveEntity]
+	add a, high(wEntity0)
+	ld h, a
+	ld l, low(wEntity0_Direction)
+	ld [hl], b
 	; Force the player to show the walking frame.
+	ld l, low(wEntity0_Frame)
 	ld a, 1
-	ld [wEntity0_Frame], a
+	ld [hl], a
 	; Attempt to move the player.
-	ld a, [wEntity0_Direction]
-	ld h, high(wEntity0)
+	ld l, low(wEntity0_Direction)
+	ld a, [hl]
 	call MoveEntity
 	assert NB_ALLIES - 1 == 2
+	cp a, high(wEntity0)
+	jr z, .swapWithAlly
 	cp a, high(wEntity1)
 	jr z, .swapWithAlly
 	cp a, high(wEntity2)
@@ -314,7 +357,10 @@ endc
 	sub a, high(wEntity0)
 	ld [wSkipAllyTurn], a
 	ld l, low(wEntity0_PosX)
-	ld de, wEntity0_PosX
+	ld a, [wActiveEntity]
+	add a, high(wEntity0)
+	ld d, a
+	ld e, low(wEntity0_PosX)
 	ld b, [hl]
 	ld a, [de]
 	ld [hli], a
@@ -336,14 +382,14 @@ endc
 	ld [wMovementQueued], a
 	jr .endSwap
 
-; @param a: Contains the value of wActiveEntity
 ; TODO: Pathfinding should consider walls; we can afford the CPU time to make
 ; allies smarter. (And possibly for all enemies)
 xAllyLogic::
+	ld a, [wActiveEntity]
 	ld hl, wSkipAllyTurn
 	cp a, [hl]
 	jr nz, :+
-		ld [hl], 0
+		ld [hl], -1
 		jp ProcessEntities.next
 :
 	add a, high(wEntity0)
@@ -352,8 +398,11 @@ xAllyLogic::
 	ld a, [hli]
 	ld c, [hl]
 	ld b, a
-	ld h, high(wEntity0)
-	ld a, high(wEntity0) + 1
+
+	ld a, [wActiveEntity]
+	add a, high(wEntity0)
+	ld h, a
+	inc a
 	call xGetClosestOfEntities
 	ld a, d
 	; abs a
@@ -425,7 +474,11 @@ xAllyLogic::
 	ld a, [hli]
 	ld d, a
 	ld e, [hl]
-	ld hl, wEntity0_PosX ; Follow the player.
+	ld a, [wActiveEntity]
+	xor a, 1
+	add a, high(wEntity0)
+	ld h, a
+	ld l, low(wEntity0_PosX)
 	ld a, [hli]
 	sub a, d
 	ld d, a
@@ -980,3 +1033,13 @@ hClosestEntityFinal:: db
 
 section "Volatile", hram
 hCurrentMoveCounter: db
+
+section fragment "dungeon BSS", wram0
+wMovementToggleWatch: db
+wManualControlMode:: db
+; Who is controlled in automatic mode?
+; By switching to manual when the ally is selected, the user can switch who they play as.
+; TODO: When exiting a level, reorder the party to put the tracked entity first.
+wTrackedEntity:: db
+; Who is the camera pointed at?
+wFocusedEntity:: db

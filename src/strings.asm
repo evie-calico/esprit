@@ -22,3 +22,6 @@ include "format.inc"
 
 	format xTiredStatus, "Tired"
 	format xPoisonedStatus, "Poisoned"
+
+	format xSwitchedToManual, "Switched to manual mode."
+	format xSwitchedToAutomatic, "Switched to automatic mode."
