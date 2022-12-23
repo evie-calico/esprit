@@ -5,9 +5,9 @@ include "entity.inc"
 include "hardware.inc"
 
 ; The distance from the player at which followers will give up and chase the player.
-def FOLLOWER_RECALL_DISTANCE equ 3
-; THe distance from an enemy at which the follower will begin pursuing them.
-def FOLLOWER_PURSUIT_DISTANCE equ 3
+def FOLLOWER_RECALL_DISTANCE equ 2
+; The distance from an enemy at which the follower will begin pursuing them.
+def FOLLOWER_PURSUIT_DISTANCE equ 2
 
 section "Entity Logic", romx
 xPlayerLogic::
@@ -31,18 +31,28 @@ xPlayerLogic::
 	ld a, [wActiveEntity]
 	ld [wFocusedEntity], a
 
-	ld a, [wHasCheckedForItem]
+	ld hl, wHasCheckedForItem
+	and a, a
+	jr z, :+
+		inc hl
+	:
+	ld a, [hl]
 	and a, a
 	call z, StandingCheck
 PUSHS
 section "Standing Check", rom0
 StandingCheck:
 	inc a
-	ld [wHasCheckedForItem], a
+	ld [hl], a
 	; First, check if we're standing on an item.
-	ld a, [wEntity0_PosX]
+	ld a, [wActiveEntity]
+	add a, high(wEntity0)
+	ld h, a
+	ld l, low(wEntity0_PosX)
+	assert Entity_PosX + 1 == Entity_PosY
+	ld a, [hli]
 	ld b, a
-	ld a, [wEntity0_PosY]
+	ld a, [hl]
 	ld c, a
 	bankcall xGetMapPosition
 	ld a, [de]
@@ -62,7 +72,13 @@ StandingCheck:
 		ld [de], a
 		push de
 			; Calculate the VRAM destination by (Camera >> 4) / 16 % 16 * 32
-			ld a, [wEntity0_PosY]
+			ld a, [wActiveEntity]
+			add a, high(wEntity0)
+			ld b, a
+			ld c, low(wEntity0_PosY)
+			ld a, [bc]
+			assert Entity_PosX + 1 == Entity_PosY
+			dec c
 			and a, %00001111
 			ld e, 0
 			srl a
@@ -73,7 +89,7 @@ StandingCheck:
 			; hl = (Camera >> 8) & 15.0
 			ld hl, $9800
 			add hl, de ; Add to VRAM
-			ld a, [wEntity0_PosX]
+			ld a, [bc]
 			and a, %00001111
 			add a, a
 			; Now we have the neccessary X index on the tilemap.
@@ -288,7 +304,15 @@ POPS
 	xor a, a
 	ld [wWindowMode], a
 
-	ld a, [hCurrentKeys]
+	; In manual mode, we need to use `hNewKeys` to make sure the player doesn't skip both character's turns
+	ld a, [wManualControlMode]
+	and a, a
+	ld c, low(hCurrentKeys)
+	jr z, :+
+		assert hCurrentKeys + 1 == hNewKeys
+		inc c
+	:
+	ldh a, [c]
 	cp a, PADF_SELECT
 if DEBUG_SELECT
 	jp z, DungeonComplete
@@ -348,8 +372,14 @@ endc
 	; If movement was successful, end the player's turn and process the next
 	; entity.
 	; Signal that an item should be checked at the next opportunity.
-	xor a, a
-	ld [wHasCheckedForItem], a
+	ld hl, wHasCheckedForItem
+	ld a, [wActiveEntity]
+	and a, a
+	jr z, :+
+		inc hl
+		xor a, a
+	:
+	ld [hl], a
 	jp ProcessEntities.next
 
 .swapWithAlly
@@ -1043,3 +1073,5 @@ wManualControlMode:: db
 wTrackedEntity:: db
 ; Who is the camera pointed at?
 wFocusedEntity:: db
+; True if the player has already checked for an item on this tile.
+wHasCheckedForItem:: ds 2 ; one for each character

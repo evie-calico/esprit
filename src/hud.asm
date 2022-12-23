@@ -480,7 +480,10 @@ DrawAttackWindow::
 
 	ld b, 4
 	ld de, wMoveWindowBuffer
-	ld hl, wEntity0_Moves
+	ld a, [wTrackedEntity]
+	add a, high(wEntity0)
+	ld h, a
+	ld l, low(wEntity0_Moves)
 .copyMoves
 	ld a, [hli]
 	and a, a

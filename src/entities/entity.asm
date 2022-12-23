@@ -767,5 +767,3 @@ section FRAGMENT "dungeon BSS", wram0
 ; The next entity to be processed.
 wActiveEntity:: db
 wMoveEntityCounter: db
-; True if the player has already checked for an item on this tile.
-wHasCheckedForItem:: db

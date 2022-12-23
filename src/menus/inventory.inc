@@ -461,7 +461,7 @@ xTossItemMenuInit:
 	call PrintVWFChar
 	jp DrawVWFChars
 
-.tossString db "Toss this item?\n\n      No\n      Yes", 0
+.tossString db "Toss this item?\n\n         No\n         Yes", 0
 
 xTossItemMenuRedraw:
 	ld hl, sp+2
