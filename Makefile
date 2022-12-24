@@ -1,11 +1,8 @@
 .SUFFIXES:
 
-MAKEFLAGS += -sj
-
 ROM = bin/vuiiger.gb
-MOD2GBT = tools/bin/mod2gbt
-MAKEFONT = tools/bin/makefont
-PALCONV = tools/bin/palconv
+MAKEFONT = tools/target/release/makefont
+PALCONV = tools/target/release/palconv
 
 # 0x1B is MBC5 with RAM + Battery
 MBC := 0x1B
@@ -177,13 +174,9 @@ res/%.pal8: res/%.pal $(PALCONV)
 #                                              #
 ################################################
 
-$(MAKEFONT): tools/makefont.c tools/libplum.c
+$(MAKEFONT) $(PALCONV):
 	@mkdir -p $(@D)
-	$(CC) -o $@ $^
-
-$(PALCONV): tools/palconv.c
-	@mkdir -p $(@D)
-	$(CC) -o $@ $<
+	cd tools/ && cargo build --release
 
 # Catch non-existent files
 # KEEP THIS LAST!!
