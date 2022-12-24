@@ -129,92 +129,11 @@ StandingCheck:
 	ret
 
 .nextFloor
-	ld hl, wActiveDungeon
-	ld a, [hli]
-	rst SwapBank
-	ld a, [hli]
-	ld h, [hl]
-	add a, Dungeon_FloorCount
-	ld l, a
-	adc a, h
-	sub a, l
-	ld h, a
-	ld a, [hl]
-	ld hl, wDungeonCurrentFloor
-	inc [hl]
-	cp a, [hl]
-	jr z, .complete
-	ld a, 1
-	ld [wIsDungeonFading], a
-	ld a, low(.generateFloor)
-	ld [wDungeonFadeCallback], a
-	ld a, high(.generateFloor)
-	ld [wDungeonFadeCallback + 1], a
-	; Set palettes
-	ld a, %11111111
-	ld [wBGPaletteMask], a
-	ld a, %11111111
-	ld [wOBJPaletteMask], a
-	call FadeToWhite
-
-/* This code would heal the players upon entering stairs
-	; Heal the player and allies by a small amount
-	ld b, high(wEntity0)
-.healEntities
-	ld c, low(wEntity0_Bank)
-	ld a, [bc]
-	and a, a
-	jr z, .nextHeal
-	push bc
-		; Restore 10-25 health upon reaching a new floor
-		rst Rand8
-	pop bc
-	and a, 15
-	add a, 10
-	ld e, a
-	call HealEntity
-.nextHeal
-	inc b
-	ld a, b
-	cp a, high(wEntity0) + NB_ALLIES
-	jr nz, .healEntities
-*/
-
+	call FloorComplete
 	pop af ; super return
 	ld a, bank(xPlayerLogic)
 	rst SwapBank
 	ret
-
-.complete
-	pop af ; super return
-	pop af ; super super return
-	jp DungeonComplete
-
-.generateFloor
-	assert DUNGEON_HEIGHT / 2 == DUNGEON_WIDTH / 2
-	ld a, DUNGEON_WIDTH / 2
-	ld hl, wEntity0_SpriteY + 1
-	ld [hli], a
-	inc l
-	ld [hli], a
-	ld [hli], a
-	ld [hl], a
-	inc h
-	ld [hld], a
-	ld [hld], a
-	ld [hld], a
-	dec l
-	ld [hl], a
-	inc h
-	ld [hli], a
-	inc l
-	ld [hli], a
-	ld [hli], a
-	ld [hl], a
-
-	call DungeonGenerateFloor
-	jp SwitchToDungeonState
-
 POPS
 .noPickup
 	; Then open the move window
@@ -315,7 +234,7 @@ POPS
 	ldh a, [c]
 	cp a, PADF_SELECT
 if DEBUG_SELECT
-	jp z, DungeonComplete
+	jp z, FloorComplete
 else
 	jp z, EndTurn
 endc

@@ -529,6 +529,62 @@ SetPreviousHudStats:
 	ld [hli], a
 	ret
 
+section "Floor complete", rom0
+FloorComplete::
+	ld hl, wActiveDungeon
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld h, [hl]
+	add a, Dungeon_FloorCount
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld a, [hl]
+	ld hl, wDungeonCurrentFloor
+	inc [hl]
+	cp a, [hl]
+	jp z, DungeonComplete
+.nextFloor
+	ld a, 1
+	ld [wIsDungeonFading], a
+	ld a, low(.generateFloor)
+	ld [wDungeonFadeCallback], a
+	ld a, high(.generateFloor)
+	ld [wDungeonFadeCallback + 1], a
+	; Set palettes
+	ld a, %11111111
+	ld [wBGPaletteMask], a
+	ld a, %11111111
+	ld [wOBJPaletteMask], a
+	jp FadeToWhite
+
+.generateFloor
+	assert DUNGEON_HEIGHT / 2 == DUNGEON_WIDTH / 2
+	ld a, DUNGEON_WIDTH / 2
+	ld hl, wEntity0_SpriteY + 1
+	ld [hli], a
+	inc l
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
+	inc h
+	ld [hld], a
+	ld [hld], a
+	ld [hld], a
+	dec l
+	ld [hl], a
+	inc h
+	ld [hli], a
+	inc l
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
+
+	call DungeonGenerateFloor
+	jp SwitchToDungeonState
+
 section "Dungeon complete!", rom0
 DungeonComplete::
 	ld hl, wActiveDungeon
@@ -536,11 +592,39 @@ DungeonComplete::
 	rst SwapBank
 	ld a, [hli]
 	ld h, [hl]
-	add a, Dungeon_CompletionFlag
+	add a, Dungeon_CompletionType
 	ld l, a
 	adc a, h
 	sub a, l
 	ld h, a
+	ld a, [hl]
+	assert DUNGEON_COMPLETION_EXIT == 0
+	and a, a
+	jr z, .exit
+	assert DUNGEON_COMPLETION_SWITCH == 1
+	dec a
+	jr z, .switch
+	assert DUNGEON_COMPLETION_SCENE == 2
+.scene
+	; TODO: Scenes can do a few things, including switching the dungeon pointer or exiting the dungeon.
+	; SWITCH and EXIT are just shortcuts for common operations.
+	ld b, b
+	jr .exit
+
+.switch
+	assert Dungeon_CompletionType + 1 == Dungeon_NextDungeonPointer
+	inc hl
+	ld a, [hli]
+	ld [wActiveDungeon], a
+	ld a, [hli]
+	ld [wActiveDungeon + 1], a
+	ld a, [hli]
+	ld [wActiveDungeon + 2], a
+	jp FloorComplete.nextFloor
+
+.exit
+	assert Dungeon_CompletionType + 1 == Dungeon_CompletionFlag
+	inc hl
 	ld c, [hl]
 	call GetFlag
 	or a, [hl]
@@ -799,6 +883,7 @@ xUpdateScroll:
 section "dungeon globals", wram0
 ; A far pointer to the current dungeon. Bank, Low, High.
 wActiveDungeon:: ds 3
+wDungeonCurrentFloor:: db
 
 section UNION "State variables", wram0, ALIGN[8]
 ; This map uses 4096 bytes of WRAM, but is only ever used in dungeons.
@@ -814,7 +899,6 @@ wDungeonLerpCameraY:: dw
 wLastDungeonCameraX:: db
 wLastDungeonCameraY:: db
 wIsDungeonFading:: db
-wDungeonCurrentFloor:: db
 
 wMapgenLoopCounter: db
 

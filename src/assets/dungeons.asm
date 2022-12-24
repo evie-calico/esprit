@@ -9,13 +9,14 @@ macro dungeon
 	redef TILESET equs "\2"
 	redef TYPE equs "\3"
 	redef FLOORS equs "\4"
-	redef FLAG equs "\5"
-	redef MUSIC equs "\6"
-	redef TICK_FUNCTION equs "\7"
+	redef COMPLETION_TYPE equs "\5"
+	redef COMPLETION_ARG equs "\6"
+	redef MUSIC equs "\7"
+	redef TICK_FUNCTION equs "\8"
 	section "{NAME} Dungeon", romx
 	{NAME}:: dw .tileset, .palette
 
-	shift 7
+	shift 8
 	farptr \1
 	farptr \2
 	farptr \3
@@ -29,14 +30,25 @@ macro dungeon
 		farptr \1
 	endr
 
-	db {FLAG}
+	if DUNGEON_COMPLETION_{COMPLETION_TYPE} == DUNGEON_COMPLETION_EXIT
+		db DUNGEON_COMPLETION_{COMPLETION_TYPE}
+		db {COMPLETION_ARG}
+		; Padding for exit type
+		db 0, 0
+	else
+		db DUNGEON_COMPLETION_{COMPLETION_TYPE}
+		db bank({COMPLETION_ARG})
+		db low({COMPLETION_ARG})
+		db high({COMPLETION_ARG})
+	endc
+
 
 	dw {MUSIC}
 	db bank({MUSIC})
 
 	dw {TICK_FUNCTION}
 
-	assert sizeof_Dungeon == 57
+	assert sizeof_Dungeon == 60
 	.tileset incbin {TILESET}
 endm
 
@@ -56,7 +68,8 @@ macro dungeon_palette
 	endr
 endm
 
-	dungeon xForestDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_FOREST_COMPLETE, xForestMusic, null, \
+	dungeon xForestDungeon, "res/dungeons/tree_tiles.2bpp", \
+	        HALLS, 4, SWITCH, xForestDungeon_part2, xForestMusic, null, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 1, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
@@ -77,7 +90,8 @@ endm
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon xFieldDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_FIELDS_COMPLETE, xTownMusic, null, \
+	dungeon xForestDungeon_part2, "res/dungeons/field_tiles.2bpp", \
+	        HALLS, 5, EXIT, FLAG_FOREST_COMPLETE, xForestMusic, null, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 1, \
 	        xForestRat, 3, \
 	        xForestRat, 3, \
@@ -98,7 +112,30 @@ endm
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon xLakeDungeon, "res/dungeons/lake_tiles.2bpp", HALLS, 5, FLAG_LAKE_COMPLETE, xLakeMusic, xLakeAnimationFunction, \
+	dungeon xFieldDungeon, "res/dungeons/field_tiles.2bpp", \
+	        HALLS, 5, EXIT, FLAG_FIELDS_COMPLETE, xTownMusic, null, \
+	        xRedApple, xGreenApple, xGrapes, xPepper, 1, \
+	        xForestRat, 3, \
+	        xForestRat, 3, \
+	        xForestRat, 4, \
+	        xSnake,     3, \
+	        xSnake,     4, \
+	        xFieldRat,  2, \
+	        xFieldRat,  3, \
+	        xFieldRat,  4
+	dungeon_palette 120, 192,  96, \ ; Blank
+	                 32, 120,   0, \ ; Ground
+	                 24,  64,  24, \
+	                  0,  32,   0, \
+	                 64, 120,   0, \ ; Wall
+	                  0,  64,   0, \
+	                  0,   8,   0, \
+	                 96,  80,   0, \ ; Exit
+	                 64,  48,   0, \
+	                 32,  24,   0, \
+
+	dungeon xLakeDungeon, "res/dungeons/lake_tiles.2bpp", \
+	        HALLS, 5, EXIT, FLAG_LAKE_COMPLETE, xLakeMusic, xLakeAnimationFunction, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat,  2, \
 	        xForestRat, 3, \
@@ -153,7 +190,8 @@ xLakeAnimationFrames: incbin "res/dungeons/lake_animation.2bpp"
 section FRAGMENT "dungeon BSS", wram0
 wLakeAnimationCounter: db
 
-	dungeon xPlainsDungeon, "res/dungeons/field_tiles.2bpp", HALLS, 5, FLAG_PLAINS_COMPLETE, xLakeMusic, null, \
+	dungeon xPlainsDungeon, "res/dungeons/field_tiles.2bpp", \
+	        HALLS, 5, EXIT, FLAG_PLAINS_COMPLETE, xLakeMusic, null, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xFieldRat,  2, \
 	        xForestRat, 3, \
@@ -174,7 +212,8 @@ wLakeAnimationCounter: db
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon xCavesDungeon, "res/dungeons/tree_tiles.2bpp", HALLS, 5, FLAG_CAVES_COMPLETE, xLakeMusic, null, \
+	dungeon xCavesDungeon, "res/dungeons/tree_tiles.2bpp", \
+	        HALLS, 5, EXIT, FLAG_CAVES_COMPLETE, xLakeMusic, null, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \
@@ -195,7 +234,8 @@ wLakeAnimationCounter: db
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon xGemstoneWoodsDungeon, "res/dungeons/gemtree_tiles.2bpp", HALLS, 5, FLAG_GEMTREE_COMPLETE, xLakeMusic, null, \
+	dungeon xGemstoneWoodsDungeon, "res/dungeons/gemtree_tiles.2bpp", \
+	        HALLS, 5, EXIT, FLAG_GEMTREE_COMPLETE, xLakeMusic, null, \
 	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
 	        xForestRat, 1, \
 	        xForestRat, 1, \

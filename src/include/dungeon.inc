@@ -9,14 +9,14 @@ def DUNGEON_ITEM_COUNT equ 4
 def DUNGEON_ENTITY_COUNT equ 8
 
 rsreset
-def TILE_CLEAR rb 1
-def TILE_WALL rb 1
-def TILE_EXIT rb 1
+def TILE_CLEAR rb
+def TILE_WALL rb
+def TILE_EXIT rb
 def TILE_ITEMS rb 0
-def TILE_ITEM0 rb 1
-def TILE_ITEM1 rb 1
-def TILE_ITEM2 rb 1
-def TILE_ITEM3 rb 1
+def TILE_ITEM0 rb
+def TILE_ITEM1 rb
+def TILE_ITEM2 rb
+def TILE_ITEM3 rb
 
 ; The dungeon renderer is hard-coded to use these 4 metatiles to draw floors and
 ; walls. Additional tiles should follow these metatiles.
@@ -30,13 +30,19 @@ def EXIT_METATILE_ID rb 4
 def ITEM_METATILE_ID rb 4 * 4
 
 rsreset
-def DUNGEON_TYPE_SCRAPER rb 1
-def DUNGEON_TYPE_HALLS rb 1
+def DUNGEON_TYPE_SCRAPER rb
+def DUNGEON_TYPE_HALLS rb
 
 rsreset
-def WINDOW_HIDE rb 1
-def WINDOW_SHOW_MOVES rb 1
-def WINDOW_TURNING rb 1
+def WINDOW_HIDE rb
+def WINDOW_SHOW_MOVES rb
+def WINDOW_TURNING rb
+
+rsreset
+def DUNGEON_COMPLETION_EXIT rb
+; TODO: make SWITCH change the current music if it differs from the old dungeon.
+def DUNGEON_COMPLETION_SWITCH rb
+def DUNGEON_COMPLETION_SCENE rb
 
 	struct SpawnEntityInfo
 		bytes 1, Level
@@ -52,7 +58,12 @@ def WINDOW_TURNING rb 1
 		bytes 1, FloorCount
 		bytes 1, ItemsPerFloor
 		bytes sizeof_SpawnEntityInfo * DUNGEON_ENTITY_COUNT, Entities
-		bytes 1, CompletionFlag
+		; TODO: this could potentially be moved to the "end" script.
+		; No reason to do this here when the script can already take care of it.
+		bytes 1, CompletionType
+		alias CompletionFlag
+		alias NextScenePointer
+		bytes 3, NextDungeonPointer
 		bytes 3, Music
 		words 1, TickFunction
 	end_struct
