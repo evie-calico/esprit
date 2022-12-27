@@ -16,12 +16,12 @@ to build this project.
 
 - [RGBDS 0.6.0](https://github.com/gbdev/rgbds)
 - [GNU Make 4.3](https://www.gnu.org/software/make/)
-- A C compiler
+- [Rust/cargo](https://www.rust-lang.org/)
 - [evscript](https://github.com/eievui5/evscript)
 
 To run unit tests (optional, for development), additional dependancies are required.
 
-- [Bash](https://www.gnu.org/software/bash/), or a similar software which can run bash scripts.
+- [Bash](https://www.gnu.org/software/bash/), or a similar shell which can run bash scripts.
 - [evunit](https://github.com/eievui5/evunit)
 
 Windows is not supported.
@@ -41,14 +41,13 @@ The build-time options can be found in `src/include/config.inc`
 ## Naming Conventions
 
 - All labels are `PascalCase`
-  - Prefix `x`: romx
+  - Prefix `x`: ROMX
   - Prefix `v`: VRAM
   - Prefix `s`: SRAM
   - Prefix `w`: WRAM
-  - Prefix `h`: hram
+  - Prefix `h`: HRAM
 
 - Constants are in `ALL_CAPS`
 - Macros are in `snake_case`
 
-- RGBDS directives are in all caps (Such as `section`, `include`, `assert`, but not `db`, `ds`, etc...)
-- Instructions are in lowercase (Such as `ld`, `call`, as well as `db`, `ds`, etc...)
+- All instructions and directives are in lowercase (`ld`, `call`, `db`, `section`, etc...)
