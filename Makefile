@@ -34,20 +34,23 @@ OBJS := $(patsubst src/%.asm, obj/%.o, $(SRCS)) \
 
 # `all` (Default target): build the ROM
 all:
-ifeq (, $(shell which rgbasm))
+ifeq (,$(shell which rgbasm))
 	$(error rgbasm is not installed on the PATH (https://github.com/gbdev/rgbds))
 endif
-ifeq (, $(shell which rgblink))
+ifeq (,$(shell which rgblink))
 	$(error rgblink is not installed on the PATH (https://github.com/gbdev/rgbds))
 endif
-ifeq (, $(shell which rgbfix))
+ifeq (,$(shell which rgbfix))
 	$(error rgbfix is not installed on the PATH (https://github.com/gbdev/rgbds))
 endif
-ifeq (, $(shell which rgbgfx))
+ifeq (,$(shell which rgbgfx))
 	$(error rgbgfx is not installed on the PATH (https://github.com/gbdev/rgbds))
 endif
-ifeq (, $(shell which evscript))
-	$(error evscript is not installed on the PATH (https://github.com/eievui5/evscript))
+ifeq (,$(shell which cargo))
+	$(error cargo is not installed on the PATH (https://www.rust-lang.org/))
+endif
+ifeq (,$(shell which evscript))
+	$(error evscript is not installed on the PATH. Please run `cargo install evscript`)
 endif
 	$(MAKE) $(ROM)
 .PHONY: all
