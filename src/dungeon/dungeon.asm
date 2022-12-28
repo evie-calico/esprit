@@ -608,8 +608,7 @@ DungeonComplete::
 .scene
 	; TODO: Scenes can do a few things, including switching the dungeon pointer or exiting the dungeon.
 	; SWITCH and EXIT are just shortcuts for common operations.
-	ld b, b
-	jr .exit
+	todo
 
 .switch
 	assert Dungeon_CompletionType + 1 == Dungeon_NextDungeonPointer

@@ -70,7 +70,7 @@ EndTurn::
 	ld a, [hl]
 	and a, a
 	jr z, .noPoison
-	ld b, b
+	todo
 	dec [hl]
 	jr nz, :+
 		ld a, 1

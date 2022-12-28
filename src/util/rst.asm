@@ -62,5 +62,4 @@ Rand8::
 
 section "Crash", rom0[$0038]
 Crash::
-	ld b, b
-	jr Crash
+	jp CrashHandler

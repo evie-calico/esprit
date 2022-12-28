@@ -66,18 +66,24 @@ macro format
 		; macro is what defines them. Global/literal labels may or may not be in scope,
 		; but it's okay if they're not, this macro won't redundantly define them since
 		; it only does the 'pushs/section/new label/pops' for non-literals.
-		def is_reused = def({arg})
+		def is_reused = 0
 
-		for i, _FORMATTER_TYPE_COUNT
-			if !def(_FORMATTER_TYPE{d:i})
-				fail "Unknown format type: {type}"
-			elif !strcmp("{type}", _FORMATTER_TYPE{d:i})
-				db _FORMATTER_TYPE{d:i}_CODE
-				dw {arg}
-				def arg_size = _FORMATTER_TYPE{d:i}_ARG_SIZE
-				break
-			endc
-		endr
+		if !strcmp("{type}", "db")
+			db arg
+			def arg_size = 0
+		else
+			def is_reused = def({arg})
+			for i, _FORMATTER_TYPE_COUNT
+				if !def(_FORMATTER_TYPE{d:i})
+					fail "Unknown format type: {type}"
+				elif !strcmp("{type}", _FORMATTER_TYPE{d:i})
+					db _FORMATTER_TYPE{d:i}_CODE
+					dw {arg}
+					def arg_size = _FORMATTER_TYPE{d:i}_ARG_SIZE
+					break
+				endc
+			endr
+		endc
 
 		if arg_size && !is_literal && !is_reused
 			pushs

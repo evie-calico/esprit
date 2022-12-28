@@ -3,7 +3,6 @@ include "entity.inc"
 include "hardware.inc"
 
 section "Header", rom0[$100]
-	di
 	jp InitializeSystem
 	ds $150 - @, 0
 

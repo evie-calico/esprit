@@ -78,4 +78,22 @@ macro lb
 	ld \1, (((\2) << 8) & $FF00) | ((\3) & $FF)
 endm
 
+macro crash ; [cc,] code
+	if _NARG == 1
+		rst Crash
+		db \1
+	else
+		jr \1, @-1
+		db \2
+	endc
+endm
+
+macro todo
+	if _NARG == 0
+		crash UNIMPLEMENTED
+	else
+		crash \1, UNIMPLEMENTED
+	endc
+endm
+
 endc

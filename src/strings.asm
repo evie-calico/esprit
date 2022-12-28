@@ -25,3 +25,5 @@ include "format.inc"
 
 	format xSwitchedToManual, "Switched to manual mode."
 	format xSwitchedToAutomatic, "Switched to automatic mode."
+
+	format xCrashString, "Error [u8:code]\n[str:message]PC: [u16:pc]\n\nPlease report this to:\nbugs@eievui.ml\n\n[db::TEXT_JUMP][db::bank(Version)][db::low(Version)][db::high(Version)]"
