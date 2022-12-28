@@ -10,8 +10,6 @@ MBC := 0x1B
 SRAMSIZE := 0x02
 VERSION := 0
 
-DEBUG = 0
-
 INCDIRS  = src/ src/include/
 WARNINGS = all extra no-unmapped-char
 CONFIG = 
@@ -69,7 +67,7 @@ rebuild:
 
 release:
 	$(MAKE) clean
-	${MAKE} LDFLAGS="-p 0xFF -w" DEBUG=1
+	${MAKE} LDFLAGS="-p 0xFF -w"
 .PHONY: release
 
 test: $(ROM)
