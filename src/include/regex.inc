@@ -1,11 +1,35 @@
-; Super simple regex written in rgbasm
-; This is only for *extremely simple* parsing.
-; It is not a complete regex implementation.
+/*
+Super simple regex written in rgbasm
+This is only for *extremely simple* parsing.
+It is not a complete regex implementation.
 
-; Supported features:
-; - character matching
-; - '.'
-; - captures
+Supported features:
+- character matching (including . for "any", [], and [^])
+- repetition with *, +, ?, and {n,m}
+- captures
+- escapes
+
+How to use:
+	regex rx, s[, captures]
+
+The library will simply throw a warning if the regex string does not match.
+The real use of this macro are *captures*.
+Anything within parenthesis in the regex will be placed into the capture variable provided.
+
+For example:
+	regex "He(l+)o, world!", "Hellllllllllom world!", Ls
+	println "{Ls}"
+
+Outputs:
+	llllllllll
+
+Multiple capture groups can be used by passing in additional arguments:
+	regex "([Hh]el+o), world(!?)", "Helo, world!", hello, exclaimation
+	println "world, {hello}{exclamation}"
+
+Outputs:
+	world, Helo!
+*/
 
 def MATCH_MODE_NONE equ 0
 def MATCH_MODE_MATCH equ 1
