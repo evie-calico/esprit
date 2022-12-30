@@ -1,36 +1,3 @@
-/*
-Super simple regex written in rgbasm
-This is only for *extremely simple* parsing.
-It is not a complete regex implementation.
-
-Supported features:
-- character matching (including . for "any", [], and [^])
-- repetition with *, +, ?, and {n,m}
-- captures
-- escapes
-
-How to use:
-	regex rx, s[, captures]
-
-The library will simply throw a warning if the regex string does not match.
-The real use of this macro are *captures*.
-Anything within parenthesis in the regex will be placed into the capture variable provided.
-
-For example:
-	regex "He(l+)o, world!", "Hellllllllllom world!", Ls
-	println "{Ls}"
-
-Outputs:
-	llllllllll
-
-Multiple capture groups can be used by passing in additional arguments:
-	regex "([Hh]el+o), world(!?)", "Helo, world!", hello, exclaimation
-	println "world, {hello}{exclamation}"
-
-Outputs:
-	world, Helo!
-*/
-
 def MATCH_MODE_NONE equ 0
 def MATCH_MODE_MATCH equ 1
 def MATCH_MODE_DONT equ 2
@@ -75,6 +42,11 @@ macro regex ; rx, s, [captures]
 
 		if !strcmp("{next_char}", ".")
 			def match_mode = MATCH_MODE_ANY
+		elif !strcmp("{next_char}", " ")
+			def match_mode = MATCH_MODE_MATCH
+			redef matchables equs " \n\t\r"
+			popchars _rx, 1
+			redef _rx equs strcat(" *", "{_rx}")
 		elif !strcmp("{next_char}", "(")
 			def capturing = 1
 		elif !strcmp("{next_char}", ")")
@@ -94,7 +66,10 @@ macro regex ; rx, s, [captures]
 
 			rept strlen("{_rx}")
 				redef next_char equs strsub("{_rx}", 1, 1)
-				if !strcmp("{next_char}", "]")
+				if !strcmp("{next_char}", "\\")
+					popchars _rx, 1
+					redef next_char equs strsub("{_rx}", 1, 1)
+				elif !strcmp("{next_char}", "]")
 					break
 				endc
 				popchars _rx, 1
@@ -105,49 +80,53 @@ macro regex ; rx, s, [captures]
 			def match_mode = MATCH_MODE_MATCH
 		endc
 
+		popchars _rx, 1
+
 		if match_mode
 			redef at_least equs "1"
 			redef at_most equs "1"
 			def matches = 0
 
-			redef next_char equs strsub("{_rx}", 2, 1)
+			if strlen("{_rx}")
+				redef next_char equs strsub("{_rx}", 1, 1)
 
-			if !strcmp("{next_char}", "*")
-				redef at_least equs "0"
-				redef at_most equs "$FF"
-				popchars _rx, 1
-			elif !strcmp("{next_char}", "+")
-				redef at_least equs "1"
-				redef at_most equs "$FF"
-				popchars _rx, 1
-			elif !strcmp("{next_char}", "?")
-				redef at_least equs "0"
-				redef at_most equs "1"
-				popchars _rx, 1
-			elif !strcmp("{next_char}", "\{");}
-				def end_brace = strin("{_rx}", "\}")
-				if !end_brace
-					fail "Unclosed curly brace in regex: /{_source_rx}/"
-				endc
-				redef brace equs strsub("{_rx}", 2, end_brace - 2)
-				if !strlen("{brace}")
-					fail "Curly brace is empty in regex: /{_source_rx}/"
-				endc
-				def comma = strin("{brace}", ",")
-				if !comma ; {n}
-					redef at_least equs "{brace}"
-					redef at_most equs "{brace}"
-				elif comma == 1 ; {,n}
+				if !strcmp("{next_char}", "*")
 					redef at_least equs "0"
-					redef at_most equs strsub("{brace}", comma + 1)
-				elif comma == strlen("{brace}") ; {n,}
-					redef at_least equs strsub("{brace}", 1, comma - 1)
 					redef at_most equs "$FF"
-				else
-					redef at_least equs strsub("{brace}", 1, comma - 1)
-					redef at_most equs strsub("{brace}", comma + 1)
+					popchars _rx, 1
+				elif !strcmp("{next_char}", "+")
+					redef at_least equs "1"
+					redef at_most equs "$FF"
+					popchars _rx, 1
+				elif !strcmp("{next_char}", "?")
+					redef at_least equs "0"
+					redef at_most equs "1"
+					popchars _rx, 1
+				elif !strcmp("{next_char}", "\{");}
+					def end_brace = strin("{_rx}", "\}")
+					if !end_brace
+						fail "Unclosed curly brace in regex: /{_source_rx}/"
+					endc
+					redef brace equs strsub("{_rx}", 2, end_brace - 2)
+					if !strlen("{brace}")
+						fail "Curly brace is empty in regex: /{_source_rx}/"
+					endc
+					def comma = strin("{brace}", ",")
+					if !comma ; {n}
+						redef at_least equs "{brace}"
+						redef at_most equs "{brace}"
+					elif comma == 1 ; {,n}
+						redef at_least equs "0"
+						redef at_most equs strsub("{brace}", comma + 1)
+					elif comma == strlen("{brace}") ; {n,}
+						redef at_least equs strsub("{brace}", 1, comma - 1)
+						redef at_most equs "$FF"
+					else
+						redef at_least equs strsub("{brace}", 1, comma - 1)
+						redef at_most equs strsub("{brace}", comma + 1)
+					endc
+					popchars _rx, strlen("{brace}") + 2
 				endc
-				popchars _rx, strlen("{brace}") + 2
 			endc
 
 			rept at_most
@@ -174,15 +153,13 @@ macro regex ; rx, s, [captures]
 			endr
 
 			if matches < at_least
-				warn "regex /{_source_rx}/ does not match \"{_source_s}\" (at /{_rx}/ : \"{_s}\") (expected one of: {matchables})"
+				fail "regex /{_source_rx}/ does not match \"{_source_s}\" (expected one of: {matchables} at \"{_s}\")"
 			endc
 		endc
-
-		popchars _rx, 1
 	endr
 
 	if strlen("{_s}")
-		warn "regex /{_source_rx}/ does not match \"{_source_s}\" (exhausted regex at /{_rx}/ : \"{_s}\")"
+		fail "regex /{_source_rx}/ does not match \"{_source_s}\" (exhausted regex at \"{_s}\")"
 	endc
 
 	purge _rx, _s, _source_rx, _source_s, captures, next_char, match_mode

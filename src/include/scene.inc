@@ -1,7 +1,6 @@
 if !def(SCENE_INC)
 def SCENE_INC equ 1
 
-include "hardware.inc"
 include "structs.inc"
 
 rsreset

@@ -1,4 +1,5 @@
 include "entity.inc"
+include "regex.inc"
 
 def percent equs "* $FF / 100"
 
@@ -6,12 +7,11 @@ macro move
 section "\2 Move", romx
 \2::
 	db MOVE_ACTION_\1
-	if strin("\6", "%")
-		def PERCENT equs strsub("\6", 1, strin("\6", "%") - 1)
-		db PERCENT * $FF / 100
-		purge PERCENT
+	regex "([^%]+)(%?)", "\6", value, percent
+	if strlen("{percent}")
+		db value * 255 / 100
 	else
-		db \6
+		db value
 	endc
 	db \5
 	db \4

@@ -2,6 +2,7 @@ if !def(TEXTFMT_INC)
 def TEXTFMT_INC equ 1
 
 include "res/charmap.inc"
+include "regex.inc"
 
 ; This macro allows you to write simple, readable format strings in RGBASM
 
@@ -43,25 +44,18 @@ macro format
 			db strsub("{format_string}", 1, bracket - 1)
 		endc
 
-		redef format_string equs strsub("{format_string}", bracket + 1)
+		redef format_string equs strsub("{format_string}", bracket)
 
-		def split = strin("{format_string}", ":")
+		; Now we have a bracket in the queue
+		; Find the end of this format specifier and parse it with a regex
 		def bracket = strin("{format_string}", "]")
-		
-		if !split
-			fail "Format specifier without separator"
-		endc
-		
 		if !bracket	
 			fail "Unclosed format specifier"
 		endc
+		regex "\\[([^ :]+) (::?) ([^\\]]+)\\]", strsub("{format_string}", 1, bracket), type, colon, arg
 
-		def type equs strsub("{format_string}", 1, split - 1)
-		def arg equs strsub("{format_string}", split + 1, bracket - split - 1)
-		def is_literal = strin("{arg}", ":")
-		if is_literal
-			redef arg equs strsub("{arg}", 2)
-		else
+		def is_literal = strlen("{colon}") == 2
+		if !is_literal
 			redef arg equs "wfmt_\1_{arg}"
 		endc
 
@@ -106,7 +100,7 @@ macro format
 
 		redef format_string equs strsub("{format_string}", bracket + 1)
 
-		purge type, arg, is_literal, is_reused, arg_size, split, bracket
+		purge type, arg, is_literal, is_reused, arg_size, bracket
 	endr
 
 	db 0
