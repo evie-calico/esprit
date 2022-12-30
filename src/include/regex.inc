@@ -82,28 +82,84 @@ macro regex ; rx, s, [captures]
 		endc
 
 		if match_mode
-			def passed = 0
-			redef next_match equs strsub("{_s}", 1, 1)
-			
-			if match_mode == MATCH_MODE_ANY \
-				|| match_mode == MATCH_MODE_MATCH && strin("{matchables}", "{next_match}") \
-				|| match_mode == MATCH_MODE_DONT && !strin("{matchables}", "{next_match}")
-				_match "{next_match}"
-				def passed = 1
+			redef at_least equs "1"
+			redef at_most equs "1"
+			def matches = 0
+
+			popchars _rx, 1
+			redef next_char equs strsub("{_rx}", 1, 1)
+
+			if !strcmp("{next_char}", "*")
+				redef at_least equs "0"
+				redef at_most equs "$FF"
+				popchars _rx, 1
+			elif !strcmp("{next_char}", "+")
+				redef at_least equs "1"
+				redef at_most equs "$FF"
+				popchars _rx, 1
+			elif !strcmp("{next_char}", "?")
+				redef at_least equs "0"
+				redef at_most equs "1"
+				popchars _rx, 1
+			elif !strcmp("{next_char}", "\{");}
+				def end_brace = strin("{_rx}", "\}")
+				if !end_brace
+					fail "Unclosed curly brace in regex: /{_source_rx}/"
+				endc
+				redef brace equs strsub("{_rx}", 2, end_brace - 2)
+				if !strlen("{brace}")
+					fail "Curly brace is empty in regex: /{_source_rx}/"
+				endc
+				def comma = strin("{brace}", ",")
+				if !comma ; {n}
+					redef at_least equs "{brace}"
+					redef at_most equs "{brace}"
+				elif comma == 1 ; {,n}
+					redef at_least equs "0"
+					redef at_most equs strsub("{brace}", comma + 1)
+				elif comma == strlen("{brace}") ; {n,}
+					redef at_least equs strsub("{brace}", 1, comma - 1)
+					redef at_most equs "$FF"
+				else
+					redef at_least equs strsub("{brace}", 1, comma - 1)
+					redef at_most equs strsub("{brace}", comma + 1)
+				endc
+				popchars _rx, strlen("{brace}") + 2
 			endc
 
-			if !passed
+			rept at_most
+				def passed = 0
+				if !strlen("{_s}")
+					break
+				endc
+
+				redef next_match equs strsub("{_s}", 1, 1)
+				
+				if match_mode == MATCH_MODE_ANY \
+					|| match_mode == MATCH_MODE_MATCH && strin("{matchables}", "{next_match}") \
+					|| match_mode == MATCH_MODE_DONT && !strin("{matchables}", "{next_match}")
+					_match "{next_match}"
+					def passed = 1
+					def matches += 1
+				endc
+
+				if !passed
+					break
+				endc
+
+				popchars _s, 1
+			endr
+
+			if matches < at_least
 				warn "regex /{_source_rx}/ does not match \"{_source_s}\" (at /{_rx}/ : \"{_s}\") (expected one of: {matchables})"
 			endc
-
-			popchars _s, 1
 		endc
 
 		popchars _rx, 1
 	endr
 
 	if strlen("{_s}")
-		warn "regex /{_source_rx}/ does not match \"{_source_s}\" (exhausted regex)"
+		warn "regex /{_source_rx}/ does not match \"{_source_s}\" (exhausted regex at /{_rx}/ : \"{_s}\")"
 	endc
 
 	purge _rx, _s, _source_rx, _source_s, captures, next_char, match_mode
