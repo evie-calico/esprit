@@ -110,8 +110,7 @@ macro regex ; rx, s, [captures]
 			redef at_most equs "1"
 			def matches = 0
 
-			popchars _rx, 1
-			redef next_char equs strsub("{_rx}", 1, 1)
+			redef next_char equs strsub("{_rx}", 2, 1)
 
 			if !strcmp("{next_char}", "*")
 				redef at_least equs "0"
