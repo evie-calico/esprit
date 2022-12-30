@@ -2,6 +2,7 @@ if !def(SCENE_INC)
 def SCENE_INC equ 1
 
 include "structs.inc"
+include "hardware.inc"
 
 rsreset
 def DRAWSCENE_END         rb ; End drawing.

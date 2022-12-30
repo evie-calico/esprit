@@ -471,14 +471,23 @@ DefeatCheck::
 	ld [hli], a
 	ld a, high(EntityDefeatAnimation)
 	ld [hli], a
-	ld a, low(.final)
+	; Run this code when a player dies
+	ld a, low(.playerFinal)
 	ld [hli], a
-	ld a, high(.final)
+	ld a, high(.playerFinal)
 	ld [hli], a
 	ld [hl], b
 	ldh a, [hSaveUserIndex]
 	cp a, high(wEntity0) + NB_ALLIES
 	ret nc
+
+	; run this code when an enemy dies.
+	ld hl, wEntityAnimation.callback
+	ld a, low(.final)
+	ld [hli], a
+	ld a, high(.final)
+	ld [hli], a
+	ld [hl], b
 	; Now reward XP to the party and print message
 	ld h, b
 	ld l, low(wEntity0_Level)
@@ -519,6 +528,33 @@ DefeatCheck::
 	ld l, low(wEntity0_Bank)
 	xor a, a
 	ld [hli], a
+	ret
+
+.playerFinal
+	ld hl, wEntityAnimation
+	ld a, low(EntityDefeatAnimation)
+	ld [hli], a
+	ld a, high(EntityDefeatAnimation)
+	ld [hli], a
+	xor a, a
+	ld [hli], a
+	ld [hli], a
+
+	ld a, [wDefeatCheckTarget]
+	ld h, a
+	ld l, low(wEntity0_Level)
+	ld a, [hl]
+	cp a, PLAYER_MINIMUM_LEVEL
+	jr z, :+
+		dec [hl]
+	:
+
+	call FadeToBlack
+
+	ld hl, wFadeCallback
+	ld a, low(InitMap)
+	ld [hli], a
+	ld [hl], high(InitMap)
 	ret
 
 ; User to save the parameters of UseMove for animation callbacks.

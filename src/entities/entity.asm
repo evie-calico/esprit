@@ -506,17 +506,13 @@ section "Get Max Health", rom0
 ; @return hl: Max Health
 GetMaxHealth::
 	; The current formula is 16 + level * 4
-	ld l, a
-	ld h, 0
-	add hl, hl
-	add hl, hl
-	ld a, 16
-	add a, l
-	ld l, a
-	adc a, h
-	sub a, l
-	ld h, a
-	ret
+	; or in other words, (level + 4) * 4
+    add a, 4
+    ld l, a
+    ld h, 0
+    add hl, hl
+    add hl, hl
+    ret
 
 section "Get Experience Target", rom0
 ; This function encapsulates the experience target formula, allowing it to
@@ -584,7 +580,7 @@ xCheckForLevelUp::
 	ld [hl], a
 	ld l, low(wEntity0_Level)
 	ld a, [hl]
-	cp a, ENTITY_MAXIMUM_LEVEL
+	cp a, PLAYER_MAXIMUM_LEVEL
 	ret z
 	inc c ; ld c, 1
 	inc [hl]

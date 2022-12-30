@@ -343,6 +343,22 @@ DungeonState::
 	and a, a
 	jr nz, .updateStatus
 
+	; Make sure health is not displayed as negative
+	ld hl, wEntity0_Health + 1
+	bit 7, [hl]
+	jr z, :+
+		xor a, a
+		ld [hld], a
+		ld [hli], a
+	:
+	inc h
+	bit 7, [hl]
+	jr z, :+
+		xor a, a
+		ld [hld], a
+		ld [hli], a
+	:
+
 	ld hl, wPreviousStats
 	ld de, wEntity0_Health
 	ld a, [de]
