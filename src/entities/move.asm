@@ -100,7 +100,9 @@ UseMove::
 	; B must still be the high byte of the entity
 	ld a, b
 	; If the user is the player, print a message explaining that they are too tired.
-	cp a, high(wEntity0) 
+	ld hl, wTrackedEntity
+	sub a, high(wEntity0)
+	cp a, [hl]
 	jr nz, .fail
 
 	ld b, bank(xTooTiredString)

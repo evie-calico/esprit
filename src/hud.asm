@@ -327,7 +327,11 @@ xUpdateAttackWindow::
 	ldh a, [rSTAT]
 	and a, STATF_BUSY
 	jr nz, :-
-	ld a, [wEntity0_Direction]
+	ld a, [wTrackedEntity]
+	add a, high(wEntity0)
+	ld h, a
+	ld l, low(wEntity0_Direction)
+	ld a, [hl]
 	add a, idof_vUIArrowUp
 	ld [vAttackWindow + 64 + 4], a
 .noDirection
@@ -483,6 +487,8 @@ DrawAttackWindow::
 	ld a, [wTrackedEntity]
 	add a, high(wEntity0)
 	ld h, a
+	ld l, low(wEntity0_Fatigue)
+	ld c, [hl]
 	ld l, low(wEntity0_Moves)
 .copyMoves
 	ld a, [hli]
@@ -507,7 +513,7 @@ DrawAttackWindow::
 	inc hl
 	inc hl
 	inc hl
-	ld a, [wEntity0_Fatigue]
+	ld a, c
 	cp a, [hl]
 	ld a, 3
 	jr nc, :+
