@@ -376,7 +376,11 @@ SpawnEntity::
 	; Set level
 	ld l, low(wEntity0_Level)
 	ld a, c
-	ld [hli], a
+	ld [hl], a
+
+	ld l, low(wEntity0_AnimationDesync)
+	rst Rand8
+	ld [hl], a
 
 	call RestoreEntity
 

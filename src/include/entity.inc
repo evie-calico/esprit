@@ -121,6 +121,8 @@ def TIRED_THRESHOLD equ 35
 		bytes 1, PoisonTurns
 		; If this is set, use the moving sprite for one more frame
 		bytes 1, WasMovingLastFrame
+		; Added to the frame counter so that animations aren't all synced up
+		bytes 1, AnimationDesync
 	end_struct
 
 	struct Move

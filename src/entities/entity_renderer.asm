@@ -338,7 +338,9 @@ xRenderEntity::
 		cp a, ENTITY_FRAME_ATTK
 		ld a, 0
 		jr nc, :+
+		ld l, low(wEntity0_AnimationDesync)
 		ldh a, [hFrameCounter]
+		add a, [hl]
 		and a, %00010000
 		rra
 		rra
