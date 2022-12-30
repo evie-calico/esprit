@@ -1,33 +1,123 @@
 include "defines.inc"
 include "dungeon.inc"
 
-; name, tileset, type, floors, completion flag, music, tick function
-; item0, item1, item2, item3, items per floor,
-; (entity ptr, entity level) * DUNGEON_ENTITY_COUNT
-macro dungeon
+macro def_equs
+	redef \1 equs "\2"
+endm
+
+macro try_purge
+	rept _NARG
+		if def(\1)
+			purge \1
+		endc
+		shift 1
+	endr
+endm
+
+macro _new_dungeon
 	redef NAME equs "\1"
-	redef TILESET equs "\2"
-	redef TYPE equs "\3"
-	redef FLOORS equs "\4"
-	redef COMPLETION_TYPE equs "\5"
-	redef COMPLETION_ARG equs "\6"
-	redef MUSIC equs "\7"
-	redef TICK_FUNCTION equs "\8"
+	redef TICK_FUNCTION equs "null"
+
+	for i, DUNGEON_ITEM_COUNT
+		try_purge ITEM{d:i}
+	endr
+	for i, DUNGEON_ENTITY_COUNT
+		try_purge ENEMY{d:i}_LEVEL
+		try_purge ENEMY{d:i}
+	endr
+endm
+
+macro dungeon
+	try_purge TILESET, TYPE, FLOORS, COMPLETION_TYPE, COMPLETION_ARG, MUSIC, TICK_FUNCTION
+
+	_new_dungeon \1
+endm
+
+macro get_next_name
+	if strin("{NAME}", "_part")
+		def part equs strsub("{NAME}", strlen("{NAME}"))
+		def part_value = part + 1
+		redef NEXT_NAME equs strcat(strsub("{NAME}", 1, strlen("{NAME}") - 1), "{d:part_value}")
+		purge part, part_value
+	else
+		redef NEXT_NAME equs strcat("{NAME}", "_part2")
+	endc
+endm
+
+macro next_part
+	get_next_name
+	_new_dungeon NEXT_NAME
+
+endm
+macro tileset ; path
+	def_equs TILESET, \1
+endm
+
+macro shape ; dungeon generation type
+	def_equs TYPE, \1
+endm
+
+macro at_floor ; number, action, [arg]
+	def_equs FLOORS, \1
+	redef COMPLETION_TYPE equs strupr("\2")
+	if !strcmp(strupr("\2"), "SWITCH")
+		get_next_name
+		def_equs COMPLETION_ARG, {NEXT_NAME}
+	else
+		def_equs COMPLETION_ARG, \3
+	endc
+endm
+
+macro on_tick
+	def_equs TICK_FUNCTION, \1
+endm
+
+macro music
+	def_equs MUSIC, \1
+endm
+
+macro item
+	for i, DUNGEON_ITEM_COUNT
+		if !def(ITEM{d:i})
+			def_equs ITEM{d:i}, \1
+			break
+		endc
+	endr
+	if i == DUNGEON_ITEM_COUNT
+		fail "Each dungeon is limited to {d:DUNGEON_ITEM_COUNT} items"
+	endc
+endm
+
+macro items_per_floor
+	def_equs ITEM_COUNT, \1
+endm
+
+macro enemy ; name, level
+	for i, DUNGEON_ENTITY_COUNT
+		if !def(ENEMY{d:i})
+			def_equs ENEMY{d:i}, \1
+			def_equs ENEMY{d:i}_LEVEL, \2
+			break
+		endc
+	endr
+	if i == DUNGEON_ENTITY_COUNT
+		fail "Each dungeon is limited to {d:DUNGEON_ENTITY_COUNT} enemies"
+	endc
+endm
+
+macro end
 	section "{NAME} Dungeon", romx
 	{NAME}:: dw .tileset, .palette
 
-	shift 8
-	farptr \1
-	farptr \2
-	farptr \3
-	farptr \4
-	db DUNGEON_TYPE_{TYPE}, (FLOORS) + 1, (\5)
+	for i, DUNGEON_ITEM_COUNT
+		farptr ITEM{d:i}
+	endr
 
-	shift 5 - 2
-	rept DUNGEON_ENTITY_COUNT
-		shift 2
-		db \2
-		farptr \1
+	db DUNGEON_TYPE_{TYPE}, (FLOORS) + 1, (ITEM_COUNT)
+
+	for i, DUNGEON_ENTITY_COUNT
+		db ENEMY{d:i}_LEVEL
+		farptr ENEMY{d:i}
 	endr
 
 	if DUNGEON_COMPLETION_{COMPLETION_TYPE} == DUNGEON_COMPLETION_EXIT
@@ -68,17 +158,27 @@ macro dungeon_palette
 	endr
 endm
 
-	dungeon xForestDungeon, "res/dungeons/tree_tiles.2bpp", \
-	        HALLS, 4, SWITCH, xForestDungeon_part2, xForestMusic, null, \
-	        xRedApple, xGreenApple, xGrapes, xPepper, 1, \
-	        xForestRat, 1, \
-	        xForestRat, 1, \
-	        xForestRat, 1, \
-	        xForestRat, 2, \
-	        xForestRat, 2, \
-	        xForestRat, 2, \
-	        xForestRat, 3, \
-	        xFieldRat,  1
+	dungeon xForestDungeon
+		tileset "res/dungeons/tree_tiles.2bpp"
+		at_floor 4, switch
+		shape HALLS
+		music xForestMusic
+
+		items_per_floor 1
+		item xRedApple
+		item xGreenApple
+		item xGrapes
+		item xPepper
+
+		enemy xForestRat, 1
+		enemy xForestRat, 1
+		enemy xForestRat, 1
+		enemy xForestRat, 2
+		enemy xForestRat, 2
+		enemy xForestRat, 2
+		enemy xForestRat, 3
+		enemy xFieldRat,  1
+	end
 	dungeon_palette 128, 255, 144, \ ; Blank
 	                  0, 120,   0, \ ; Ground
 	                  0,  88,  24, \
@@ -90,17 +190,24 @@ endm
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon xForestDungeon_part2, "res/dungeons/field_tiles.2bpp", \
-	        HALLS, 5, EXIT, FLAG_FOREST_COMPLETE, xForestMusic, null, \
-	        xRedApple, xGreenApple, xGrapes, xPepper, 1, \
-	        xForestRat, 3, \
-	        xForestRat, 3, \
-	        xForestRat, 4, \
-	        xSnake,     3, \
-	        xSnake,     4, \
-	        xFieldRat,  2, \
-	        xFieldRat,  3, \
-	        xFieldRat,  4
+	next_part
+		tileset "res/dungeons/field_tiles.2bpp"
+		at_floor 5, exit, FLAG_FOREST_COMPLETE
+
+		item xRedApple
+		item xGreenApple
+		item xGrapes
+		item xPepper
+
+		enemy xForestRat, 3
+		enemy xForestRat, 3
+		enemy xForestRat, 4
+		enemy xSnake,     3
+		enemy xSnake,     4
+		enemy xFieldRat,  2
+		enemy xFieldRat,  3
+		enemy xFieldRat,  4
+	end
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
 	                 24,  64,  24, \
@@ -112,17 +219,27 @@ endm
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon xFieldDungeon, "res/dungeons/field_tiles.2bpp", \
-	        HALLS, 5, EXIT, FLAG_FIELDS_COMPLETE, xTownMusic, null, \
-	        xRedApple, xGreenApple, xGrapes, xPepper, 1, \
-	        xForestRat, 3, \
-	        xForestRat, 3, \
-	        xForestRat, 4, \
-	        xSnake,     3, \
-	        xSnake,     4, \
-	        xFieldRat,  2, \
-	        xFieldRat,  3, \
-	        xFieldRat,  4
+	dungeon xFieldDungeon
+		tileset "res/dungeons/field_tiles.2bpp"
+		at_floor 5, exit, FLAG_FIELDS_COMPLETE
+		shape HALLS
+		music xTownMusic
+
+		items_per_floor 1
+		item xRedApple
+		item xGreenApple
+		item xGrapes
+		item xPepper
+
+		enemy xForestRat, 3
+		enemy xForestRat, 3
+		enemy xForestRat, 4
+		enemy xSnake,     3
+		enemy xSnake,     4
+		enemy xFieldRat,  2
+		enemy xFieldRat,  3
+		enemy xFieldRat,  4
+	end
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
 	                 24,  64,  24, \
@@ -134,17 +251,28 @@ endm
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon xLakeDungeon, "res/dungeons/lake_tiles.2bpp", \
-	        HALLS, 5, EXIT, FLAG_LAKE_COMPLETE, xLakeMusic, xLakeAnimationFunction, \
-	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
-	        xFieldRat,  2, \
-	        xForestRat, 3, \
-	        xForestRat, 3, \
-	        xFirefly,   3, \
-	        xFirefly,   4, \
-	        xFieldRat,  5, \
-	        xFieldRat,  6, \
-	        xFieldRat,  6
+	dungeon xLakeDungeon
+		tileset "res/dungeons/lake_tiles.2bpp"
+		at_floor 5, exit, FLAG_LAKE_COMPLETE
+		shape HALLS
+		music xLakeMusic
+		on_tick xLakeAnimationFunction
+
+		items_per_floor 1
+		item xRedApple
+		item xGreenApple
+		item xGrapes
+		item xPepper
+
+		enemy xFieldRat,  2
+		enemy xForestRat, 3
+		enemy xForestRat, 3
+		enemy xFirefly,   3
+		enemy xFirefly,   4
+		enemy xFieldRat,  5
+		enemy xFieldRat,  6
+		enemy xFieldRat,  6
+	end
 	dungeon_palette $7b, $82, $a6, \ ; Blank
 	                80, 96, 152, \
 	                $3e, $4a, $83, \
@@ -156,6 +284,8 @@ endm
 	                64, 80, 160, \
 	                $30, $38, $72, \
 
+; Placing this after the dungeon ensures it's in the same bank.
+; Animates the stars in the reflection of the water
 xLakeAnimationFunction:
 	ldh a, [hFrameCounter]
 	and a, 7
@@ -190,17 +320,27 @@ xLakeAnimationFrames: incbin "res/dungeons/lake_animation.2bpp"
 section FRAGMENT "dungeon BSS", wram0
 wLakeAnimationCounter: db
 
-	dungeon xPlainsDungeon, "res/dungeons/field_tiles.2bpp", \
-	        HALLS, 5, EXIT, FLAG_PLAINS_COMPLETE, xLakeMusic, null, \
-	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
-	        xFieldRat,  2, \
-	        xForestRat, 3, \
-	        xForestRat, 3, \
-	        xFieldRat,  3, \
-	        xFieldRat,  4, \
-	        xFieldRat,  5, \
-	        xFieldRat,  6, \
-	        xFieldRat,  6
+	dungeon xPlainsDungeon
+		tileset "res/dungeons/field_tiles.2bpp"
+		at_floor 5, exit, FLAG_PLAINS_COMPLETE
+		shape HALLS
+		music xLakeMusic
+
+		items_per_floor 1
+		item xRedApple
+		item xGreenApple
+		item xGrapes
+		item xPepper
+
+		enemy xFieldRat,  2
+		enemy xForestRat, 3
+		enemy xForestRat, 3
+		enemy xFirefly,   3
+		enemy xFirefly,   4
+		enemy xFieldRat,  5
+		enemy xFieldRat,  6
+		enemy xFieldRat,  6
+	end
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
 	                 24,  64,  24, \
@@ -212,17 +352,27 @@ wLakeAnimationCounter: db
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
-	dungeon xCavesDungeon, "res/dungeons/tree_tiles.2bpp", \
-	        HALLS, 5, EXIT, FLAG_CAVES_COMPLETE, xLakeMusic, null, \
-	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
-	        xForestRat, 1, \
-	        xForestRat, 1, \
-	        xForestRat, 2, \
-	        xForestRat, 2, \
-	        xForestRat, 3, \
-	        xFieldRat,  3, \
-	        xForestRat, 4, \
-	        xForestRat, 5
+	dungeon xCavesDungeon
+		tileset "res/dungeons/field_tiles.2bpp"
+		at_floor 5, exit, FLAG_CAVES_COMPLETE
+		shape HALLS
+		music xLakeMusic
+
+		items_per_floor 1
+		item xRedApple
+		item xGreenApple
+		item xGrapes
+		item xPepper
+
+		enemy xFieldRat,  2
+		enemy xForestRat, 3
+		enemy xForestRat, 3
+		enemy xFirefly,   3
+		enemy xFirefly,   4
+		enemy xFieldRat,  5
+		enemy xFieldRat,  6
+		enemy xFieldRat,  6
+	end
 	dungeon_palette 128, 255, 144, \ ; Blank
 	                  0, 120,   0, \ ; Ground
 	                  0,  88,  24, \
@@ -234,17 +384,27 @@ wLakeAnimationCounter: db
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
-	dungeon xGemstoneWoodsDungeon, "res/dungeons/gemtree_tiles.2bpp", \
-	        HALLS, 5, EXIT, FLAG_GEMTREE_COMPLETE, xLakeMusic, null, \
-	        xRedApple, xGreenApple, xGrapes, xPepper, 2, \
-	        xForestRat, 1, \
-	        xForestRat, 1, \
-	        xForestRat, 2, \
-	        xForestRat, 2, \
-	        xForestRat, 3, \
-	        xFieldRat,  3, \
-	        xForestRat, 4, \
-	        xForestRat, 5
+	dungeon xGemstoneWoodsDungeon
+		tileset "res/dungeons/gemtree_tiles.2bpp"
+		at_floor 5, exit, FLAG_GEMTREE_COMPLETE
+		shape HALLS
+		music xLakeMusic
+
+		items_per_floor 1
+		item xRedApple
+		item xGreenApple
+		item xGrapes
+		item xPepper
+
+		enemy xFieldRat,  2
+		enemy xForestRat, 3
+		enemy xForestRat, 3
+		enemy xFirefly,   3
+		enemy xFirefly,   4
+		enemy xFieldRat,  5
+		enemy xFieldRat,  6
+		enemy xFieldRat,  6
+	end
 	dungeon_palette 248, 136, 112, \ ; Blank
 	                176,  32,  64,  \ ; Ground
 	                  0, 120,   0, \ 

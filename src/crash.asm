@@ -127,4 +127,4 @@ xErrorCodes:
 	rsreset
 	error_code UNIMPLEMENTED, "Unimplemented"
 	error_code INVALID_INDEX, "Invalid Index"
-.ffString db "PC out of bounds", 0
+.ffString db "PC out of bounds\n", 0
