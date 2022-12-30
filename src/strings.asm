@@ -2,7 +2,7 @@ include "format.inc"
 
 ; Contains all formatted text in a central location
 
-	format xStatusString, "[entity:name]: [u16:health]/[u16:maxHealth] HP[condition:hasStatus] <SET_COLOR><2>-<SET_COLOR><3> [str:status]"
+	format xStatusString, "[entity:name]: [u16:health]/[u16:maxHealth] HP[condition:hasStatus] [color::2]-[color::3] [str:status]"
 	format xPauseStatusString, "[entity:target]\nHP: [u16:health]/[u16:maxHealth]"
 
 	format xUsedMoveString, "[entity:user] used [str:move]!"
@@ -26,4 +26,4 @@ include "format.inc"
 	format xSwitchedToManual, "Switched to manual mode."
 	format xSwitchedToAutomatic, "Switched to automatic mode."
 
-	format xCrashString, "Error [u8:code]\n[str:message]PC: [u16:pc]\n\nPlease report this to:\nbugs@eievui.ml\n\n[db::TEXT_JUMP][db::bank(Version)][db::low(Version)][db::high(Version)]"
+	format xCrashString, "Error [u8:code]\n[str:message]PC: [u16:pc] (decimal)\n\nPlease report this to:\nbugs@eievui.ml\n\n[jump::Version]"

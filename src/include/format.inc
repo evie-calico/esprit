@@ -18,6 +18,9 @@ include "res/charmap.inc"
 ; To re-use an existing global variable, use two colons:
 ; format xString, "Hello, [str::GlobalWorld]"
 
+
+def FORMAT_MEMORY_USAGE = 0
+
 macro format
 	section "\1", romx
 	\1::
@@ -67,10 +70,17 @@ macro format
 		; but it's okay if they're not, this macro won't redundantly define them since
 		; it only does the 'pushs/section/new label/pops' for non-literals.
 		def is_reused = 0
+		def arg_size = 0
 
 		if !strcmp("{type}", "db")
+			assert is_literal, "db's argument must be literal (::)"
 			db arg
-			def arg_size = 0
+		elif !strcmp("{type}", "color")
+			assert is_literal, "color's argument must be literal (::)"
+			db TEXT_SET_COLOR, arg
+		elif !strcmp("{type}", "jump")
+			assert is_literal, "jump's argument must be literal (::)"
+			db TEXT_JUMP, bank(arg), low(arg), high(arg)
 		else
 			def is_reused = def({arg})
 			for i, _FORMATTER_TYPE_COUNT
@@ -87,10 +97,6 @@ macro format
 
 		if arg_size && !is_literal && !is_reused
 			pushs
-				if !def(FORMAT_MEMORY_USAGE)
-					def FORMAT_MEMORY_USAGE = 0
-				endc
-
 				def FORMAT_MEMORY_USAGE += arg_size
 
 				section "{arg}", wram0
@@ -107,10 +113,6 @@ macro format
 endm
 
 macro format_report_usage
-	if !def(FORMAT_MEMORY_USAGE)
-		def FORMAT_MEMORY_USAGE = 0
-	endc
-
 	println "Memory allocated for format strings: {d:FORMAT_MEMORY_USAGE} bytes"
 endm
 
