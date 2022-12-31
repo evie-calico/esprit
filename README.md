@@ -1,4 +1,4 @@
-# Vuiiger Engine
+# Esprit
 
 ## Screenshots
 
@@ -19,10 +19,7 @@ to build this project.
 - [Rust/cargo](https://www.rust-lang.org/)
 - [evscript](https://github.com/eievui5/evscript)
 
-To run unit tests (optional, for development), additional dependancies are required.
-
-- [Bash](https://www.gnu.org/software/bash/), or a similar shell which can run bash scripts.
-- [evunit](https://github.com/eievui5/evunit)
+To run unit tests (optional, for development), [evunit](https://github.com/eievui5/evunit) is required.
 
 Windows is not supported.
 Use a POSIX environment like [WSL](https://docs.microsoft.com/en-us/windows/wsl/install) or [MSYS2](https://www.msys2.org/).

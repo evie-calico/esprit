@@ -1,5 +1,0 @@
-crash = 0x38
-enable-breakpoints = true
-sp = "wStack.top"
-
-# Some additional tests are generated in test-config-generator.bash

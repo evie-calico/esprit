@@ -1,8 +1,9 @@
 .SUFFIXES:
 
-ROM = bin/vuiiger.gb
+ROM = bin/esprit.gb
 MAKEFONT = tools/target/release/makefont
 PALCONV = tools/target/release/palconv
+EVUNIT_CONFIG_GEN = tools/target/release/evunit-config-gen
 
 # 0x1B is MBC5 with RAM + Battery
 MBC := 0x1B
@@ -17,7 +18,7 @@ CONFIG =
 ASFLAGS  = -p 0xFF -h -Q 4 $(addprefix -i, $(INCDIRS)) $(addprefix -W, $(WARNINGS)) $(addprefix -D, $(CONFIG))
 LDFLAGS  = -p 0xFF -w -S romx=256
 FIXFLAGS = -p 0xFF -j -v -c -k "EV" -l 0x33 -m $(MBC) \
-           -n $(VERSION) -r $(SRAMSIZE) -t "Vuiiger"
+           -n $(VERSION) -r $(SRAMSIZE) -t "Esprit"
 GFXFLAGS = -c embedded
 
 SRCS := $(shell find src -name '*.asm')
@@ -73,13 +74,13 @@ release:
 	${MAKE} LDFLAGS="-p 0xFF -w"
 .PHONY: release
 
-test: $(ROM)
+test: $(ROM) $(EVUNIT_CONFIG_GEN)
 ifeq (, $(shell which evunit))
 	$(error evunit is not installed on the PATH (https://github.com/eievui5/evunit))
 endif
-	bash test-config-generator.bash | \
-	cat test-config.toml - | \
-	evunit --config /dev/stdin --symfile bin/vuiiger.sym --silent $<
+	$(EVUNIT_CONFIG_GEN) | \
+	cat evunit-config.toml - | \
+	evunit --config - --symfile bin/esprit.sym --silent $<
 .PHONY: test
 
 ###############################################
@@ -175,9 +176,9 @@ res/%.pal8: res/%.pal $(PALCONV)
 #                                              #
 ################################################
 
-$(MAKEFONT) $(PALCONV):
+$(MAKEFONT) $(PALCONV) $(EVUNIT_CONFIG_GEN): tools/src/bin/makefont.rs tools/src/bin/palconv.rs tools/src/bin/evunit-config-gen.rs
 	@mkdir -p $(@D)
-	cd tools/ && cargo build --release
+	cd tools/ && cargo -q build --release
 
 # Catch non-existent files
 # KEEP THIS LAST!!
