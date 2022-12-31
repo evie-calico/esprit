@@ -70,7 +70,6 @@ EndTurn::
 	ld a, [hl]
 	and a, a
 	jr z, .noPoison
-	todo
 	dec [hl]
 	jr nz, :+
 		ld a, 1
@@ -79,7 +78,7 @@ EndTurn::
 	:
 	; Only deal damage every 4th turn
 	and a, 3
-	ret nz
+	jr nz, .noPoison
 	; Deal 1-4 damage
 	rst Rand8
 	and a, 3
