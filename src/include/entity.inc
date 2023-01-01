@@ -126,6 +126,14 @@ def TIRED_THRESHOLD equ 35
 		bytes 1, AnimationDesync
 	end_struct
 
+	; Any information about an entity that must persist.
+	struct EntityBase
+		bytes 1, Bank
+		words 1, Data
+		bytes 1, Level
+		words 1, Experience
+	end_struct
+
 	struct Move
 		; The behavior of this move.
 		bytes 1, Action

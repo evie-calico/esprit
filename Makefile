@@ -69,6 +69,12 @@ rebuild:
 	$(MAKE) all
 .PHONY: rebuild
 
+# Like rebuild but only removes the save file
+reset:
+	rm -f bin/esprit.sav
+	$(MAKE) all
+.PHONY: reset
+
 release:
 	$(MAKE) clean
 	${MAKE} LDFLAGS="-p 0xFF -w"

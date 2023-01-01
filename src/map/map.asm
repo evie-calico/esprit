@@ -75,16 +75,11 @@ macro end_node
 endm
 
 def NB_DROPLETS equ 16
-def NB_EFFECTS equ NB_DROPLETS + 2
+def NB_EFFECTS equ NB_DROPLETS + 3
 
 section "World map nodes", romx
-	node xBeginningHouse, "House", 76, 88
-		left MOVE, xVillageNode
-	end_node
-
 	node xVillageNode, "Crater Village", 48, 88
 		left MOVE, xForestNode
-		right MOVE, xBeginningHouse
 		press SCENE, xVillageScene
 	end_node
 
@@ -166,20 +161,80 @@ xWorldMap:
 .colormap incbin "res/worldmap/crater.pmap"
 .dmgtiles incbin "res/worldmap/crater-dmg.2bpp"
 .dmgmap incbin "res/worldmap/crater-dmg.map"
-.duck incbin "res/worldmap/duck.2bpp"
-.droplet incbin "res/worldmap/droplet.2bpp"
 .hoof incbin "res/worldmap/hoofprint.2bpp"
-.haze incbin "res/worldmap/haze1.2bpp"
-      incbin "res/worldmap/haze2.2bpp"
-.dropletPalette incbin "res/worldmap/droplet.pal8", 3
-.duckPalette incbin "res/worldmap/duck.pal8", 3
-.hoofPalette incbin "res/worldmap/hoofprint.pal8", 3
-.hazePalette incbin "res/worldmap/haze1.pal8", 3
+.objTiles
+	incbin "res/worldmap/floppy.2bpp"
+	incbin "res/worldmap/haze1.2bpp"
+	incbin "res/worldmap/haze2.2bpp"
+	incbin "res/worldmap/duck.2bpp"
+	ds 16, 0
+	incbin "res/worldmap/droplet.2bpp"
+	ds 16, 0
+.objColors
+	incbin "res/worldmap/droplet.pal8", 3
+	incbin "res/worldmap/duck.pal8", 3
+	incbin "res/worldmap/hoofprint.pal8", 3
+	incbin "res/worldmap/haze1.pal8", 3
+	incbin "res/worldmap/floppy.pal8", 3
 
 section "Map State Init", rom0
 InitMap::
 	ldh a, [hCurrentBank]
 	push af
+
+	ld a, [wGameState]
+	cp a, GAMESTATE_DUNGEON
+	jr nz, :+
+		for i, 2
+			ld a, [wTrackedEntity]
+			if i
+				xor a, 1
+			endc
+			add a, high(wEntity0)
+			ld d, a
+			ld e, low(wEntity0_Bank)
+			if !i
+				ld hl, wPlayerData
+			endc
+			ld a, [de]
+			ld [hli], a
+			inc e
+			ld a, [de]
+			ld [hli], a
+			inc e
+			ld a, [de]
+			ld [hli], a
+			inc e
+			ld e, low(wEntity0_Level)
+			ld a, [de]
+			ld [hli], a
+			ld e, low(wEntity0_Experience)
+			ld a, [de]
+			ld [hli], a
+			inc e
+			ld a, [de]
+			ld [hli], a
+		endr
+	:
+
+	; Null out all enemies.
+	xor a, a
+	ld hl, wEntity0
+	ld b, NB_ENTITIES
+.clearEntities
+	ld [hl], a
+	inc h
+	dec b
+	jr nz, .clearEntities
+
+	; This isn't redundant, it reorders the party if they've been switched
+	call LoadPlayers
+	ld h, high(wEntity0)
+	call LoadEntityGraphics
+
+	ld a, bank(xCommitSaveFile)
+	rst SwapBank
+	call xCommitSaveFile
 
 	xor a, a
 	ld [wMapLockInput], a
@@ -197,8 +252,8 @@ InitMap::
 	call MemCopySmall
 
 	ld de, wOBJPaletteBuffer + 3 * 3
-	ld hl, xWorldMap.dropletPalette
-	ld c, 3 * 3 * 4
+	ld hl, xWorldMap.objColors
+	ld c, 8 * 3 * 4
 	call MemCopySmall
 
 	ld a, 1
@@ -234,33 +289,15 @@ InitMap::
 
 .noDmg
 
-	ld hl, xWorldMap.droplet
-	ld de, $8000 + $7E * 16
-	ld c, 16
-	call VramCopySmall
-	lb bc, 0, 16
-	ld h, d
-	ld l, e
-	call VramSetSmall
-
-	ld hl, xWorldMap.duck
-	ld de, $8000 + $7C * 16
-	ld c, 16
-	call VramCopySmall
-	lb bc, 0, 16
-	ld h, d
-	ld l, e
-	call VramSetSmall
+	ld hl, xWorldMap.objTiles
+	ld de, $8800 - (xWorldMap.objColors - xWorldMap.objTiles)
+	ld bc, xWorldMap.objColors - xWorldMap.objTiles
+	call VramCopy
 
 	def HOOFTILE equ $7F
 	ld hl, xWorldMap.hoof
 	ld de, $9800 - 16
 	ld c, 16
-	call VramCopySmall
-
-	ld hl, xWorldMap.haze
-	ld de, $8000 + $6E * 16
-	ld c, 16 * 12
 	call VramCopySmall
 
 	ld b, NB_DROPLETS
@@ -295,6 +332,14 @@ InitMap::
 	ld a, low(xHazeEffect)
 	ld [hli], a
 	ld a, high(xHazeEffect)
+	ld [hli], a
+
+	ld hl, wEffects + 19 * (NB_DROPLETS + 2)
+	ld a, bank(xFloppyEffect)
+	ld [hli], a
+	ld a, low(xFloppyEffect)
+	ld [hli], a
+	ld a, high(xFloppyEffect)
 	ld [hli], a
 
 	call InitUI
@@ -706,11 +751,6 @@ MapNodeScene:
 	ld [hli], a
 	ld [hl], high(InitScene)
 	ret
-
-section "map globals", wram0
-wActiveMapNode:: ds 3
-; Used for determining what side of a scene the player should start out on.
-wMapLastDirectionMoved:: db
 
 section UNION "State variables", wram0
 wEffects: ds (3 + 16) * NB_EFFECTS

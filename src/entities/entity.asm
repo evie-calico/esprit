@@ -410,6 +410,41 @@ RestoreEntity::
 	ld [hl], b
 	ret
 
+section "Load players", rom0
+LoadPlayers::
+	ld hl, wPlayerData
+	ld a, [hli]
+	ld b, a
+	ld a, [hli]
+	ld e, a
+	ld a, [hli]
+	ld d, a
+	ld c, [hl]
+	ld h, high(wEntity0)
+	call SpawnEntity
+	ld l, low(wEntity0_Experience)
+	ld a, [wPlayerData_Experience]
+	ld [hli], a
+	ld a, [wPlayerData_Experience + 1]
+	ld [hl], a
+
+	ld hl, wPartnerData
+	ld a, [hli]
+	ld b, a
+	ld a, [hli]
+	ld e, a
+	ld a, [hli]
+	ld d, a
+	ld c, [hl]
+	ld h, high(wEntity1)
+	call SpawnEntity
+	ld l, low(wEntity0_Experience)
+	ld a, [wPartnerData_Experience]
+	ld [hli], a
+	ld a, [wPartnerData_Experience + 1]
+	ld [hl], a
+	ret
+
 section "Spawn Enemy", rom0
 SpawnEnemy::
 	call Rand

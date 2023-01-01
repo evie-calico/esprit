@@ -234,7 +234,7 @@ POPS
 	ldh a, [c]
 	cp a, PADF_SELECT
 if DEBUG_SELECT
-	jp z, FloorComplete
+	jp z, DungeonComplete
 else
 	jp z, EndTurn
 endc

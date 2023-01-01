@@ -129,12 +129,12 @@ script xHazeEffect {
 
 	pink_haze.x = 141;
 	pink_haze.y = 88;
-	pink_haze.tile = 110;
+	pink_haze.tile = 112;
 	pink_haze.attributes = 68;
 
 	blue_haze.x = 121;
 	blue_haze.y = 84;
-	blue_haze.tile = 116;
+	blue_haze.tile = 118;
 	blue_haze.attributes = 4;
 
 	u8 direction = 1;
@@ -171,5 +171,37 @@ script xHazeEffect {
 		}
 
 		timer += 1;
+	}
+}
+
+script xFloppyEffect {
+	sprite floppy;
+
+	floppy.x = 20 * 8;
+	floppy.y = 4;
+	floppy.tile = 108;
+	floppy.attributes = 5;
+
+	u8 x_direction = 9;
+
+	repeat 3 {
+		repeat 24 {
+			draw_sprite(floppy);
+			floppy.x += 8;
+			floppy.tile += 2;
+			draw_sprite(floppy);
+			floppy.x -= 8;
+			floppy.tile -= 2;
+			yield;
+			draw_sprite(floppy);
+			floppy.x += 8;
+			floppy.tile += 2;
+			draw_sprite(floppy);
+			floppy.x -= x_direction;
+			floppy.tile -= 2;
+			yield;
+		}
+
+		x_direction -= 1;
 	}
 }

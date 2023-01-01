@@ -9,12 +9,12 @@ xTitleScreen::
 	db bank(@)
 	dw xTitleScreenInit
 	; Used Buttons
-	db PADF_A | PADF_B | PADF_START
+	db PADF_A | PADF_B | PADF_START | PADF_SELECT
 	; Auto-repeat
 	db 1
 	; Button functions
 	; A, B, Sel, Start, Right, Left, Up, Down
-	dw null, null, null, null, null, null, null, null
+	dw null, null, DebugInitializeSaveFile * def(DEBUG_SELECT), null, null, null, null, null
 	db 0 ; Last selected item
 	; Allow wrapping
 	db 0
@@ -27,7 +27,7 @@ xTitleScreen::
 	; Private Items Pointer
 	dw null
 	; Close Function
-	dw xTitleScreenClose
+	dw TitleScreenClose
 
 xTitleTiles:
 	incbin "res/ui/title/title_screen.2bpp"
@@ -289,7 +289,8 @@ endc
 	ld d, a
 	jp RenderSimpleSprite
 
-xTitleScreenClose:
+section "close title screen", rom0
+TitleScreenClose:
 	; Set palettes
 	ld a, %11111111
 	ld [wBGPaletteMask], a
@@ -298,31 +299,15 @@ xTitleScreenClose:
 	call FadeToBlack
 
 	; Game Setup
-	ld hl, wActiveDungeon
-	ld a, bank(FIRST_DUNGEON)
-	ld [hli], a
-	ld a, low(FIRST_DUNGEON)
-	ld [hli], a
-	ld a, high(FIRST_DUNGEON)
-	ld [hli], a
+	ldh a, [hCurrentBank]
+	push af
 
-	ld hl, wActiveMapNode
-	ld a, bank(FIRST_NODE)
-	ld [hli], a
-	ld a, low(FIRST_NODE)
-	ld [hli], a
-	ld a, high(FIRST_NODE)
-	ld [hli], a
+	ld a, bank("Save File Functions")
+	rst SwapBank
 
-	lb bc, bank(xLuvui), 5
-	ld de, xLuvui
-	ld h, high(wEntity0)
-	call SpawnEntity
-
-	lb bc, bank(xAris), 6
-	ld de, xAris
-	ld h, high(wEntity1)
-	call SpawnEntity
+	call xLoadSaveFile
+	call xVerifySaveFile
+	call nz, xInitializeSaveFile
 
 	xor a, a
 	ld hl, wInventory
@@ -330,10 +315,23 @@ xTitleScreenClose:
 	call MemSetSmall
 
 	ld hl, wFadeCallback
-	ld a, low(InitDungeon)
+	ld a, low(InitMap)
 	ld [hli], a
-	ld [hl], high(InitDungeon)
-	ret
+	ld [hl], high(InitMap)
+	
+	jp BankReturn
+
+if def(DEBUG_SELECT)
+	section "debug init save file", rom0
+	DebugInitializeSaveFile::
+		ld a, [hCurrentBank]
+		push af
+		ld a, bank(xInitializeSaveFile)
+		rst SwapBank
+		call xInitializeSaveFile
+		call xCommitSaveFile
+		jp BankReturn
+endc
 
 rsset 1
 def solid rb

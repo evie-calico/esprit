@@ -15,7 +15,7 @@ InitDungeon::
 	call MemSetSmall
 
 	; Null out all enemies.
-	ld hl, wEntity2
+	ld hl, wEntity0
 	ld b, NB_ENTITIES
 .clearEntities
 	ld [hl], a
@@ -25,6 +25,8 @@ InitDungeon::
 
 	dec a
 	ld [wSkipAllyTurn], a
+
+	call LoadPlayers
 
 	ld a, DUNGEON_WIDTH / 2
 	ld hl, wEntity0_SpriteY
