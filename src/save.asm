@@ -74,7 +74,20 @@ xCommitSaveFile::
 xLoadSaveFile::
 	ld de, wFile
 	ld hl, sFile
-	jr xCommitSaveFile.skip
+	call xCommitSaveFile.skip
+
+	ld a, [wVersion]
+	ld b, a
+	ld a, SAVE_VERSION
+	cp a, b
+	ret z
+	jr nc, :+
+		; If the ROM is out of date, invalidate the save file.
+		xor a, a
+		ld [wVerificationString], a
+		ret
+	:
+	todo
 
 xInitialFile:
 .verificationString db "{SAVE_VERIFICATION_STRING}"
