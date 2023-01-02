@@ -60,7 +60,10 @@ macro rgb
 endm
 
 macro hex
-	db (($\1) >> 8) & $FF, (($\1) >> 16) & $FF, ($\1) & $FF
+	rept _NARG
+		db (($\1) >> 8) & $FF, (($\1) >> 16) & $FF, ($\1) & $FF
+		shift 1
+	endr
 endm
 
 macro rgb_lim

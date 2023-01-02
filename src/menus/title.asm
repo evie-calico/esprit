@@ -9,25 +9,25 @@ xTitleScreen::
 	db bank(@)
 	dw xTitleScreenInit
 	; Used Buttons
-	db PADF_A | PADF_B | PADF_START | PADF_SELECT
+	db PADF_A | PADF_UP | PADF_DOWN
 	; Auto-repeat
-	db 1
+	db 0
 	; Button functions
 	; A, B, Sel, Start, Right, Left, Up, Down
-	dw null, null, DebugInitializeSaveFile * def(DEBUG_SELECT), null, null, null, null, null
+	dw TitleScreenA, null, null, null, null, null, xTitleScreenMove, xTitleScreenMove
 	db 0 ; Last selected item
 	; Allow wrapping
 	db 0
 	; Default selected item
-	db 0
+	db 1
 	; Number of items in the menu
-	db 0
+	db 2
 	; Redraw
 	dw xTitleScreenRedraw
 	; Private Items Pointer
 	dw null
 	; Close Function
-	dw TitleScreenClose
+	dw null
 
 xTitleTiles:
 	incbin "res/ui/title/title_screen.2bpp"
@@ -50,16 +50,20 @@ xSleepingProtags:
 	incbin "res/ui/title/aris_sleeping.2bpp"
 	incbin "res/ui/title/campfire.2bpp"
 	incbin "res/ui/title/stars.2bpp"
+	incbin "res/ui/title/text_sprites.2bpp"
 .end
 xProtagPalettes:
 	incbin "res/ui/title/luvui_sleeping.pal8", 3
 	incbin "res/ui/title/aris_sleeping.pal8", 3
 	incbin "res/ui/title/campfire.pal8", 3
 	incbin "res/ui/title/stars.pal8", 3
+	incbin "res/ui/title/text_sprites.pal8", 3
+	hex 404040, ff0000, 000000
 
 xTitleScreenInit:
 	xor a, a
 	ld [wTextLetterDelay], a
+	ld [wSelectionMode], a
 
 	ld bc, xSleepingProtags.end - xSleepingProtags
 	ld de, $8000
@@ -153,6 +157,41 @@ if SKIP_TITLE
 endc
 	call Rand
 
+	call xDrawParty
+	ld a, [wSelectionMode]
+	and a, a
+	jp z, xDrawStars
+
+	for line, 2;3
+		for i, 7
+			lb bc, 48 + line * 16, 52 + i * 8
+			lb de, $28 + i * 2 + line * 14, 5
+			ld hl, sp+2
+			ld a, [hli]
+			ld h, [hl]
+			ld l, a
+			dec hl
+			dec hl
+			dec hl
+			ld a, [hl]
+			cp a, line
+			jr nz, :+
+				dec e
+			:
+			call RenderSimpleSprite
+		endr
+	endr
+
+	ret
+
+xTitleScreenMove:
+	ld a, [wSelectionMode]
+	and a, a
+	ret nz
+	ld [wMenuAction], a
+	ret
+
+xDrawParty:
 	def LUVUI_POSITION EQUS "97, 87"
 	def ARIS_POSITION EQUS "97, 58"
 	def FIRE_POSITION EQUS "91, 72"
@@ -213,7 +252,26 @@ endc
 :
 	call RenderSimpleSprite
 
+	lb bc, {FIRE_POSITION}
+	ld e, 2
+	ldh a, [hFrameCounter]
+	rra
+	rra
+	and a, 3 << 2
+	add a, 16
+	ld d, a
+	call RenderSimpleSprite
+	lb bc, {FIRE_POSITION} + 8
+	ld e, 2
+	ldh a, [hFrameCounter]
+	rra
+	rra
+	and a, 3 << 2
+	add a, 18
+	ld d, a
+	jp RenderSimpleSprite
 
+xDrawStars:
 	ld hl, xStarTable
 .drawStars
 	ld a, [hli]
@@ -268,70 +326,8 @@ endc
 	call RenderSimpleSprite
 	pop hl
 	jr .drawStars
-
 .finishedStars
-	lb bc, {FIRE_POSITION}
-	ld e, 2
-	ldh a, [hFrameCounter]
-	rra
-	rra
-	and a, 3 << 2
-	add a, 16
-	ld d, a
-	call RenderSimpleSprite
-	lb bc, {FIRE_POSITION} + 8
-	ld e, 2
-	ldh a, [hFrameCounter]
-	rra
-	rra
-	and a, 3 << 2
-	add a, 18
-	ld d, a
-	jp RenderSimpleSprite
-
-section "close title screen", rom0
-TitleScreenClose:
-	; Set palettes
-	ld a, %11111111
-	ld [wBGPaletteMask], a
-	ld a, %11111111
-	ld [wOBJPaletteMask], a
-	call FadeToBlack
-
-	; Game Setup
-	ldh a, [hCurrentBank]
-	push af
-
-	ld a, bank("Save File Functions")
-	rst SwapBank
-
-	call xLoadSaveFile
-	call xVerifySaveFile
-	call nz, xInitializeSaveFile
-
-	xor a, a
-	ld hl, wInventory
-	ld c, wInventory.end - wInventory
-	call MemSetSmall
-
-	ld hl, wFadeCallback
-	ld a, low(InitMap)
-	ld [hli], a
-	ld [hl], high(InitMap)
-	
-	jp BankReturn
-
-if def(DEBUG_SELECT)
-	section "debug init save file", rom0
-	DebugInitializeSaveFile::
-		ld a, [hCurrentBank]
-		push af
-		ld a, bank(xInitializeSaveFile)
-		rst SwapBank
-		call xInitializeSaveFile
-		call xCommitSaveFile
-		jp BankReturn
-endc
+	ret
 
 rsset 1
 def solid rb
@@ -380,6 +376,86 @@ xStarTable:
 	star 130, 41
 	db 0
 
+section "title screen rom0", rom0
+TitleScreenA:
+	xor a, a
+	ld [wMenuAction], a
+	ld a, [wFadeSteps]
+	and a, a
+	ret nz
+
+	ld a, [hCurrentBank]
+	push af
+	ld a, bank(xInitializeSaveFile)
+	rst SwapBank
+
+	ld a, [wSelectionMode]
+	and a, a
+	jr z, .enterSelectionMode
+		ld hl, sp+4
+		ld a, [hli]
+		ld h, [hl]
+		ld l, a
+
+		inc hl
+		ld a, [hl]
+		and a, a
+		jr z, .newGame
+		dec a
+		jr z, .continue
+		todo
+
+	.newGame
+		call xInitializeSaveFile
+	.continue
+		ld a, MENU_ACTION_VALIDATE
+		ld [wMenuAction], a
+		; Set palettes
+		ld a, %11111111
+		ld [wBGPaletteMask], a
+		ld a, %11111111
+		ld [wOBJPaletteMask], a
+		ld a, $10
+		ld [wFadeSteps], a
+		ld a, -5
+		ld [wFadeDelta], a
+		ld a, 1
+		ld [wFadeMusic], a
+		ld hl, wFadeCallback
+		ld a, low(InitMap)
+		ld [hli], a
+		ld [hl], high(InitMap)
+		jp BankReturn
+
+.enterSelectionMode
+	
+	call xVerifySaveFile
+	jr z, :+
+		call xInitializeSaveFile
+		ld a, MENU_ACTION_VALIDATE
+		ld [wMenuAction], a
+		call FadeToBlack
+		ld hl, wFadeCallback
+		ld a, low(InitMap)
+		ld [hli], a
+		ld [hl], high(InitMap)
+		jp BankReturn
+	:
+
+	ld a, %11111111
+	ld [wBGPaletteMask], a
+	xor a, a
+	ld [wOBJPaletteMask], a
+	ld a, $10
+	ld [wFadeSteps], a
+	ld a, $80
+	ld [wFadeAmount], a
+	ld a, -3
+	ld [wFadeDelta], a
+	ld [wSelectionMode], a
+	jp BankReturn
+
 section "Title screen variables", wram0
 wLuvuiFrameCounter: db
 wArisFrameCounter: db
+wSelectionMode: db

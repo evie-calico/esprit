@@ -133,8 +133,3 @@ FatigueHealHandler:
 	assert HealItem_Strength - sizeof_Item == 0
 	ld e, [hl]
 	jp HealEntity
-
-section "Inventory", wram0
-wInventory::
-	ds 3 * INVENTORY_SIZE
-.end::

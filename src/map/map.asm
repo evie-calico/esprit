@@ -232,10 +232,6 @@ InitMap::
 	ld h, high(wEntity0)
 	call LoadEntityGraphics
 
-	ld a, bank(xCommitSaveFile)
-	rst SwapBank
-	call xCommitSaveFile
-
 	xor a, a
 	ld [wMapLockInput], a
 
@@ -334,8 +330,19 @@ InitMap::
 	ld a, high(xHazeEffect)
 	ld [hli], a
 
+	ld a, bank(xCommitSaveFile)
+	rst SwapBank
+
+	ld a, [wGameState]
+	cp a, GAMESTATE_MENU
+	jr nz, :+
+		xor a, a
+		jr .noSave
+	:
+		call xCommitSaveFile
+		ld a, bank(xFloppyEffect)
+	.noSave
 	ld hl, wEffects + 19 * (NB_DROPLETS + 2)
-	ld a, bank(xFloppyEffect)
 	ld [hli], a
 	ld a, low(xFloppyEffect)
 	ld [hli], a
@@ -405,7 +412,6 @@ InitMap::
 	ld [$9800 + 13 + 10 * 32], a
 	ld [$9800 + 13 + 11 * 32], a
 .noPrints
-
 	call FadeIn
 
 	ld hl, wSTATTarget

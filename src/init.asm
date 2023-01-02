@@ -131,12 +131,6 @@ Initialize::
 	ld a, %11010000
 	ld [wOBP0], a
 
-	ld b, bank(xTitleScreen)
-	ld de, xTitleScreen
-	call AddMenu
-	ld a, GAMESTATE_MENU
-	ld [wGameState], a
-
 	; Initialize OAM
 	call InitSprObjLib
 	ld a, high(wShadowOAM)
@@ -161,6 +155,17 @@ Initialize::
 	ld a, SCRN_Y
 	ldh [rWY], a
 	ldh [hShadowWY], a
+
+	ld a, GAMESTATE_MENU
+	ld [wGameState], a
+
+	ld a, bank("Save File Functions")
+	rst SwapBank
+	call xLoadSaveFile
+
+	ld b, bank(xTitleScreen)
+	ld de, xTitleScreen
+	call AddMenu
 
 	ei
 	jp Main

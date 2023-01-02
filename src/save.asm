@@ -2,6 +2,7 @@ include "config.inc"
 include "defines.inc"
 include "entity.inc"
 include "hardware.inc"
+include "item.inc"
 
 ; Since the size of the Saved section can't be known until link time,
 ; the space allocated in SRAM must be hard-coded.
@@ -89,6 +90,7 @@ xInitialFile:
 	farptr xAris
 	db 6
 	dw 0
+.inventory ds 3 * INVENTORY_SIZE, 0
 assert sizeof("Save Version {d:SAVE_VERSION}") == @ - xInitialFile
 
 ; Ideally this would be a section fragment, but we want control over the ordering of anything in the save file.
@@ -111,6 +113,9 @@ wActiveMapNode:: ds 3
 wMapLastDirectionMoved:: db
 	dstruct EntityBase, wPlayerData
 	dstruct EntityBase, wPartnerData
+wInventory::
+	ds 3 * INVENTORY_SIZE
+.end::
 
 
 section "Save File", sram
