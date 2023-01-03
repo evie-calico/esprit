@@ -178,6 +178,8 @@ Initialize::
 	xor a, a
 	ld [wFadeDelta], a ; Initialize this value to fade in from white
 
+	call xVerifySaveFile
+	jr nz, .title
 	ld a, [wQuicksave.isPresent]
 	and a, a
 	jr z, .title
