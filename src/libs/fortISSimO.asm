@@ -42,11 +42,31 @@ ENDC
 SECTION "fortissimo", ROM0
 
 _hUGE_StartSong:: ; C interface.
+; @param a: Bank of the "song descriptor" to load.
 ; @param de: Pointer to the "song descriptor" to load.
 StartSong::
+	rst SwapBank
+	ld b, a
+	ldh a, [hSongBank]
+	cp a, b
+	ld a, b
+	jr nz, .force
+	ld hl, 17 ; offset of routines in hUGE struct
+	add hl, de
+	ld a, [whUGE.routines]
+	cp a, [hl]
+	ld a, b
+	jr nz, .force
+	ld a, [whUGE.routines + 1]
+	inc hl
+	cp a, [hl]
+	ret z
 	; Set song bank
+	ld a, b
+.force::
 	ldh [hSongBank], a
 	rst SwapBank
+
 	ld a, $77
 	ldh [rNR50], a
 
@@ -1570,6 +1590,7 @@ whUGE: ; TODO: this label is actually a bit pointless.
 .rowTimer: db ; How many ticks until switching to the next row.
 
 ; Active song "cache".
+.songCache
 
 .ticksPerRow: db ; How many ticks between each row.
 .lastPatternIdx: db ; Index of the last pattern in the orders.

@@ -131,6 +131,15 @@ Initialize::
 	ld a, %11010000
 	ld [wOBP0], a
 
+	ld a, OCPSF_AUTOINC
+	ldh [rOCPS], a
+	ld a, $FF
+	ld b, 2 * 8
+	:
+		ldh [rOCPD], a
+		dec c
+		jr nz, :-
+
 	; Initialize OAM
 	call InitSprObjLib
 	ld a, high(wShadowOAM)
@@ -163,9 +172,23 @@ Initialize::
 	rst SwapBank
 	call xLoadSaveFile
 
+	ld a, $FF
+	ld [wBGPaletteMask], a
+	ld [wOBJPaletteMask], a
+	xor a, a
+	ld [wFadeDelta], a ; Initialize this value to fade in from white
+
+	ld a, [wQuicksave.isPresent]
+	and a, a
+	jr z, .title
+.quickload
+	call QuickloadDungeon
+	jr .end
+.title
 	ld b, bank(xTitleScreen)
 	ld de, xTitleScreen
 	call AddMenu
+.end
 
 	ei
 	jp Main

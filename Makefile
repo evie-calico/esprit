@@ -182,9 +182,17 @@ res/%.pal8: res/%.pal $(PALCONV)
 #                                              #
 ################################################
 
-$(MAKEFONT) $(PALCONV) $(EVUNIT_CONFIG_GEN): tools/src/bin/makefont.rs tools/src/bin/palconv.rs tools/src/bin/evunit-config-gen.rs
+$(MAKEFONT): tools/src/bin/makefont.rs
 	@mkdir -p $(@D)
-	cd tools/ && cargo -q build --release
+	cd tools/ && cargo build --release --bin makefont --features=image
+
+$(PALCONV): tools/src/bin/palconv.rs
+	@mkdir -p $(@D)
+	cd tools/ && cargo build --release --bin palconv
+
+$(EVUNIT_CONFIG_GEN): tools/src/bin/evunit-config-gen.rs
+	@mkdir -p $(@D)
+	cd tools/ && cargo build --release --bin evunit-config-gen
 
 # Catch non-existent files
 # KEEP THIS LAST!!

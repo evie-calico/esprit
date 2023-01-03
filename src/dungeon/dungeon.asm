@@ -5,6 +5,50 @@ include "hardware.inc"
 include "item.inc"
 
 section "Init dungeon", rom0
+QuickloadDungeon::
+	; Null init
+	xor a, a
+	ld c, SIZEOF("dungeon BSS")
+	ld hl, STARTOF("dungeon BSS")
+	call MemSetSmall
+
+	; Null out all enemies.
+	ld hl, wEntity0
+	ld b, NB_ENTITIES
+.clearEntities
+	ld [hl], a
+	inc h
+	dec b
+	jr nz, .clearEntities
+
+	dec a
+	ld [wSkipAllyTurn], a
+	ld [wSkipQuicksave], a
+
+	ld de, randstate
+	ld hl, wQuicksave.floorSeed
+	ld c, 4
+	call MemCopySmall
+
+	ld a, [wQuicksave.floor]
+	ld [wDungeonCurrentFloor], a
+
+	ld de, wActiveDungeon
+	ld hl, wQuicksave.dungeon
+	ld c, 3
+	call MemCopySmall
+
+	ld de, wEntity0
+	ld hl, wQuicksave.player
+	ld c, sizeof_Entity
+	call MemCopySmall
+
+	ld de, wEntity1
+	ld hl, wQuicksave.partner
+	ld c, sizeof_Entity
+	call MemCopySmall
+	jr EnterNewFloor
+
 ; Switch to the dungeon state.
 ; @clobbers: bank
 InitDungeon::
@@ -26,8 +70,17 @@ InitDungeon::
 	dec a
 	ld [wSkipAllyTurn], a
 
+	ld a, 1
+	ld [wDungeonCurrentFloor], a
+
 	call LoadPlayers
 
+	ld h, high(wEntity0)
+	call RestoreEntity
+	ld h, high(wEntity1)
+	call RestoreEntity
+
+EnterNewFloor:
 	ld a, DUNGEON_WIDTH / 2
 	ld hl, wEntity0_SpriteY
 	ld [hl], 0
@@ -38,7 +91,6 @@ InitDungeon::
 	ld [hli], a
 	ld [hli], a
 	ld [hli], a
-	call RestoreEntity
 
 	ld a, DUNGEON_HEIGHT / 2
 	ld hl, wEntity1_SpriteY
@@ -53,7 +105,6 @@ InitDungeon::
 	dec a
 	ld [hli], a
 	ld [hl], LEFT
-	call RestoreEntity
 
 	ld hl, wActiveDungeon
 	ld a, [hli]
@@ -74,17 +125,65 @@ InitDungeon::
 	ld a, [hli]
 	call StartSong
 
-	ld a, 1
-	ld [wDungeonCurrentFloor], a
+	xor a, a
+	ld [wfmt_xEnteredFloorString_quicksave], a
+
+	ld a, [wDungeonCurrentFloor]
+	dec a
+	jr z, .noQuicksave
+	ld a, [wSkipQuicksave]
+	and a, a
+	jr nz, .noQuicksave
+		ld a, 1
+		ld [wfmt_xEnteredFloorString_quicksave], a
+		ld hl, randstate
+		ld de, wQuicksave.floorSeed
+		ld c, 4
+		call MemCopySmall
+
+		ld a, [wDungeonCurrentFloor]
+		ld [wQuicksave.floor], a
+
+		ld hl, wActiveDungeon
+		ld de, wQuicksave.dungeon
+		ld c, 3
+		call MemCopySmall
+
+		ld hl, wEntity0
+		ld de, wQuicksave.player
+		ld c, sizeof_Entity
+		call MemCopySmall
+
+		ld hl, wEntity1
+		ld de, wQuicksave.partner
+		ld c, sizeof_Entity
+		call MemCopySmall
+
+		ld a, bank(xCommitQuicksave)
+		rst SwapBank
+		call xCommitQuicksave
+	.noQuicksave
+	xor a, a
+	ld [wSkipQuicksave], a
+
 	call DungeonGenerateFloor
 
 	; Make sure to clear the tile to the right for the partner
 	xor a, a
 	ld [wDungeonMap + DUNGEON_WIDTH / 2 + 1 + DUNGEON_HEIGHT / 2 * DUNGEON_WIDTH], a
 
+	call InitUI
+	ld b, bank(xEnteredFloorString)
+	ld hl, xEnteredFloorString
+	call PrintHUD
+
+	jr SwitchToDungeonState.skipUI
+
 ; Re-initializes some aspects of the dungeon, such as rendering the map.
 ; @clobbers: bank
 SwitchToDungeonState::
+	call InitUI
+.skipUI
 	ld a, GAMESTATE_DUNGEON
 	ld [wGameState], a
 	xor a, a
@@ -92,12 +191,6 @@ SwitchToDungeonState::
 	ld hl, wWindowMode
 	ld [hli], a
 	ld [hli], a
-
-	call InitUI
-	
-	ld b, bank(xEnteredFloorString)
-	ld hl, xEnteredFloorString
-	call PrintHUD
 
 	ld h, high(wEntity0)
 .loop
@@ -567,9 +660,9 @@ FloorComplete::
 .nextFloor
 	ld a, 1
 	ld [wIsDungeonFading], a
-	ld a, low(.generateFloor)
+	ld a, low(EnterNewFloor)
 	ld [wDungeonFadeCallback], a
-	ld a, high(.generateFloor)
+	ld a, high(EnterNewFloor)
 	ld [wDungeonFadeCallback + 1], a
 	; Set palettes
 	ld a, %11111111
@@ -577,31 +670,6 @@ FloorComplete::
 	ld a, %11111111
 	ld [wOBJPaletteMask], a
 	jp FadeToWhite
-
-.generateFloor
-	assert DUNGEON_HEIGHT / 2 == DUNGEON_WIDTH / 2
-	ld a, DUNGEON_WIDTH / 2
-	ld hl, wEntity0_SpriteY + 1
-	ld [hli], a
-	inc l
-	ld [hli], a
-	ld [hli], a
-	ld [hl], a
-	inc h
-	ld [hld], a
-	ld [hld], a
-	ld [hld], a
-	dec l
-	ld [hl], a
-	inc h
-	ld [hli], a
-	inc l
-	ld [hli], a
-	ld [hli], a
-	ld [hl], a
-
-	call DungeonGenerateFloor
-	jp SwitchToDungeonState
 
 section "Dungeon complete!", rom0
 DungeonComplete::
@@ -934,3 +1002,4 @@ wPartyLastXp: ds 6
 ; Ticks remaining to show levelup menu.
 wLevelUpMessageLifetime: db
 wTurnCounter:: db
+wSkipQuicksave:: db

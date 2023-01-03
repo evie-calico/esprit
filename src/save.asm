@@ -29,6 +29,44 @@ GetFlag::
 	add hl, bc
 	ret
 
+; Ideally this would be a section fragment, but we want control over the ordering of anything in the save file.
+; This is important if any changes to the format are made.
+; Instead, a section union is used so that new versions can reorder the section while update code is still aware of the old addresses.
+section union "Save Version 0", wram0
+wFile:
+; This area contains a working copy of the currently loaded save file.
+; When the player saves/loads, all variables in this section are copied to/from SRAM.
+
+; Verifies that a valid save file is present.
+wVerificationString: ds SAVE_VERIFICATION_STRING_LEN
+; If the save file is out of date, update code will run in succession to bootstrap the file up to the current version.
+wVersion: db
+wFlags:: ds 256 / 8
+; Where on the map the player is standing.
+wActiveMapNode:: ds 3
+; What side of a scene the player should start out on.
+wMapLastDirectionMoved:: db
+	dstruct EntityBase, wPlayerData
+	dstruct EntityBase, wPartnerData
+wInventory::
+	ds 3 * INVENTORY_SIZE
+.end::
+
+wQuicksave::
+.isPresent:: db
+.floorSeed:: dl
+.floor:: db
+.dungeon:: farptr
+.player:: ds sizeof_Entity
+.partner:: ds sizeof_Entity
+.end
+
+wFile_end:
+
+; Hard-code the save file to be at a constant address so that it doesn't move between versions.
+section "Save File", sram[$A000]
+sFile: ds wFile_end - wFile
+
 section "Save File Functions", rom0
 ; Verifies that the currently loaded save file is valid.
 ; @return z if value, nz if not.
@@ -55,7 +93,12 @@ xInitializeSaveFile::
 
 ; Write the save file to SRAM.
 ; This is executed each time the world map is entered.
+xCommitQuicksave::
+	db $3E ; ld a, <>
 xCommitSaveFile::
+	xor a, a
+	ld [wQuicksave.isPresent], a
+
 	ld de, sFile
 	ld hl, wFile
 .skip
@@ -104,32 +147,5 @@ xInitialFile:
 	db 6
 	dw 0
 .inventory ds 3 * INVENTORY_SIZE, 0
+.quicksave ds wQuicksave.end - wQuicksave, 0
 assert sizeof("Save Version {d:SAVE_VERSION}") == @ - xInitialFile
-
-; Ideally this would be a section fragment, but we want control over the ordering of anything in the save file.
-; This is important if any changes to the format are made.
-; Instead, a section union is used so that new versions can reorder the section while update code is still aware of the old addresses.
-section union "Save Version 0", wram0
-wFile:
-assert sizeof("Save Version 0") < SAVE_FILE_SIZE, "Save file has grown too large"
-; This area contains a working copy of the currently loaded save file.
-; When the player saves/loads, all variables in this section are copied to/from SRAM.
-
-; Verifies that a valid save file is present.
-wVerificationString: ds SAVE_VERIFICATION_STRING_LEN
-; If the save file is out of date, update code will run in succession to bootstrap the file up to the current version.
-wVersion: db
-wFlags:: ds 256 / 8
-; Where on the map the player is standing.
-wActiveMapNode:: ds 3
-; What side of a scene the player should start out on.
-wMapLastDirectionMoved:: db
-	dstruct EntityBase, wPlayerData
-	dstruct EntityBase, wPartnerData
-wInventory::
-	ds 3 * INVENTORY_SIZE
-.end::
-
-
-section "Save File", sram
-sFile: ds SAVE_FILE_SIZE

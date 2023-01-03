@@ -44,6 +44,9 @@ FadeDMGToWhite:
 	dec b
 	jr nz, .fadeDMGColorToWhite
 	ldh [c], a
+	ld a, [wOBJPaletteMask]
+	and a, a
+	ret z
 	ld a, c
 	inc c
 	cp low(hOBP1)
@@ -270,6 +273,9 @@ FadePaletteBuffers:: ;; --------- ENTRY POINT ------
 	dec b
 	jr nz, .fadeDMGColorToBlack
 	ldh [c], a
+	ld a, [wOBJPaletteMask]
+	and a, a
+	ret z
 	ld a, c
 	inc c
 	cp low(hOBP1)

@@ -193,6 +193,7 @@ endm
 	next_part
 		tileset "res/dungeons/field_tiles.2bpp"
 		at_floor 5, exit, FLAG_FOREST_COMPLETE
+		music xTownMusic
 
 		item xRedApple
 		item xGreenApple

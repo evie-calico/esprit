@@ -65,6 +65,9 @@ xTitleScreenInit:
 	ld [wTextLetterDelay], a
 	ld [wSelectionMode], a
 
+	ld a, %11011000
+	ld [wOBP1], a
+
 	ld bc, xSleepingProtags.end - xSleepingProtags
 	ld de, $8000
 	ld hl, xSleepingProtags
@@ -122,10 +125,6 @@ xTitleScreenInit:
 		call MapRegion
 .noDmg
 
-	ld a, $FF
-	ld [wBGPaletteMask], a
-	ld [wOBJPaletteMask], a
-
 	assert wLuvuiFrameCounter + 1 == wArisFrameCounter
 	ld hl, wLuvuiFrameCounter
 	inc a
@@ -136,25 +135,18 @@ xTitleScreenInit:
 	ld de, xLakeMusic
 	call StartSongTrampoline
 
-	xor a, a
-	ld [wFadeDelta], a ; Initialize this value to fade in from white
 	jp FadeIn
 
 PUSHS
 SECTION "Start Song Trampoline", ROM0
 StartSongTrampoline:
-	call StartSong
+	call StartSong.force
 	ld a, BANK(xTitleScreen)
 	rst SwapBank
 	ret
 POPS
 
 xTitleScreenRedraw:
-if SKIP_TITLE
-	ld a, MENU_VALIDATED
-	ld [wMenuClosingReason], a
-	ret
-endc
 	call Rand
 
 	call xDrawParty
@@ -165,7 +157,7 @@ endc
 	for line, 2;3
 		for i, 7
 			lb bc, 48 + line * 16, 52 + i * 8
-			lb de, $28 + i * 2 + line * 14, 5
+			lb de, $28 + i * 2 + line * 14, 5 | OAMF_PAL1
 			ld hl, sp+2
 			ld a, [hli]
 			ld h, [hl]
@@ -176,7 +168,7 @@ endc
 			ld a, [hl]
 			cp a, line
 			jr nz, :+
-				dec e
+				ld e, 4
 			:
 			call RenderSimpleSprite
 		endr
@@ -425,6 +417,8 @@ TitleScreenA:
 		ld a, low(InitMap)
 		ld [hli], a
 		ld [hl], high(InitMap)
+		ld a, %11100100
+		ld [wOBP1], a
 		jp BankReturn
 
 .enterSelectionMode

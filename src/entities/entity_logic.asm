@@ -233,11 +233,8 @@ POPS
 	:
 	ldh a, [c]
 	cp a, PADF_SELECT
-if DEBUG_SELECT
-	jp z, DungeonComplete
-else
-	jp z, EndTurn
-endc
+	; By default this ends the turn, but behavior can be configured at build time.
+	jp z, D_SA
 
 	cp a, PADF_START
 	jr nz, :+
