@@ -13,7 +13,8 @@ include "format.inc"
 
 	format xLeveledUpString, "[entity:target]'s level increased to [u8:level]![condition:newMove] [entity:target] learned [str:moveName]."
 	format xEnteredFloorString, "Floor [u8::wDungeonCurrentFloor][condition:quicksave]\nYour progress has been saved."
-	format xDefeatedString, "Defeated [entity:target]. Gained [u8:reward] xp."
+	format xDefeatedString, "Defeated [entity::wDefeatCheckTarget]. Gained [u8:reward] xp."
+	format xRevivedString, "[entity::wDefeatCheckTarget] was revived!"
 	format xTooTiredString, "You're too tired to use that move."
 	format xMissedString, "[str:user] missed!"
 

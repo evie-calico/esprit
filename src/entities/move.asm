@@ -495,8 +495,6 @@ DefeatCheck::
 	call GetXpReward
 	ld b, a
 	ld [wfmt_xDefeatedString_reward], a
-	ld a, h
-	ld [wfmt_xDefeatedString_target], a
 
 	ld hl, wEntity0
 .rewardParty
@@ -531,6 +529,19 @@ DefeatCheck::
 	ret
 
 .playerFinal
+	ld a, [wDefeatCheckTarget]
+	ld h, a
+	ld l, low(wEntity0_CanRevive)
+	ld a, [hl]
+	and a, a
+	jr z, :+
+		ld [hl], 0
+		call RestoreEntity
+		ld b, bank(xRevivedString)
+		ld hl, xRevivedString
+		jp PrintHUD
+	:
+
 	ld hl, wEntityAnimation
 	ld a, low(EntityDefeatAnimation)
 	ld [hli], a
@@ -556,6 +567,9 @@ DefeatCheck::
 	ld [hli], a
 	ld [hl], high(InitMap)
 	ret
+
+.reviveFinal
+
 
 ; User to save the parameters of UseMove for animation callbacks.
 section "Move state", wram0
