@@ -6,9 +6,10 @@ include "structs.inc"
 def INVENTORY_SIZE equ 8
 
 rsreset
-def ITEM_NULL rb 1 ; An item that cannot be used.
-def ITEM_HEAL rb 1 ; An item that restores health.
-def ITEM_FATIGUE_HEAL rb 1 ; An item that restores health and fatigue.
+def ITEM_NULL rb ; cannot be used.
+def ITEM_HEAL rb ; restores health.
+def ITEM_FATIGUE_HEAL rb ; restores health and fatigue.
+def ITEM_REVIVE rb ; revives the entity upon death
 def ITEM_MAX rb 0
 
 	struct Item

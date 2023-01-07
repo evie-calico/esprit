@@ -113,7 +113,9 @@ InventoryUseItem::
 	dw HealHandler
 	assert ITEM_FATIGUE_HEAL == 2
 	dw FatigueHealHandler
-	assert ITEM_MAX == 3
+	assert ITEM_REVIVE == 3
+	dw ReviveHandler
+	assert ITEM_MAX == 4
 
 section "Heal Handler", rom0
 ; @param b: User pointer high byte
@@ -133,3 +135,12 @@ FatigueHealHandler:
 	assert HealItem_Strength - sizeof_Item == 0
 	ld e, [hl]
 	jp HealEntity
+
+section "Revive Handler", rom0
+; @param b: User pointer high byte
+; @param hl: Heal data ptr
+ReviveHandler:
+	ld c, low(wEntity0_CanRevive)
+	ld a, 1
+	ld [bc], a
+	ret
