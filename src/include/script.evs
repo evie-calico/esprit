@@ -58,7 +58,7 @@ env script {
 	def npc_lock();
 	def face_player();
 
-	pool = 16;
+	pool = 18;
 }
 
 env npc {

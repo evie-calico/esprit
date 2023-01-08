@@ -9,7 +9,6 @@ def SCROLL_PADDING_LEFT equ 40
 def SCROLL_PADDING_RIGHT equ SCRN_X - 56
 
 def NB_NPCS equ 6
-def NPC_SCRIPT_POOL_SIZE equ 8
 
 section "Scene State Init", rom0
 InitScene::
@@ -264,7 +263,7 @@ ExecuteIdleScripts:
 	ld [hli], a
 	ld [hl], b
 .next
-	ld a, NPC_SCRIPT_POOL_SIZE
+	ld a, evscript_npc_pool_size
 	add a, e
 	ld e, a
 	adc a, d
@@ -1154,11 +1153,11 @@ wSceneBoundary:
 
 wSceneMovementLocked:: db
 
-wSceneNPCIdleScriptVariables:: ds NPC_SCRIPT_POOL_SIZE * NB_NPCS
+wSceneNPCIdleScriptVariables:: ds evscript_npc_pool_size * NB_NPCS
 
 wScenePrimaryScript:
 .pointer ds 3
-.scriptVariables:: ds NPC_SCRIPT_POOL_SIZE * 2
+.scriptVariables:: ds evscript_npc_pool_size * 2
 
 
 section "Scene Loop counter", hram

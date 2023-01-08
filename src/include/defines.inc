@@ -24,6 +24,9 @@ def FLAG_PLAINS_COMPLETE rb
 def FLAG_CAVES_COMPLETE rb
 def FLAG_GEMTREE_COMPLETE rb
 
+def evscript_script_pool_size = 18
+def evscript_npc_pool_size = 8
+
 ; Call a function in a foreign bank. Preserves the current bank, but can only
 ; be used from rom0
 ; @param:    target function
@@ -37,17 +40,6 @@ macro bankcall
 	call \1
 	pop af
 	rst SwapBank
-endm
-
-; Calls a function in a foreign bank. Preserves the current bank, and can be
-; used from romx
-; @param:    target function
-; @clobbers: a, b, hl
-macro farcall
-	assert _NARG == 1, "Expected 1 argument!"
-	ld b, bank(\1)
-	ld hl, \1
-	rst FarCall
 endm
 
 macro farptr

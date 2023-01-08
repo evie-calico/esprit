@@ -943,6 +943,8 @@ DungeonGenerateFloor::
 	farptr xGenerateScraper
 	assert DUNGEON_TYPE_HALLS == 1
 	farptr xGenerateHalls
+	assert DUNGEON_TYPE_LATTICE == 2
+	farptr xGenerateLattice
 
 section "Update Scroll", romx
 xUpdateScroll:

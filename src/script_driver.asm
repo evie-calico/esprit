@@ -523,10 +523,6 @@ ScriptMapStepDir:
 
 section "evscript ScriptDrawSprite", rom0
 ScriptDrawSprite:
-	; TODO: this would be a good application for structs in evscript.
-	; We know these 4 variables are always going to exist in a group, so we
-	; *should* load them as such. It would be faster and save space.
-	; This current solution is fragile compared to proper structure support.
 	ld a, [hli]
 	push hl
 		ld l, a

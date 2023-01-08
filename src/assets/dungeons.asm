@@ -46,7 +46,7 @@ endm
 
 macro next_part
 	get_next_name
-	_new_dungeon NEXT_NAME
+	_new_dungeon {NEXT_NAME}
 
 endm
 macro tileset ; path
@@ -160,6 +160,69 @@ endm
 
 	dungeon xForestDungeon
 		tileset "res/dungeons/tree_tiles.2bpp"
+		at_floor 2, switch
+		shape HALLS
+		music xForestMusic
+
+		items_per_floor 1
+		item xRedApple
+		item xGreenApple
+		item xGrapes
+		item xPepper
+
+		enemy xForestRat, 1
+		enemy xForestRat, 1
+		enemy xForestRat, 1
+		enemy xForestRat, 2
+		enemy xForestRat, 2
+		enemy xForestRat, 2
+		enemy xForestRat, 3
+		enemy xFieldRat,  1
+	end
+	dungeon_palette 128, 255, 144, \ ; Blank
+	                  0, 120,   0, \ ; Ground
+	                  0,  88,  24, \
+	                  0,  32,   0, \
+	                144, 104,  72, \ ; Wall
+	                  0,  88,  24, \
+	                  0,  32,   0, \
+	                  0,   0, 255, \ ; Exit
+	                  0,   0, 128, \
+	                  0,   0,  64, \
+
+	next_part
+		at_floor 3, switch
+		shape LATTICE
+		music xForestMusic
+
+		items_per_floor 4
+		item xRedApple
+		item xGreenApple
+		item xGrapes
+		item xReviverSeed
+
+		enemy xForestRat, 1
+		enemy xForestRat, 1
+		enemy xForestRat, 1
+		enemy xForestRat, 2
+		enemy xForestRat, 2
+		enemy xForestRat, 2
+		enemy xForestRat, 3
+		enemy xFieldRat,  1
+	end
+	dungeon_palette 120, 192,  96, \ ; Blank
+	                 32, 120,   0, \ ; Ground
+	                 24,  64,  24, \
+	                  0,  32,   0, \
+	                 64, 120,   0, \ ; Wall
+	                  0,  64,   0, \
+	                  0,   8,   0, \
+	                  0,   0, 255, \ ; Exit
+	                  0,   0, 128, \
+	                  0,   0,  64, \
+
+	next_part
+		tileset "res/dungeons/tree_tiles.2bpp"
 		at_floor 4, switch
 		shape HALLS
 		music xForestMusic
@@ -195,6 +258,7 @@ endm
 		at_floor 5, exit, FLAG_FOREST_COMPLETE
 		music xTownMusic
 
+		items_per_floor 1
 		item xRedApple
 		item xGreenApple
 		item xGrapes

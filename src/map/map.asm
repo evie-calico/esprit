@@ -306,7 +306,7 @@ InitMap::
 	ld a, high(xDropletEffect)
 	ld [hli], a
 	ld a, l
-	add a, 16
+	add a, evscript_script_pool_size
 	ld l, a
 	adc a, h
 	sub a, l
@@ -314,7 +314,7 @@ InitMap::
 	dec b
 	jr nz, .initDroplets
 
-	ld hl, wEffects + 19 * NB_DROPLETS
+	ld hl, wEffects + (3 + evscript_script_pool_size) * NB_DROPLETS
 	ld a, bank(xDuckEffect)
 	ld [hli], a
 	ld a, low(xDuckEffect)
@@ -322,7 +322,7 @@ InitMap::
 	ld a, high(xDuckEffect)
 	ld [hli], a
 
-	ld hl, wEffects + 19 * (NB_DROPLETS + 1)
+	ld hl, wEffects + (3 + evscript_script_pool_size) * (NB_DROPLETS + 1)
 	ld a, bank(xHazeEffect)
 	ld [hli], a
 	ld a, low(xHazeEffect)
@@ -342,7 +342,7 @@ InitMap::
 		call xCommitSaveFile
 		ld a, bank(xFloppyEffect)
 	.noSave
-	ld hl, wEffects + 19 * (NB_DROPLETS + 2)
+	ld hl, wEffects + (3 + evscript_script_pool_size) * (NB_DROPLETS + 2)
 	ld [hli], a
 	ld a, low(xFloppyEffect)
 	ld [hli], a
@@ -460,7 +460,7 @@ MapState::
 	ld a, l
 	ld [de], a
 	ld a, e
-	add a, 18
+	add a, 2 + evscript_script_pool_size
 	ld e, a
 	adc a, d
 	sub a, e
@@ -759,6 +759,6 @@ MapNodeScene:
 	ret
 
 section UNION "State variables", wram0
-wEffects: ds (3 + 16) * NB_EFFECTS
+wEffects: ds (3 + evscript_script_pool_size) * NB_EFFECTS
 
 wMapLockInput: db
