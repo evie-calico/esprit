@@ -310,7 +310,7 @@ DrawStatusBar::
 .statusComplete
 	; This loads (and skips) the next byte, xor, which is $AF
 	; Since this is nonzero, it properly sets this flag.
-	db $3E ; ld a
+	db LD_A_PREFIX
 .noStatus
 	xor a, a
 	ld [wfmt_xStatusString_hasStatus], a

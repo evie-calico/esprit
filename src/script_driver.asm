@@ -74,6 +74,7 @@ EvscriptBytecodeTable:
 	dw ScriptMapPutTile
 	dw ScriptMapGetTile
 	dw ScriptMapStepDir
+	dw ScriptMap3x3isEmpty
 	; Sprite drawing
 	dw ScriptDrawSprite
 	; NPC commands
@@ -519,6 +520,53 @@ ScriptMapStepDir:
 		add a, [hl]
 		ld [hl], a
 	pop hl
+	ret
+
+section "evscript ScriptMapIsStandalone", rom0
+ScriptMap3x3isEmpty:
+	call MapGetPutPrologue
+	; get return register
+	ld a, [hli]
+	add a, e
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+
+	; Start from the top left
+	rept 3
+		call .checkRow
+		jr nz, .fail
+	endr
+
+	db LD_A_PREFIX
+.fail
+	xor a, a
+	ld [de], a
+	ret
+
+; Check three tiles from left to right
+; nz == fail
+; adds 2 to BC
+.checkRow
+	ld a, [bc]
+	and a, a
+	ret nz
+	inc bc
+	ld a, [bc]
+	and a, a
+	ret nz
+	inc bc
+	ld a, [bc]
+	and a, a
+	ret nz
+	ld a, c
+	add a, DUNGEON_WIDTH - 2
+	ld c, a
+	adc a, b
+	sub a, c
+	ld b, a
+	xor a, a
 	ret
 
 section "evscript ScriptDrawSprite", rom0

@@ -16,6 +16,27 @@ script xGenerateScraper {
 	map_put_tile(x, y, TILE_EXIT);
 }
 
+script xGenerateDebug {
+	u8 x;
+	u8 y;
+
+	for x = 1; x != 63; x += 1; {
+		for y = 1; y != 61; y += 1; {
+			map_put_tile(x, y, TILE_CLEAR);
+		}
+	}
+
+	repeat 255 {
+		x = rand() & 63;
+		y = rand() & 63;
+		if map_3x3_is_clear(x, y) {
+			x += 1;
+			y += 1;
+			map_put_tile(x, y, TILE_WALL);
+		}
+	}
+}
+
 script xGenerateLattice {
 	u8 doubleWideIndex = rand() & 3;
 	u8 doubleWideChanceMask;
@@ -166,6 +187,16 @@ script xGenerateHalls {
 	map_put_tile(x, y, TILE_EXIT);
 
 	map_put_tile(itemX, itemY, (rand() & 1) + TILE_ITEM0);
+
+	repeat 255 {
+		x = rand() & 63;
+		y = rand() & 63;
+		if map_3x3_is_clear(x, y) {
+			x += 1;
+			y += 1;
+			map_put_tile(x, y, TILE_WALL);
+		}
+	}
 }
 
 script xGenerateItems {
