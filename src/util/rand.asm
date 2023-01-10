@@ -1,6 +1,7 @@
 ;
-; Eievui - swapped bc, d with de, b so that the function was cheaper to entities
-; (which rely on c) and rewrote the description.
+; Eievui - swapped bc, d with de, b
+; I've also added a relatively efficient (and accurate) RandRange function.
+
 ;
 ; Pseudorandom number generator
 ;
@@ -70,4 +71,54 @@ Rand::
 	adc $31
 	ld [hl],a
 	ld d,a
+	ret
+
+; This calls Rand in a loop until it gets a valid result.
+
+; @param h: low
+; @param l: (high - low) (exclusive)
+; @return a: adjusted value
+; @return cy: set upon success
+; @preserves b, c, d
+RandRange::
+	push hl
+		call Rand
+	pop hl
+	ld b, d
+	call .verify
+	ret c
+	ld b, e
+	call .verify
+	jr nc, RandRange
+	ret
+
+; @param b: rand
+; @param h: low
+; @param l: (high - low) (exclusive)
+; @return a: adjusted value
+; @return cy: set upon success
+; @preserves b, c, d
+.verify
+	ld a, l
+	ld c, 9
+.getBits
+	dec c
+	rla
+	jr nc, .getBits
+	; Now that we've encountered the first bit, the remaining bits are in `e`.
+	; Fill `a` with them.
+	ld a, 0
+	rla
+.fillBits
+	dec c
+	jr z, .done
+	scf
+	rla
+	jr .fillBits
+.done
+	and a, b ; mask the input by the mod mask
+	cp a, l
+	ret nc
+	add a, h
+	scf
 	ret
