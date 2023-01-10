@@ -32,6 +32,8 @@ def ITEM_METATILE_ID rb 4 * 4
 rsreset
 def DUNGEON_TYPE_SCRAPER rb
 def DUNGEON_TYPE_HALLS rb
+def DUNGEON_TYPE_LATTICE rb
+def DUNGEON_TYPE_DEBUG rb
 
 rsreset
 def WINDOW_HIDE rb

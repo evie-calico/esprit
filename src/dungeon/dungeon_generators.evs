@@ -16,7 +16,86 @@ script xGenerateScraper {
 	map_put_tile(x, y, TILE_EXIT);
 }
 
+script xGenerateDebug {
+	u8 x;
+	u8 y;
+
+	for x = 1; x != 63; x += 1; {
+		for y = 1; y != 61; y += 1; {
+			map_put_tile(x, y, TILE_CLEAR);
+		}
+	}
+
+	repeat 255 {
+		x = rand() & 63;
+		y = rand() & 63;
+		if map_3x3_is_clear(x, y) {
+			x += 1;
+			y += 1;
+			map_put_tile(x, y, TILE_WALL);
+		}
+	}
+}
+
+script xGenerateLattice {
+	u8 doubleWideIndex = rand() & 3;
+	u8 doubleWideChanceMask;
+	if doubleWideIndex == 0 {
+		doubleWideChanceMask = 0;
+	} else if doubleWideIndex == 1 {
+		doubleWideChanceMask = 3;
+	} else if doubleWideIndex == 2 {
+		doubleWideChanceMask = 7;
+	} else {
+		doubleWideChanceMask = 255;
+	}
+
+	u8 x = 32;
+	u8 y = 32;
+	u8 direction = rand() & 3;
+	u8 doubleWide = (rand() & doubleWideChanceMask) == 0;
+
+	repeat 64 {
+		repeat (rand() & 7) + 4 {
+			map_put_tile(x, y, TILE_CLEAR);
+			if doubleWide {
+				u8 oldX = x;
+				u8 oldY = y;
+				step_direction((direction + 1) & 3, x, y);
+				map_put_tile(x, y, TILE_CLEAR);
+				x = oldX;
+				y = oldY;
+			}
+			step_direction(direction, x, y);
+		}
+
+		direction += (rand() & 2) - 1;
+		direction &= 3;
+	}
+
+	u8 tile;
+	do {
+		x = rand() & 63;
+		y = rand() & 63;
+		tile = map_get_tile(x, y);
+	} while tile != TILE_CLEAR;
+
+	map_put_tile(x, y, TILE_EXIT);
+}
+
 script xGenerateHalls {
+	u8 doubleWideIndex = rand() & 3;
+	u8 doubleWideChanceMask;
+	if doubleWideIndex == 0 {
+		doubleWideChanceMask = 0;
+	} else if doubleWideIndex == 1 {
+		doubleWideChanceMask = 3;
+	} else if doubleWideIndex == 2 {
+		doubleWideChanceMask = 7;
+	} else {
+		doubleWideChanceMask = 255;
+	}
+
 	u8 direction = rand() & 3;
 
 	u8 width = (rand() & 3) + 4;
@@ -40,9 +119,18 @@ script xGenerateHalls {
 	u8 itemY = y - (rand() & 3) - 1;
 
 	repeat 9 {
+		u8 doubleWide = (rand() & doubleWideChanceMask) == 0;
 		repeat (rand() & 1) + 2 {
 			repeat (rand() & 7) + 4 {
 				map_put_tile(x, y, TILE_CLEAR);
+				if doubleWide {
+					u8 oldX = x;
+					u8 oldY = y;
+					step_direction((direction + 1) & 3, x, y);
+					map_put_tile(x, y, TILE_CLEAR);
+					x = oldX;
+					y = oldY;
+				}
 				step_direction(direction, x, y);
 			}
 
@@ -99,6 +187,16 @@ script xGenerateHalls {
 	map_put_tile(x, y, TILE_EXIT);
 
 	map_put_tile(itemX, itemY, (rand() & 1) + TILE_ITEM0);
+
+	repeat 255 {
+		x = rand() & 63;
+		y = rand() & 63;
+		if map_3x3_is_clear(x, y) {
+			x += 1;
+			y += 1;
+			map_put_tile(x, y, TILE_WALL);
+		}
+	}
 }
 
 script xGenerateItems {

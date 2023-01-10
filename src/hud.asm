@@ -283,7 +283,7 @@ DrawStatusBar::
 	ld l, low(wEntity0_Fatigue)
 	ld a, [hl]
 	cp a, TIRED_THRESHOLD
-	jr nc, .noStatus
+	jr nc, .notTired
 
 	ld a, bank(xTiredStatus)
 	ld [wfmt_xStatusString_status], a
@@ -291,10 +291,26 @@ DrawStatusBar::
 	ld [wfmt_xStatusString_status + 1], a
 	ld a, high(xTiredStatus)
 	ld [wfmt_xStatusString_status + 2], a
+	jr .statusComplete
+.notTired
+	
+	; Show a plus sign if the entity has a revive active.
+	ld l, low(wEntity0_CanRevive)
+	ld a, [hl]
+	and a, a
+	jr z, .noStatus
+
+	ld a, bank(xCanReviveStatus)
+	ld [wfmt_xStatusString_status], a
+	ld a, low(xCanReviveStatus)
+	ld [wfmt_xStatusString_status + 1], a
+	ld a, high(xCanReviveStatus)
+	ld [wfmt_xStatusString_status + 2], a
+
 .statusComplete
 	; This loads (and skips) the next byte, xor, which is $AF
 	; Since this is nonzero, it properly sets this flag.
-	db $3E ; ld a
+	db LD_A_PREFIX
 .noStatus
 	xor a, a
 	ld [wfmt_xStatusString_hasStatus], a

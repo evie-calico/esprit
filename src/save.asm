@@ -94,7 +94,7 @@ xInitializeSaveFile::
 ; Write the save file to SRAM.
 ; This is executed each time the world map is entered.
 xCommitQuicksave::
-	db $3E ; ld a, <>
+	db LD_A_PREFIX
 xCommitSaveFile::
 	xor a, a
 	ld [wQuicksave.isPresent], a

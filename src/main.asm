@@ -131,4 +131,4 @@ wFadeCallback:: dw
 wFadeMusic:: db
 
 section "General Script Pool", wram0
-wScriptPool:: ds 16
+wScriptPool:: ds evscript_script_pool_size

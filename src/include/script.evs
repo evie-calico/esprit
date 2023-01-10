@@ -51,6 +51,7 @@ env script {
 	def map_put_tile(u8, u8, u8);
 	def map_get_tile(u8, u8, return u8);
 	def step_direction(u8, u8, u8);
+	def map_3x3_is_clear(u8, u8, return u8);
 	def draw_sprite(sprite);
 	def npc_move(const u8, const u16, const u16);
 	def npc_set_frame(const u8, const u8);
@@ -58,7 +59,7 @@ env script {
 	def npc_lock();
 	def face_player();
 
-	pool = 16;
+	pool = 18;
 }
 
 env npc {

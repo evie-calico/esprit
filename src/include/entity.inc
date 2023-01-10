@@ -124,6 +124,7 @@ def TIRED_THRESHOLD equ 35
 		bytes 1, WasMovingLastFrame
 		; Added to the frame counter so that animations aren't all synced up
 		bytes 1, AnimationDesync
+		bytes 1, CanRevive
 	end_struct
 
 	; Any information about an entity that must persist.
