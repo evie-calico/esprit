@@ -106,6 +106,17 @@ macro scene ; (entrance x/y) * 4, width, height, seed, initial script
 	redef SCENE_ENTRANCE_SCRIPT equs "null"
 endm
 
+macro set_entrance
+	def SCENE_TOP_ENTRANCE_X = \1
+	def SCENE_TOP_ENTRANCE_Y = \2
+	def SCENE_RIGHT_ENTRANCE_X = \1
+	def SCENE_RIGHT_ENTRANCE_Y = \2
+	def SCENE_LEFT_ENTRANCE_X = \1
+	def SCENE_LEFT_ENTRANCE_Y = \2
+	def SCENE_BOTTOM_ENTRANCE_X = \1
+	def SCENE_BOTTOM_ENTRANCE_Y = \2
+endm
+
 macro begin_draw
 	; Begin with an array of 4 positions, corresponding to each direction
 	dw SCENE_BOTTOM_ENTRANCE_Y * 8.0, SCENE_BOTTOM_ENTRANCE_X * 8.0

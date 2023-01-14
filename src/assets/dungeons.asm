@@ -57,7 +57,7 @@ macro shape ; dungeon generation type
 	def_equs TYPE, \1
 endm
 
-macro at_floor ; number, action, [arg]
+macro after_floor ; number, action, [arg]
 	def_equs FLOORS, \1
 	redef COMPLETION_TYPE equs strupr("\2")
 	if !strcmp(strupr("\2"), "SWITCH")
@@ -160,7 +160,7 @@ endm
 
 	dungeon xForestDungeon
 		tileset "res/dungeons/tree_tiles.2bpp"
-		at_floor 2, switch
+		after_floor 2, scene, xForestScene
 		shape HALLS
 		music xForestMusic
 
@@ -191,7 +191,7 @@ endm
 	                  0,   0,  64, \
 
 	next_part
-		at_floor 3, switch
+		after_floor 3, switch
 		shape LATTICE
 		music xForestMusic
 
@@ -223,7 +223,7 @@ endm
 
 	next_part
 		tileset "res/dungeons/tree_tiles.2bpp"
-		at_floor 4, switch
+		after_floor 4, switch
 		shape HALLS
 		music xForestMusic
 
@@ -255,7 +255,7 @@ endm
 
 	next_part
 		tileset "res/dungeons/field_tiles.2bpp"
-		at_floor 5, exit, FLAG_FOREST_COMPLETE
+		after_floor 5, exit, FLAG_FOREST_COMPLETE
 		music xTownMusic
 
 		items_per_floor 1
@@ -286,7 +286,7 @@ endm
 
 	dungeon xFieldDungeon
 		tileset "res/dungeons/field_tiles.2bpp"
-		at_floor 5, exit, FLAG_FIELDS_COMPLETE
+		after_floor 5, exit, FLAG_FIELDS_COMPLETE
 		shape HALLS
 		music xTownMusic
 
@@ -318,7 +318,7 @@ endm
 
 	dungeon xLakeDungeon
 		tileset "res/dungeons/lake_tiles.2bpp"
-		at_floor 5, exit, FLAG_LAKE_COMPLETE
+		after_floor 5, exit, FLAG_LAKE_COMPLETE
 		shape HALLS
 		music xLakeMusic
 		on_tick xLakeAnimationFunction
@@ -387,7 +387,7 @@ wLakeAnimationCounter: db
 
 	dungeon xPlainsDungeon
 		tileset "res/dungeons/field_tiles.2bpp"
-		at_floor 5, exit, FLAG_PLAINS_COMPLETE
+		after_floor 5, exit, FLAG_PLAINS_COMPLETE
 		shape HALLS
 		music xLakeMusic
 
@@ -419,7 +419,7 @@ wLakeAnimationCounter: db
 
 	dungeon xCavesDungeon
 		tileset "res/dungeons/field_tiles.2bpp"
-		at_floor 5, exit, FLAG_CAVES_COMPLETE
+		after_floor 5, exit, FLAG_CAVES_COMPLETE
 		shape HALLS
 		music xLakeMusic
 
@@ -451,7 +451,7 @@ wLakeAnimationCounter: db
 
 	dungeon xGemstoneWoodsDungeon
 		tileset "res/dungeons/gemtree_tiles.2bpp"
-		at_floor 5, exit, FLAG_GEMTREE_COMPLETE
+		after_floor 5, exit, FLAG_GEMTREE_COMPLETE
 		shape HALLS
 		music xLakeMusic
 

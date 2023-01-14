@@ -64,6 +64,7 @@ EvscriptBytecodeTable:
 
 	; Engine extensions
 	dw ScriptRand
+	dw ScriptRandRange
 	dw ScriptIsCgb
 	dw ScriptPrint
 	dw ScriptPlayMusic
@@ -83,6 +84,7 @@ EvscriptBytecodeTable:
 	dw ScriptNPCSetDirection
 	dw ScriptNPCLockPlayer
 	dw ScriptNPCFacePlayer
+	dw ScriptEnterDungeon
 
 section "evscript Return", rom0
 StdReturn:
@@ -686,3 +688,55 @@ ScriptPlayMusic:
 	call StartSong
 	pop hl
 	jp BankReturn
+
+section "evscript ScriptEnterDungeon", rom0
+ScriptEnterDungeon:
+	ld bc, wActiveDungeon
+	ld a, [hli]
+	ld [bc], a
+	inc bc
+	ld a, [hli]
+	ld [bc], a
+	inc bc
+	ld a, [hli]
+	ld [bc], a
+
+	call FadeToBlack
+
+	ld bc, wFadeCallback
+	ld a, low(EnterNewFloor)
+	ld [bc], a
+	inc bc
+	ld a, high(EnterNewFloor)
+	ld [bc], a
+	ret
+
+section "evscript ScriptRandRange", rom0
+ScriptRandRange:
+	ld a, [hli]
+	ld b, a
+	ld a, [hli]
+	push hl
+	ld h, b
+	ld l, a
+	ld a, l
+	sub a, h
+	ld l, a
+	push de
+	call RandRange
+	pop de
+	pop hl
+	; Time to set the return value.
+	; The random number is currently stored in `a`
+	ld b, a
+	ld a, [hli]
+	; add de, a
+	add a, e
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+	; Now store the result!
+	ld a, b
+	ld [de], a
+	ret

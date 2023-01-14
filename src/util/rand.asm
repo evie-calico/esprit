@@ -76,49 +76,88 @@ Rand::
 ; This calls Rand in a loop until it gets a valid result.
 
 ; @param h: low
-; @param l: (high - low) (exclusive)
-; @return a: adjusted value
-; @return cy: set upon success
-; @preserves b, c, d
+; @param l: (high - low) (must be > 1)
+; @return a: result
 RandRange::
+	; Compute the mask of `l`
+	ld a, l
+	srl a
+	ld e, a
+	ld d, high(.maskTable)
+	ld a, [de]
+	; increment L so that the function is inclusive
+	; This benefits performance by making powers of two like [0, 15] always succeed.
+.gotMask
+	inc l
+.tryAgain
+	push af
 	push hl
-		call Rand
+		call Rand ; a = d = high, e = low
 	pop hl
-	ld b, d
-	call .verify
-	ret c
-	ld b, e
-	call .verify
-	jr nc, RandRange
+	pop bc
+	; mask out upper byte and verify it's valid.
+	and a, b
+	cp a, l
+	jr c, .exit
+	; repeat with lower byte (meaning of `a` here is swapped)
+	ld a, b
+	and a, e
+	cp a, l
+	jr nc, .tryAgain
+.exit
+	add a, h
 	ret
 
-; @param b: rand
-; @param h: low
-; @param l: (high - low) (exclusive)
-; @return a: adjusted value
-; @return cy: set upon success
-; @preserves b, c, d
-.verify
+align 8
+.maskTable
+	def mask = 3
+	for i, 2, 128, 2
+		if i > mask
+			def mask <<= 1
+			def mask |= 1
+		endc
+		db mask
+	endr
+
+/*
+	; Compute the mask of `l`
 	ld a, l
-	ld c, 9
+	ld c, 8
 .getBits
 	dec c
 	rla
 	jr nc, .getBits
 	; Now that we've encountered the first bit, the remaining bits are in `e`.
 	; Fill `a` with them.
-	ld a, 0
-	rla
-.fillBits
-	dec c
-	jr z, .done
-	scf
-	rla
-	jr .fillBits
+	ld a, 3 ; we know there's at least one bit (a range of 0 or 1 is pointless)
+	; after the first dec, c can only be up to 8.
+	; However, we don't need to check for c == 0 because this loop is unrolled (it's implied by pc)
+	rept 6
+		dec c
+		jr z, .done
+		scf
+		rla
+	endr
 .done
-	and a, b ; mask the input by the mod mask
+	; increment L so that the function is inclusive
+	; This benefits performance by making powers of two like [0, 15] always succeed.
+	inc l
+.tryAgain
+	push af
+	push hl
+		call Rand ; a = d = high, e = low
+	pop hl
+	pop bc
+	; mask out upper byte and verify it's valid.
+	and a, b
 	cp a, l
-	ret nc
+	jr c, .exit
+	; repeat with lower byte (meaning of `a` here is swapped)
+	ld a, b
+	and a, e
+	cp a, l
+	jr nc, .tryAgain
+.exit
 	add a, h
-	scf
 	ret
+*/

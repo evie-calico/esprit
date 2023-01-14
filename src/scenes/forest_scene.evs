@@ -1,0 +1,18 @@
+include "src/include/script.evs";
+#asm
+	include "res/charmap.inc";
+	include "defines.inc"
+	include "entity.inc";
+#end
+
+npc xInitForestScene {
+	lock();
+
+	set_direction_player(DOWN);
+	say("MEOW MEOW MEOW!<WAITBTN><CLEAR>");
+	wait();
+
+	lock();
+
+	enter_dungeon(xForestDungeon_part2);
+}

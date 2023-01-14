@@ -1025,6 +1025,8 @@ DrawSceneSpawnNpc:
 	xor a, a
 	ld e, low(wEntity0_WasMovingLastFrame)
 	ld [de], a
+	ld e, low(wEntity0_AnimationDesync)
+	ld [de], a
 
 	; Copy initial position
 	ld e, low(wEntity0_SpriteY)

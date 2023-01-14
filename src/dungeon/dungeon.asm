@@ -80,7 +80,7 @@ InitDungeon::
 	ld h, high(wEntity1)
 	call RestoreEntity
 
-EnterNewFloor:
+EnterNewFloor::
 	ld a, DUNGEON_WIDTH / 2
 	ld hl, wEntity0_SpriteY
 	ld [hl], 0
@@ -692,9 +692,25 @@ DungeonComplete::
 	jr z, .switch
 	assert DUNGEON_COMPLETION_SCENE == 2
 .scene
-	; TODO: Scenes can do a few things, including switching the dungeon pointer or exiting the dungeon.
+	; cenes can do a few things, including switching the dungeon pointer or exiting the dungeon.
 	; SWITCH and EXIT are just shortcuts for common operations.
-	todo
+	; For example, if a scene has already been seen, it could immedietly quit and 
+	assert Dungeon_CompletionType + 1 == Dungeon_NextScenePointer
+	inc hl
+	ld a, [hli]
+	ld [wActiveScene], a
+	ld a, [hli]
+	ld [wActiveScene + 1], a
+	ld a, [hli]
+	ld [wActiveScene + 2], a
+
+	call FadeToBlack
+
+	ld hl, wFadeCallback
+	ld a, low(InitScene)
+	ld [hli], a
+	ld [hl], high(InitScene)
+	ret
 
 .switch
 	assert Dungeon_CompletionType + 1 == Dungeon_NextDungeonPointer

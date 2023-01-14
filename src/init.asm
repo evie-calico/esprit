@@ -1,3 +1,4 @@
+include "config.inc"
 include "defines.inc"
 include "entity.inc"
 include "hardware.inc"
@@ -178,6 +179,7 @@ Initialize::
 	xor a, a
 	ld [wFadeDelta], a ; Initialize this value to fade in from white
 
+if !NO_QUICKLOAD
 	call xVerifySaveFile
 	jr nz, .title
 	ld a, [wQuicksave.isPresent]
@@ -186,6 +188,7 @@ Initialize::
 .quickload
 	call QuickloadDungeon
 	jr .end
+endc
 .title
 	ld b, bank(xTitleScreen)
 	ld de, xTitleScreen

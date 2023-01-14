@@ -9,3 +9,7 @@ endc
 if !def(D_SA)
 	def D_SA equs "EndTurn"
 endc
+
+if !def(NO_QUICKLOAD)
+	def NO_QUICKLOAD = 0
+endc

@@ -9,10 +9,16 @@ struct sprite {
 }
 
 #asm
+
 macro play_music
 	db script@_play_music
 	dw \1
 	db bank(\1)
+endm
+macro enter_dungeon
+	db script@_enter_dungeon
+	db bank(\1)
+	dw \1
 endm
 #end
 
@@ -38,6 +44,7 @@ env script {
 
 	// Engine extensions
 	def rand(return u8);
+	def rand_range(const u8, const u8, return u8);
 	def is_cgb(return u8);
 	def print(const string);
 	def _play_music();
@@ -53,11 +60,16 @@ env script {
 	def step_direction(u8, u8, u8);
 	def map_3x3_is_clear(u8, u8, return u8);
 	def draw_sprite(sprite);
+
+	// NPC functions
 	def npc_move(const u8, const u16, const u16);
 	def npc_set_frame(const u8, const u8);
 	def npc_set_direction(const u8, const u8);
 	def npc_lock();
 	def face_player();
+
+	def _enter_dungeon();
+	macro enter_dungeon(const u8) = enter_dungeon;
 
 	pool = 18;
 }
