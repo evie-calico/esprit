@@ -31,7 +31,8 @@ def SKIP_HELD_KEYS equ PADF_B
 def SKIP_PRESSED_KEYS equ PADF_A
 
 def CHARSET_0 equs "res/ui/optix.vwf"
-def NB_CHARSETS equ 1
+def CHARSET_2 equs "res/ui/nameplate.vwf"
+def NB_CHARSETS equ 2
 
 def EXPORT_CONTROL_CHARS equ 1
 def PRINT_CHARMAP equ 1
@@ -54,7 +55,7 @@ macro text_flag
 	def TEXTF_\1 equ 1 << TEXTB_\1
 	export TEXTB_\1, TEXTF_\1
 endm
-	text_flag WAITBUTTON
+	text_flag Wait
 	text_flag SYNC
 
 
@@ -105,12 +106,13 @@ RefillerControlChars:
 	control_char SET_COLOR,       Reader2ByteNop,                TextSetColor
 	control_char BLANKS,          ReaderPrintBlank,              TextPrintBlank
 	control_char DELAY,           Reader2ByteNop,                TextDelay
-	control_char WAITBTN,         ReaderWaitButton,              TextWaitButton
+	control_char WAIT,            ReaderWait,                    TextWait
 	control_char CLEAR,           ReaderClear,                   TextClear
 	control_char NEWLINE,         ReaderNewline,                 TextNewline
 	control_char SYNC,            Reader1ByteNop,                TextSync
 	control_char SCROLL,          ReaderScroll,                  TextScroll
-	control_char WAITBTN_SCROLL,  ReaderWaitButtonScroll,        TextWaitButtonScroll
+	control_char WAIT_SCROLL,     ReaderWaitScroll,              TextWaitScroll
+	control_char SET_DELAY,       Reader2ByteNop,                TextSetDelay
 	control_char ZWS,             _RefillCharBuffer.canNewline,  PrintNextCharInstant
 TEXT_BAD_CTRL_CHAR rb 0
 	if def(EXPORT_CONTROL_CHARS)
@@ -156,10 +158,6 @@ RefillerOnlyControlChars:
 FIRST_READER_ONLY_CONTROL_CHAR rb 0
 
 NB_FONT_CHARACTERS equ FIRST_READER_ONLY_CONTROL_CHAR - " "
-
-; Custom chars/ligatures
-PRINTLN "charmap \"HP,\", $80"
-PRINTLN "charmap \"ft\", $81"
 
 ; Sets the pen's position somewhere in memory
 ; The code is designed for a pen in VRAM, but it can be anywhere
@@ -592,7 +590,7 @@ _RefillCharBuffer:
 	ld a, [wNewlinesUntilFull]
 	dec a
 	jr nz, .dontPause
-	ld d, TEXT_WAITBTN_SCROLL
+	ld d, TEXT_WAIT_SCROLL
 	ld a, [wTextNbLines]
 .dontPause
 	ld [wNewlinesUntilFull], a
@@ -771,7 +769,7 @@ ReaderPrintBlank:
 	ld c, "A" ; Make sure we won't get a newline
 	jp _RefillCharBuffer.insertCustomSize ; Too far to `jr`
 
-ReaderWaitButton:
+ReaderWait:
 	; Don't auto-wait for user input until the textbox has been entirely freshened
 	ld a, [wTextNbLines]
 	inc a ; The next newline will actually start introducing new text
@@ -799,10 +797,10 @@ ReaderScroll:
 	dec a
 	jr nz, StartNewLine
 	dec e ; dec de
-	ld a, TEXT_WAITBTN_SCROLL
+	ld a, TEXT_WAIT_SCROLL
 	ld [de], a
 	inc e ; inc de
-ReaderWaitButtonScroll:
+ReaderWaitScroll:
 	ld a, [wTextRemainingLines]
 	inc a
 	ld [wTextRemainingLines], a
@@ -1423,6 +1421,11 @@ TextDelay:
 	ld [wTextNextLetterDelay], a
 	ret
 
+TextSetDelay:
+	ld a, [hli]
+	ld [wTextLetterDelay], a
+	ret
+
 
 TextRestoreFont:
 	ld de, wTextCharset
@@ -1493,7 +1496,7 @@ macro skip_key
 		endc
 	endc
 endm
-TextWaitButton:
+TextWait:
 	xor a ; FIXME: if other bits than 7 and 6 get used, this is gonna be problematic
 	ld [wTextFlags], a
 	; End this char if suitable user input is found
@@ -1541,8 +1544,8 @@ PrintNextCharInstant:
 	ret
 
 
-TextWaitButtonScroll:
-	call TextWaitButton
+TextWaitScroll:
+	call TextWait
 	;; The function returns with a = 0 iff the user has input something
 	and a
 	ret nz

@@ -10,6 +10,13 @@ def SCROLL_PADDING_RIGHT equ SCRN_X - 56
 
 def NB_NPCS equ 6
 
+def vAPrompt equ $8FE0
+def idof_vAPrompt equ $FE
+def vAPromptLocation equ $9C00 + 18 + 31 * 32
+
+section "A Prompt", romx
+APrompt: incbin "res/ui/a_prompt.2bpp"
+
 section "Scene State Init", rom0
 InitScene::
 	; Reset all NPC banks
@@ -38,6 +45,13 @@ InitScene::
 	ld a, [de]
 	ld b, a
 	push bc
+
+	ld a, bank(APrompt)
+	rst SwapBank
+	ld de, vAPrompt
+	ld hl, APrompt
+	ld c, 32
+	call VramCopySmall
 
 	ld hl, wActiveScene
 	ld de, randstate
@@ -230,6 +244,26 @@ SceneState::
 	call nz, DrawPrintString.customDelay
 	call PrintVWFChar
 	call DrawVWFChars
+
+	ld a, [wTextSrcPtr + 1]
+	inc a
+	jr z, .noAPrompt
+	ld a, [wTextFlags]
+	bit 6, a
+	jr z, .noAPrompt
+	ldh a, [hFrameCounter]
+	and a, 32
+	jr z, .noAPrompt
+	ld b, idof_vAPrompt
+	jr .drawAPrompt
+.noAPrompt
+	ld b, 0
+.drawAPrompt
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, .drawAPrompt
+	ld a, b
+	ld [vAPromptLocation], a
 	
 	ld a, bank(xHandleSceneCamera)
 	rst SwapBank

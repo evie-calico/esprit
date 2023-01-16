@@ -13,8 +13,7 @@ npc xWalkAround {
 	lock();
 	face_player();
 
-	say("Hello, World!<WAITBTN>");
-	wait();
+	say("", "Hello, World!<WAIT>");
 
 	set_direction(RIGHT);
 	set_direction_player(RIGHT);
@@ -45,8 +44,7 @@ npc xWalkAround {
 	set_frame(ENTITY_FRAME_IDLE);
 	set_frame_player(ENTITY_FRAME_IDLE);
 
-	say("Bye!<WAITBTN><CLEAR>");
-	wait();
+	say("", "Bye!<WAIT><CLEAR>");
 
 	lock();
 }

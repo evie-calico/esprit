@@ -1,18 +1,85 @@
 include "src/include/script.evs";
 #asm
-	include "res/charmap.inc";
 	include "defines.inc"
 	include "entity.inc";
+	include "format.inc";
 #end
 
 npc xInitForestScene {
+	if get_flag(FLAG_SEEN_FOREST_CUTSCENE) {
+		enter_dungeon_immediately(xForestDungeon_part2);
+	}
 	lock();
 
-	set_direction_player(DOWN);
-	say("MEOW MEOW MEOW!<WAITBTN><CLEAR>");
-	wait();
+	// Luvui and Aris enter from the left.
+	// Luvui falls slightly behind, before stopping at the foot of a tree.
+	set_direction_player(RIGHT);
+	set_direction_partner(RIGHT);
+	set_position(PLAYER, 16, 48);
+	set_position(PARTNER, 16, 64);
+	set_frame_player(ENTITY_FRAME_STEP);
+	set_frame_partner(ENTITY_FRAME_STEP);
+	repeat 60 {
+		move_player(10, 0);
+		move_partner(12, 0);
+		yield;
+	}
+	set_frame_player(ENTITY_FRAME_IDLE);
+	set_direction_player(UP);
+	repeat 30 {
+		move_partner(12, 0);
+		yield;
+	}
 
-	lock();
+	// Aris notices and slows down before turning.
+	repeat 30 {
+		move_partner(8, 0);
+		yield;
+	}
+	set_frame_partner(ENTITY_FRAME_IDLE);
+	set_direction_partner(LEFT);
+	repeat 60 { yield; }
 
+	say("Luvui", "We've gone out pretty far.<WAIT> The forest is getting a lot thicker.");
+
+	// Aris walks over to Luvui to look at the trees.
+	set_frame_partner(ENTITY_FRAME_STEP);
+	set_direction_partner(UP);
+	repeat 20 {
+		move_partner(0, -12);
+		yield;
+	}
+	set_direction_partner(LEFT);
+	repeat 32 {
+		move_partner(-12, 0);
+		yield;
+	}
+	set_frame_partner(ENTITY_FRAME_IDLE);
+	set_direction_partner(UP);
+
+	// Short delay before speaking.
+	repeat 120 { yield; }
+	say("Aris", "You're right<SET_DELAY><5>...<SET_DELAY><2><DELAY><30> it's getting dark too.");
+	repeat 120 { yield; }
+	set_direction_partner(LEFT);
+	say("Aris", "There should be a few more apples up ahead.<WAIT> Let's go a bit further before we head back.");
+	set_direction_player(RIGHT);
+	repeat 30 { yield; }
+
+	// Exit scene while fading out.
+	set_frame_player(ENTITY_FRAME_STEP);
+	set_direction_partner(RIGHT);
+	set_frame_partner(ENTITY_FRAME_STEP);
+	repeat 30 {
+		move_player(14, 0);
+		move_partner(14, 0);
+		yield;
+	}
+	set_flag(FLAG_SEEN_FOREST_CUTSCENE, 1);
 	enter_dungeon(xForestDungeon_part2);
+	repeat 30 {
+		move_player(14, 0);
+		move_partner(14, 0);
+		yield;
+	}
 }

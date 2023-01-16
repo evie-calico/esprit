@@ -71,6 +71,7 @@ EvscriptBytecodeTable:
 	dw ScriptSay
 	dw ScriptPrintWait
 	dw ScriptGetFlag
+	dw ScriptSetFlag
 	; Mapgen Utilities
 	dw ScriptMapPutTile
 	dw ScriptMapGetTile
@@ -80,11 +81,11 @@ EvscriptBytecodeTable:
 	dw ScriptDrawSprite
 	; NPC commands
 	dw ScriptNPCWalk
-	dw ScriptNPCSetFrame
-	dw ScriptNPCSetDirection
+	dw ScriptNPCSet
 	dw ScriptNPCLockPlayer
 	dw ScriptNPCFacePlayer
 	dw ScriptEnterDungeon
+	dw ScriptEnterDungeonImmediately
 
 section "evscript Return", rom0
 StdReturn:
@@ -324,8 +325,37 @@ ScriptIsCgb:
 
 section "evscript ScriptPrint", rom0
 ScriptSay:
-	ld a, 2
-	ld [wTextLetterDelay], a
+	ld de, wfmt_xNpcSayString_name
+	ldh a, [hCurrentBank]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+
+	ld de, wfmt_xNpcSayString_text
+	ldh a, [hCurrentBank]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+
+	ld de, wPrintString
+	ld a, bank(xNpcSayString)
+	ld [de], a
+	inc de
+	ld a, low(xNpcSayString)
+	ld [de], a
+	inc de
+	ld a, high(xNpcSayString)
+	ld [de], a
+	jp StdYield
+
 ScriptPrint:
 	ld de, wPrintString
 	ldh a, [hCurrentBank]
@@ -372,6 +402,34 @@ ScriptGetFlag:
 	inc a
 :
 	ld [de], a
+	ret
+
+section "evscript ScriptSetFlag", rom0
+ScriptSetFlag:
+	ld a, [hli]
+	add a, e
+	ld c, a
+	adc a, d
+	sub a, c
+	ld b, a
+	ld a, [bc]
+	ld c, a
+
+	ld a, [hli]
+	ld d, a
+	push hl
+	call GetFlag
+	bit 0, d
+	jr z, :+
+	or a, [hl]
+	ld [hl], a
+	pop hl
+	ret
+:
+	cpl
+	and a, [hl]
+	ld [hl], a
+	pop hl
 	ret
 
 section "Map Get/Put Prologue", rom0
@@ -633,14 +691,7 @@ ScriptNPCWalk:
 	ld [de], a
 	ret
 
-section "evscript ScriptNPCSetFrame", rom0
-ScriptNPCSetFrame:
-	ld e, low(wEntity0_Frame)
-	jr ScriptNPCSet
-
-ScriptNPCSetDirection:
-	ld e, low(wEntity0_Direction)
-; @param e: field to set
+section "evscript ScriptNPCSet", rom0
 ScriptNPCSet:
 	ld a, [hli]
 	add a, high(wEntity0)
@@ -648,6 +699,9 @@ ScriptNPCSet:
 	ld a, [wActiveEntity]
 :
 	ld d, a
+	ld a, [hli]
+	add a, low(wEntity0)
+	ld e, a
 	ld a, [hli]
 	ld [de], a
 	ret
@@ -690,7 +744,18 @@ ScriptPlayMusic:
 	jp BankReturn
 
 section "evscript ScriptEnterDungeon", rom0
+ScriptEnterDungeonImmediately:
+	ld a, 1
+	ld [wFadeSteps], a
+	ld a, 1
+	ld [wFadeAmount], a
+	ld a, -1
+	ld [wFadeDelta], a
+	jr ScriptEnterDungeon.after
+
 ScriptEnterDungeon:
+	call FadeToBlack
+.after
 	ld bc, wActiveDungeon
 	ld a, [hli]
 	ld [bc], a
@@ -701,7 +766,6 @@ ScriptEnterDungeon:
 	ld a, [hli]
 	ld [bc], a
 
-	call FadeToBlack
 
 	ld bc, wFadeCallback
 	ld a, low(EnterNewFloor)

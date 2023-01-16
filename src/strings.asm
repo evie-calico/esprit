@@ -29,3 +29,5 @@ include "format.inc"
 	format xSwitchedToAutomatic, "Switched to automatic mode."
 
 	format xCrashString, "Error [u8:code]\n[str:message]PC: [u16:pc] (decimal)\n\nPlease report this to:\nbugs@eievui.ml\n\n[jump::Version]"
+
+	format xNpcSayString, "<SET_VARIANT><2>| [str:name]|<RESTORE_VARIAN><BLANKS><1>: <SET_DELAY><2>[str:text]<SET_DELAY><0><WAIT><CLEAR>"

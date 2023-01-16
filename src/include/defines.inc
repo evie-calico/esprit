@@ -24,6 +24,8 @@ def FLAG_PLAINS_COMPLETE rb
 def FLAG_CAVES_COMPLETE rb
 def FLAG_GEMTREE_COMPLETE rb
 
+def FLAG_SEEN_FOREST_CUTSCENE rb
+
 def LD_A_PREFIX = $3E
 
 def evscript_script_pool_size = 18

@@ -1,5 +1,10 @@
 ; Build-time config options.
 
+if def(DEV)
+	def D_SA equs "DungeonComplete"
+	def NO_QUICKLOAD = 1
+endc
+
 ; The node the player will start in on the map screen.
 if !def(FIRST_NODE)
 	def FIRST_NODE equs "xVillageNode"
