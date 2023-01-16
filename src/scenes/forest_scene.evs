@@ -13,73 +13,67 @@ npc xInitForestScene {
 
 	// Luvui and Aris enter from the left.
 	// Luvui falls slightly behind, before stopping at the foot of a tree.
-	set_direction_player(RIGHT);
-	set_direction_partner(RIGHT);
-	set_position(PLAYER, 16, 48);
-	set_position(PARTNER, 16, 64);
-	set_frame_player(ENTITY_FRAME_STEP);
-	set_frame_partner(ENTITY_FRAME_STEP);
+	position(PLAYER, 16, 48);
+	position(PARTNER, 16, 64);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PARTNER, ENTITY_FRAME_STEP);
 	repeat 60 {
-		move_player(10, 0);
-		move_partner(12, 0);
+		dmove(PLAYER, RIGHT, 10,);
+		dmove(PARTNER, RIGHT, 12,);
 		yield;
 	}
-	set_frame_player(ENTITY_FRAME_IDLE);
-	set_direction_player(UP);
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	direction(PLAYER, UP);
 	repeat 30 {
-		move_partner(12, 0);
+		dmove(PARTNER, RIGHT, 12);
 		yield;
 	}
 
 	// Aris notices and slows down before turning.
 	repeat 30 {
-		move_partner(8, 0);
+		dmove(PARTNER, RIGHT, 8);
 		yield;
 	}
-	set_frame_partner(ENTITY_FRAME_IDLE);
-	set_direction_partner(LEFT);
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+	direction(PARTNER, LEFT);
 	repeat 60 { yield; }
 
 	say("Luvui", "We've gone out pretty far.<WAIT> The forest is getting a lot thicker.");
 
 	// Aris walks over to Luvui to look at the trees.
-	set_frame_partner(ENTITY_FRAME_STEP);
-	set_direction_partner(UP);
-	repeat 20 {
-		move_partner(0, -12);
-		yield;
-	}
-	set_direction_partner(LEFT);
+	frame(PARTNER, ENTITY_FRAME_STEP);
 	repeat 32 {
-		move_partner(-12, 0);
+		dmove(PARTNER, LEFT, 12);
 		yield;
 	}
-	set_frame_partner(ENTITY_FRAME_IDLE);
-	set_direction_partner(UP);
+	repeat 20 {
+		dmove(PARTNER, UP, 12);
+		yield;
+	}
+	frame(PARTNER, ENTITY_FRAME_IDLE);
 
 	// Short delay before speaking.
 	repeat 120 { yield; }
 	say("Aris", "You're right<SET_DELAY><5>...<SET_DELAY><2><DELAY><30> it's getting dark too.");
 	repeat 120 { yield; }
-	set_direction_partner(LEFT);
+	direction(PARTNER, LEFT);
 	say("Aris", "There should be a few more apples up ahead.<WAIT> Let's go a bit further before we head back.");
-	set_direction_player(RIGHT);
+	direction(PLAYER, RIGHT);
 	repeat 30 { yield; }
 
 	// Exit scene while fading out.
-	set_frame_player(ENTITY_FRAME_STEP);
-	set_direction_partner(RIGHT);
-	set_frame_partner(ENTITY_FRAME_STEP);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PARTNER, ENTITY_FRAME_STEP);
 	repeat 30 {
-		move_player(14, 0);
-		move_partner(14, 0);
+		dmove(PLAYER, RIGHT, 14);
+		dmove(PARTNER, RIGHT, 14);
 		yield;
 	}
 	set_flag(FLAG_SEEN_FOREST_CUTSCENE, 1);
 	enter_dungeon(xForestDungeon_part2);
 	repeat 30 {
-		move_player(14, 0);
-		move_partner(14, 0);
+		dmove(PLAYER, RIGHT, 14);
+		dmove(PARTNER, RIGHT, 14);
 		yield;
 	}
 }

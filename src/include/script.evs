@@ -56,6 +56,22 @@ macro say
 	db script@_say, \1, \2, \3, \4
 	db script@print_wait
 endm
+macro npc_dmove
+	db script@npc_set, (\1), Entity_Direction, (\2)
+	if (\2) == UP
+		db npc@npc_move, \1
+		dw -(\3), 0
+	elif (\2) == RIGHT
+		db npc@npc_move, \1
+		dw 0, (\3)
+	elif (\2) == LEFT
+		db npc@npc_move, \1
+		dw 0, -(\3)
+	else
+		db npc@npc_move, \1
+		dw (\3), 0
+	endc
+endm
 #end
 
 env script {
@@ -117,25 +133,12 @@ env npc {
 	use script;
 
 	// Self commands
-	alias move(const u16, const u16) = npc_move(const -1, $2, $1);
-	alias set(const u8, const u8) = npc_set(const -1, $1, $2);
-	alias set_frame(const u8) = npc_set(const -1, const Entity_Frame, $1);
-	alias set_direction(const u8) = npc_set(const -1, const Entity_Direction, $1);
-	// Player commands
-	alias move_player(const u16, const u16) = npc_move(const 0, $2, $1);
-	alias set_player(const u8, const u8) = npc_set(const 0, $1, $2);
-	alias set_frame_player(const u8) = npc_set(const 0, const Entity_Frame, $1);
-	alias set_direction_player(const u8) = npc_set(const 0, const Entity_Direction, $1);
-	// Partner commands
-	alias move_partner(const u16, const u16) = npc_move(const 1, $2, $1);
-	alias set_partner(const u8, const u8) = npc_set(const 1, $1, $2);
-	alias set_frame_partner(const u8) = npc_set(const 1, const Entity_Frame, $1);
-	alias set_direction_partner(const u8) = npc_set(const 1, const Entity_Direction, $1);
-	// Generic commands
-	alias move_other(const u8, const u8, const u8) = npc_move($1, $3, $2);
-	alias set_frame_other(u8, u8) = npc_set($1, const Entity_Frame, $2);
-	alias set_direction_other(u8, u8) = npc_set($1, const Entity_Direction, $2);
-	macro set_position(const u8, const u16, const u16) = set_position;
+	alias move(const u8, const u16, const u16) = npc_move($1, $3, $2);
+	macro dmove(const u8, const u8, const u16) = npc_dmove;
+	alias set(const u8, const u8, const u8) = npc_set($1, $2, $3);
+	alias frame(const u8, const u8) = npc_set($1, const Entity_Frame, $2);
+	alias direction(const u8, const u8) = npc_set($1, const Entity_Direction, $2);
+	macro position(const u8, const u16, const u16) = set_position;
 	// Toggle the player's ability to move.
 	alias lock() = npc_lock();
 	// Wait for the current print/say command to end.

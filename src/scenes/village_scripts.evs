@@ -15,34 +15,32 @@ npc xWalkAround {
 
 	say("", "Hello, World!<WAIT>");
 
-	set_direction(RIGHT);
-	set_direction_player(RIGHT);
-	set_frame(ENTITY_FRAME_STEP);
-	set_frame_player(ENTITY_FRAME_STEP);
+	direction(SELF, RIGHT);
+	direction(PLAYER, RIGHT);
+	frame(SELF, ENTITY_FRAME_STEP);
+	frame(PLAYER, ENTITY_FRAME_STEP);
 	repeat 60 {
-		move(12, 0);
-		move_player(12, 0);
+		move(SELF, 12, 0);
+		move(PLAYER, 12, 0);
 		yield;
 	}
 
-	set_frame(ENTITY_FRAME_IDLE);
-	set_frame_player(ENTITY_FRAME_IDLE);
+	frame(SELF, ENTITY_FRAME_IDLE);
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	repeat 60 { yield; }
+
+	frame(SELF, ENTITY_FRAME_STEP);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	direction(SELF, LEFT);
+	direction(PLAYER, LEFT);
 	repeat 60 {
+		move(SELF, -12, 0);
+		move(PLAYER, -12, 0);
 		yield;
 	}
 
-	set_frame(ENTITY_FRAME_STEP);
-	set_frame_player(ENTITY_FRAME_STEP);
-	set_direction(LEFT);
-	set_direction_player(LEFT);
-	repeat 60 {
-		move(-12, 0);
-		move_player(-12, 0);
-		yield;
-	}
-
-	set_frame(ENTITY_FRAME_IDLE);
-	set_frame_player(ENTITY_FRAME_IDLE);
+	frame(SELF, ENTITY_FRAME_IDLE);
+	frame(PLAYER, ENTITY_FRAME_IDLE);
 
 	say("", "Bye!<WAIT><CLEAR>");
 
