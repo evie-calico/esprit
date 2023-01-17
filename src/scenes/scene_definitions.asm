@@ -56,38 +56,15 @@ xVillageScene::
 		npc xPlatypus, 72.0, 76.0, LEFT, null, xWalkAround
 	end_scene
 
+	def_image ForestImage, "res/scenes/forest_scene_map.2bpp", "res/scenes/forest_scene_map.map", "res/scenes/forest_scene_map.pal8", "res/scenes/forest_scene_map.pmap", 20, 12
+
 section "Forest Scene", romx
 xForestScene::
 	scene
-		def random = $e0c8a0b6
 		redef SCENE_ENTRANCE_SCRIPT equs "xInitForestScene"
-		set_entrance 9, 7
 	begin_draw
-		load_bgp GrassGreen, xVillageGrassPalette
-		load_tiles Grass, GrassGreen
-		load_tiles Bush, GrassGreen
-		load_tiles RedTent, RedTentPal
-		load_tiles BlueTent, BlueTentPal
-		load_tiles Barrel, BarrelPal
+		load_image_bgp ForestImage
+		load_tiles_no_color ForestImage
 
-		draw_bkg Grass
-
-		; Draw a line of bushes on the top of the town.
-		for i, 4
-			pd Bush, i * 3, 0
-		endr
-		pd Bush, 5, 2
-		pd Bush, 8, 2
-		pd Bush, 17, 0
-
-		; Draw a line of bushes on the bottom of the town.
-		pd Bush, 0, 11
-		pd Bush, 0, 13
-		for i, 1, 5
-			pd Bush, i * 3, 12
-		endr
-		pd Bush, 15, 11
-		pd Bush, 15, 13
-		pd Bush, 18, 10
-		pd Bush, 18, 12
+		pi ForestImage, 0, 2
 	end_scene

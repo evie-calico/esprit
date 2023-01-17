@@ -14,6 +14,8 @@ def DRAWSCENE_FILL        rb ; Fill an area of the scene
 def DRAWSCENE_SETDOOR     rb ; Define a door pointing to another scene.
 def DRAWSCENE_MEMCOPY     rb ; Copy data
 def DRAWSCENE_SETCOLOR    rb ; Assign an attribute to a tile id
+def DRAWSCENE_TOGGLE_VRAM rb
+def DRAWSCENE_FORCE_COLOR rb
 def DRAWSCENE_ENDDMG      rb ; End drawing if on DMG
 
 rsreset
@@ -83,6 +85,26 @@ macro def_detail
 	\1_data:
 		incbin \2
 	.end
+	POPS
+endm
+
+; An image is a detail with a color map.
+macro def_image
+	def \1_DETAIL equ 1
+	def \1_SIZE equs "(\1_data.end - \1_data) / 16"
+	def \1_WIDTH equ \6
+	def \1_HEIGHT equ \7
+	PUSHS
+	section "\1 tiledata", romx
+	\1_map:
+		incbin \3
+	\1_data:
+		incbin \2
+	.end
+	\1_color:
+		incbin \4
+	\1_colorMap:
+		incbin \5
 	POPS
 endm
 
@@ -163,6 +185,17 @@ macro load_tiles
 	def TILE_ID += \1_SIZE
 endm
 
+macro load_tiles_no_color
+	db DRAWSCENE_VRAMCOPY
+	dw $8000 + TILE_ID * 16 ; Destination
+	dw \1_SIZE * 16 ; length
+	db bank(\1_data) ; bank
+	dw \1_data ; source
+
+	def \1_ID = TILE_ID
+	def TILE_ID += \1_SIZE
+endm
+
 macro load_objects
 	; Make sure that objects' tiles are properly aligned.
 	if TILE_ID % 2
@@ -201,6 +234,14 @@ macro load_bgp
 	if BG_COLOR_ID > 8
 		warn "Ran out of background color palettes for \1"
 	endc
+endm
+
+macro load_image_bgp
+	db DRAWSCENE_MEMCOPY
+	dw wBGPaletteBuffer + 0 * 3 * 4
+	dw \1_colorMap - \1_color
+	db bank(\1_color)
+	dw \1_color
 endm
 
 macro load_obp
@@ -257,6 +298,34 @@ macro place_detail ; detail, x, y
 	if \1_COLLISION != SCENETILE_CLEAR
 		fill_collision \1_COLLISION, \2, \3, \1_WIDTH, \1_HEIGHT
 	endc
+endm
+
+; place a small tilemap on the map.
+def pi equs "place_image"
+macro place_image ; detail, x, y
+	assert def(\1_DETAIL), "\1 is not marked as a detail object"
+
+	ASSERT DRAWSCENE_MEMCOPY & 1
+:
+	db DRAWSCENE_MEMCOPY
+	dw wSceneOverrideColor
+	dw 1
+	db bank(:-)
+	dw :-
+	db DRAWSCENE_TOGGLE_VRAM
+
+	db DRAWSCENE_FORCE_COLOR
+	db bank(\1_colorMap)
+	dw \1_colorMap
+
+	db DRAWSCENE_TOGGLE_VRAM
+
+	db DRAWSCENE_PLACEDETAIL
+	db \1_WIDTH, \1_HEIGHT
+	db \1_ID
+	db bank(\1_map)
+	dw wSceneMap + \2 + \3 * SCENE_WIDTH ; Offset for both tiles and collision.
+	dw \1_map
 endm
 
 ; Scatters details around a given area.

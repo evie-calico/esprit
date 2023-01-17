@@ -26,6 +26,7 @@ InitScene::
 		ld [hl], a
 		inc h
 	endr
+	ld [wSceneOverrideColor], a
 	; TODO: we'll need to load the player and ally from the save file here.
 
 	; Push the RNG state onto the stack and restore it later.
@@ -797,6 +798,9 @@ xRenderColumn:
 	jr nz, .loop
 	ld a, [bc]
 	ld [hl], a
+	ld a, [wSceneOverrideColor]
+	and a, a
+	jr nz, .noCgb
 	ldh a, [hSystem]
 	and a, a
 	jr z, .noCgb
@@ -898,9 +902,39 @@ DrawScene:
 	dw DrawSceneMemcopy
 	assert DRAWSCENE_SETCOLOR == 8
 	dw DrawSceneSetColor
+	assert DRAWSCENE_TOGGLE_VRAM == 9
+	dw DrawSceneToggleVram
+	assert DRAWSCENE_FORCE_COLOR == 10
+	dw DrawSceneForceColor
 
 DrawSceneExit:
 	pop af
+	ret
+
+DrawSceneToggleVram:
+	ldh a, [rVBK]
+	xor a, 1
+	ldh [rVBK], a
+	ret
+
+DrawSceneForceColor:
+	ldh a, [hCurrentBank]
+	push af
+	ld a, [hli]
+	ld b, a
+	ld de, $9840
+	ld a, [hli]
+	push hl
+	ld h, [hl]
+	ld l, a
+	ld a, b
+	rst SwapBank
+	lb bc, 20, 12
+	call MapRegion
+	pop hl
+	inc hl
+	pop af
+	rst SwapBank
 	ret
 
 DrawSceneVramCopy:
@@ -1195,6 +1229,7 @@ wScenePrimaryScript:
 .pointer ds 3
 .scriptVariables:: ds evscript_npc_pool_size * 2
 
+wSceneOverrideColor:: db
 
 section "Scene Loop counter", hram
 hSceneLoopCounter: db
