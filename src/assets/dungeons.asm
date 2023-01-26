@@ -158,6 +158,16 @@ macro dungeon_palette
 	endr
 endm
 
+macro dungeon_hex
+.palette
+	redef BACKGROUND equs "\1"
+	shift 1
+	rept 3
+		hex {BACKGROUND}, \1, \2, \3
+		shift 3
+	endr
+endm
+
 	dungeon xForestDungeon
 		tileset "res/dungeons/tree_tiles.2bpp"
 		after_floor 2, scene, xForestScene
@@ -222,10 +232,8 @@ endm
 	                  0,   0,  64, \
 
 	next_part
-		tileset "res/dungeons/tree_tiles.2bpp"
 		after_floor 4, switch
 		shape HALLS
-		music xForestMusic
 
 		items_per_floor 1
 		item xRedApple
@@ -256,7 +264,6 @@ endm
 	next_part
 		tileset "res/dungeons/field_tiles.2bpp"
 		after_floor 5, exit, FLAG_FOREST_COMPLETE
-		music xTownMusic
 
 		items_per_floor 1
 		item xRedApple
@@ -288,7 +295,7 @@ endm
 		tileset "res/dungeons/field_tiles.2bpp"
 		after_floor 5, exit, FLAG_FIELDS_COMPLETE
 		shape HALLS
-		music xTownMusic
+		music xFieldMusic
 
 		items_per_floor 1
 		item xRedApple
@@ -389,7 +396,7 @@ wLakeAnimationCounter: db
 		tileset "res/dungeons/field_tiles.2bpp"
 		after_floor 5, exit, FLAG_PLAINS_COMPLETE
 		shape HALLS
-		music xLakeMusic
+		music xFieldAltMusic
 
 		items_per_floor 1
 		item xRedApple
@@ -418,7 +425,7 @@ wLakeAnimationCounter: db
 	                 32,  24,   0, \
 
 	dungeon xCavesDungeon
-		tileset "res/dungeons/field_tiles.2bpp"
+		tileset "res/dungeons/cave_tiles.2bpp"
 		after_floor 5, exit, FLAG_CAVES_COMPLETE
 		shape HALLS
 		music xLakeMusic
@@ -438,16 +445,19 @@ wLakeAnimationCounter: db
 		enemy xFieldRat,  6
 		enemy xFieldRat,  6
 	end
-	dungeon_palette 128, 255, 144, \ ; Blank
-	                  0, 120,   0, \ ; Ground
-	                  0,  88,  24, \
-	                  0,  32,   0, \
-	                144, 104,  72, \ ; Wall
-	                  0,  88,  24, \
-	                  0,  32,   0, \
-	                  0,   0, 255, \ ; Exit
-	                  0,   0, 128, \
-	                  0,   0,  64, \
+	dungeon_hex 9191a9, \ ; Blank
+	            555571, \ ; Ground
+	            3d455a, \
+	            07152f, \
+	            555571, \ ; Ground
+	            3d455a, \
+	            07152f, \
+	            555571, \ ; Wall
+	            3d455a, \
+	            07152f, \
+	            555571, \ ; Exit
+	            3d455a, \
+	            07152f, \
 
 	dungeon xGemstoneWoodsDungeon
 		tileset "res/dungeons/gemtree_tiles.2bpp"

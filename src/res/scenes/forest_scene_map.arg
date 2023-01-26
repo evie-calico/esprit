@@ -3,3 +3,4 @@
 -o res/scenes/forest_scene_map.2bpp
 -p res/scenes/forest_scene_map.pal
 -u
+-b 0x80
