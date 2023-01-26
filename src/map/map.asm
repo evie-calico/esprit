@@ -186,12 +186,7 @@ InitMap::
 	cp a, GAMESTATE_DUNGEON
 	jr nz, :+
 		for i, 2
-			ld a, [wTrackedEntity]
-			if i
-				xor a, 1
-			endc
-			add a, high(wEntity0)
-			ld d, a
+			ld d, high(wEntity{d:i})
 			ld e, low(wEntity0_Bank)
 			if !i
 				ld hl, wPlayerData
@@ -249,7 +244,7 @@ InitMap::
 
 	ld de, wOBJPaletteBuffer + 3 * 3
 	ld hl, xWorldMap.objColors
-	ld c, 8 * 3 * 4
+	ld c, 7 * 3 * 3
 	call MemCopySmall
 
 	ld a, 1
@@ -337,17 +332,21 @@ InitMap::
 	cp a, GAMESTATE_MENU
 	jr nz, :+
 		xor a, a
+		ld hl, wEffects + (3 + evscript_script_pool_size) * (NB_DROPLETS + 2)
+		ld [hli], a
+		ld [hli], a
+		ld [hli], a
 		jr .noSave
 	:
 		call xCommitSaveFile
+		ld hl, wEffects + (3 + evscript_script_pool_size) * (NB_DROPLETS + 2)
 		ld a, bank(xFloppyEffect)
+		ld [hli], a
+		ld a, low(xFloppyEffect)
+		ld [hli], a
+		ld a, high(xFloppyEffect)
+		ld [hli], a
 	.noSave
-	ld hl, wEffects + (3 + evscript_script_pool_size) * (NB_DROPLETS + 2)
-	ld [hli], a
-	ld a, low(xFloppyEffect)
-	ld [hli], a
-	ld a, high(xFloppyEffect)
-	ld [hli], a
 
 	call InitUI
 

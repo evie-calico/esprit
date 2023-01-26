@@ -1,6 +1,7 @@
 include "defines.inc"
 include "dungeon.inc"
 include "entity.inc"
+include "hardware.inc"
 
 section "evscript Driver", rom0
 ; @param de: Variable pool
@@ -82,8 +83,7 @@ EvscriptBytecodeTable:
 	; NPC commands
 	dw ScriptNPCWalk
 	dw ScriptNPCSet
-	dw ScriptNPCLockPlayer
-	dw ScriptNPCFacePlayer
+	dw ScriptSceneImageLoad
 	dw ScriptEnterDungeon
 	dw ScriptEnterDungeonImmediately
 
@@ -706,28 +706,87 @@ ScriptNPCSet:
 	ld [de], a
 	ret
 
-section "evscript ScriptNPCLockPlayer", rom0
-ScriptNPCLockPlayer:
-	ld a, [wSceneMovementLocked]
-	xor a, 1
-	ld [wSceneMovementLocked], a
-	ret
-
-section "evscript ScriptNPCFacePlayer", rom0
-ScriptNPCFacePlayer:
+section "evscript ScriptSceneImageLoad", rom0
+ScriptSceneImageLoad:
+	ldh a, [hCurrentBank]
+	push af
 	push hl
 
-	ld de, wEntity0_Direction
-	ld a, [wActiveEntity]
-	ld h, a
-	ld l, low(wEntity0_Direction)
-	ld a, [de]
-	add a, 2
-	and a, 3
-	ld [hl], a
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	ld b, a
+	push bc ; data len
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	ld b, a
+	push bc ; data
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	ld b, a
+	push bc ; map
+
+	; bank
+	ld a, [hli]
+	ld d, a
+	push de
+
+	ldh a, [hSystem]
+	and a, a
+	jr z, .noColor
+
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	ld b, a
+	push bc ; color len
+	ld a, [hli]
+	ld c, a
+	ld a, [hli]
+	ld b, a
+	push bc ; color
+	; copy color map
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, d
+	rst SwapBank
+	ld de, $9800
+	lb bc, 20, 14
+	ld a, 1
+	ldh [rVBK], a
+	call MapRegion
+	xor a, a
+	ldh [rVBK], a
+	pop hl
+	pop bc
+	ld de, wBGPaletteBuffer
+	call MemCopy
+.noColor
+	pop de
+	ld a, d
+	rst SwapBank
 
 	pop hl
-	ret
+	ld de, $9800
+	lb bc, 20, 14
+	call MapRegion
+
+	pop hl
+	pop bc
+	ld de, $8800
+	call VramCopy
+
+	pop hl
+	ld a, 13
+	add a, l
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	jp BankReturn
 
 section "evscript ScriptPlayMusic", rom0
 ScriptPlayMusic:

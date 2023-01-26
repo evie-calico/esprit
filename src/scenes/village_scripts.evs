@@ -1,6 +1,5 @@
 include "src/include/script.evs";
 #asm
-	include "res/charmap.inc";
 	include "defines.inc"
 	include "entity.inc";
 #end
@@ -10,39 +9,4 @@ script xInitVillage {
 }
 
 npc xWalkAround {
-	lock();
-	face_player();
-
-	say("", "Hello, World!<WAIT>");
-
-	direction(SELF, RIGHT);
-	direction(PLAYER, RIGHT);
-	frame(SELF, ENTITY_FRAME_STEP);
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	repeat 60 {
-		move(SELF, 12, 0);
-		move(PLAYER, 12, 0);
-		yield;
-	}
-
-	frame(SELF, ENTITY_FRAME_IDLE);
-	frame(PLAYER, ENTITY_FRAME_IDLE);
-	repeat 60 { yield; }
-
-	frame(SELF, ENTITY_FRAME_STEP);
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	direction(SELF, LEFT);
-	direction(PLAYER, LEFT);
-	repeat 60 {
-		move(SELF, -12, 0);
-		move(PLAYER, -12, 0);
-		yield;
-	}
-
-	frame(SELF, ENTITY_FRAME_IDLE);
-	frame(PLAYER, ENTITY_FRAME_IDLE);
-
-	say("", "Bye!<WAIT><CLEAR>");
-
-	lock();
 }

@@ -1,5 +1,7 @@
 ; This file is to be included by generated songs as well.
 
+def PATTERN_LENGTH equ 64
+
 ; dn note, instr, effect
 MACRO dn
     ; The tracker outputs a bunch of `dn` lines, whose arguments are identical to the tracker grid

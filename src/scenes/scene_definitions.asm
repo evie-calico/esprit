@@ -7,6 +7,8 @@ include "scene.inc"
 	def_detail BlueTent, "res/scenes/tent2.2bpp", "res/scenes/tent2.map", 3, 2, SCENETILE_WALL
 	def_detail Barrel, "res/scenes/barrel.2bpp", "res/scenes/barrel.map", 5, 6, SCENETILE_WALL
 
+	image xForestSceneBackground, "res/scenes/forest_scene_map"
+
 section "VillageGrassPalette", romx
 xVillageGrassPalette: incbin "res/scenes/bush_detail.pal8"
 

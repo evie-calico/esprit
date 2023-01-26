@@ -46,6 +46,21 @@ def SCENE_HEIGHT equ 32
 		alias DrawInfo
 	end_struct
 
+macro image
+	section "\1 image", romx
+	\1::
+	.data::
+		incbin strcat(\2, ".2bpp")
+	.dataEnd::
+	.map::
+		incbin strcat(\2, ".map")
+	.color::
+		incbin strcat(\2, ".pal8")
+	.colorEnd::
+	.colorMap::
+		incbin strcat(\2, ".pmap")
+endm
+
 ; A scene is map up of two maps; one for collision and one for tiles.
 ; In addition, a table of attributes is used to provide colors for tiles as they
 ; are loaded. This means that a single ID may only have one attribute, which

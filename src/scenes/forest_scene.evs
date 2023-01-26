@@ -1,15 +1,15 @@
 include "src/include/script.evs";
 #asm
-	include "defines.inc"
 	include "entity.inc";
-	include "format.inc";
+	include "scene.inc";
 #end
 
 npc xInitForestScene {
 	if get_flag(FLAG_SEEN_FOREST_CUTSCENE) {
 		enter_dungeon_immediately(xForestDungeon_part2);
 	}
-	lock();
+
+	load(xForestSceneBackground);
 
 	// Luvui and Aris enter from the left.
 	// Luvui falls slightly behind, before stopping at the foot of a tree.
@@ -18,8 +18,8 @@ npc xInitForestScene {
 	frame(PLAYER, ENTITY_FRAME_STEP);
 	frame(PARTNER, ENTITY_FRAME_STEP);
 	repeat 60 {
-		dmove(PLAYER, RIGHT, 10,);
-		dmove(PARTNER, RIGHT, 12,);
+		dmove(PLAYER, RIGHT, 10);
+		dmove(PARTNER, RIGHT, 12);
 		yield;
 	}
 	frame(PLAYER, ENTITY_FRAME_IDLE);
