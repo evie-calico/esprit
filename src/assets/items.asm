@@ -48,5 +48,5 @@ endm
 		rgb  64,  64, 196
 		rgb   0,   0,  80
 
-	item REVIVE, xReviverSeed, "Reviver Seed", "Eating it will heal you fully the next time you are fatally wounded.", "res/items/reviver_seed.2bpp"
+	item REVIVE, xReviverSeed, "Reviver Seed", "Eating it will fully heal you the next time you are fatally wounded.", "res/items/reviver_seed.2bpp"
 	.palette incbin "res/items/reviver_seed.pal8", 3
