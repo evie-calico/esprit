@@ -1,6 +1,8 @@
 ; This file is to be included by generated songs as well.
 
-def PATTERN_LENGTH equ 64
+DEF PATTERN_LENGTH equ 64 ; How many rows in a pattern.
+DEF ROW_SIZE equ 3 ; How many bytes per row.
+DEF ORDER_WIDTH equ 2 ; How many bytes in each order entry.
 
 ; dn note, instr, effect
 MACRO dn
@@ -24,6 +26,7 @@ MACRO dn
     ELIF FX == FX_MASTER_VOL
     ELIF FX == FX_ROUTINE
     ELIF FX == FX_NOTE_DELAY
+        assert NOTE < LAST_NOTE, "Cannot use note delay without a note!"
     ELIF FX == FX_PANNING
     ELIF FX == FX_DUTY_CYCLE
     ELIF FX == FX_VOL_SLIDE
