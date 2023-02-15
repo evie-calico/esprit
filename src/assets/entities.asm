@@ -62,7 +62,8 @@ endm
 		rgb 96, 48, 16
 		rgb 0, 16, 16
 	.moves
-		level 1, xNibble
+		level 1, xScratch
+		level 5, xPoisonBarbs
 		db 0
 
 	entity xSnake, "Snake", "res/sprites/snake.2bpp"
@@ -81,4 +82,20 @@ endm
 		hex 01133e
 	.moves
 		level 1, xHeal
+		db 0
+
+	entity xAlligator, "Alligator", "res/sprites/alligator.2bpp"
+	.palette
+		incbin "res/sprites/alligator.pal8", 3
+	.moves
+		level 1, xBite
+		db 0
+
+	entity xMudCrab, "Mud Crab", "res/sprites/crustacean.2bpp"
+	.palette
+		rgb 120, 120, 80
+		rgb 64, 64, 16
+		rgb 16, 24, 0
+	.moves
+		level 1, xClawBite
 		db 0

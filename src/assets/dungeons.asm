@@ -182,11 +182,11 @@ endm
 
 		enemy xForestRat, 1
 		enemy xForestRat, 1
-		enemy xForestRat, 1
 		enemy xForestRat, 2
 		enemy xForestRat, 2
 		enemy xForestRat, 2
 		enemy xForestRat, 3
+		enemy xMudCrab,   1
 		enemy xFieldRat,  1
 	end
 	dungeon_palette 128, 255, 144, \ ; Blank
@@ -211,14 +211,15 @@ endm
 		item xGrapes
 		item xReviverSeed
 
-		enemy xForestRat, 1
-		enemy xForestRat, 1
-		enemy xForestRat, 1
+		; In the deep forest, dangerous enemies are slightly more common
 		enemy xForestRat, 2
 		enemy xForestRat, 2
 		enemy xForestRat, 2
 		enemy xForestRat, 3
+		enemy xMudCrab,   1
+		enemy xMudCrab,   1
 		enemy xFieldRat,  1
+		enemy xFieldRat,  2
 	end
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
@@ -231,6 +232,7 @@ endm
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
+	; Transition back to the original forest before finally reaching the fields.
 	next_part
 		after_floor 4, switch
 		shape HALLS
@@ -261,6 +263,7 @@ endm
 	                  0,   0, 128, \
 	                  0,   0,  64, \
 
+	; Give the player a preview of the fields :)
 	next_part
 		tileset "res/dungeons/field_tiles.2bpp"
 		after_floor 5, exit, FLAG_FOREST_COMPLETE
@@ -303,7 +306,7 @@ endm
 		item xGrapes
 		item xPepper
 
-		enemy xForestRat, 3
+		enemy xAlligator, 3
 		enemy xForestRat, 3
 		enemy xForestRat, 4
 		enemy xSnake,     3
@@ -337,13 +340,13 @@ endm
 		item xPepper
 
 		enemy xFieldRat,  2
-		enemy xForestRat, 3
-		enemy xForestRat, 3
+		enemy xFieldRat,  3
+		enemy xPlatypus,  3
 		enemy xFirefly,   3
 		enemy xFirefly,   4
-		enemy xFieldRat,  5
-		enemy xFieldRat,  6
-		enemy xFieldRat,  6
+		enemy xPlatypus,  5
+		enemy xAlligator, 6
+		enemy xAlligator, 6
 	end
 	dungeon_palette $7b, $82, $a6, \ ; Blank
 	                80, 96, 152, \
@@ -391,6 +394,10 @@ xLakeAnimationFrames: incbin "res/dungeons/lake_animation.2bpp"
 
 section FRAGMENT "dungeon BSS", wram0
 wLakeAnimationCounter: db
+
+	; ---------------------
+	; The rest of these dungeons are incomplete placeholders.
+	; ---------------------
 
 	dungeon xPlainsDungeon
 		tileset "res/dungeons/field_tiles.2bpp"
