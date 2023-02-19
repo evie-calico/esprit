@@ -81,7 +81,8 @@ endm
 		hex fcef00
 		hex 01133e
 	.moves
-		level 1, xHeal
+		level 1, xMoonlight
+		level 1, xFly
 		db 0
 
 	entity xAlligator, "Alligator", "res/sprites/alligator.2bpp"

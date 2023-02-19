@@ -593,6 +593,23 @@ EntityDelayAnimation::
 	ea_wait 16
 	ea_end
 
+EntityFlyAnimation::
+	ea_frame ENTITY_FRAME_IDLE
+	rept 10
+		ea_hide
+		ea_wait 2
+		ea_show
+		ea_wait 2
+	endr
+	ea_frame ENTITY_FRAME_STEP
+	rept 20
+		rept 8
+			ea_forward
+		endr
+		ea_wait 1
+	endr
+	ea_end
+
 section "Entity animation graphics update", rom0
 UpdateAnimationFrame:
 	push hl

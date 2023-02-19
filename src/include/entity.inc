@@ -28,6 +28,7 @@ def MOVE_ACTION_ATTACK rb 1 ; A simple attack, dealing damage to an enemy in fro
 def MOVE_ACTION_HEAL rb 1 ; Heals an ally in front of the user
 def MOVE_ACTION_POISON rb 1 ; Inflicts poison on an enemy in front of the user.
 def MOVE_ACTION_POISN_ATK rb 1 ; Inflicts poison on and deals damage to an enemy in front of the user.
+def MOVE_ACTION_FLY rb 1 ; Flies away from the battle and appears somewhere.
 def MOVE_ACTION_COUNT rb 1
 
 def MOVE_MAXIMUM_LENGTH equ 16

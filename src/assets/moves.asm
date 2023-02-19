@@ -22,12 +22,16 @@ assert STRLEN(\3) <= MOVE_MAXIMUM_LENGTH
 endm
 
 	;  | Type     | Identifier  | Name          | Power | Range | Chance | Cost
-	move ATTACK,    xNibble,      "Nibble",          3,      1,     90%,     0,
 	move ATTACK,    xScratch,     "Scratch",         8,      1,    100%,     0,
 	move ATTACK,    xBite,        "Bite",           12,      1,     85%,    15,
-	move ATTACK,    xClawBite,    "Claw Bite",      12,      1,     50%,    15,
 	move ATTACK,    xPounce,      "Pounce",          8,      2,     85%,    15,
 	move HEAL,      xHeal,        "Heal",            5,      1,     60%,    20,
+	; Enemy-only moves.
+	; These may have extreme effects that the player shouldn't be able to access.
+	move ATTACK,    xNibble,      "Nibble",          3,      1,     90%,     0,
+	move ATTACK,    xClawBite,    "Claw Bite",      12,      1,     50%,    15,
+	move HEAL,      xMoonlight,   "Moonlight",       8,      3,     50%,     0,
 	move POISON,    xPoison,      "Poison",          0,      1,    100%,    20,
 	move POISN_ATK, xPoisonFangs, "Poison Fangs",    8,      1,     50%,     0,
 	move POISN_ATK, xPoisonBarbs, "Poison Barbs",    6,      1,    100%,     0,
+	move FLY,       xFly,         "Fly",             0,      3,    100%,     0,

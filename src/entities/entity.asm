@@ -456,7 +456,9 @@ LoadPlayers::
 	ret
 
 section "Spawn Enemy", rom0
-SpawnEnemy::
+; b = X
+; c = Y
+GetValidSpawn::
 	call Rand
 	and a, 63
 	ld b, a
@@ -484,7 +486,11 @@ SpawnEnemy::
 	ld a, [hl]
 	assert TILE_CLEAR == 0
 	and a, a
-	jr nz, SpawnEnemy
+	jr nz, GetValidSpawn
+	ret
+
+SpawnEnemy::
+	call GetValidSpawn
 	; b = X
 	; c = Y
 

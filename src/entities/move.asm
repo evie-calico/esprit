@@ -162,8 +162,10 @@ UseMove::
 	dw MoveActionPoison
 	assert MOVE_ACTION_POISN_ATK == 3
 	dw MoveActionPoisonAttack
+	assert MOVE_ACTION_FLY == 4
+	dw MoveActionFly
 
-	assert MOVE_ACTION_COUNT == 4
+	assert MOVE_ACTION_COUNT == 5
 
 ; Basic attack. Check <range> tiles in front of <entity>, and attack the first
 ; enemy seen. Deals <power> damage and has a <chance> chance of succeeding.
@@ -253,6 +255,38 @@ MoveActionPoisonAttack:
 
 	ld l, low(wEntity0_PoisonTurns)
 	ld [hl], 16
+	ret
+
+; Fly away and respawn elsewhere
+; @param b: Entity pointer high byte
+; @param de: Move pointer
+MoveActionFly:
+	ld hl, wEntityAnimation
+	ld a, low(EntityFlyAnimation)
+	ld [hli], a
+	ld a, high(EntityFlyAnimation)
+	ld [hli], a
+	ld a, low(.relocate)
+	ld [hli], a
+	ld a, high(.relocate)
+	ld [hli], a
+	ld [hl], b
+	ld a, b
+	ld [wDefeatCheckTarget], a
+	ret
+
+.relocate
+	call GetValidSpawn
+	ld a, [wDefeatCheckTarget]
+	ld h, a
+	ld l, low(wEntity0_SpriteY + 1)
+	ld [hl], c
+	inc hl
+	inc hl
+	ld a, b
+	ld [hli], a
+	ld [hli], a
+	ld [hl], c
 	ret
 
 section "Check move accuracy", rom0
