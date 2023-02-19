@@ -174,11 +174,11 @@ endm
 		shape HALLS
 		music xForestMusic
 
-		items_per_floor 1
+		items_per_floor 2
 		item xRedApple
+		item xTwig
 		item xGreenApple
 		item xGrapes
-		item xPepper
 
 		enemy xForestRat, 1
 		enemy xForestRat, 1
@@ -241,7 +241,7 @@ endm
 		item xRedApple
 		item xGreenApple
 		item xGrapes
-		item xPepper
+		item xTwig
 
 		enemy xForestRat, 1
 		enemy xForestRat, 1

@@ -140,11 +140,11 @@ xInitialFile:
 .mapLastDirectionMoved db LEFT
 .playerData
 	farptr xLuvui
-	db 5
+	db INIT_LEVEL
 	dw 0
 .partnerData
 	farptr xAris
-	db 6
+	db INIT_LEVEL + 1
 	dw 0
 .inventory ds 3 * INVENTORY_SIZE, 0
 .quicksave ds wQuicksave.end - wQuicksave, 0

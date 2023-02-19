@@ -555,14 +555,15 @@ section "Get Max Health", rom0
 ; @param a: Level
 ; @return hl: Max Health
 GetMaxHealth::
-	; The current formula is 16 + level * 4
-	; or in other words, (level + 4) * 4
-    add a, 4
-    ld l, a
-    ld h, 0
-    add hl, hl
-    add hl, hl
-    ret
+	; The current formula is 8 + level * 8
+	; or in other words, (level + 1) * 4
+	inc a
+	ld l, a
+	ld h, 0
+	add hl, hl
+	add hl, hl
+	add hl, hl
+	ret
 
 section "Get Experience Target", rom0
 ; This function encapsulates the experience target formula, allowing it to
