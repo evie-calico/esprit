@@ -1,5 +1,6 @@
 include "defines.inc"
 include "dungeon.inc"
+include "entity.inc"
 
 macro def_equs
 	redef \1 equs "\2"
@@ -203,7 +204,7 @@ endm
 	next_part
 		after_floor 3, switch
 		shape LATTICE
-		music xForestMusic
+		music xForestNightMusic
 
 		items_per_floor 4
 		item xRedApple
@@ -252,13 +253,13 @@ endm
 		enemy xForestRat, 3
 		enemy xFieldRat,  1
 	end
-	dungeon_palette 128, 255, 144, \ ; Blank
-	                  0, 120,   0, \ ; Ground
-	                  0,  88,  24, \
+	dungeon_palette 120, 192,  96, \ ; Blank
+	                 32, 120,   0, \ ; Ground
+	                 24,  64,  24, \
 	                  0,  32,   0, \
-	                144, 104,  72, \ ; Wall
-	                  0,  88,  24, \
-	                  0,  32,   0, \
+	                 64, 120,   0, \ ; Wall
+	                  0,  64,   0, \
+	                  0,   8,   0, \
 	                  0,   0, 255, \ ; Exit
 	                  0,   0, 128, \
 	                  0,   0,  64, \
@@ -267,6 +268,7 @@ endm
 	next_part
 		tileset "res/dungeons/field_tiles.2bpp"
 		after_floor 5, exit, FLAG_FOREST_COMPLETE
+		on_tick xForestNightCapFunction
 
 		items_per_floor 1
 		item xRedApple
@@ -283,16 +285,32 @@ endm
 		enemy xFieldRat,  3
 		enemy xFieldRat,  4
 	end
-	dungeon_palette 120, 192,  96, \ ; Blank
-	                 32, 120,   0, \ ; Ground
-	                 24,  64,  24, \
-	                  0,  32,   0, \
-	                 64, 120,   0, \ ; Wall
-	                  0,  64,   0, \
-	                  0,   8,   0, \
-	                 96,  80,   0, \ ; Exit
-	                 64,  48,   0, \
-	                 32,  24,   0, \
+	dungeon_palette  94, 144, 175, \ ; Blank
+	                  9, 109, 102, \ ; Ground
+	                 11,  76,  43, \
+	                  4,  40,  26, \
+	                  9, 109, 102, \ ; Ground
+	                 11,  76,  43, \
+	                  4,  40,  26, \
+	                  9, 109, 102, \ ; Ground
+	                 11,  76,  43, \
+	                  4,  40,  26,
+
+; Placing this after the dungeon ensures it's in the same bank.
+; Forcefully cap the players' fatigue so they always display "Tired".
+xForestNightCapFunction:
+	ld a, [wEntity0_Fatigue]
+	cp a, TIRED_THRESHOLD - 1
+	jr c, :+
+	ld a, TIRED_THRESHOLD - 2
+	ld [wEntity0_Fatigue], a
+:
+	ld a, [wEntity1_Fatigue]
+	cp a, TIRED_THRESHOLD - 1
+	ret c
+	ld a, TIRED_THRESHOLD - 2
+	ld [wEntity1_Fatigue], a
+	ret
 
 	dungeon xFieldDungeon
 		tileset "res/dungeons/field_tiles.2bpp"
