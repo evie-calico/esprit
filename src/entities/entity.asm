@@ -43,9 +43,9 @@ ProcessEntities::
 	jp xAllyLogic
 
 ; All entity logic jumps here to end their turn.
-.next::
+EndTurnContinue::
 	call EndTurn
-	jr .loop
+	jr ProcessEntities.loop
 
 EndTurn::
 	; End-of-turn bookkeeping
@@ -66,6 +66,16 @@ EndTurn::
 	:
 
 	; Check for poison
+	; First, make sure we're not interrupting another animation.
+	; If we are, just skip processing for this turn.
+	ld de, wEntityAnimation.pointer
+	ld a, [de]
+	and a, a
+	jr nz, .noPoison
+	inc de
+	ld a, [de]
+	and a, a
+	jr nz, .noPoison
 	ld l, low(wEntity0_PoisonTurns)
 	ld a, [hl]
 	and a, a

@@ -477,9 +477,11 @@ DefeatCheck::
 	ld a, high(.playerFinal)
 	ld [hli], a
 	ld [hl], b
-	ldh a, [hSaveUserIndex]
+	; Check what team this entity is on.
+	; Players should have different death handling.
+	ld a, b
 	cp a, high(wEntity0) + NB_ALLIES
-	ret nc
+	ret c
 
 	; run this code when an enemy dies.
 	ld hl, wEntityAnimation.callback

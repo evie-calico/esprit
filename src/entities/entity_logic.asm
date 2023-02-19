@@ -16,7 +16,7 @@ xPlayerLogic::
 	cp a, [hl]
 	jr nz, :+
 		ld [hl], -1
-		jp ProcessEntities.next
+		jp EndTurnContinue
 :
 	; If any movement is queued, the player should refuse to take its turn to
 	; allow all sprites to catch up.
@@ -296,7 +296,7 @@ POPS
 		xor a, a
 	:
 	ld [hl], a
-	jp ProcessEntities.next
+	jp EndTurnContinue
 
 .swapWithAlly
 	ld h, a
@@ -336,7 +336,7 @@ xAllyLogic::
 	cp a, [hl]
 	jr nz, :+
 		ld [hl], -1
-		jp ProcessEntities.next
+		jp EndTurnContinue
 :
 	add a, high(wEntity0)
 	ld h, a
@@ -411,7 +411,7 @@ xAllyLogic::
 	jp nz, EndTurn
 .chaseEnemy
 	call xChaseTarget
-	jp c, ProcessEntities.next
+	jp c, EndTurnContinue
 .followLeader
 	ld a, [wActiveEntity]
 	add a, high(wEntity0)
@@ -446,7 +446,7 @@ xAllyLogic::
 :
 	add a, b
 	dec a
-	jp z, ProcessEntities.next
+	jp z, EndTurnContinue
 
 	; Determine best directions
 	ld a, d
@@ -512,13 +512,13 @@ xAllyLogic::
 	ld [hl], a
 	call MoveEntity
 	and a, a
-	jp z, ProcessEntities.next
+	jp z, EndTurnContinue
 	ld a, [wNextBestDir]
 	; Try to move
 	ld l, low(wEntity0_Direction)
 	ld [hl], a
 	call MoveEntity
-	jp ProcessEntities.next
+	jp EndTurnContinue
 
 ; @param a: Contains the value of wActiveEntity
 xEnemyLogic::
@@ -551,21 +551,21 @@ xEnemyLogic::
 
 .fail
 	call xChaseTarget
-	jp ProcessEntities.next
+	jp EndTurnContinue
 	; Enemies take some extra steps.
-	jp c, ProcessEntities.next
+	jp c, EndTurnContinue
 	ld a, [wBestDir]
 	add a, 2
 	and a, %11
 	ld d, a
 	call xTryStep
-	jp c, ProcessEntities.next
+	jp c, EndTurnContinue
 	ld a, [wNextBestDir]
 	add a, 2
 	and a, %11
 	ld d, a
 	call xTryStep
-	jp ProcessEntities.next
+	jp EndTurnContinue
 
 ; @param d: X distance
 ; @param e: Y distance
