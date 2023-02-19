@@ -770,21 +770,22 @@ TryMove:
 	ldh a, [hCurrentBank]
 	push af
 
-	ld a, -1
-	ld [wStrongestValidMove], a
 	xor a, a
-	ld [wStrongestValidMove.strength], a
 	ld [hCurrentMoveCounter], a
 	ld a, [wActiveEntity]
 	add a, high(wEntity0)
 	ld h, a
 	ld l, low(wEntity0_Moves)
+	; b = valid move queue (4 bits, 1 = available)
+	; c = valid move count (used by rand range to select move)
+	ld bc, 0
 .loop
 	ld a, [hli]
 	and a, a
 	jr nz, :+
 		inc hl
 		inc hl
+		; and a, a luckily clears carry.
 		jr .next
 :
 	rst SwapBank
@@ -811,33 +812,29 @@ TryMove:
 	inc a
 :	dec a
 	cp a, [hl]
+	; The value of `nc` at this point is *very important*!!!!!!!
 	jr nc, .popNext
 .found
-	ld a, [wStrongestValidMove]
-	cp a, -1
-	jr z, .strongest
-	ld a, [wStrongestValidMove.strength]
-	inc hl
-	assert Move_Range + 1 == Move_Power
-	cp a, [hl]
-	jr nc, .popNext ; If the move's power is greater, set it as the strongest move.
-.strongest
-	ldh a, [hCurrentMoveCounter]
-	ld [wStrongestValidMove], a
-	ld a, [hl]
-	ld [wStrongestValidMove.strength], a
+	; This move is valid.
+	inc c ; increment move count
+	scf ; Add it to the queue by setting move bit
 .popNext
 	pop hl
 	inc hl
 .next
+	; shift the carry bit in.
+	; Only two paths can reach this code, passing either `c` (valid) or `nc`.
+	rl b
 	ldh a, [hCurrentMoveCounter]
 	inc a
 	ldh [hCurrentMoveCounter], a
 	cp a, ENTITY_MOVE_COUNT
 	jr nz, .loop
 .done
-	ld a, [wStrongestValidMove]
-	inc a ; cp a, -1
+	ld a, b
+	ldh [hMoveQueue], a
+	ld a, c
+	and a, a
 	ld b, a ; ld b, 0 (if a is zero, since the value of b only matters in that case)
 	jp z, BankReturn
 
@@ -847,6 +844,40 @@ TryMove:
 	and a, a
 	ld b, 2
 	jp nz, BankReturn
+
+	; Now convert b and c into a move selection
+	push hl
+	push de
+	ld h, 0
+	ld a, c
+	; adjust the move count to be within rand range's bounds.
+	; if the index is 0 then we need to skip the call entirely.
+	dec a
+	ld l, a ; the number of moves - 1; the upper bound.
+	call nz, RandRange
+	; adjust up so `dec b` sets `z`
+	inc a
+	; b = random move index
+	ld b, a
+	; a = move queue
+	ldh a, [hMoveQueue]
+	; c = current move
+	ld c, 4
+.moveQueue
+	; count the move we're on; important for skipping gaps.
+	; since we're going through the queue backwards, we start at the last move.
+	dec c 
+	; loop through move queue to resolve gaps.
+	rra
+	jr nc, .moveQueue ; If the move is invalid, just skip this bit.
+	; if it is valid, decrement the selected move.
+	dec b
+	jr nz, .moveQueue
+	; At this point, `c` is our chosen move.
+	; it's not clobbered in the following code, so leave it where it is.
+
+	pop de
+	pop hl
 
 	ld l, low(wEntity0_Direction)
 	; Determine best directions
@@ -886,7 +917,8 @@ TryMove:
 	ld [hl], a
 
 .useMove
-	ld a, [wStrongestValidMove]
+	; finally load the chosen move
+	ld a, c
 	ld b, h
 	call UseMove
 	ld b, 1
@@ -970,15 +1002,17 @@ section "Pathfinding vars", wram0
 wClosestAllyTemp: db
 wBestDir: db
 wNextBestDir: db
-wStrongestValidMove: db
-.strength: db
+wChosenMove: db
 
 section "Get closest entity hram", hram
 hClosestEntityTarget: db
 hClosestEntityFinal:: db
 
 section "Volatile", hram
-hCurrentMoveCounter: db
+; this is a union
+hMoveQueue:
+hCurrentMoveCounter:
+	db
 
 section fragment "dungeon BSS", wram0
 wMovementToggleWatch: db
