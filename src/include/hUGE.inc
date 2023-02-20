@@ -40,6 +40,7 @@ MACRO dn
         ENDC
     ELIF FX == FX_PATTERN_BRK
         assert PATTERN_LENGTH == 1 << 6, "Pattern length must be a power of 2"
+        def FX_ARG -= 1 ; hUGE is 1-indexed for some reason, so fix that.
         def FX_ARG |= -PATTERN_LENGTH ; Convert to `forceRow` format.
     ELIF FX == FX_NOTE_CUT
     ELIF FX == FX_SET_SPEED

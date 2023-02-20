@@ -6,7 +6,7 @@ include "src/include/script.evs";
 
 npc xInitForestScene {
 	if get_flag(FLAG_SEEN_FOREST_CUTSCENE) {
-		enter_dungeon_immediately(xForestDungeon_part2);
+		enter_dungeon_immediately(xForestDungeon_part3);
 	}
 
 	load(xForestSceneBackground);
@@ -70,7 +70,7 @@ npc xInitForestScene {
 		yield;
 	}
 	set_flag(FLAG_SEEN_FOREST_CUTSCENE, 1);
-	enter_dungeon(xForestDungeon_part2);
+	enter_dungeon(xForestDungeon_part3);
 	repeat 30 {
 		dmove(PLAYER, RIGHT, 14);
 		dmove(PARTNER, RIGHT, 14);

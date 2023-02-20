@@ -53,3 +53,6 @@ endm
 
 	item REVIVE, xReviverSeed, "Reviver Seed", "Eating it will fully heal you the next time you are fatally wounded.", "res/items/reviver_seed.2bpp"
 	.palette incbin "res/items/reviver_seed.pal8", 3
+
+	item POISON_CURE, xAloe, "Aloe", "It's slimy... Eating it cures Poison.", "res/items/aloe.2bpp"
+	.palette incbin "res/items/aloe.pal8", 3

@@ -131,8 +131,8 @@ xTitleScreenInit:
 	ld [hli], a
 	ld [hli], a
 
-	ld a, BANK(xLakeMusic)
-	ld de, xLakeMusic
+	ld a, BANK(xCricketSound)
+	ld de, xCricketSound
 	call StartSongTrampoline
 
 	jp FadeIn

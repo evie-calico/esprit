@@ -171,14 +171,14 @@ endm
 
 	dungeon xForestDungeon
 		tileset "res/dungeons/tree_tiles.2bpp"
-		after_floor 2, scene, xForestScene
+		after_floor 2, switch
 		shape HALLS
 		music xForestMusic
 
 		items_per_floor 2
 		item xRedApple
-		item xTwig
 		item xGreenApple
+		item xTwig
 		item xGrapes
 
 		enemy xForestRat, 1
@@ -202,13 +202,44 @@ endm
 	                  0,   0,  64, \
 
 	next_part
-		after_floor 3, switch
+		after_floor 3, scene, xForestScene
+		shape LATTICE
+
+		items_per_floor 5
+		item xAloe
+		item xGreenApple
+		item xGrapes
+		item xReviverSeed
+
+		; In the deep forest, dangerous enemies are slightly more common
+		enemy xForestRat, 2
+		enemy xForestRat, 2
+		enemy xForestRat, 2
+		enemy xForestRat, 3
+		enemy xMudCrab,   1
+		enemy xMudCrab,   1
+		enemy xFieldRat,  1
+		enemy xFieldRat,  2
+	end
+	dungeon_palette 128, 255, 144, \ ; Blank
+	                  0, 120,   0, \ ; Ground
+	                  0,  88,  24, \
+	                  0,  32,   0, \
+	                144, 104,  72, \ ; Wall
+	                  0,  88,  24, \
+	                  0,  32,   0, \
+	                  0,   0, 255, \ ; Exit
+	                  0,   0, 128, \
+	                  0,   0,  64, \
+
+	next_part
+		after_floor 4, switch
 		shape LATTICE
 		music xForestNightMusic
 
-		items_per_floor 4
+		items_per_floor 5
 		item xRedApple
-		item xGreenApple
+		item xAloe
 		item xGrapes
 		item xReviverSeed
 
@@ -235,10 +266,10 @@ endm
 
 	; Transition back to the original forest before finally reaching the fields.
 	next_part
-		after_floor 4, switch
+		after_floor 5, switch
 		shape HALLS
 
-		items_per_floor 1
+		items_per_floor 2
 		item xRedApple
 		item xGreenApple
 		item xGrapes
@@ -267,14 +298,14 @@ endm
 	; Give the player a preview of the fields :)
 	next_part
 		tileset "res/dungeons/field_tiles.2bpp"
-		after_floor 5, exit, FLAG_FOREST_COMPLETE
+		after_floor 6, exit, FLAG_FOREST_COMPLETE
 		on_tick xForestNightCapFunction
 
-		items_per_floor 1
-		item xRedApple
-		item xGreenApple
-		item xGrapes
+		items_per_floor 3
+		item xAloe
 		item xPepper
+		item xGrapes
+		item xTwig
 
 		enemy xForestRat, 3
 		enemy xForestRat, 3

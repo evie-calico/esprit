@@ -10,6 +10,7 @@ def ITEM_NULL rb ; cannot be used.
 def ITEM_HEAL rb ; restores health.
 def ITEM_FATIGUE_HEAL rb ; restores health and fatigue.
 def ITEM_REVIVE rb ; revives the entity upon death
+def ITEM_POISON_CURE rb ; cures poison
 def ITEM_MAX rb 0
 
 	struct Item

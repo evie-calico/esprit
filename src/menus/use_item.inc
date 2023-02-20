@@ -294,8 +294,6 @@ UseItemLoadEntity:
 		jp VramSetSmall
 .exists
 	rst SwapBank
-	ld a, h
-	ld [wfmt_xPauseStatusString_target], a
 	push hl ; Save entity pointer so you can print info later.
 		ld a, [hli]
 		ld h, [hl]
@@ -335,20 +333,7 @@ UseItemLoadEntity:
 		call ReloadColor
 	pop hl
 	; Now throw in the level, health, and max health.
-	ld b, h
-	ld l, low(wEntity0_Level)
-	ld a, [hli]
-	call GetMaxHealth
-	ld a, l
-	ld [wfmt_xPauseStatusString_maxHealth], a
-	ld a, h
-	ld [wfmt_xPauseStatusString_maxHealth + 1], a
-	ld h, b
-	ld l, low(wEntity0_Health)
-	ld a, [hli]
-	ld [wfmt_xPauseStatusString_health], a
-	ld a, [hli]
-	ld [wfmt_xPauseStatusString_health + 1], a
+	call PrepareStatus
 
 	; Finally, print!
 	ld a, 1

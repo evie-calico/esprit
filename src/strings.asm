@@ -2,8 +2,8 @@ include "format.inc"
 
 ; Contains all formatted text in a central location
 
-	format xStatusString, "[entity:name]: [u16:health]/[u16:maxHealth] HP[condition:hasStatus][str:status]"
-	format xPauseStatusString, "[entity:target]\nHP: [u16:health]/[u16:maxHealth]"
+	format xStatusString, "[entity::wStatusString.name]: [u16::wStatusString.health]/[u16::wStatusString.maxHealth] HP[str::wStatusString.status]"
+	format xPauseStatusString, "[entity::wStatusString.name][str::wStatusString.status]\nHP: [u16::wStatusString.health]/[u16::wStatusString.maxHealth]"
 
 	format xUsedMoveString, "[entity:user] used [str:move]!"
 	format xDealtDamageString, "Dealt [u8:value] damage to [entity:target]!"

@@ -979,8 +979,13 @@ FxSetPanning:
 
 
 FxPatternBreak:
-	ld a, b
-	ld [wForceRow], a
+	ld hl, wOrderIdx
+	ld a, [hl]
+	add a, 2
+	ld [hli], a
+	ASSERT wOrderIdx + 2 == wForceRow
+	inc hl
+	ld [hl], b
 	ret
 
 
