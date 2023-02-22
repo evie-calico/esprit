@@ -1,5 +1,8 @@
 include "format.inc"
 
+section "elipses", romx
+xElipsesString:: db "<SET_DELAY><5>...<SET_DELAY><2><DELAY><30>", 0
+
 ; Contains all formatted text in a central location
 
 	format xStatusString, "[entity::wStatusString.name]: [u16::wStatusString.health]/[u16::wStatusString.maxHealth] HP[str::wStatusString.status]"

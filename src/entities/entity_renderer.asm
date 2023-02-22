@@ -676,15 +676,20 @@ UpdateAnimationFrame::
 	ld a, [hRenderTempByte]
 	cp a, ENTITY_FRAME_ATTK
 	jr z, .attack
+	cp a, ENTITY_FRAME_HURT
+	jr z, .hurt
+.sleep
+	ld bc, 256 + 128
+	add hl, bc
+	jr .copy
 .hurt
 	ld bc, 256 + 64
 	add hl, bc
-	ld c, 64
 	jr .copy
 .attack
 	inc h ; add hl, 256
-	ld c, 64
 .copy
+	ld c, 64
 	call VramCopySmall
 .exit
 	pop af

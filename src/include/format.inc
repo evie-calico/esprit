@@ -133,4 +133,6 @@ endm
     	charmap "<{d:i}>", i
     ENDR
 
+    charmap "…", "<ELIPSES>"
+
 endc

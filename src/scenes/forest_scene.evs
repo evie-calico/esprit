@@ -54,8 +54,7 @@ npc xInitForestScene {
 
 	// Short delay before speaking.
 	repeat 120 { yield; }
-	// TODO: map unicode ellipsis (…) to this delay pattern
-	say("Aris", "You're right<SET_DELAY><5>...<SET_DELAY><2><DELAY><30> it's getting dark too.");
+	say("Aris", "You're right… it's getting dark too.");
 	repeat 120 { yield; }
 	direction(PARTNER, LEFT);
 	say("Aris", "There should be a few more apples up ahead.<WAIT> Let's go a bit further before we head back.");

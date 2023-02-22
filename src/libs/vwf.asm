@@ -150,6 +150,7 @@ endm
 	reader_only_control_char ENTITY_NAME,  ReaderEntityName
 	reader_only_control_char JUMP_PTR,     ReaderJumpToPointer
 	reader_only_control_char RET_FALSE,    ReaderReturnIfFalse
+	reader_only_control_char ELIPSES,      ReaderElipses
 
 	; The base of the table is located at its end
 	; Unusual, I know, but it works better!
@@ -853,6 +854,49 @@ ReaderReturnIfFalse:
 	and a, a
 	ret nz
 	ld hl, 0
+	ret
+
+ReaderElipses:
+	ld a, [wTextStackSize]
+	if def(STACK_OVERFLOW_HANDLER)
+		cp TEXT_STACK_CAPACITY
+		call nc, STACK_OVERFLOW_HANDLER
+	endc
+
+	; Read target ptr
+	inc a ; Increase stack size
+	ld [wTextStackSize], a
+
+	; Get ptr to end of 1st empty entry
+	ld b, a
+	add a, a
+	add a, b
+	add a, low(wTextStack - 1)
+	ld c, a
+	adc a, high(wTextStack - 1)
+	sub c
+	ld b, a
+	; Save ROM bank immediately, as we're gonna bankswitch
+	ldh a, [hCurrentBank]
+	ld [bc], a
+	dec bc
+
+	; Swap src ptrs
+	ld a, bank(xElipsesString)
+	ld [de], a ; Use current byte in char buffer as scratch
+	; Save src ptr now
+	ld a, h
+	ld [bc], a
+	dec bc
+	ld a, l
+	ld [bc], a
+	; Read new src ptr
+	dec hl
+	ld hl, xElipsesString
+	; Perform bankswitch now that all bytecode has been read
+	ld a, [de]
+	ldh [hCurrentBank], a
+	ld [rROMB0], a
 	ret
 
 ; Start printing a new string, then keep writing this one
