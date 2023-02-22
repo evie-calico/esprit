@@ -75,6 +75,10 @@ VBlank:
 	pop hl
 	pop de
 	pop bc
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
 	pop af
 	ret
 
