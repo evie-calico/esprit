@@ -611,8 +611,10 @@ EntityFlyAnimation::
 	ea_end
 
 section "Entity animation graphics update", rom0
-UpdateAnimationFrame:
+UpdateAnimationFrame::
 	push hl
+	ldh a, [hCurrentBank]
+	push af
 
 	; Dereference the entity's data
 	; Save the entity's frame for later.
@@ -685,7 +687,7 @@ UpdateAnimationFrame:
 .copy
 	call VramCopySmall
 .exit
-	ld a, bank(xUpdateAnimation)
+	pop af
 	rst SwapBank
 	pop hl
 	ret

@@ -1,0 +1,141 @@
+include "src/include/script.evs";
+#asm
+	include "entity.inc";
+	include "scene.inc";
+#end
+
+npc xInitForestScene2 {
+	load(xForestSceneBackground2);
+	play_music(xCricketSound);
+
+	// Luvui and Aris enter from the bottom of the screen
+	// They both tiredly walk forwards, stopping the the middle of the field.
+loop {
+	position(PLAYER, 80, 96);
+	position(PARTNER, 98, 96);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 60 {
+		dmove(PLAYER, UP, 8);
+		dmove(PARTNER, UP, 8);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+	repeat 40 { yield; }
+	direction(PLAYER, RIGHT);
+	repeat 20 { yield; }
+	say("Luvui", "I'm... exhausted...");
+	say("Aris", "...");
+
+
+	// Luvui looks around.
+	repeat 40 { yield; }
+	direction(PLAYER, LEFT);
+	// Aris falls asleep.
+	frame(PARTNER, ENTITY_FRAME_ATTK);
+	special_frame(PARTNER);
+	repeat 40 { yield; }
+	direction(PLAYER, DOWN);
+	repeat 40 { yield; }
+	direction(PLAYER, LEFT);
+	repeat 60 { yield; }
+	// She approaches the grass to their left.
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 60 {
+		dmove(PLAYER, LEFT, 12);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+
+	say("Luvui", "It's so late... <WAIT>they're probably gonna worry about us.");
+	say("Aris", "<SET_DELAY><5>...Zzz...<SET_DELAY><2>");
+	// Luvui turns to approach him
+	direction(PLAYER, RIGHT);
+	repeat 60 { yield; }
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 60 {
+		dmove(PLAYER, RIGHT, 13);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	// she gives him a few pokes...
+	repeat 60 { yield; }
+	repeat 2 {
+		repeat 5 {
+			move(PLAYER, 16, 0);
+			yield;
+		}
+		repeat 5 {
+			move(PLAYER, -16, 0);
+			yield;
+		}
+		repeat 30 { yield; }
+	}
+
+	say("Luvui", "Come on, sleepy... <WAIT>it's not safe here...");
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 20 {
+		move(PLAYER, -4, 0);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	repeat 30 { yield; }
+
+	// Luvui walks around Aris, looking at him from a few sides...
+	u8 circle_distance = 40;
+
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat circle_distance - 10 {
+		dmove(PLAYER, UP, 8);
+		yield;
+	}
+	repeat circle_distance {
+		dmove(PLAYER, RIGHT, 8);
+		yield;
+	}
+	direction(PLAYER, DOWN);
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	repeat 60 { yield; }
+
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat circle_distance {
+		dmove(PLAYER, RIGHT, 8);
+		yield;
+	}
+	repeat circle_distance - 10 {
+		dmove(PLAYER, DOWN, 8);
+		yield;
+	}
+	direction(PLAYER, LEFT);
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	repeat 60 { yield; }
+
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat circle_distance - 10 {
+		dmove(PLAYER, UP, 8);
+		yield;
+	}
+	repeat circle_distance {
+		dmove(PLAYER, LEFT, 8);
+		yield;
+	}
+	direction(PLAYER, DOWN);
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	repeat 60 { yield; }
+
+	// ...before pushing him offscreen.
+	repeat 3 {
+		frame(PLAYER, ENTITY_FRAME_STEP);
+		repeat 10 {
+			dmove(PLAYER, DOWN, 6);
+			move(PARTNER, 0, 6);
+			yield;
+		}
+		frame(PLAYER, ENTITY_FRAME_IDLE);
+		repeat 60 { yield; }
+	}
+
+}
+	return;
+}

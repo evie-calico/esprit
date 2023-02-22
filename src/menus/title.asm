@@ -131,8 +131,8 @@ xTitleScreenInit:
 	ld [hli], a
 	ld [hli], a
 
-	ld a, BANK(xCricketSound)
-	ld de, xCricketSound
+	ld a, BANK(xLakeMusic)
+	ld de, xLakeMusic
 	call StartSongTrampoline
 
 	jp FadeIn
@@ -330,9 +330,9 @@ def twinkle rb
 def random = 2834123757
 
 macro next_random ; xorshift32
-  def random ^= random << 13
-  def random ^= random >> 17
-  def random ^= random << 5
+	def random ^= random << 13
+	def random ^= random >> 17
+	def random ^= random << 5
 endm
 
 macro star

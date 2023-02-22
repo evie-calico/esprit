@@ -298,8 +298,8 @@ endm
 	; Give the player a preview of the fields :)
 	next_part
 		tileset "res/dungeons/field_tiles.2bpp"
-		after_floor 6, exit, FLAG_FOREST_COMPLETE
-		on_tick xForestNightCapFunction
+		after_floor 6, scene, xForestScene2
+		on_tick xForestNightForceTired
 
 		items_per_floor 3
 		item xAloe
@@ -329,7 +329,7 @@ endm
 
 ; Placing this after the dungeon ensures it's in the same bank.
 ; Forcefully cap the players' fatigue so they always display "Tired".
-xForestNightCapFunction:
+xForestNightForceTired:
 	ld a, [wEntity0_Fatigue]
 	cp a, TIRED_THRESHOLD - 1
 	jr c, :+

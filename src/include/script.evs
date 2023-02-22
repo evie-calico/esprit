@@ -143,6 +143,7 @@ env script {
 	// NPC functions
 	def npc_move(const u8, const u16, const u16);
 	def npc_set(const u8, const u8, const u8);
+	def npc_special_frame(const u8);
 	def _scene_image_load();
 
 	def _enter_dungeon();
@@ -161,6 +162,7 @@ env npc {
 	macro dmove(const u8, const u8, const u16) = npc_dmove;
 	alias set(const u8, const u8, const u8) = npc_set($1, $2, $3);
 	alias frame(const u8, const u8) = npc_set($1, const Entity_Frame, $2);
+	alias special_frame(const u8) = npc_special_frame($1);
 	alias direction(const u8, const u8) = npc_set($1, const Entity_Direction, $2);
 	macro position(const u8, const u16, const u16) = set_position;
 	macro load(const u8) = scene_image_load;

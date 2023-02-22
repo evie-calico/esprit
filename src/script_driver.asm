@@ -83,6 +83,7 @@ EvscriptBytecodeTable:
 	; NPC commands
 	dw ScriptNPCWalk
 	dw ScriptNPCSet
+	dw ScriptNPCSpecialFrame
 	dw ScriptSceneImageLoad
 	dw ScriptEnterDungeon
 	dw ScriptEnterDungeonImmediately
@@ -705,6 +706,16 @@ ScriptNPCSet:
 	ld a, [hli]
 	ld [de], a
 	ret
+
+section "evscript ScriptNPCSpecialFrame", rom0
+ScriptNPCSpecialFrame:
+	ld a, [hli]
+	add a, high(wEntity0)
+	jr nc, :+
+	ld a, [wActiveEntity]
+:
+	ld d, a
+	jp UpdateAnimationFrame
 
 section "evscript ScriptSceneImageLoad", rom0
 ScriptSceneImageLoad:
