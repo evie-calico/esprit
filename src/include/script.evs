@@ -150,6 +150,9 @@ env script {
 	macro enter_dungeon(const u8) = enter_dungeon;
 	def _enter_dungeon_immediately();
 	macro enter_dungeon_immediately(const u8) = enter_dungeon_immediately;
+	def fade_to_black();
+	def fade_in();
+	def check_fade(return u8);
 
 	pool = 18;
 }

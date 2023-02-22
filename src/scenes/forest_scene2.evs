@@ -10,7 +10,6 @@ npc xInitForestScene2 {
 
 	// Luvui and Aris enter from the bottom of the screen
 	// They both tiredly walk forwards, stopping the the middle of the field.
-loop {
 	position(PLAYER, 80, 96);
 	position(PARTNER, 98, 96);
 	frame(PLAYER, ENTITY_FRAME_STEP);
@@ -142,6 +141,14 @@ loop {
 		repeat 60 { yield; }
 	}
 
-}
-	return;
+	// TOWN SCENE
+	fade_to_black();
+	repeat 255 { yield; }
+	load(xVillageSceneBackground);
+	play_music(xTownMusic);
+	fade_in();
+
+	position(PLAYER, 0, 0);
+	position(PARTNER, 14 * 8, 64);
+	frame(PARTNER, ENTITY_FRAME_IDLE);
 }

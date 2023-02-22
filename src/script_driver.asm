@@ -87,6 +87,9 @@ EvscriptBytecodeTable:
 	dw ScriptSceneImageLoad
 	dw ScriptEnterDungeon
 	dw ScriptEnterDungeonImmediately
+	dw FadeToBlack
+	dw FadeIn
+	dw ScriptCheckFade
 
 section "evscript Return", rom0
 StdReturn:
@@ -872,5 +875,17 @@ ScriptRandRange:
 	ld d, a
 	; Now store the result!
 	ld a, b
+	ld [de], a
+	ret
+
+section "evscript ScriptCheckFade", rom0
+ScriptCheckFade:
+	ld a, [hli]
+	add a, e
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+	ld a, [wFadeSteps]
 	ld [de], a
 	ret
