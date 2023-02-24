@@ -141,14 +141,52 @@ npc xInitForestScene2 {
 		repeat 60 { yield; }
 	}
 
+	// HOUSE SCENE
+	fade_to_black();
+		repeat 60 { yield; }
+		load(xBarrelSceneBackground);
+		play_music(xTownMusic);
+		position(PLAYER, 72, 64);
+		direction(PLAYER, LEFT);
+		position(PARTNER, 60, 64);
+		// partner is still sleeping at this point.
+		yield; // Wait for the direction to change before switching to sleep.
+		frame(PLAYER, ENTITY_FRAME_SLEEP);
+		special_frame(PLAYER);
+	fade_in();
+	say("Aris", "...Luvui?<WAIT> Are you awake?");
+
 	// TOWN SCENE
 	fade_to_black();
-	repeat 255 { yield; }
-	load(xVillageSceneBackground);
-	play_music(xTownMusic);
+		while check_fade() { yield; }
+		load(xVillageSceneBackground);
+		position(PLAYER, 0, 0);
+		position(PARTNER, 14 * 8, 64);
+		frame(PARTNER, ENTITY_FRAME_IDLE);
+		direction(PARTNER, DOWN);
 	fade_in();
 
-	position(PLAYER, 0, 0);
-	position(PARTNER, 14 * 8, 64);
+	// Aris steps out of the house
+	repeat 40 { yield; }
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(PARTNER, DOWN, 6);
+		yield;
+	}
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+
+	repeat 20 { yield; }
+	direction(PARTNER, RIGHT);
+	repeat 40 { yield; }
+	direction(PARTNER, DOWN);
+	repeat 10 { yield; }
+	direction(PARTNER, LEFT);
+	repeat 40 { yield; }
+
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 120 {
+		dmove(PARTNER, LEFT, 6);
+		yield;
+	}
 	frame(PARTNER, ENTITY_FRAME_IDLE);
 }

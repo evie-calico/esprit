@@ -1,0 +1,6 @@
+-a res/scenes/barrel_scene_map.pmap
+-t res/scenes/barrel_scene_map.map
+-o res/scenes/barrel_scene_map.2bpp
+-p res/scenes/barrel_scene_map.pal
+-u
+-b 0x80
