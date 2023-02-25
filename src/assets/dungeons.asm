@@ -171,7 +171,7 @@ endm
 
 	dungeon xForestDungeon
 		tileset "res/dungeons/tree_tiles.2bpp"
-		after_floor 2, scene, xForestScene2
+		after_floor 2, switch
 		shape HALLS
 		music xForestMusic
 

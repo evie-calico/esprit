@@ -65,6 +65,7 @@ Initialize::
 	ldh [hOAMIndex], a
 
 	; zero-init vars
+	ld [wMapShouldSave], a
 	ld [wSTATTarget], a
 	ld [wSTATTarget + 1], a
 	ld [wTextCharset], a

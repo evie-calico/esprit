@@ -34,6 +34,13 @@ macro enter_dungeon_immediately
 	dw \1
 endm
 
+macro spawn_npc
+	db script@_spawn_npc
+	db high(wEntity0) + \1
+	db bank(\2)
+	dw \2
+endm
+
 macro set_position
 	def x = (\2) | ((\3) << 8)
 	def y = (\4) | ((\5) << 8)
@@ -141,6 +148,8 @@ env script {
 	def draw_sprite(sprite);
 
 	// NPC functions
+	def _spawn_npc(const u8, const u8);
+	macro spawn_npc(const u8, const u8) = spawn_npc;
 	def npc_move(const u8, const u16, const u16);
 	def npc_set(const u8, const u8, const u8);
 	def npc_special_frame(const u8);
@@ -153,6 +162,8 @@ env script {
 	def fade_to_black();
 	def fade_in();
 	def check_fade(return u8);
+	def open_map();
+	def open_map_immediately();
 
 	pool = 18;
 }

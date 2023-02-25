@@ -81,6 +81,7 @@ EvscriptBytecodeTable:
 	; Sprite drawing
 	dw ScriptDrawSprite
 	; NPC commands
+	dw ScriptNPCSpawn
 	dw ScriptNPCWalk
 	dw ScriptNPCSet
 	dw ScriptNPCSpecialFrame
@@ -90,6 +91,8 @@ EvscriptBytecodeTable:
 	dw FadeToBlack
 	dw FadeIn
 	dw ScriptCheckFade
+	dw ScriptOpenMap
+	dw ScriptOpenMapImmediately
 
 section "evscript Return", rom0
 StdReturn:
@@ -652,6 +655,33 @@ ScriptDrawSprite:
 	pop hl
 	ret
 
+section "evscript ScriptNPCSpawn", rom0
+ScriptNPCSpawn:
+	ld a, [hli]
+	ld d, a
+	ld e, low(wEntity0_Bank)
+	ld a, [hli]
+	ld [de], a
+	inc e
+	ld a, [hli]
+	ld [de], a
+	inc e
+	ld a, [hli]
+	ld [de], a
+	ld e, low(wEntity0_WasMovingLastFrame)
+	xor a, a
+	ld [de], a
+	assert Entity_WasMovingLastFrame + 1 == Entity_AnimationDesync
+	inc e
+	ld [de], a
+	ldh a, [hCurrentBank]
+	push af
+	push hl
+	ld h, d
+	call LoadEntityGraphics
+	pop hl
+	jp BankReturn
+
 section "evscript ScriptNPCWalk", rom0
 ScriptNPCWalk:
 	; TODO: Most NPC operations are simply manipulating data in memory. This would be a good application for pointers, arrays, and function support.
@@ -845,6 +875,27 @@ ScriptEnterDungeon:
 	ld [bc], a
 	inc bc
 	ld a, high(EnterNewFloor)
+	ld [bc], a
+	ret
+
+section "evscript ScriptOpenMap", rom0
+ScriptOpenMapImmediately:
+	ld a, 1
+	ld [wFadeSteps], a
+	ld a, 1
+	ld [wFadeAmount], a
+	ld a, -1
+	ld [wFadeDelta], a
+	jr ScriptOpenMap.after
+
+ScriptOpenMap:
+	call FadeToBlack
+.after
+	ld bc, wFadeCallback
+	ld a, low(InitMap)
+	ld [bc], a
+	inc bc
+	ld a, high(InitMap)
 	ld [bc], a
 	ret
 

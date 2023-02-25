@@ -5,6 +5,11 @@ include "src/include/script.evs";
 #end
 
 npc xInitForestScene2 {
+	if get_flag(FLAG_FOREST_COMPLETE) {
+		open_map_immediately();
+		return;
+	}
+
 	load(xForestSceneBackground2);
 	play_music(xCricketSound);
 
@@ -143,24 +148,137 @@ npc xInitForestScene2 {
 
 	// HOUSE SCENE
 	fade_to_black();
-		repeat 60 { yield; }
+		repeat 120 { yield; }
 		load(xBarrelSceneBackground);
 		play_music(xTownMusic);
-		position(PLAYER, 72, 64);
+		// init aris
+		direction(PARTNER, RIGHT);
+		frame(PARTNER, ENTITY_FRAME_IDLE);
+		position(PARTNER, 88, 48);
+		// init mom
+		spawn_npc(2, xMom);
+		frame(2, ENTITY_FRAME_IDLE);
+		direction(2, UP);
+		position(2, 0, 0);
+		// init luvui
+		position(PLAYER, 104, 48);
 		direction(PLAYER, LEFT);
-		position(PARTNER, 60, 64);
-		// partner is still sleeping at this point.
 		yield; // Wait for the direction to change before switching to sleep.
 		frame(PLAYER, ENTITY_FRAME_SLEEP);
 		special_frame(PLAYER);
 	fade_in();
-	say("Aris", "...Luvui?<WAIT> Are you awake?");
+
+	// Luvui is sleeping, with Aris standing over her.
+	say("Aris", "…Luvui?<WAIT> Are you awake?");
+	// Mom enters
+	position(2, 72, 96);
+	repeat 40 { yield; }
+	direction(PARTNER, DOWN);
+	repeat 40 { yield; }
+	say("Mom", "You two were out very late last night.<WAIT> She was practically dragging you home!");
+	direction(PARTNER, RIGHT);
+	repeat 40 { yield; }
+	direction(PARTNER, DOWN);
+	repeat 40 { yield; }
+	say("Aris", "I'm sorry… I just wanted to bring back lots of food.");
+
+	// Mom approaches
+	frame(2, ENTITY_FRAME_STEP);
+	repeat 60 {
+		dmove(2, UP, 12);
+		yield;
+	}
+	frame(2, ENTITY_FRAME_IDLE);
+	direction(PARTNER, LEFT);
+	direction(2, RIGHT);
+	repeat 40 { yield; }
+
+	say("Mom", "I have a feeling you were trying to impress her~");
+	say("Aris", "Mom...");
+	repeat 20 { yield; }
+	direction(PARTNER, DOWN);
+	repeat 10 { yield; }
+	direction(PARTNER, RIGHT);
+	repeat 40 { yield; }
+	direction(PARTNER, DOWN);
+	repeat 10 { yield; }
+	direction(PARTNER, LEFT);
+	repeat 40 { yield; }
+	say("Aris", "...she is cute.<WAIT> I hope she stays with us.");
+
+	// Mom steps back to think.
+	frame(2, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(2, LEFT, 4);
+		yield;
+	}
+	frame(2, ENTITY_FRAME_IDLE);
+	repeat 40 { yield; }
+
+	say("Mom", "You know how many of the animals here want to go back home.");
+	direction(2, RIGHT);
+	say("Mom", "Just don't be too disappointed if she's unhappy here.<WAIT> We'll take care of her for as long as she wants to stay, okay?");
+
+	// Mom steps back to give him some space.
+	frame(2, ENTITY_FRAME_STEP);
+	repeat 40 {
+		move(2, -4, 0);
+		yield;
+	}
+	frame(2, ENTITY_FRAME_IDLE);
+	repeat 40 { yield; }
+
+	say("Mom", "Let's let her sleep a little longer.<DELAY><30> You should go donate the food you two collected.");
+	say("Mom", "When she's awake, you can go play with her.<DELAY><30> But promise me you'll come home before dark, okay?");
+	// Aris steps forward
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(PARTNER, LEFT, 8);
+		yield;
+	}
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+	say("Aris", "I promise.");
+	// He turns to look at her again
+	repeat 20 { yield; }
+	direction(PARTNER, DOWN);
+	repeat 10 { yield; }
+	direction(PARTNER, RIGHT);
+	repeat 40 { yield; }
+	direction(PARTNER, DOWN);
+	repeat 10 { yield; }
+	direction(PARTNER, LEFT);
+	repeat 40 { yield; }
+	say("Aris", "Tell her where to find me once she wakes up!");
+	// he backs up
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 10 {
+		move(PARTNER, 4, 0);
+		yield;
+	}
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+	// waits
+	repeat 60 { yield; }
+	// and then runs off!
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(PARTNER, DOWN, 16);
+		yield;
+	}
+	direction(2, DOWN);
+	repeat 25 {
+		dmove(PARTNER, DOWN, 16);
+		yield;
+	}
+	position(PARTNER, 0, 0);
+	repeat 60 { yield; }
+	say("Mom", "He really likes her...");
 
 	// TOWN SCENE
 	fade_to_black();
 		while check_fade() { yield; }
 		load(xVillageSceneBackground);
 		position(PLAYER, 0, 0);
+		position(2, 0, 0);
 		position(PARTNER, 14 * 8, 64);
 		frame(PARTNER, ENTITY_FRAME_IDLE);
 		direction(PARTNER, DOWN);
@@ -189,4 +307,7 @@ npc xInitForestScene2 {
 		yield;
 	}
 	frame(PARTNER, ENTITY_FRAME_IDLE);
+
+	set_flag(FLAG_FOREST_COMPLETE, 1);
+	open_map();
 }

@@ -12,7 +12,7 @@ def NB_NPCS equ 6
 
 def vAPrompt equ $8FE0
 def idof_vAPrompt equ $FE
-def vAPromptLocation equ $9C00 + 18 + 31 * 32
+def vAPromptLocation equ $9C00 + 19 + 31 * 32
 
 section "A Prompt", romx
 APrompt: incbin "res/ui/a_prompt.2bpp"
@@ -196,7 +196,7 @@ SceneState::
 	ld b, idof_vAPrompt
 	jr .drawAPrompt
 .noAPrompt
-	ld b, 0
+	ld b, $59
 .drawAPrompt
 	ldh a, [rSTAT]
 	and a, STATF_BUSY

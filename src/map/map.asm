@@ -182,9 +182,9 @@ InitMap::
 	ldh a, [hCurrentBank]
 	push af
 
-	ld a, [wGameState]
-	cp a, GAMESTATE_DUNGEON
-	jr nz, :+
+	ld a, [wMapShouldSave]
+	and a, a
+	jr z, :+
 		for i, 2
 			ld d, high(wEntity{d:i})
 			ld e, low(wEntity0_Bank)
@@ -212,8 +212,9 @@ InitMap::
 		endr
 	:
 
-	; Null out all enemies.
 	xor a, a
+	ld [wMapShouldSave], a
+	; Null out all enemies.
 	ld hl, wEntity0
 	ld b, NB_ENTITIES
 .clearEntities
@@ -761,3 +762,6 @@ section UNION "State variables", wram0
 wEffects: ds (3 + evscript_script_pool_size) * NB_EFFECTS
 
 wMapLockInput: db
+
+section "wMapShouldSave", wram0
+wMapShouldSave:: db

@@ -13,6 +13,7 @@ macro level
 	dw \2
 endm
 
+	; Players
 	entity xLuvui, "Luvui", "res/sprites/luvui.2bpp"
 	.palette
 		rgb 255, 255, 160
@@ -36,6 +37,7 @@ endm
 		level 7, xPounce
 		db 0
 
+	; Enemies
 	entity xForestRat, "Forest Rat", "res/sprites/rat.2bpp"
 	.palette
 		rgb 144, 200, 112
@@ -99,4 +101,11 @@ endm
 		rgb 16, 24, 0
 	.moves
 		level 1, xClawBite
+		db 0
+
+	; NPCS
+	entity xMom, "", "res/sprites/kangaroo.2bpp"
+	.palette
+		incbin "res/sprites/kangaroo.pal8", 3
+	.moves
 		db 0

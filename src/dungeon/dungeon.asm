@@ -191,6 +191,8 @@ SwitchToDungeonState::
 	ld hl, wWindowMode
 	ld [hli], a
 	ld [hli], a
+	ld a, 1
+	ld [wMapShouldSave], a
 
 	ld h, high(wEntity0)
 .loop
