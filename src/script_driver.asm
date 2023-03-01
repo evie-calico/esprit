@@ -64,6 +64,7 @@ EvscriptBytecodeTable:
 	dw StdLogicalOr
 
 	; Engine extensions
+	dw ScriptSleep
 	dw ScriptRand
 	dw ScriptRandRange
 	dw ScriptIsCgb
@@ -101,6 +102,22 @@ StdYield:
 	pop de ; pop return address
 	pop de ; pop pool pointer
 	ret
+
+ScriptSleep:
+	ld a, [hli]
+	add a, e
+	ld e, a
+	adc a, d
+	sub a, e
+	ld d, a
+	ld a, [de]
+	dec a
+	ld [de], a
+	cp a, -1
+	ret z
+	dec hl ; undo param
+	dec hl ; undo bytecode
+	jr StdYield
 
 section "evscript Goto", rom0
 StdJump:

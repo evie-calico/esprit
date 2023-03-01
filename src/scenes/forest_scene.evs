@@ -36,7 +36,7 @@ npc xInitForestScene {
 	}
 	frame(PARTNER, ENTITY_FRAME_IDLE);
 	direction(PARTNER, LEFT);
-	repeat 60 { yield; }
+	sleep(60);
 
 	say(Luvui, "We've gone out pretty far.<WAIT> The forest is getting a lot thicker.");
 
@@ -53,13 +53,13 @@ npc xInitForestScene {
 	frame(PARTNER, ENTITY_FRAME_IDLE);
 
 	// Short delay before speaking.
-	repeat 120 { yield; }
+	sleep(120);
 	say(Aris, "You're right… it's getting dark too.");
-	repeat 120 { yield; }
+	sleep(120);
 	direction(PARTNER, LEFT);
 	say(Aris, "There should be a few more apples up ahead.<WAIT> Let's go a bit further before we head back.");
 	direction(PLAYER, RIGHT);
-	repeat 30 { yield; }
+	sleep(30);
 
 	// Exit scene while fading out.
 	frame(PLAYER, ENTITY_FRAME_STEP);

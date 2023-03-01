@@ -135,5 +135,6 @@ endm
     ENDR
 
     charmap "…", "<ELIPSES>"
+    charmap "♡", $7F
 
 endc

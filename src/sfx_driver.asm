@@ -157,6 +157,15 @@ sfxArisVoice::
 	reg rNR14 = $c6
 	reg end
 
+sfxMomVoice::
+	sound PULSE1, 6
+	reg rNR10 = $7f
+	reg rNR11 = $28
+	reg rNR12 = $f1
+	reg rNR13 = $6e
+	reg rNR14 = $c6
+	reg end
+
 section "sound channels", hram
 hSound::
 .frames:: db

@@ -72,6 +72,9 @@ macro say
 	elif !strcmp("\1", "Aris")
 		def name equs "xAris.name"
 		def voice equs "sfxArisVoice"
+	elif !strcmp("\1", "Mom")
+		def name equs "xMom.name"
+		def voice equs "sfxMomVoice"
 	else
 		if !def(_name_\1)
 			if !def(_say_index)
@@ -150,6 +153,7 @@ env script {
 	def lor_u8(); alias lor_i8() = lor_u8();
 
 	// Engine extensions
+	def sleep(u8);
 	def rand(return u8);
 	def rand_range(const u8, const u8, return u8);
 	def is_cgb(return u8);
