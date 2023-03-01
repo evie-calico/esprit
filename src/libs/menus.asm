@@ -272,6 +272,10 @@ MenuMoveDown:
 .ok
 	dec hl ; Get back to current item
 	ld [hl], a ; Write back
+	push hl
+	ld hl, sfxUiClick
+	call PlaySound
+	pop hl
 	ret
 
 MenuMoveUp:
@@ -288,6 +292,10 @@ MenuMoveUp:
 .ok
 	dec a
 	ld [hl], a
+	push hl
+	ld hl, sfxUiClick
+	call PlaySound
+	pop hl
 	ret
 
 MenuValidate:

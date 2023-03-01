@@ -29,10 +29,10 @@ npc xInitForestScene2 {
 	repeat 40 { yield; }
 	direction(PLAYER, RIGHT);
 	repeat 20 { yield; }
-	say("Luvui", "I'm… exhausted…");
+	say(Luvui, "I'm… exhausted…");
 	direction(PARTNER, LEFT);
 	repeat 20 { yield; }
-	say("Aris", "…");
+	say(Aris, "…");
 
 
 	// Luvui looks around.
@@ -58,8 +58,8 @@ npc xInitForestScene2 {
 	}
 	frame(PLAYER, ENTITY_FRAME_IDLE);
 
-	say("Luvui", "It's so late… <WAIT>they're probably gonna worry about us.");
-	say("Aris", "…Zzz…");
+	say(Luvui, "It's so late… <WAIT>they're probably gonna worry about us.");
+	say(Aris, "…Zzz…");
 	// Luvui turns to approach him
 	direction(PLAYER, RIGHT);
 	repeat 60 { yield; }
@@ -83,7 +83,7 @@ npc xInitForestScene2 {
 		repeat 30 { yield; }
 	}
 
-	say("Luvui", "Come on, sleepy… <WAIT>it's not safe here…");
+	say(Luvui, "Come on, sleepy… <WAIT>it's not safe here…");
 	frame(PLAYER, ENTITY_FRAME_STEP);
 	repeat 20 {
 		move(PLAYER, -4, 0);
@@ -169,18 +169,18 @@ npc xInitForestScene2 {
 	fade_in();
 
 	// Luvui is sleeping, with Aris standing over her.
-	say("Aris", "…Luvui?<WAIT> Are you awake?");
+	say(Aris, "…Luvui?<WAIT> Are you awake?");
 	// Mom enters
 	position(2, 72, 96);
 	repeat 40 { yield; }
 	direction(PARTNER, DOWN);
 	repeat 40 { yield; }
-	say("Mom", "You two were out very late last night.<WAIT> She was practically dragging you home!");
+	say(Mom, "You two were out very late last night.<WAIT> She was practically dragging you home!");
 	direction(PARTNER, RIGHT);
 	repeat 40 { yield; }
 	direction(PARTNER, DOWN);
 	repeat 40 { yield; }
-	say("Aris", "I'm sorry… I just wanted to bring back lots of food.");
+	say(Aris, "I'm sorry… I just wanted to bring back lots of food.");
 
 	// Mom approaches
 	frame(2, ENTITY_FRAME_STEP);
@@ -193,8 +193,8 @@ npc xInitForestScene2 {
 	direction(2, RIGHT);
 	repeat 40 { yield; }
 
-	say("Mom", "I have a feeling you were trying to impress her~");
-	say("Aris", "Mom...");
+	say(Mom, "I have a feeling you were trying to impress her~");
+	say(Aris, "Mom...");
 	repeat 20 { yield; }
 	direction(PARTNER, DOWN);
 	repeat 10 { yield; }
@@ -204,7 +204,7 @@ npc xInitForestScene2 {
 	repeat 10 { yield; }
 	direction(PARTNER, LEFT);
 	repeat 40 { yield; }
-	say("Aris", "...she is cute.<WAIT> I hope she stays with us.");
+	say(Aris, "...she is cute.<WAIT> I hope she stays with us.");
 
 	// Mom steps back to think.
 	frame(2, ENTITY_FRAME_STEP);
@@ -215,9 +215,9 @@ npc xInitForestScene2 {
 	frame(2, ENTITY_FRAME_IDLE);
 	repeat 40 { yield; }
 
-	say("Mom", "You know how many of the animals here want to go back home.");
+	say(Mom, "You know how many of the animals here want to go back home.");
 	direction(2, RIGHT);
-	say("Mom", "Just don't be too disappointed if she's unhappy here.<WAIT> We'll take care of her for as long as she wants to stay, okay?");
+	say(Mom, "Just don't be too disappointed if she's unhappy here.<WAIT> We'll take care of her for as long as she wants to stay, okay?");
 
 	// Mom steps back to give him some space.
 	frame(2, ENTITY_FRAME_STEP);
@@ -228,8 +228,8 @@ npc xInitForestScene2 {
 	frame(2, ENTITY_FRAME_IDLE);
 	repeat 40 { yield; }
 
-	say("Mom", "Let's let her sleep a little longer.<DELAY><30> You should go donate the food you two collected.");
-	say("Mom", "When she's awake, you can go play with her.<DELAY><30> But promise me you'll come home before dark, okay?");
+	say(Mom, "Let's let her sleep a little longer.<DELAY><30> You should go donate the food you two collected.");
+	say(Mom, "When she's awake, you can go play with her.<DELAY><30> But promise me you'll come home before dark, okay?");
 	// Aris steps forward
 	frame(PARTNER, ENTITY_FRAME_STEP);
 	repeat 20 {
@@ -237,7 +237,7 @@ npc xInitForestScene2 {
 		yield;
 	}
 	frame(PARTNER, ENTITY_FRAME_IDLE);
-	say("Aris", "I promise.");
+	say(Aris, "I promise.");
 	// He turns to look at her again
 	repeat 20 { yield; }
 	direction(PARTNER, DOWN);
@@ -248,7 +248,7 @@ npc xInitForestScene2 {
 	repeat 10 { yield; }
 	direction(PARTNER, LEFT);
 	repeat 40 { yield; }
-	say("Aris", "Tell her where to find me once she wakes up!");
+	say(Aris, "Tell her where to find me once she wakes up!");
 	// he backs up
 	frame(PARTNER, ENTITY_FRAME_STEP);
 	repeat 10 {
@@ -271,7 +271,7 @@ npc xInitForestScene2 {
 	}
 	position(PARTNER, 0, 0);
 	repeat 60 { yield; }
-	say("Mom", "He really likes her...");
+	say(Mom, "He really likes her...");
 
 	// TOWN SCENE
 	fade_to_black();

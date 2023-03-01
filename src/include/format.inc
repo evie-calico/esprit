@@ -127,6 +127,7 @@ endm
     add_type "u16",       TEXT_U16,         2
     add_type "entity",    TEXT_ENTITY_NAME, 1
     add_type "condition", TEXT_RET_FALSE,   1
+    add_type "voice",     TEXT_SET_VOICE,   2
 
     ; Add a helper charmap for literal values
     FOR i, 256

@@ -86,6 +86,9 @@ UseMove::
 	ld [hli], a
 	ld [hl], b
 
+	ld hl, sfxReadyAttack
+	call PlaySound
+
 	ld b, bank(xUsedMoveString)
 	ld hl, xUsedMoveString
 	call PrintHUD
@@ -178,6 +181,10 @@ MoveActionAttack:
 	assert SCAN_ENTITY == 0
 	and a, a
 	jp nz, PrintMissed
+	push hl
+	ld hl, sfxAttack
+	call PlaySound
+	pop hl
 	rst Rand8
 	and a, 3
 	ld b, a
@@ -515,7 +522,14 @@ DefeatCheck::
 	; Players should have different death handling.
 	ld a, b
 	cp a, high(wEntity0) + NB_ALLIES
-	ret c
+	jr nc, .notPlayer
+	ld c, low(wEntity0_CanRevive)
+	ld a, [bc]
+	and a, a
+	ret z
+	ld hl, sfxRevive
+	jp PlaySound
+.notPlayer
 
 	; run this code when an enemy dies.
 	ld hl, wEntityAnimation.callback

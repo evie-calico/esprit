@@ -66,8 +66,31 @@ macro set_position
 endm
 
 macro say
-	db script@_say, \1, \2, \3, \4
+	if !strcmp("\1", "Luvui")
+		def name equs "xLuvui.name"
+		def voice equs "sfxLuvuiVoice"
+	elif !strcmp("\1", "Aris")
+		def name equs "xAris.name"
+		def voice equs "sfxArisVoice"
+	else
+		if !def(_name_\1)
+			if !def(_say_index)
+				def _say_index = -1
+			endc
+			def _say_index += 1
+			pushs
+			section "{__EVSCRIPT_FILE__} {_say_index}", romx
+			_name_\1: db "\1", 0
+			pops
+		endc
+		def name equs "_name_\1"
+		def voice equs "sfxGenericVoice"
+	endc
+
+	db script@_say, bank(name), low(name), high(name), \2, \3, low(voice), high(voice)
 	db script@print_wait
+
+	purge name, voice
 endm
 
 macro npc_dmove
@@ -136,7 +159,7 @@ env script {
 	// Same as print, but sets a delay on each letter.
 	// The delay only works within scenes.
 	def _say(const string, const string);
-	macro say(const string, const string) = say;
+	macro say(const u8, const string) = say;
 	// Wait until text printing is done.
 	def print_wait();
 	def get_flag(u8, return u8);

@@ -109,10 +109,10 @@ RefillerControlChars:
 	control_char WAIT,            ReaderWait,                    TextWait
 	control_char CLEAR,           ReaderClear,                   TextClear
 	control_char NEWLINE,         ReaderNewline,                 TextNewline
-	control_char SYNC,            Reader1ByteNop,                TextSync
 	control_char SCROLL,          ReaderScroll,                  TextScroll
 	control_char WAIT_SCROLL,     ReaderWaitScroll,              TextWaitScroll
 	control_char SET_DELAY,       Reader2ByteNop,                TextSetDelay
+	control_char SET_VOICE,       Reader3ByteNop,                TextSetVoice
 	control_char ZWS,             _RefillCharBuffer.canNewline,  PrintNextCharInstant
 TEXT_BAD_CTRL_CHAR rb 0
 	if def(EXPORT_CONTROL_CHARS)
@@ -689,6 +689,10 @@ _RefillCharBuffer:
 	jr .afterControlChar
 
 
+Reader3ByteNop:
+	ld a, [hli]
+	ld [de], a
+	inc e
 Reader2ByteNop:
 	ld a, [hli]
 	ld [de], a
@@ -1287,7 +1291,7 @@ _PrintVWFChar:
 	; Read byte from string stream
 	ld a, [hli]
 	and a ; Check for terminator
-	jr z, .return
+	jp z, .return
 	cp " "
 	jr c, PrintVWFControlChar
 
@@ -1298,6 +1302,20 @@ _PrintVWFChar:
 
 	sub " "
 	ld e, a
+
+	cp a, "A"
+	jr c, .notAlpha
+	cp a, "z" + 1
+	jr nc, .notAlpha
+
+	ld hl, wTextVoice
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	or a, h
+	call nz, TryPlaySound
+
+.notAlpha
 
 	; Get ptr to charset table
 	ld a, [wTextCharset]
@@ -1468,6 +1486,18 @@ TextDelay:
 TextSetDelay:
 	ld a, [hli]
 	ld [wTextLetterDelay], a
+	ret
+
+TextSetVoice:
+	ld a, [hli]
+	ld e, a
+	ld a, [hli]
+	ld d, a
+	ld a, [de]
+	ld [wTextVoice + 0], a
+	inc de
+	ld a, [de]
+	ld [wTextVoice + 1], a
 	ret
 
 
@@ -1946,6 +1976,8 @@ wTextHeight:
 
 wNumberBuffer:
 	ds 6
+
+wTextVoice:: dw
 
 section "VWF engine fast memory", hram
 

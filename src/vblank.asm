@@ -64,10 +64,7 @@ VBlank:
 	rst SwapBank
 	call TickMusic
 .noMusic
-
-	ld a, bank("Sound Effects")
-	rst SwapBank
-	call audio_update
+	call UpdateSound
 
 	pop af
 	rst SwapBank

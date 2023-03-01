@@ -1,8 +1,12 @@
 include "hardware.inc"
 
 section "Null", rom0[$0000]
+; null actually has defined characteristics in this engine:
+; - null always points to null, infinitely and recursively, even when a far pointer is expected.
+; - null is a string with 0 characters
+; - null is a stub function that does nothing (but use Stub instead if possible).
 null::
-	db 0
+	ds 7, 0 
 Stub::
 	ret
 

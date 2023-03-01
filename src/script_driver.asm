@@ -333,7 +333,7 @@ ScriptIsCgb:
 section "evscript ScriptPrint", rom0
 ScriptSay:
 	ld de, wfmt_xNpcSayString_name
-	ldh a, [hCurrentBank]
+	ld a, [hli]
 	ld [de], a
 	inc de
 	ld a, [hli]
@@ -351,6 +351,14 @@ ScriptSay:
 	inc de
 	ld a, [hli]
 	ld [de], a
+
+	ld de, wfmt_xNpcSayString_voice
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+	inc de
 
 	ld de, wPrintString
 	ld a, bank(xNpcSayString)

@@ -676,9 +676,7 @@ xCheckForLevelUp::
 	ld [wfmt_xLeveledUpString_newMove], a
 	ld b, bank(xLeveledUpString)
 	ld hl, xLeveledUpString
-	call PrintHUD
-	ld a, SFX_COMPLETE
-	jp audio_play_fx
+	jp PrintHUD
 
 section "Entity take damage", rom0
 ; @param e: Damage
@@ -795,7 +793,10 @@ HealEntity::
 	dec c
 	ld a, e
 	ld [bc], a
-	ret
+
+	ld hl, sfxHeal
+	jp PlaySound
+
 .hitMax
 	ld d, h
 	ld e, l

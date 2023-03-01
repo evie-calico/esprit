@@ -5,7 +5,7 @@ macro entity ; label, name, graphic
 	section "\1 entity", romx
 	\1:: dw .gfx, .palette, .name, .moves
 	.gfx incbin \3
-	.name db \2, 0
+	.name:: db \2, 0
 endm
 
 macro level
@@ -104,7 +104,7 @@ endm
 		db 0
 
 	; NPCS
-	entity xMom, "", "res/sprites/kangaroo.2bpp"
+	entity xMom, "Mom", "res/sprites/kangaroo.2bpp"
 	.palette
 		incbin "res/sprites/kangaroo.pal8", 3
 	.moves

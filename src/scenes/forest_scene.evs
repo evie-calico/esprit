@@ -38,7 +38,7 @@ npc xInitForestScene {
 	direction(PARTNER, LEFT);
 	repeat 60 { yield; }
 
-	say("Luvui", "We've gone out pretty far.<WAIT> The forest is getting a lot thicker.");
+	say(Luvui, "We've gone out pretty far.<WAIT> The forest is getting a lot thicker.");
 
 	// Aris walks over to Luvui to look at the trees.
 	frame(PARTNER, ENTITY_FRAME_STEP);
@@ -54,10 +54,10 @@ npc xInitForestScene {
 
 	// Short delay before speaking.
 	repeat 120 { yield; }
-	say("Aris", "You're right… it's getting dark too.");
+	say(Aris, "You're right… it's getting dark too.");
 	repeat 120 { yield; }
 	direction(PARTNER, LEFT);
-	say("Aris", "There should be a few more apples up ahead.<WAIT> Let's go a bit further before we head back.");
+	say(Aris, "There should be a few more apples up ahead.<WAIT> Let's go a bit further before we head back.");
 	direction(PLAYER, RIGHT);
 	repeat 30 { yield; }
 

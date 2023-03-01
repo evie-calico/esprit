@@ -68,12 +68,15 @@ Initialize::
 	ld [wMapShouldSave], a
 	ld [wSTATTarget], a
 	ld [wSTATTarget + 1], a
+	ld [wTextVoice + 0], a
+	ld [wTextVoice + 1], a
 	ld [wTextCharset], a
 	ld [wTextCurPixel], a
 	ld [wNbMenus], a
 	ld [wFadeCallback], a
 	ld [wFadeCallback + 1], a
 	ld [wWindowSticky], a
+	ldh [hSound.frames], a
 	ldh [hSongBank], a
 	ldh [hMutedChannels], a
 	ldh [hCurrentBank], a
@@ -107,6 +110,8 @@ Initialize::
 
 	ld a, $FF
 	ld [wTextSrcPtr + 1], a
+	ldh [rNR51], a ; set panning
+
 	; Set a default theme.
 	ld a, bank(PinkMenuPalette)
 	ld [wActiveMenuPalette], a
@@ -146,8 +151,6 @@ Initialize::
 	call InitSprObjLib
 	ld a, high(wShadowOAM)
 	call hOAMDMA
-
-	call audio_init
 
 	; Enable interrupts
 	ld a, IEF_VBLANK | IEF_STAT
