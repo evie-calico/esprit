@@ -12,7 +12,7 @@ xElipsesString:: db "<SET_DELAY><5>...<SET_DELAY><2><DELAY><30>", 0
 	format xDealtDamageString, "Dealt [u8:value] damage to [entity:target]!"
 	format xHealedDamageString, "[entity:target] healed [u8:value] HP."
 	format xGotPoisonedString, "[entity:target] was poisoned!"
-	format xNotPoisonedString, "[entity:target]'s poison has faded."
+	format xSomeoneBlinkedString, "[entity:target] blinked!"
 
 	format xLeveledUpString, "[entity:target]'s level increased to [u8:level]![condition:newMove] [entity:target] learned [str:moveName]."
 	format xEnteredFloorString, "Floor [u8::wDungeonCurrentFloor][condition:quicksave]\nYour progress has been saved."
@@ -26,6 +26,7 @@ xElipsesString:: db "<SET_DELAY><5>...<SET_DELAY><2><DELAY><30>", 0
 
 	format xTiredStatus, " [color::2]-[color::3] Tired"
 	format xPoisonedStatus, " [color::2]-[color::3] Poisoned"
+	format xUnstableStatus, " [color::2]-[color::3] Unstable"
 	format xCanReviveStatus, "[color::2]+[color::3]"
 
 	format xSwitchedToManual, "Switched to manual mode."

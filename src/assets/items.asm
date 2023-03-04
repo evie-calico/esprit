@@ -56,3 +56,9 @@ endm
 
 	item POISON_CURE, xAloe, "Aloe", "It's slimy... Eating it cures Poison.", "res/items/aloe.2bpp"
 	.palette incbin "res/items/aloe.pal8", 3
+
+	item BLINK_TEAM, xBlinkfruit, "Blinkfruit", "Eating it will randomly warp your party after a few turns.", "res/items/apple.2bpp", 2
+	.palette 
+		rgb 255,   0, 255
+		rgb 128,   0, 128
+		rgb  64,   0,  64

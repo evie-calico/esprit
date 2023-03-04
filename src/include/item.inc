@@ -11,6 +11,7 @@ def ITEM_HEAL rb ; restores health.
 def ITEM_FATIGUE_HEAL rb ; restores health and fatigue.
 def ITEM_REVIVE rb ; revives the entity upon death
 def ITEM_POISON_CURE rb ; cures poison
+def ITEM_BLINK_TEAM rb ; causes the party to collectively blink after 1..N turns.
 def ITEM_MAX rb 0
 
 	struct Item
@@ -24,6 +25,11 @@ def ITEM_MAX rb 0
 	struct HealItem
 		extends Item
 		bytes 1, Strength
+	end_struct
+
+	struct BlinkItem
+		extends Item
+		bytes 1, Length
 	end_struct
 
 endc

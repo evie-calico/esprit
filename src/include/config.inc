@@ -23,3 +23,7 @@ endc
 if !def(NO_QUICKLOAD)
 	def NO_QUICKLOAD = 0
 endc
+
+if !def(INIT_INVENTORY)
+	def INIT_INVENTORY equs "null"
+endc

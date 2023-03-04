@@ -146,6 +146,10 @@ xInitialFile:
 	farptr xAris
 	db INIT_LEVEL + 1
 	dw 0
-.inventory ds 3 * INVENTORY_SIZE, 0
+.inventory
+	rept INVENTORY_SIZE
+		db bank(INIT_INVENTORY)
+		dw INIT_INVENTORY
+	endr
 .quicksave ds wQuicksave.end - wQuicksave, 0
 assert sizeof("Save Version {d:SAVE_VERSION}") == @ - xInitialFile

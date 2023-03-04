@@ -117,7 +117,9 @@ InventoryUseItem::
 	dw ReviveHandler
 	assert ITEM_POISON_CURE == 4
 	dw PoisonCureHandler
-	assert ITEM_MAX == 5
+	assert ITEM_BLINK_TEAM == 5
+	dw BlinkTeamHandler
+	assert ITEM_MAX == 6
 
 section "Heal Handler", rom0
 ; @param b: User pointer high byte
@@ -140,7 +142,7 @@ FatigueHealHandler:
 
 section "Revive Handler", rom0
 ; @param b: User pointer high byte
-; @param hl: Heal data ptr
+; @param hl: End of item data ptr
 ReviveHandler:
 	ld c, low(wEntity0_CanRevive)
 	ld a, 1
@@ -149,9 +151,24 @@ ReviveHandler:
 
 section "PoisonCureHandler", rom0
 ; @param b: User pointer high byte
-; @param hl: Heal data ptr
+; @param hl: End of item data ptr
 PoisonCureHandler:
 	ld c, low(wEntity0_PoisonTurns)
 	xor a, a
+	ld [bc], a
+	ret
+
+section "BlinkTeamHandler", rom0
+; @param b: User pointer high byte
+; @param hl: Blink data ptr
+BlinkTeamHandler:
+	assert BlinkItem_Length - sizeof_Item == 0
+	ld l, [hl]
+	ld h, 0
+	push bc
+	call RandRange ; 2..blink length
+	add a, 2
+	pop bc
+	ld c, low(wEntity0_BlinkTurns)
 	ld [bc], a
 	ret

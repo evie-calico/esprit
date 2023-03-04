@@ -122,6 +122,8 @@ def TIRED_THRESHOLD equ 35
 		bytes 1, Fatigue
 		; How many turns are left until poison is cured. 0 = No poison
 		bytes 1, PoisonTurns
+		; How many turns are left until the party is warped. 0 = no instability.
+		bytes 1, BlinkTurns
 		; If this is set, use the moving sprite for one more frame
 		bytes 1, WasMovingLastFrame
 		; Added to the frame counter so that animations aren't all synced up

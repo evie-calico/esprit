@@ -97,6 +97,33 @@ EndTurn::
 	call DamageEntity
 .noPoison
 
+	; Check for instability
+	ld l, low(wEntity0_BlinkTurns)
+	ld a, [hl]
+	and a, a
+	jr z, .noBlink
+	dec [hl]
+	jr nz, .noBlink
+	push hl
+		ld a, h
+		ld [wfmt_xSomeoneBlinkedString_target], a
+		ld b, bank(xSomeoneBlinkedString)
+		ld hl, xSomeoneBlinkedString
+		call PrintHUD
+		ld hl, wEntityAnimation
+		ld a, low(EntityHideAnimation)
+		ld [hli], a
+		ld a, high(EntityHideAnimation)
+		ld [hli], a
+		ld a, low(.blinkDelayCallback)
+		ld [hli], a
+		ld a, high(.blinkDelayCallback)
+		ld [hli], a
+		ld a, [wfmt_xSomeoneBlinkedString_target]
+		ld [hli], a
+	pop hl
+.noBlink
+
 /* The following code *would* regenerate health, but is currently disabled for the sake of balance
 	; Restore 1hp every few turns
 	ld a, [wActiveEntity]
@@ -135,6 +162,47 @@ EndTurn::
 	:
 	ld [wActiveEntity], a
 	ret
+
+.blinkDelayCallback
+	ld hl, wEntityAnimation
+	ld a, low(EntityHideAnimation)
+	ld [hli], a
+	ld a, high(EntityHideAnimation)
+	ld [hli], a
+	xor a, a
+	ld [hli], a
+	ld [hli], a
+	call FadeToWhite
+	ld a, low(.blinkCallback)
+	ld [wFadeCallback + 0], a
+	ld a, high(.blinkCallback)
+	ld [wFadeCallback + 1], a
+	ret
+
+.blinkCallback
+	call GetEmptyTile
+	ld a, d
+	ld [wEntity0_PosX], a
+	ld [wEntity0_SpriteX + 1], a
+	xor a, a
+	ld [wEntity0_SpriteX + 0], a
+	ld a, e
+	ld [wEntity0_PosY], a
+	ld [wEntity0_SpriteY + 1], a
+	xor a, a
+	ld [wEntity0_SpriteY + 0], a
+	call MapGetAdjacentClearing
+	ld a, d
+	ld [wEntity1_PosX], a
+	ld [wEntity1_SpriteX + 1], a
+	xor a, a
+	ld [wEntity1_SpriteX + 0], a
+	ld a, e
+	ld [wEntity1_PosY], a
+	ld [wEntity1_SpriteY + 1], a
+	xor a, a
+	ld [wEntity1_SpriteY + 0], a
+	jp SwitchToDungeonState
 
 section "Move entities", romx
 xMoveEntities::

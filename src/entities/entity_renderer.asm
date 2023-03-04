@@ -589,9 +589,16 @@ EntityDefeatAnimation::
 	endr
 	ea_end
 
+EntityHideAnimation::
+	ea_frame ENTITY_FRAME_IDLE
+	ea_hide
+	ea_wait 60
+	ea_end
+
 EntityDelayAnimation::
 	ea_wait 16
 	ea_end
+
 
 EntityFlyAnimation::
 	ea_frame ENTITY_FRAME_IDLE

@@ -25,7 +25,6 @@ def POPUP_SPEED equ 8
 	dtile vUIArrowRight
 	dtile vUIArrowDown
 	dtile vUIArrowLeft
-	dtile vUIFrameBottom
 	dtile vPlayerStatus, 16
 	dtile vPartnerStatus, 16
 
@@ -37,7 +36,6 @@ xUIFrame:
 	incbin "res/ui/hud_frame.2bpp",  0, 16 ; top left
 	incbin "res/ui/hud_frame.2bpp", 32, 16 ; top right
 	incbin "res/ui/arrows.2bpp"
-	incbin "res/ui/hud_frame.2bpp", 112, 16 ; bottom
 .end
 
 section "Initialize user interface", rom0
@@ -224,6 +222,21 @@ PrepareStatus::
 	ret
 
 .notPoisoned
+	; Show a tired status if fatigue is below a certain amount and no other effects are active.
+	ld l, low(wEntity0_BlinkTurns)
+	ld a, [hl]
+	and a, a
+	jr z, .notTired
+
+	ld a, bank(xUnstableStatus)
+	ld [wStatusString.status], a
+	ld a, low(xUnstableStatus)
+	ld [wStatusString.status + 1], a
+	ld a, high(xUnstableStatus)
+	ld [wStatusString.status + 2], a
+	ret
+
+.notUnstable
 	; Show a tired status if fatigue is below a certain amount and no other effects are active.
 	ld l, low(wEntity0_Fatigue)
 	ld a, [hl]

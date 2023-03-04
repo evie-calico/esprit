@@ -411,22 +411,21 @@ DungeonState::
 	jr nz, .playAnimation
 		bankcall xMoveEntities
 		call ProcessEntities
+		; Scroll the map after moving entities.
+.dungeonRendering
+		bankcall xHandleMapScroll
+		ld a, bank(xFocusCamera)
+		rst SwapBank
+		call xFocusCamera
+		assert bank(xFocusCamera) == bank(xLerpCamera)
+		call xLerpCamera
+		call xLerpCamera
+		call xLerpCamera
+		bankcall xUpdateScroll
 		jr :+
 .playAnimation
 		bankcall xUpdateAnimation
 :
-
-.dungeonRendering
-	; Scroll the map after moving entities.
-	bankcall xHandleMapScroll
-	ld a, bank(xFocusCamera)
-	rst SwapBank
-	call xFocusCamera
-	assert bank(xFocusCamera) == bank(xLerpCamera)
-	call xLerpCamera
-	call xLerpCamera
-	call xLerpCamera
-	bankcall xUpdateScroll
 
 	; Render entities after scrolling.
 	bankcall xRenderEntities
@@ -789,15 +788,27 @@ xFocusCamera:
 	ld de, (SCRN_Y - 34) / -2 << 4
 	add hl, de
 	bit 7, h
-	jr nz, :+
+	jr z, :+
+		xor a, a
+		ld [wDungeonLerpCameraY], a
+		ld [wDungeonLerpCameraY + 1], a
+		jr .doneY
+:
 	ld a, h
 	cp a, 64 - 9
-	jr nc, :+
+	jr c, :+
+		ld a, -1
+		ld [wDungeonLerpCameraY], a
+		ld a, 64 - 10
+		ld [wDungeonLerpCameraY + 1], a
+		jr .doneY
+:
 	ld a, l
 	ld [wDungeonLerpCameraY], a
 	ld a, h
 	ld [wDungeonLerpCameraY + 1], a
-:   ld a, [bc]
+.doneY
+	ld a, [bc]
 	inc c
 	ld l, a
 	ld a, [bc]
@@ -806,10 +817,21 @@ xFocusCamera:
 	ld de, (SCRN_X - 24) / -2 << 4
 	add hl, de
 	bit 7, h
-	ret nz
+	jr z, :+
+		xor a, a
+		ld [wDungeonLerpCameraX], a
+		ld [wDungeonLerpCameraX + 1], a
+		ret
+:
 	ld a, h
 	cp a, 64 - 10
-	ret nc
+	jr c, :+
+		ld a, -1
+		ld [wDungeonLerpCameraX], a
+		ld a, 64 - 11
+		ld [wDungeonLerpCameraX + 1], a
+		ret
+:
 	ld a, l
 	ld [wDungeonLerpCameraX], a
 	ld a, h
@@ -965,6 +987,129 @@ DungeonGenerateFloor::
 	farptr xGenerateLattice
 	assert DUNGEON_TYPE_DEBUG == 3
 	farptr xGenerateDebug
+
+section "MapCheck3x3IsEmpty", rom0
+; @param d: X
+; @param e: Y
+; @return hl: map pointer
+; @preserves de
+GetTileXY::
+	ld a, e
+	assert DUNGEON_WIDTH == 64
+	add a, a ; y * 2
+	add a, a ; y * 4
+	; Now we have to switch to 16-bit; 64 * 4 == 256
+	ld l, a
+	ld h, 0
+	add hl, hl ; y * 8
+	add hl, hl ; y * 16
+	add hl, hl ; y * 32
+	add hl, hl ; y * 64
+	ld a, d
+	add a, l
+	ld l, a
+	adc a, h
+	sub a, l
+	assert low(wDungeonMap) == 0
+	add a, high(wDungeonMap)
+	ld h, a
+	ret
+
+GetEmptyTile::
+	call Rand
+	and a, 63
+	ld d, a
+	ld a, e
+	and a, 63
+	ld e, a
+	call GetTileXY
+	ld a, [hl]
+	ASSERT TILE_CLEAR == 0
+	and a, a
+	jr nz, GetEmptyTile
+	ret
+
+; All tiles in a map are guaranteed to be connected, meaning there is ALWAYS a valid adjacent tile.
+; @param d: X
+; @param e: Y
+; @return de: adjusted
+; @return hl: pointer to adjusted de
+; @clobbers: hl
+MapGetAdjacentClearing::
+	call GetTileXY
+	; first check right
+	inc hl
+	inc d
+	ld a, [hl]
+	cp a, TILE_WALL
+	ret nz
+	; adjust coords
+	dec d
+	dec d
+	; adjust pointer
+	dec hl
+	dec hl
+	ld a, [hl]
+	cp a, TILE_WALL
+	ret nz
+	; adjust coords
+	inc d
+	dec e
+	; adjust pointer
+	ld a, l
+	sub a, DUNGEON_WIDTH - 1
+	ld l, a
+	ld a, h
+	sbc a, 0
+	ld h, a
+	; check
+	ld a, [hl]
+	cp a, TILE_WALL
+	ret nz
+	; adjust pointer
+	ld a, DUNGEON_WIDTH * 2
+	add a, l
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	; adjust coords
+	inc e
+	inc e
+	ret
+
+; Check if a 3x3 area is made up of floor tiles, starting from the top-left.
+; @param bc: top-left of 3x3 area
+; @return nz == fail
+MapCheck3x3IsEmpty::
+	; Start from the top left
+	call .checkRow
+	ret nz
+	call .checkRow
+	ret nz
+	; fallthrough
+; Check three tiles from left to right
+; adds 2 to BC
+.checkRow
+	ld a, [bc]
+	and a, a
+	ret nz
+	inc bc
+	ld a, [bc]
+	and a, a
+	ret nz
+	inc bc
+	ld a, [bc]
+	and a, a
+	ret nz
+	ld a, c
+	add a, DUNGEON_WIDTH - 2
+	ld c, a
+	adc a, b
+	sub a, c
+	ld b, a
+	xor a, a
+	ret
 
 section "Update Scroll", romx
 xUpdateScroll:
