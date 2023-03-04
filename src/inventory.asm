@@ -119,7 +119,9 @@ InventoryUseItem::
 	dw PoisonCureHandler
 	assert ITEM_BLINK_TEAM == 5
 	dw BlinkTeamHandler
-	assert ITEM_MAX == 6
+	assert ITEM_HEAL_HEATSTROKE == 6
+	dw HealHeatstrokeHandler
+	assert ITEM_MAX == 7
 
 section "Heal Handler", rom0
 ; @param b: User pointer high byte
@@ -134,11 +136,14 @@ section "Fatigue Heal Handler", rom0
 ; @param hl: Heal data ptr
 FatigueHealHandler:
 	ld c, low(wEntity0_Fatigue)
+	ld a, [bc]
+	add a, [hl]
+	cp a, 101
+	jr c, :+
 	ld a, 100
+:
 	ld [bc], a
-	assert HealItem_Strength - sizeof_Item == 0
-	ld e, [hl]
-	jp HealEntity
+	ret
 
 section "Revive Handler", rom0
 ; @param b: User pointer high byte
@@ -172,3 +177,12 @@ BlinkTeamHandler:
 	ld c, low(wEntity0_BlinkTurns)
 	ld [bc], a
 	ret
+
+section "HealHeatstrokeHandler", rom0
+; @param b: User pointer high byte
+; @param hl: Blink data ptr
+HealHeatstrokeHandler:
+	ld c, low(wEntity0_IsHeatstroked)
+	xor a, a
+	ld [bc], a
+	jp HealHandler

@@ -330,6 +330,18 @@ endm
 ; Placing this after the dungeon ensures it's in the same bank.
 ; Forcefully cap the players' fatigue so they always display "Tired".
 xForestNightForceTired:
+	ld a, [wFadeSteps]
+	and a, a
+	jr nz, :+
+	ld a, [wShownNightMessage]
+	and a, a
+	jr nz, :+
+	ld b, bank(.message)
+	ld hl, .message
+	call PrintHUD
+	ld a, 1
+	ld [wShownNightMessage], a
+:
 	ld a, [wEntity0_Fatigue]
 	cp a, TIRED_THRESHOLD - 1
 	jr c, :+
@@ -343,17 +355,25 @@ xForestNightForceTired:
 	ld [wEntity1_Fatigue], a
 	ret
 
+.message
+	db "Being out so late is making you feel tired. "
+	db "Your maximum energy is capped.", 0
+
+section fragment "dungeon BSS", wram0
+wShownNightMessage: db
+
 	dungeon xFieldDungeon
 		tileset "res/dungeons/field_tiles.2bpp"
 		after_floor 5, exit, FLAG_FIELDS_COMPLETE
+		on_tick xFieldsGiveHeatstroke
 		shape HALLS
 		music xFieldMusic
 
 		items_per_floor 1
-		item xRedApple
-		item xGreenApple
-		item xGrapes
+		item xWaterMelon
 		item xPepper
+		item xGrapes
+		item xGrapes
 
 		enemy xAlligator, 3
 		enemy xForestRat, 3
@@ -374,6 +394,42 @@ xForestNightForceTired:
 	                 96,  80,   0, \ ; Exit
 	                 64,  48,   0, \
 	                 32,  24,   0, \
+
+xFieldsGiveHeatstroke:
+	ld a, [wLastTurnNumber]
+	ld b, a
+	ld a, [wTurnCounter]
+	cp a, b
+	ret z
+	ld [wLastTurnNumber], a	
+
+	call Rand
+	and a, a
+	jr nz, :+
+	ld a, 1
+	ld [wEntity0_IsHeatstroked], a
+	ld [wForceHudUpdate], a
+	ld a, high(wEntity0)
+	ld [wfmt_xGotHeatstrokeString_target], a
+	ld b, bank(xGotHeatstrokeString)
+	ld hl, xGotHeatstrokeString
+	call PrintHUD
+:
+	ld a, e
+	and a, a
+	ret nz
+	ld a, 1
+	ld [wEntity1_IsHeatstroked], a
+	ld [wForceHudUpdate], a
+	ld a, high(wEntity1)
+	ld [wfmt_xGotHeatstrokeString_target], a
+	ld b, bank(xGotHeatstrokeString)
+	ld hl, xGotHeatstrokeString
+	call PrintHUD
+	ret
+
+section fragment "dungeon BSS", wram0
+wLastTurnNumber: db
 
 	dungeon xLakeDungeon
 		tileset "res/dungeons/lake_tiles.2bpp"

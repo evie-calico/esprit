@@ -36,7 +36,8 @@ xDrawInventoryMenu:
 	set_frame vInventoryMenu, idof_vFrame
 	dregion vInventoryDescription, 20, 4 + INVENTORY_SIZE, 12, 6
 	set_frame vInventoryDescription, idof_vFrame
-	dtile vItemNames, 6 * INVENTORY_SIZE
+	dtile vItemNames, 7 * INVENTORY_SIZE
+	dtile_anon 1
 	dtile vItemDesc
 	end_menu
 

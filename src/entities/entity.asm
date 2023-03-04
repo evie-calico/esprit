@@ -143,6 +143,10 @@ EndTurn::
 	ld a, [wActiveEntity]
 	add a, high(wEntity0)
 	ld h, a
+	ld l, low(wEntity0_IsHeatstroked)
+	ld a, [hl]
+	and a, a
+	jr nz, .skipFatigue
 	ld l, low(wEntity0_Fatigue)
 	ld a, [hl]
 	inc a

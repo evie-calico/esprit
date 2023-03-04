@@ -124,6 +124,8 @@ def TIRED_THRESHOLD equ 35
 		bytes 1, PoisonTurns
 		; How many turns are left until the party is warped. 0 = no instability.
 		bytes 1, BlinkTurns
+		; Heatstroke disables fatigue regen until cured.
+		bytes 1, IsHeatstroked
 		; If this is set, use the moving sprite for one more frame
 		bytes 1, WasMovingLastFrame
 		; Added to the frame counter so that animations aren't all synced up

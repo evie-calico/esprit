@@ -416,9 +416,11 @@ InitMap::
 
 	ld hl, wSTATTarget
 	ld a, low(ShowOnlyTextBox)
+	di
 	ld [hli], a
 	ld a, high(ShowOnlyTextBox)
 	ld [hli], a
+	ei
 	xor a, a
 	ldh [hShadowSCX], a
 	ldh [hShadowSCY], a

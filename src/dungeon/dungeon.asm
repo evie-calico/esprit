@@ -595,9 +595,10 @@ OpenPauseMenu::
 	ld a, GAMESTATE_MENU
 	ld [wGameState], a
 	xor a, a
+	di
 	ld [wSTATTarget], a
 	ld [wSTATTarget + 1], a
-	ret
+	reti
 
 section "Set previous hud stats", rom0
 SetPreviousHudStats:

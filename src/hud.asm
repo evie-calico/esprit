@@ -98,9 +98,11 @@ InitUI::
 	ld [vHUD + 96], a ; 15
 
 	ld a, low(ShowTextBox)
+	di
 	ld [wSTATTarget], a
 	ld a, high(ShowTextBox)
 	ld [wSTATTarget + 1], a
+	ei
 
 	ld a, 144 - 32 - 1
 	ldh [rLYC], a
@@ -226,7 +228,7 @@ PrepareStatus::
 	ld l, low(wEntity0_BlinkTurns)
 	ld a, [hl]
 	and a, a
-	jr z, .notTired
+	jr z, .notUnstable
 
 	ld a, bank(xUnstableStatus)
 	ld [wStatusString.status], a
@@ -252,6 +254,20 @@ PrepareStatus::
 	ret
 
 .notTired
+	ld l, low(wEntity0_IsHeatstroked)
+	ld a, [hl]
+	and a, a
+	jr z, .notHeatstroked
+
+	ld a, bank(xHeatstrokeStatus)
+	ld [wStatusString.status], a
+	ld a, low(xHeatstrokeStatus)
+	ld [wStatusString.status + 1], a
+	ld a, high(xHeatstrokeStatus)
+	ld [wStatusString.status + 2], a
+	ret
+
+.notHeatstroked
 	; Show a plus sign if the entity has a revive active.
 	ld l, low(wEntity0_CanRevive)
 	ld a, [hl]
@@ -604,10 +620,11 @@ ShowHPBar:
 	ld a, 16
 	ldh [rLYC], a
 	ld a, low(ShowDungeonView)
+	di
 	ld [wSTATTarget], a
 	ld a, high(ShowDungeonView)
 	ld [wSTATTarget + 1], a
-	ret
+	reti
 
 section "Show dungeon", rom0
 ShowDungeonView:
@@ -625,10 +642,11 @@ ShowDungeonView:
 	ld a, 144 - 32 - 1
 	ldh [rLYC], a
 	ld a, low(ShowTextBox)
+	di
 	ld [wSTATTarget], a
 	ld a, high(ShowTextBox)
 	ld [wSTATTarget + 1], a
-	ret
+	reti
 
 section "Show text box", rom0
 ShowTextBox:
@@ -646,10 +664,11 @@ ShowTextBox:
 	ld a, 145 ; A value over 144 means this will occur after the VBlank handler.
 	ldh [rLYC], a
 	ld a, low(ShowHPBar)
+	di
 	ld [wSTATTarget], a
 	ld a, high(ShowHPBar)
 	ld [wSTATTarget + 1], a
-	ret
+	reti
 
 section "Show only text box", rom0
 ShowOnlyTextBox::
@@ -666,10 +685,11 @@ ShowOnlyTextBox::
 	ld a, 145 ; A value over 144 means this will occur after the VBlank handler.
 	ldh [rLYC], a
 	ld a, low(ResetView)
+	di
 	ld [wSTATTarget], a
 	ld a, high(ResetView)
 	ld [wSTATTarget + 1], a
-	ret
+	reti
 
 section "Reset view", rom0
 ResetView:
@@ -687,10 +707,11 @@ ResetView:
 	ld a, 144 - 32 - 1
 	ldh [rLYC], a
 	ld a, low(ShowOnlyTextBox)
+	di
 	ld [wSTATTarget], a
 	ld a, high(ShowOnlyTextBox)
 	ld [wSTATTarget + 1], a
-	ret
+	reti
 
 section "Show Moves", wram0
 wWindowMode:: db

@@ -36,7 +36,7 @@ endm
 		rgb 128,   0, 128
 		rgb  64,   0,  64
 
-	item FATIGUE_HEAL, xPepper, "Pepper", "A spicy little pepper! Makes you feel less tired and heals 20 HP.", "res/items/pepper.2bpp", 20
+	item FATIGUE_HEAL, xPepper, "Pepper", "A spicy little pepper! Makes you feel a little bit less tired.", "res/items/pepper.2bpp", 50
 	.palette
 		rgb 250, 173,  36
 		rgb 128,  64,  64
@@ -57,8 +57,8 @@ endm
 	item POISON_CURE, xAloe, "Aloe", "It's slimy... Eating it cures Poison.", "res/items/aloe.2bpp"
 	.palette incbin "res/items/aloe.pal8", 3
 
-	item BLINK_TEAM, xBlinkfruit, "Blinkfruit", "Eating it will randomly warp your party after a few turns.", "res/items/apple.2bpp", 2
-	.palette 
-		rgb 255,   0, 255
-		rgb 128,   0, 128
-		rgb  64,   0,  64
+	item BLINK_TEAM, xBlinkfruit, "Blinkfruit", "Eating it will randomly warp your party after a few turns.", "res/items/blinkfruit.2bpp", 2
+	.palette incbin "res/items/blinkfruit.pal8", 3
+
+	item HEAL_HEATSTROKE, xWaterMelon, "Water Melon", "It's literally filled with water. Cools you down when you get hot.", "res/items/watermelon.2bpp", 0
+	.palette incbin "res/items/watermelon.pal8", 3
