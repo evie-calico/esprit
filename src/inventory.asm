@@ -119,9 +119,11 @@ InventoryUseItem::
 	dw PoisonCureHandler
 	assert ITEM_BLINK_TEAM == 5
 	dw BlinkTeamHandler
-	assert ITEM_HEAL_HEATSTROKE == 6
+	assert ITEM_PURE_BLINK_TEAM == 6
+	dw PureBlinkTeamHandler
+	assert ITEM_HEAL_HEATSTROKE == 7
 	dw HealHeatstrokeHandler
-	assert ITEM_MAX == 7
+	assert ITEM_MAX == 8
 
 section "Heal Handler", rom0
 ; @param b: User pointer high byte
@@ -164,6 +166,13 @@ PoisonCureHandler:
 	ret
 
 section "BlinkTeamHandler", rom0
+
+; @param b: User pointer high byte
+; @param hl: Blink data ptr
+PureBlinkTeamHandler:
+	ld c, low(wEntity0_IsBlinkPure)
+	ld a, 1
+	ld [bc], a
 ; @param b: User pointer high byte
 ; @param hl: Blink data ptr
 BlinkTeamHandler:

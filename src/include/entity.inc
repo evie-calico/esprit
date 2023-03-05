@@ -118,12 +118,14 @@ def TIRED_THRESHOLD equ 35
 		words 1, Experience
 		; Maximum of 100, displayed as a percentage.
 		; Each move has a fatigue cost to prevent rapidly using powerful moves.
-		; Every couple of steps recovers 1% of fatigue.
+		; Fatigue is naturally restored as you walk around
 		bytes 1, Fatigue
 		; How many turns are left until poison is cured. 0 = No poison
 		bytes 1, PoisonTurns
 		; How many turns are left until the party is warped. 0 = no instability.
 		bytes 1, BlinkTurns
+		; If set, the next blink will take the party to the exit.
+		bytes 1, IsBlinkPure
 		; Heatstroke disables fatigue regen until cured.
 		bytes 1, IsHeatstroked
 		; If this is set, use the moving sprite for one more frame

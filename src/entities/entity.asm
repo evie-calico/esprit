@@ -121,6 +121,8 @@ EndTurn::
 		ld [hli], a
 		ld a, [wfmt_xSomeoneBlinkedString_target]
 		ld [hli], a
+		ld hl, sfxWarp
+		call PlaySound
 	pop hl
 .noBlink
 
@@ -184,7 +186,41 @@ EndTurn::
 	ret
 
 .blinkCallback
-	call GetEmptyTile
+	; We know at this point that the animation is still going on,
+	; and can use it to check which entity was blinking.
+	ld a, [wEntityAnimation.target]
+	ld h, a
+	; Check if the blink should be random or "pure" (go to the exit)
+	ld l, low(wEntity0_IsBlinkPure)
+	and a, a
+	jr nz, .pureBlink
+		call GetEmptyTile
+		jr .blinkEnd
+	.pureBlink
+		ld bc, wDungeonMap - 1
+		lb de, DUNGEON_WIDTH - 1, -1
+	.pureBlinkLoop
+		inc bc
+		inc d
+		ld a, d
+		sub a, DUNGEON_WIDTH ; intentionally sets a to zero
+		jr nz, :+
+			ld d, a ; this is why :)
+			inc e
+		:
+		ld a, [bc]
+		cp a, TILE_EXIT
+		jr nz, .pureBlinkLoop
+		; Now we have the exit location in de
+		; Ideally we place neither character on the stairs, just for convienice sake.
+		; This MapGetAdjacentClearing attempts to do this, but is likely to fail.
+		; that's no big deal, as placing someone directly on the stairs may be necessary.
+		call MapGetAdjacentClearing
+		; To make sure the exit is not immediately taken, mark the ground as already checked.
+		ld a, 1
+		ld [wHasCheckedForItem+0], a
+		ld [wHasCheckedForItem+1], a
+.blinkEnd
 	ld a, d
 	ld [wEntity0_PosX], a
 	ld [wEntity0_SpriteX + 1], a

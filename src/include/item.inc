@@ -12,6 +12,7 @@ def ITEM_FATIGUE_HEAL rb ; restores health and fatigue.
 def ITEM_REVIVE rb ; revives the entity upon death
 def ITEM_POISON_CURE rb ; cures poison
 def ITEM_BLINK_TEAM rb ; causes the party to collectively blink after 1..N turns.
+def ITEM_PURE_BLINK_TEAM rb ; causes the party to collectively blink to the exit after 1..N turns.
 def ITEM_HEAL_HEATSTROKE rb ; clears the IsHeatstroked flag
 def ITEM_MAX rb 0
 

@@ -60,5 +60,8 @@ endm
 	item BLINK_TEAM, xBlinkfruit, "Blinkfruit", "Eating it will randomly warp your party after a few turns.", "res/items/blinkfruit.2bpp", 2
 	.palette incbin "res/items/blinkfruit.pal8", 3
 
+	item PURE_BLINK_TEAM, xPurefruit, "Purefruit", "Eating it will warp your party to the exit after a few turns.", "res/items/purefruit.2bpp", 2
+	.palette incbin "res/items/purefruit.pal8", 3
+
 	item HEAL_HEATSTROKE, xWaterMelon, "Water Melon", "It's literally filled with water. Cools you down when you get hot.", "res/items/watermelon.2bpp", 0
 	.palette incbin "res/items/watermelon.pal8", 3

@@ -130,6 +130,41 @@ sfxUiAccept::
 	reg rNR14 = $c7
 	reg end
 
+sfxWarp::
+	sound PULSE1, 15, :+
+	reg rNR10 = $17
+	reg rNR11 = $01
+	reg rNR12 = $f0
+	reg rNR13 = $19
+	reg rNR14 = $c4
+	reg end
+:
+	sound PULSE1, 15, :+
+	reg rNR10 = $17
+	reg rNR11 = $01
+	reg rNR12 = $f0
+	reg rNR13 = $9f
+	reg rNR14 = $c4
+	reg end
+:
+	sound PULSE1, 15, :+
+	reg rNR10 = $17
+	reg rNR11 = $01
+	reg rNR12 = $f0
+	reg rNR13 = $42
+	reg rNR14 = $c5
+	reg end
+:
+	sound PULSE1, 15
+	reg rNR10 = $17
+	reg rNR11 = $01
+	reg rNR12 = $f0
+	reg rNR13 = $63
+	reg rNR14 = $85
+	reg end
+
+
+
 sfxGenericVoice::
 	sound PULSE1, 5
 	reg rNR10 = $1f
