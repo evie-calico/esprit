@@ -111,9 +111,9 @@ EndTurn::
 		ld hl, xSomeoneBlinkedString
 		call PrintHUD
 		ld hl, wEntityAnimation
-		ld a, low(EntityHideAnimation)
+		ld a, low(EntityFlickerAnimation)
 		ld [hli], a
-		ld a, high(EntityHideAnimation)
+		ld a, high(EntityFlickerAnimation)
 		ld [hli], a
 		ld a, low(.blinkDelayCallback)
 		ld [hli], a
@@ -169,9 +169,9 @@ EndTurn::
 
 .blinkDelayCallback
 	ld hl, wEntityAnimation
-	ld a, low(EntityHideAnimation)
+	ld a, low(EntityFlickerAnimation)
 	ld [hli], a
-	ld a, high(EntityHideAnimation)
+	ld a, high(EntityFlickerAnimation)
 	ld [hli], a
 	xor a, a
 	ld [hli], a

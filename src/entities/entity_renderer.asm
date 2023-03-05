@@ -127,13 +127,16 @@ xRenderEntities::
 	ld h, high(wEntity0)
 .loop
 	ld l, low(wEntity0_Bank)
-	ld a, [hli]
+	ld a, [hl]
 	and a, a
 	jp z, .next
-	assert Entity_Bank + 4 == Entity_SpriteY + 1
-	inc l
-	inc l
-	inc l
+
+	ld l, low(wEntity0_Hidden)
+	ld a, [hl]
+	and a, a
+	jp nz, .next
+	
+	ld l, low(wEntity0_SpriteY + 1)
 	; Now check if the entity is within the camera bounds
 	ld a, [wDungeonCameraY + 1]
 	cp a, [hl] ; possibly need to inc/dec here?
@@ -433,37 +436,14 @@ xUpdateAnimation::
 .hide
 	ld a, [wEntityAnimation.target]
 	ld d, a
-	ld e, low(wEntity0_SpriteY)
-	ld a, $F0
+	ld e, low(wEntity0_Hidden)
+	ld a, 1
 	ld [de], a
-	inc e
-	ld [de], a
-	inc e
-	ld [de], a
-	inc e
-	ld [de], a
-	inc e
 	jr .readByte
 .show
 	ld a, [wEntityAnimation.target]
 	ld d, a
-	ld e, low(wEntity0_PosY)
-	ld a, [de]
-	assert Entity_PosY - 1 == Entity_PosX
-	dec e
-	ld b, a
-	ld a, [de]
-	assert Entity_PosX - 2 == Entity_SpriteX
-	dec e
-	ld [de], a
-	dec e
-	xor a, a
-	ld [de], a
-	assert Entity_SpriteX - 2 == Entity_SpriteY
-	dec e
-	ld a, b
-	ld [de], a
-	dec e
+	ld e, low(wEntity0_Hidden)
 	xor a, a
 	ld [de], a
 	jr .readByte
@@ -548,7 +528,7 @@ EntityAttackAnimation::
 	ea_wait 8
 	ea_backward
 	ea_wait 3
-	ea_show
+	ea_forward
 	ea_frame ENTITY_FRAME_HURT
 	ea_wait 8
 	ea_frame ENTITY_FRAME_ATTK
@@ -583,22 +563,23 @@ EntityDefeatAnimation::
 		ea_hide
 		ea_wait 2
 		ea_show
-		ea_backward
-		ea_backward
 		ea_wait 2
 	endr
 	ea_end
 
-EntityHideAnimation::
+EntityFlickerAnimation::
 	ea_frame ENTITY_FRAME_IDLE
-	ea_hide
-	ea_wait 60
+	rept 10
+		ea_hide
+		ea_wait 2
+		ea_show
+		ea_wait 2
+	endr
 	ea_end
 
 EntityDelayAnimation::
 	ea_wait 16
 	ea_end
-
 
 EntityFlyAnimation::
 	ea_frame ENTITY_FRAME_IDLE

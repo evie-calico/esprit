@@ -131,6 +131,8 @@ def TIRED_THRESHOLD equ 35
 		; Added to the frame counter so that animations aren't all synced up
 		bytes 1, AnimationDesync
 		bytes 1, CanRevive
+		; if nonzero, the entity will not be rendered
+		bytes 1, Hidden
 	end_struct
 
 	; Any information about an entity that must persist.
