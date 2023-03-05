@@ -28,7 +28,7 @@ xElipsesString:: db "<SET_DELAY><5>...<SET_DELAY><2><DELAY><30>", 0
 	format xTiredStatus, " [color::2]-[color::3] Tired"
 	format xPoisonedStatus, " [color::2]-[color::3] Poisoned"
 	format xUnstableStatus, " [color::2]-[color::3] Unstable"
-	format xHeatstrokeStatus, " [color::2]-[color::3] Heat"
+	format xHeatstrokeStatus, " [color::2]-[color::3] Hot"
 	format xCanReviveStatus, "[color::2]+[color::3]"
 
 	format xSwitchedToManual, "Switched to manual mode."

@@ -139,13 +139,13 @@ section "Fatigue Heal Handler", rom0
 FatigueHealHandler:
 	ld c, low(wEntity0_Fatigue)
 	ld a, [bc]
-	add a, [hl]
+	add a, 50
 	cp a, 101
 	jr c, :+
 	ld a, 100
 :
 	ld [bc], a
-	ret
+	jp HealHandler
 
 section "Revive Handler", rom0
 ; @param b: User pointer high byte

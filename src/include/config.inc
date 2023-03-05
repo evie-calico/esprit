@@ -1,9 +1,9 @@
 ; Build-time config options.
 
 if def(DEV)
-	def D_SA equs "DungeonComplete"
-	def NO_QUICKLOAD equs "1"
-	def INIT_LEVEL = 19
+	redef D_SA equs "DungeonComplete"
+	redef NO_QUICKLOAD equs "1"
+	redef INIT_LEVEL equs "19"
 endc
 
 ; The node the player will start in on the map screen.

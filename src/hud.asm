@@ -239,6 +239,20 @@ PrepareStatus::
 	ret
 
 .notUnstable
+	ld l, low(wEntity0_IsHeatstroked)
+	ld a, [hl]
+	and a, a
+	jr z, .notHeatstroked
+
+	ld a, bank(xHeatstrokeStatus)
+	ld [wStatusString.status], a
+	ld a, low(xHeatstrokeStatus)
+	ld [wStatusString.status + 1], a
+	ld a, high(xHeatstrokeStatus)
+	ld [wStatusString.status + 2], a
+	ret
+
+.notHeatstroked
 	; Show a tired status if fatigue is below a certain amount and no other effects are active.
 	ld l, low(wEntity0_Fatigue)
 	ld a, [hl]
@@ -254,20 +268,6 @@ PrepareStatus::
 	ret
 
 .notTired
-	ld l, low(wEntity0_IsHeatstroked)
-	ld a, [hl]
-	and a, a
-	jr z, .notHeatstroked
-
-	ld a, bank(xHeatstrokeStatus)
-	ld [wStatusString.status], a
-	ld a, low(xHeatstrokeStatus)
-	ld [wStatusString.status + 1], a
-	ld a, high(xHeatstrokeStatus)
-	ld [wStatusString.status + 2], a
-	ret
-
-.notHeatstroked
 	; Show a plus sign if the entity has a revive active.
 	ld l, low(wEntity0_CanRevive)
 	ld a, [hl]

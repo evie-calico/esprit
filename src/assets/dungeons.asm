@@ -1,3 +1,37 @@
+/*
+
+Dungeon Design:
+
+When playing PMD2 for the first time, my favorite dungeon was the
+Northern Desert, because when you first explore it the sandstorm and limited
+items force you to carefully manage your health and inventory.
+This is a big change from most of the dungeons in PMD, which also end up feeling
+kinda bland and samey because they lack much variety besides the enemy types
+(and technically items types too, but the variation is so poor that you'd never
+notice).
+
+With esprit, I pretty much want every level to be like Northern Desert.
+Harsh, unforgiving, and with limited resources. A lot of the game's mechanics
+revolve around this idea, like the lack of health regen and the limited inventory
+size.
+Dungeon design is obviously a big part of this balance: dungeons need to be long
+enough to wear the player down, and provide just enough resources so that the player
+isn't left with a surplus.
+
+In addition, dungeons need to feel unique to keep the player interested in going on.
+If enemies and items always feel the same, the game becomes one big dungeon with
+a few breaks in between. Items and enemies should be appropriate for the setting
+(no random fruits in caves or useful scarves lying around) and synergize with each
+other (for example, when a poisonous snake is introduced, the dungeon also provides
+poison heals)
+
+Enemies aren't the only threats players can face within a dungeon. Using on_tick
+functions, we can make dungeons that apply negative effects, like having capped
+energy on the final floor as the party gets tired, or heatstroke that prevents
+the party from restroing enery.
+
+*/
+
 include "defines.inc"
 include "dungeon.inc"
 include "entity.inc"
@@ -64,6 +98,8 @@ macro after_floor ; number, action, [arg]
 	if !strcmp(strupr("\2"), "SWITCH")
 		get_next_name
 		def_equs COMPLETION_ARG, {NEXT_NAME}
+	elif !strcmp(strupr("\2"), "EXIT")
+		def_equs COMPLETION_ARG, null
 	else
 		def_equs COMPLETION_ARG, \3
 	endc
@@ -107,7 +143,6 @@ macro enemy ; name, level
 endm
 
 macro end
-	section "{NAME} Dungeon", romx
 	{NAME}:: dw .tileset, .palette
 
 	for i, DUNGEON_ITEM_COUNT
@@ -169,6 +204,7 @@ macro dungeon_hex
 	endr
 endm
 
+section "Forest Dungeon", romx
 	dungeon xForestDungeon
 		tileset "res/dungeons/tree_tiles.2bpp"
 		after_floor 2, switch
@@ -362,17 +398,48 @@ xForestNightForceTired:
 section fragment "dungeon BSS", wram0
 wShownNightMessage: db
 
+section "Field Dungeon", romx
 	dungeon xFieldDungeon
 		tileset "res/dungeons/field_tiles.2bpp"
-		after_floor 5, exit, FLAG_FIELDS_COMPLETE
-		on_tick xFieldsGiveHeatstroke
+		after_floor 2, switch
 		shape HALLS
 		music xFieldMusic
 
-		items_per_floor 1
+		items_per_floor 4
+		item xGrapes
+		item xPepper
+		item xAloe
+		item xWaterMelon
+
+		enemy xForestRat, 3
+		enemy xForestRat, 3
+		enemy xForestRat, 4
+		enemy xSnake,     3
+		enemy xSnake,     4
+		enemy xFieldRat,  2
+		enemy xFieldRat,  3
+		enemy xFieldRat,  4
+	end
+	dungeon_palette 120, 192,  96, \ ; Blank
+	                 32, 120,   0, \ ; Ground
+	                 24,  64,  24, \
+	                  0,  32,   0, \
+	                 64, 120,   0, \ ; Wall
+	                  0,  64,   0, \
+	                  0,   8,   0, \
+	                 96,  80,   0, \ ; Exit
+	                 64,  48,   0, \
+	                 32,  24,   0, \
+
+	next_part
+		after_floor 4, switch
+		; Start giving heatstroke now
+		on_tick xFieldsGiveHeatstroke
+
+		items_per_floor 3
 		item xWaterMelon
 		item xPepper
-		item xGrapes
+		item xAloe
 		item xGrapes
 
 		enemy xAlligator, 3
@@ -395,7 +462,50 @@ wShownNightMessage: db
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
+	next_part
+		after_floor 7, exit
+		; Continue giving heatstroke
+		on_tick xFieldsGiveHeatstroke.harsh
+
+		items_per_floor 2
+		item xWaterMelon
+		item xPepper
+		item xGrapes
+		item xAloe
+
+		enemy xAlligator, 3
+		enemy xAlligator, 3
+		enemy xSnake,     3
+		enemy xSnake,     3
+		enemy xSnake,     4
+		enemy xFieldRat,  2
+		enemy xFieldRat,  3
+		enemy xFieldRat,  4
+	end
+	dungeon_palette 120, 192,  96, \ ; Blank
+	                 32, 120,   0, \ ; Ground
+	                 24,  64,  24, \
+	                  0,  32,   0, \
+	                 64, 120,   0, \ ; Wall
+	                  0,  64,   0, \
+	                  0,   8,   0, \
+	                 96,  80,   0, \ ; Exit
+	                 64,  48,   0, \
+	                 32,  24,   0, \
+
 xFieldsGiveHeatstroke:
+	ld a, [wFadeSteps]
+	and a, a
+	jr nz, :+
+	ld a, [wShownFieldsMessage]
+	and a, a
+	jr nz, :+
+	ld b, bank(.message)
+	ld hl, .message
+	call PrintHUD
+	ld a, 1
+	ld [wShownFieldsMessage], a
+:
 	ld a, [wLastTurnNumber]
 	ld b, a
 	ld a, [wTurnCounter]
@@ -404,6 +514,9 @@ xFieldsGiveHeatstroke:
 	ld [wLastTurnNumber], a	
 
 	call Rand
+.hook
+	res 7, a ; make heatstroke more likely
+	res 7, e
 	and a, a
 	jr nz, :+
 	ld a, 1
@@ -428,9 +541,28 @@ xFieldsGiveHeatstroke:
 	call PrintHUD
 	ret
 
+.message
+	db "The sun is beating down. It's starting to get hot.", 0
+
+.harsh:
+	ld a, [wLastTurnNumber]
+	ld b, a
+	ld a, [wTurnCounter]
+	cp a, b
+	ret z
+	ld [wLastTurnNumber], a	
+
+	call Rand
+	res 6, a ; make heatstroke even more likely
+	res 6, e
+	jr .hook
+
+
 section fragment "dungeon BSS", wram0
 wLastTurnNumber: db
+wShownFieldsMessage: db
 
+section "Lake Dungeon", romx
 	dungeon xLakeDungeon
 		tileset "res/dungeons/lake_tiles.2bpp"
 		after_floor 5, exit, FLAG_LAKE_COMPLETE
@@ -504,6 +636,7 @@ wLakeAnimationCounter: db
 	; The rest of these dungeons are incomplete placeholders.
 	; ---------------------
 
+section "Plains Dungeon", romx
 	dungeon xPlainsDungeon
 		tileset "res/dungeons/field_tiles.2bpp"
 		after_floor 5, exit, FLAG_PLAINS_COMPLETE
@@ -536,6 +669,7 @@ wLakeAnimationCounter: db
 	                 64,  48,   0, \
 	                 32,  24,   0, \
 
+section "Caves Dungeon", romx
 	dungeon xCavesDungeon
 		tileset "res/dungeons/cave_tiles.2bpp"
 		after_floor 5, exit, FLAG_CAVES_COMPLETE
@@ -571,6 +705,7 @@ wLakeAnimationCounter: db
 	            3d455a, \
 	            07152f, \
 
+section "Gemstone Woods Dungeon", romx
 	dungeon xGemstoneWoodsDungeon
 		tileset "res/dungeons/gemtree_tiles.2bpp"
 		after_floor 5, exit, FLAG_GEMTREE_COMPLETE
