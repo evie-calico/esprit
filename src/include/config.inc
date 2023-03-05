@@ -2,7 +2,7 @@
 
 if def(DEV)
 	def D_SA equs "DungeonComplete"
-	def NO_QUICKLOAD = 1
+	def NO_QUICKLOAD equs "1"
 	def INIT_LEVEL = 19
 endc
 
@@ -20,10 +20,10 @@ if !def(INIT_LEVEL)
 	def INIT_LEVEL = 5
 endc
 
-if !def(NO_QUICKLOAD)
-	def NO_QUICKLOAD = 0
-endc
 
 if !def(INIT_INVENTORY)
 	def INIT_INVENTORY equs "null"
 endc
+
+redef NO_QUICKLOAD equs "def(NO_QUICKLOAD)"
+redef SET_ALL_FLAGS equs "def(SET_ALL_FLAGS)"

@@ -135,7 +135,7 @@ xLoadSaveFile::
 xInitialFile:
 .verificationString db "{SAVE_VERIFICATION_STRING}"
 .version db SAVE_VERSION
-.flags ds 256 / 8, 0
+.flags ds 256 / 8, SET_ALL_FLAGS * $FF
 .activeMapNode farptr FIRST_NODE
 .mapLastDirectionMoved db LEFT
 .playerData
