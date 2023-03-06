@@ -98,8 +98,6 @@ macro after_floor ; number, action, [arg]
 	if !strcmp(strupr("\2"), "SWITCH")
 		get_next_name
 		def_equs COMPLETION_ARG, {NEXT_NAME}
-	elif !strcmp(strupr("\2"), "EXIT")
-		def_equs COMPLETION_ARG, null
 	else
 		def_equs COMPLETION_ARG, \3
 	endc
@@ -463,7 +461,7 @@ section "Field Dungeon", romx
 	                 32,  24,   0, \
 
 	next_part
-		after_floor 7, exit
+		after_floor 7, exit, FLAG_FIELDS_COMPLETE
 		; Continue giving heatstroke
 		on_tick xFieldsGiveHeatstroke.harsh
 
@@ -562,6 +560,10 @@ section fragment "dungeon BSS", wram0
 wLastTurnNumber: db
 wShownFieldsMessage: db
 
+	; ---------------------
+	; The rest of these dungeons are incomplete placeholders.
+	; ---------------------
+
 section "Lake Dungeon", romx
 	dungeon xLakeDungeon
 		tileset "res/dungeons/lake_tiles.2bpp"
@@ -631,10 +633,6 @@ xLakeAnimationFrames: incbin "res/dungeons/lake_animation.2bpp"
 
 section FRAGMENT "dungeon BSS", wram0
 wLakeAnimationCounter: db
-
-	; ---------------------
-	; The rest of these dungeons are incomplete placeholders.
-	; ---------------------
 
 section "Plains Dungeon", romx
 	dungeon xPlainsDungeon
