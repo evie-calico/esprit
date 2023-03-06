@@ -66,6 +66,27 @@ StartSong::
 	ldh [hSongBank], a
 	rst SwapBank
 
+	ldh a, [hMutedChannels]
+	ld b, a
+	xor a, a
+
+	rr b
+	jr c, :+
+	ldh [rNR12], a
+:
+	rr b
+	jr c, :+
+	ldh [rNR22], a
+:
+	rr b
+	jr c, :+
+	ldh [rNR32], a
+:
+	rr b
+	jr c, :+
+	ldh [rNR42], a
+:
+
 	ld a, $77
 	ldh [rNR50], a
 
