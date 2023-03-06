@@ -80,7 +80,6 @@ def NB_EFFECTS equ NB_DROPLETS + 3
 section "World map nodes", romx
 	node xVillageNode, "Crater Village", 48, 88
 		left MOVE, xForestNode
-		press SCENE, xForestScene2
 	end_node
 
 	node xForestNode, "Crater Forest", 12, 88

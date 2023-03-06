@@ -36,7 +36,7 @@ endm
 		rgb 128,   0, 128
 		rgb  64,   0,  64
 
-	item FATIGUE_HEAL, xPepper, "Pepper", "A spicy little pepper! Makes you feel a less tired and heals 16 HP.", "res/items/pepper.2bpp", 16
+	item FATIGUE_HEAL, xPepper, "Pepper", "A spicy little pepper! Makes you feel less tired and heals 16 HP.", "res/items/pepper.2bpp", 16
 	.palette
 		rgb 250, 173,  36
 		rgb 128,  64,  64
