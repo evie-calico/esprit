@@ -42,7 +42,7 @@ macro set_region ; tile id
 endm
 
 macro set_tile; tile id
-	set_region \1, \2, 1, 1, \3
+	set_region (\1), (\2), 1, 1, (\3)
 endm
 
 macro set_frame ; region, frame
@@ -70,16 +70,14 @@ macro print_text ; X, Y, string, [length hint]
 	get_id CUR_ID
 	db CUR_ID
 
-	; This macro can loosely guess at the length of a string if the user can't
-	; be bothered to figure it out.
-	if _NARG == 4
-		warn "Unneeded length hint"
-	endc
-
 	def WIDTH = 1
 	for I, 1, strlen(\3)
 		def GLYPH = CHARSUB(\3, I)
-		def WIDTH += glyph{d:GLYPH}
+		if GLYPH == "\n"
+			def WIDTH += 8
+		else
+			def WIDTH += glyph{d:GLYPH}
+		endc
 	endr
 	db CUR_ID + (WIDTH / 8) + 1
 	dtile_anon (WIDTH / 8) + 1

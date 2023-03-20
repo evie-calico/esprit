@@ -8,8 +8,8 @@ section "Caves Dungeon", romx
 		music xLakeMusic
 
 		items_per_floor 1
-		item xRedApple
-		item xGreenApple
+		item xApple
+		item xPear
 		item xGrapes
 		item xPepper
 

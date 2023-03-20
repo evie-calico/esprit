@@ -5,6 +5,7 @@ include "scene.inc"
 	image xForestSceneBackground2, "res/scenes/forest_final_scene_map"
 	image xVillageSceneBackground, "res/scenes/village_scene_map"
 	image xBarrelSceneBackground, "res/scenes/barrel_scene_map"
+	image xTreeSceneBackground, "res/scenes/tree_scene_map"
 	
 	def random = $0
 

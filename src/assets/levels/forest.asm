@@ -8,8 +8,8 @@ section "Forest Dungeon", romx
 		music xForestMusic
 
 		items_per_floor 2
-		item xRedApple
-		item xGreenApple
+		item xApple
+		item xPear
 		item xTwig
 		item xGrapes
 
@@ -39,7 +39,7 @@ section "Forest Dungeon", romx
 
 		items_per_floor 5
 		item xAloe
-		item xGreenApple
+		item xPear
 		item xGrapes
 		item xReviverSeed
 
@@ -70,7 +70,7 @@ section "Forest Dungeon", romx
 		music xForestNightMusic
 
 		items_per_floor 5
-		item xRedApple
+		item xApple
 		item xAloe
 		item xGrapes
 		item xReviverSeed
@@ -102,8 +102,8 @@ section "Forest Dungeon", romx
 		shape HALLS
 
 		items_per_floor 2
-		item xRedApple
-		item xGreenApple
+		item xApple
+		item xPear
 		item xGrapes
 		item xTwig
 

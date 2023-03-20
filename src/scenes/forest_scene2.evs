@@ -9,7 +9,8 @@ npc xInitForestScene2 {
 		open_map_immediately();
 		return;
 	}
-
+	set_flag(FLAG_FOREST_COMPLETE, 1);
+/*
 	load(xForestSceneBackground2);
 	play_music(xCricketSound);
 
@@ -194,7 +195,7 @@ npc xInitForestScene2 {
 	sleep(40);
 
 	say(Mom, "I have a feeling you were trying to impress her~♡");
-	say(Aris, "Mom...");
+	say(Aris, "Mom…");
 	sleep(20);
 	direction(PARTNER, DOWN);
 	sleep(10);
@@ -204,7 +205,7 @@ npc xInitForestScene2 {
 	sleep(10);
 	direction(PARTNER, LEFT);
 	sleep(40);
-	say(Aris, "...she is cute.<WAIT> I hope she stays with us.");
+	say(Aris, "…she is cute.<WAIT> I hope she stays with us.");
 
 	// Mom steps back to think.
 	frame(2, ENTITY_FRAME_STEP);
@@ -228,8 +229,8 @@ npc xInitForestScene2 {
 	frame(2, ENTITY_FRAME_IDLE);
 	sleep(40);
 
-	say(Mom, "Let's let her sleep a little longer.<DELAY><30> You should go donate the food you two collected.");
-	say(Mom, "When she's awake, you can go play with her.<DELAY><30> But promise me you'll come home before dark, okay?");
+	say(Mom, "Let's let her sleep a little longer.<PAUSE> You should go donate the food you two collected.");
+	say(Mom, "When she's awake, you can go play with her.<PAUSE> But promise me you'll come home before dark, okay?");
 	// Aris steps forward
 	frame(PARTNER, ENTITY_FRAME_STEP);
 	repeat 20 {
@@ -271,12 +272,12 @@ npc xInitForestScene2 {
 	}
 	position(PARTNER, 0, 0);
 	sleep(60);
-	say(Mom, "He really likes her...");
-
+	say(Mom, "He really likes her…");
+*/
 	// TOWN SCENE
 	fade_to_black();
 		while check_fade() { yield; }
-		load(xVillageSceneBackground);
+		load(xTreeSceneBackground);
 		position(PLAYER, 0, 0);
 		position(2, 0, 0);
 		position(PARTNER, 14 * 8, 64);
@@ -308,6 +309,61 @@ npc xInitForestScene2 {
 	}
 	frame(PARTNER, ENTITY_FRAME_IDLE);
 
-	set_flag(FLAG_FOREST_COMPLETE, 1);
+	spawn_npc(2, xPlatypus); // This is just a placeholder NPC really.
+	frame(2, ENTITY_FRAME_IDLE);
+	direction(2, RIGHT);
+	position(2, 56, 88);
+
+	sleep(20);
+	direction(PARTNER, DOWN);
+
+	sleep(20);
+	direction(2, UP);
+
+	sleep(20);
+	repeat 5 {
+		dmove(2, UP, 12);
+		yield;
+	}
+
+	say(Someone, "Hi, Aris!<WAIT> Where's your new friend?");
+	say(Aris, "Luvui's still sleeping.<PAUSE> I'm just donating the food we collected yesterday.");
+	say_no_wait(Someone, "Oh, that's nice.<PAUSE> Hey, I heard about something you might be interested in.");
+	// Aris starts slowy walking away, thinking he's finished.
+	sleep(80);
+	repeat 20 {
+		dmove(PARTNER, LEFT, 6);
+		yield;
+	}
+	sleep(40);
+	direction(PARTNER, DOWN);
+	print_wait();
+	say(Aris, "What's up?");
+	say(Someone, "Well, you know those fields to the north of the forest?<WAIT> I heard that a couple of animals have been living out there, away from the village.");
+	say(Someone, "Apparently they were looking for a way back home… Luvui might be interested in that.");
+	say(Aris, "…");
+	sleep(40);
+	direction(PARTNER, DOWN);
+	sleep(10);
+	direction(PARTNER, LEFT);
+	repeat 30 {
+		dmove(PARTNER, LEFT, 4);
+		yield;
+	}
+	say(Someone, "Aris…<WAIT> you can't hide the truth from her.<WAIT> If she wants to go home she should know.");
+	repeat 20 {
+		dmove(PARTNER, LEFT, 6);
+		yield;
+	}
+	print_wait();
+	sleep(60);
+	say(Aris, "I know.<WAIT> I'll tell her.");
+
+	repeat 30 {
+		dmove(PARTNER, UP, 16);
+		yield;
+	}
+	position(PARTNER, 0, 0);
+
 	open_map();
 }

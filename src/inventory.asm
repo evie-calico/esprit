@@ -9,6 +9,9 @@ section "Pickup Item", rom0
 ; @clobbers bank
 PickupItem::
 	call GetDungeonItem
+; @param b: Item bank
+; @param hl: Item pointer
+InventoryAddItem::
 	; pointer to far pointer to item in de
 	ld de, wInventory
 	ld c, INVENTORY_SIZE
@@ -37,6 +40,38 @@ PickupItem::
 	; Set NZ
 	xor a, a
 	inc a
+	ret
+
+section "Inventory Remove Item", rom0
+; @param a: Item index
+InventoryRemoveItem::
+	ld c, a
+	add a, c
+	add a, c
+	add a, low(wInventory)
+	ld l, a
+	adc a, high(wInventory)
+	sub a, l
+	ld h, a
+	ld d, h
+	ld e, l
+	inc hl
+	inc hl
+	inc hl
+	jr .moveCondition
+.move
+	ld a, [hli]
+	ld [de], a
+	inc de
+.moveCondition
+	ld a, l
+	cp a, low(wInventory + 3 * INVENTORY_SIZE)
+	jr nz, .move
+	ld a, h
+	cp a, high(wInventory + 3 * INVENTORY_SIZE)
+	jr nz, .move
+	xor a, a
+	ld [de], a
 	ret
 
 section "Inventory Use Item", rom0

@@ -136,5 +136,7 @@ endm
 
     charmap "…", "<ELIPSES>"
     charmap "♡", $7F
+    charmap "<PAU", "<DELAY>"
+    charmap "SE>", 30
 
 endc

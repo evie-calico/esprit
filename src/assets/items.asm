@@ -18,17 +18,14 @@ section "\2 Item", romx
 .gfx:: incbin \5
 endm
 
-	item HEAL, xRedApple, "Apple", "A small round fruit. Eat it to restore 20 health.", "res/items/apple.2bpp", 20
+	item HEAL, xApple, "Apple", "A small round fruit. Eat it to restore 20 health.", "res/items/apple.2bpp", 20
 	.palette 
 		rgb 255,   0,   0
 		rgb 128,   0,   0
 		rgb  64,   0,   0
 
-	item HEAL, xGreenApple, "Apple", "A small round fruit. Eat it to restore 20 health.", "res/items/apple.2bpp", 20
-	.palette 
-		rgb  80, 255,   0
-		rgb  40, 128,   0
-		rgb   0,  64,   0
+	item HEAL, xPear, "Pear", "An oddly shaped fruit. Eat it to restore 24 health.", "res/items/pear.2bpp", 24
+	.palette incbin "res/items/pear.pal8", 3
 
 	item HEAL, xGrapes, "Grapes", "A bunch of ripened grapes. Eat them to restore 40 health.", "res/items/grapes.2bpp", 40
 	.palette

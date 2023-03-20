@@ -3,6 +3,7 @@ def ITEM_INC equ 1
 
 include "structs.inc"
 
+; This must be less than the number of palettes.
 def INVENTORY_SIZE equ 8
 
 rsreset

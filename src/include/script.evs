@@ -65,7 +65,7 @@ macro set_position
 	purge x, y
 endm
 
-macro say
+macro say_no_wait
 	if !strcmp("\1", "Luvui")
 		def name equs "xLuvui.name"
 		def voice equs "sfxLuvuiVoice"
@@ -91,9 +91,12 @@ macro say
 	endc
 
 	db script@_say, bank(name), low(name), high(name), \2, \3, low(voice), high(voice)
-	db script@print_wait
-
 	purge name, voice
+endm
+
+macro say
+	say_no_wait \1, \2, \3
+	db script@print_wait
 endm
 
 macro npc_dmove
@@ -164,6 +167,7 @@ env script {
 	// The delay only works within scenes.
 	def _say(const string, const string);
 	macro say(const u8, const string) = say;
+	macro say_no_wait(const u8, const string) = say_no_wait;
 	// Wait until text printing is done.
 	def print_wait();
 	def get_flag(u8, return u8);

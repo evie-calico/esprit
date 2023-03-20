@@ -11,7 +11,7 @@ def POPUP_SPEED equ 8
 	dregion vHUD, 0, 28, 20, 4, $9C00
 	dregion vTextbox, 1, 29, 18, 3, $9C00
 	dregion vAttackWindow, 0, 0, 8, 5, $9C00
-	dregion vAttackText, 2, 1, 8, 4, $9C00
+	dregion vAttackText, 2, 1, 6, 4, $9C00
 	dtile_section $9000
 	dtile vBlankTile
 	dtile vTextboxTiles, vTextbox_Width * vTextbox_Height
@@ -25,8 +25,8 @@ def POPUP_SPEED equ 8
 	dtile vUIArrowRight
 	dtile vUIArrowDown
 	dtile vUIArrowLeft
-	dtile vPlayerStatus, 16
-	dtile vPartnerStatus, 16
+	dtile vPlayerStatus, 18
+	dtile vPartnerStatus, 18
 
 section "User interface graphics", romx
 xUIFrame:

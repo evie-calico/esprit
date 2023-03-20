@@ -147,9 +147,29 @@ xInitialFile:
 	db INIT_LEVEL + 1
 	dw 0
 .inventory
-	rept INVENTORY_SIZE
-		db bank(INIT_INVENTORY)
-		dw INIT_INVENTORY
-	endr
+	; Fill the inventory with default items
+	; if a comma is present anywhere, this is a list.
+	if strin("{INIT_INVENTORY}", ",")
+		for idx, 8
+			if !strin("{INIT_INVENTORY}", ",")
+				break
+			endc
+			def item equs strsub("{INIT_INVENTORY}", 1, strin("{INIT_INVENTORY}", ",") - 1)
+			db bank(item)
+			dw item
+			purge item
+			redef INIT_INVENTORY equs strsub("{INIT_INVENTORY}", strin("{INIT_INVENTORY}", ",") + 1)
+		endr
+		rept 8 - idx
+			db bank(null)
+			dw null
+		endr
+	; otherwise, it's a fill.
+	else
+		rept INVENTORY_SIZE
+			db bank(INIT_INVENTORY)
+			dw INIT_INVENTORY
+		endr
+	endc
 .quicksave ds wQuicksave.end - wQuicksave, 0
 assert sizeof("Save Version {d:SAVE_VERSION}") == @ - xInitialFile
