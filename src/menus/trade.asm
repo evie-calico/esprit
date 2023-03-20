@@ -37,22 +37,44 @@ macro trade
 	farptr \2
 endm
 
-xFoodVendor:
+xFoodBackground:
+	incbin "res/ui/trade/tree_background.2bpp"
+.map
+	incbin "res/ui/trade/tree_background.map"
+.pal
+	incbin "res/ui/trade/tree_background.pal8", 3 * 4
+.pmap
+	incbin "res/ui/trade/tree_background.pmap"
+
+xFoodTrader::
 	item xApple
 	item xPear
+	item xTwig
+	item xAloe
 	db 0
+; Default trade
 	trade null, null
-	trade null, null
+	trade xDummyItem, xDummyItem
 	trade null, null
 
 .xApple
 	trade xPear, xGrapes
 	trade xApple, xGrapes
-	trade null, null
+	trade xAloe, xSlimyApple
 
 .xPear
 	trade xApple, xGrapes
 	trade xPear, xGrapes
+	trade xTwig, xPearOnAStick
+
+.xTwig
+	trade null, null
+	trade xPear, xPearOnAStick
+	trade null, null
+
+.xAloe
+	trade null, null
+	trade xApple, xSlimyApple
 	trade null, null
 
 xTradeMenu::
@@ -81,7 +103,6 @@ xTradeMenu::
 
 ; Place this first to define certain constants.
 xDrawTradeMenu:
-	set_region 0, 0, SCRN_VX_B, SCRN_VY_B, idof_vBlankTile
 	load_tiles .frame, 9, vFrame
 	load_tiles .plus, 4, vPlus
 	load_tiles .arrow, 4, vArrow
@@ -103,9 +124,10 @@ xDrawTradeMenu:
 	print_text 1, 8, "  Items"
 	print_text 8, 10, "1st"
 	print_text 12, 10, "2nd"
-	print_text 15, 10, "Result"
+	print_text 15, 10, "  Result"
 	end_dmg
-	set_region 0, 0, SCRN_VX_B, SCRN_VY_B, 0
+	set_region 0, 7, 6, 11, 0
+	set_region 6, 9, 14, 9, 0
 	end_cgb
 
 	dtile vGreyItemIcon, 4 * 6
@@ -125,9 +147,54 @@ xTradeMenuInit:
 	ldh [hShadowSCY], a
 	ld [wInventoryCursor], a
 	ld [wBlinkItem], a
+	di
+	ld [wSTATTarget + 0], a
+	ld [wSTATTarget + 1], a
+	ei
 
 	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
 	ldh [hShadowLCDC], a
+
+	call PlayMusic
+
+	; Before drawing the UI, place a background image
+	; Clear the screen so the UI isn't messed up
+	ld hl, $9800
+	ld d, idof_vBlankTile
+	ld bc, 32 * 32
+	call VramSet
+
+	ld hl, xFoodBackground
+	ld de, $9000
+	ld bc, 128 * 16
+	call VramCopy
+
+	lb bc, 20, 9
+	ld de, $9800
+	ld hl, xFoodBackground.map
+	call MapRegion
+
+	ldh a, [hSystem]
+	and a, a
+	jr z, .noCgb
+
+	ld a, 1
+	ldh [rVBK], a
+
+	lb bc, 20, 9
+	ld de, $9800
+	ld hl, xFoodBackground.pmap
+	call MapRegion
+
+	xor a, a
+	ldh [rVBK], a
+
+	ld hl, xFoodBackground.pal
+	ld de, wBGPaletteBuffer + 3 * 4 ; skip first (ui) palette
+	ld bc, 7 * 3 * 4
+	call MemCopy
+
+.noCgb
 
 	ld hl, xDrawTradeMenu
 	call DrawMenu
@@ -139,10 +206,10 @@ xTradeMenuInit:
 	ld a, TRADE_FIRST
 	call xSwitchTradeState
 
-	ld a, low(xFoodVendor)
-	ld [wCurrentVendor + 0], a
-	ld a, high(xFoodVendor)
-	ld [wCurrentVendor + 1], a
+	ld a, low(xFoodTrader)
+	ld [wCurrentTrader + 0], a
+	ld a, high(xFoodTrader)
+	ld [wCurrentTrader + 1], a
 
 	; Set palettes
 	ld a, $FF
@@ -152,6 +219,10 @@ xTradeMenuInit:
 	ret
 
 xTradeMenuRedraw:
+	ld a, [wFadeSteps]
+	and a, a
+	ret nz
+
 	ld a, -1
 	ld [wBlinkItem], a
 
@@ -167,6 +238,7 @@ xTradeMenuRedraw:
 	ld l, a
 	rst CallHL
 
+	call xLerpIcons
 	call xRenderIcons
 	ret
 
@@ -191,6 +263,9 @@ xTradeMenuFirst:
 	ldh a, [hNewKeys]
 	bit PADB_A, a
 	jr z, :+
+		ld a, [wInventory]
+		and a, a
+		jr z, :+
 		ld a, TRADE_SECOND
 		call xSwitchTradeState
 	:
@@ -210,7 +285,10 @@ xTradeMenuSecond:
 		ld a, [wTradeCursor]
 		sub a, 1
 		jr c, :+
-		ld [wTradeCursor], a
+		call xIsSelectionValid
+		jr z, :+
+		ld hl, wTradeCursor
+		dec [hl]
 	:
 
 	ldh a, [hNewKeys]
@@ -220,15 +298,18 @@ xTradeMenuSecond:
 		inc a
 		cp a, 3
 		jr nc, :+
-		ld [wTradeCursor], a
+		call xIsSelectionValid
+		jr z, :+
+		ld hl, wTradeCursor
+		inc [hl]
 	:
 
 	ld a, [wInventoryCursor]
 	add a, a ; a * 2
 	add a, a ; a * 4
-	add a, low(wInventoryItemPositions)
+	add a, low(wInventoryItemPositions + 2)
 	ld l, a
-	adc a, high(wInventoryItemPositions)
+	adc a, high(wInventoryItemPositions + 2)
 	sub a, l
 	ld h, a
 	ld a, FIRST_ITEM_X
@@ -310,9 +391,19 @@ xTradeMenuSecond:
 	jp xBlinkSelection
 
 xTradeMenuClose:
+	ld a, 1
+	ld [wMapShouldSave], a
+	call FadeToBlack
+
+	ld hl, wFadeCallback
+	ld a, low(.openMap)
+	ld [hli], a
+	ld [hl], high(.openMap)
+	ret
+.openMap
 	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON | LCDCF_OBJ16 | LCDCF_WINON | LCDCF_WIN9C00
 	ldh [hShadowLCDC], a
-	ret
+	jp InitMap
 
 xBlinkSelection:
 	; Handle blinking
@@ -380,6 +471,7 @@ xSwitchTradeState:
 xSwitchToFirstState:
 	call TradeLoadItemIcons
 	call xMoveIconsToInventory
+	call xResetIcons
 
 	ld d, 0
 	ld bc, 16 * 4 * 6
@@ -389,8 +481,6 @@ xSwitchToFirstState:
 	ret
 
 xSwitchToSecondState:
-	ld a, 1
-	ld [wTradeCursor], a
 	call xClearHintIcons
 
 	ld a, -1
@@ -421,6 +511,25 @@ xSwitchToSecondState:
 		call xRenderResultItem
 		pop hl
 	endr
+
+	; Default to center selection
+	ld a, 1
+	ld [wTradeCursor], a
+	call xIsSelectionValid
+	ret nz
+	; Try 0...
+	xor a, a
+	ld [wTradeCursor], a
+	call xIsSelectionValid
+	ret nz
+	; Now try the bottom one.
+	ld a, 2
+	ld [wTradeCursor], a
+	call xIsSelectionValid
+	ret nz
+	; If none are valid, always use the middle one.
+	ld a, 1
+	ld [wTradeCursor], a
 	ret
 
 xRenderSecondItem:
@@ -432,9 +541,9 @@ xRenderSecondItem:
 	ld a, c
 	add a, a ; a * 2
 	add a, a ; a * 4
-	add a, low(wInventoryItemPositions)
+	add a, low(wInventoryItemPositions + 2)
 	ld l, a
-	adc a, high(wInventoryItemPositions)
+	adc a, high(wInventoryItemPositions + 2)
 	sub a, l
 	ld h, a
 	ld a, SECOND_ITEM_X
@@ -618,7 +727,7 @@ xIsSelectionValid:
 ; @return z: set if no list.
 ; @return hl: list.
 xGetCurrentTradelist:
-	ld hl, wCurrentVendor
+	ld hl, wCurrentTrader
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -674,7 +783,7 @@ xGetCurrentTradelist:
 	jr .loop
 
 xMoveIconsToInventory:
-	ld hl, wInventoryItemPositions
+	ld hl, wInventoryItemPositions + 2
 	for y, 4
 		for x, 2
 			ld a, INVENTORY_ITEM_X + x * 16
@@ -714,6 +823,7 @@ xResetIcons:
 		dec hl
 		ld [hld], a
 	endr
+	ret
 
 xLerpIcons:
 	ld b, 8
@@ -833,6 +943,9 @@ xRenderIcons:
 	inc hl
 	inc hl
 	push hl
+		ld a, OAMF_PAL1
+		or a, e
+		ld e, a
 		call RenderSimpleSprite
 		ld a, c
 		add a, 8
@@ -862,6 +975,15 @@ xRenderIcons:
 	ret
 
 section "Trade menu rom0", rom0
+PlayMusic:
+	ldh a, [hCurrentBank]
+	push af
+
+	ld a, bank(xTownMusic)
+	ld de, xTownMusic
+	call StartSong
+	jp BankReturn
+
 TradeLoadItemIcons:
 	ldh a, [hCurrentBank]
 	push af
@@ -1010,7 +1132,7 @@ wTradeSecondaries: ds 3
 ; Index. >= 8 is None
 wBlinkItem: db
 
-wCurrentVendor: dw
+wCurrentTrader:: dw
 
 ; Where to render each of the inventory's items.
 ; 8 sets of 2 u8 vectors that determine the current and target position.

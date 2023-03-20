@@ -198,7 +198,7 @@ PoisonCureHandler:
 	ld c, low(wEntity0_PoisonTurns)
 	xor a, a
 	ld [bc], a
-	ret
+	jp HealHandler
 
 section "BlinkTeamHandler", rom0
 

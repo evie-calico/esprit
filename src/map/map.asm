@@ -20,6 +20,7 @@ def MAP_NODE_MOVE rb     ; Move to another node
 def MAP_NODE_LOCK rb     ; Move to another node if FLAG is set
 def MAP_NODE_DUNGEON rb  ; Enter a dungeon
 def MAP_NODE_SCENE rb    ; Enter a town
+def MAP_NODE_TRADER rb   ; Begin a trade
 def MAP_NODE_AUTOMOVE rb ; Automatically progress to the next node; do not draw name.
 
 macro _node_dir
@@ -78,8 +79,9 @@ def NB_DROPLETS equ 16
 def NB_EFFECTS equ NB_DROPLETS + 3
 
 section "World map nodes", romx
-	node xVillageNode, "Crater Village", 48, 88
+	node xVillageNode, "The village", 48, 88
 		left MOVE, xForestNode
+		press TRADER, xFoodTrader
 	end_node
 
 	node xForestNode, "Crater Forest", 12, 88
@@ -682,7 +684,10 @@ UpdateMapNode:
 	dec a
 	jr z, MapNodeDungeon
 	assert MAP_NODE_SCENE == 4
-	jr MapNodeScene
+	dec a
+	jr z, MapNodeScene
+	assert MAP_NODE_TRADER == 5
+	jr MapNodeTrader
 
 MapNodeMove:
 	inc hl
@@ -758,6 +763,30 @@ MapNodeScene:
 	ld [hli], a
 	ld [hl], high(InitScene)
 	ret
+
+MapNodeTrader:
+	ld de, wCurrentTrader
+	inc hl ; Bank is ignored by this.
+	ld a, [hli]
+	ld [de], a
+	inc de
+	ld a, [hli]
+	ld [de], a
+
+	call FadeToBlack
+
+	ld hl, wFadeCallback
+	ld a, low(.openTrader)
+	ld [hli], a
+	ld [hl], high(.openTrader)
+	ret
+
+.openTrader
+	ld a, GAMESTATE_MENU
+	ld [wGameState], a
+	ld b, bank(xTradeMenu)
+	ld de, xTradeMenu
+	jp AddMenu
 
 section UNION "State variables", wram0
 wEffects: ds (3 + evscript_script_pool_size) * NB_EFFECTS

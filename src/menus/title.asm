@@ -426,10 +426,6 @@ TitleScreenA:
 	call xVerifySaveFile
 	jr z, :+
 		call xInitializeSaveFile
-		ld b, bank(xTradeMenu)
-		ld de, xTradeMenu
-		call AddMenu
-		jp BankReturn
 		ld a, MENU_ACTION_VALIDATE
 		ld [wMenuAction], a
 		call FadeToBlack
