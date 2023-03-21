@@ -49,6 +49,8 @@ xFoodBackground:
 xFoodTrader::
 	item xApple
 	item xPear
+	item xGrapes
+	item xWaterMelon
 	item xTwig
 	item xAloe
 	db 0
@@ -66,6 +68,16 @@ xFoodTrader::
 	trade xApple, xGrapes
 	trade xPear, xGrapes
 	trade xTwig, xPearOnAStick
+
+.xGrapes
+	trade null, null
+	trade xWaterMelon, xIceCream
+	trade null, null
+
+.xWaterMelon
+	trade null, null
+	trade xGrapes, xIceCream
+	trade null, null
 
 .xTwig
 	trade null, null

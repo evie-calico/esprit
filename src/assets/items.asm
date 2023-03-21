@@ -71,3 +71,6 @@ endm
 
 	item HEAL_HEATSTROKE, xWaterMelon, "Water Melon", "It's literally filled with water. Heals 26 HP and cools you down.", "res/items/watermelon.2bpp", 26
 	.palette incbin "res/items/watermelon.pal8", 3
+
+	item HEAL_HEATSTROKE, xIceCream, "Ice Cream", "Strawberry and Vanilla~ Heals 50 HP and cools you down.", "res/items/ice_cream.2bpp", 50
+	.palette incbin "res/items/ice_cream.pal8", 3
