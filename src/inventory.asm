@@ -208,9 +208,15 @@ PureBlinkTeamHandler:
 	ld c, low(wEntity0_IsBlinkPure)
 	ld a, 1
 	ld [bc], a
+	jr BlinkTeamHandler.hook
+
 ; @param b: User pointer high byte
 ; @param hl: Blink data ptr
 BlinkTeamHandler:
+	ld c, low(wEntity0_IsBlinkPure)
+	xor a, a
+	ld [bc], a
+.hook
 	assert BlinkItem_Length - sizeof_Item == 0
 	ld l, [hl]
 	ld h, 0

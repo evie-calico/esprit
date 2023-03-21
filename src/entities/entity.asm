@@ -192,6 +192,7 @@ EndTurn::
 	ld h, a
 	; Check if the blink should be random or "pure" (go to the exit)
 	ld l, low(wEntity0_IsBlinkPure)
+	ld a, [hl]
 	and a, a
 	jr nz, .pureBlink
 		call GetEmptyTile
