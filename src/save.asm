@@ -150,6 +150,9 @@ xInitialFile:
 	; Fill the inventory with default items
 	; if a comma is present anywhere, this is a list.
 	if strin("{INIT_INVENTORY}", ",")
+		if strsub("{INIT_INVENTORY}", strlen("{INIT_INVENTORY}")) != ","
+			redef INIT_INVENTORY equs "{INIT_INVENTORY},"
+		endc
 		for idx, 8
 			if !strin("{INIT_INVENTORY}", ",")
 				break
