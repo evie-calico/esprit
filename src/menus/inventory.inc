@@ -7,12 +7,12 @@ xInventoryMenu::
 	db bank(@)
 	dw xInventoryMenuInit
 	; Used Buttons
-	db PADF_A | PADF_B | PADF_START | PADF_UP | PADF_DOWN
+	db PADF_A | PADF_B | PADF_START | PADF_SELECT | PADF_UP | PADF_DOWN
 	; Auto-repeat
 	db 1
 	; Button functions
 	; A, B, Sel, Start, Right, Left, Up, Down
-	dw xInventoryA, null, null, xInventoryStart, null, null, xInventoryMove, xInventoryMove
+	dw xInventoryA, null, xInventorySelect, xInventoryStart, null, null, xInventoryMove, xInventoryMove
 	db 0 ; Last selected item
 	; Allow wrapping
 	db 0
@@ -305,6 +305,67 @@ xInventoryStart:
 	ld b, bank(xTossItemMenu)
 	ld de, xTossItemMenu
 	jp AddMenu
+
+xInventorySelect:
+	ld hl, sp+2
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	ld a, [hl]
+	cp a, INVENTORY_SIZE - 1
+	ret z
+	inc a
+	ld b, a
+	add a, b ; a * 2
+	add a, b ; a * 3
+	add a, low(wInventory)
+	ld l, a
+	adc a, high(wInventory)
+	sub a, l
+	ld h, a
+	ld a, [hli]
+	and a, a
+	ret z
+	; cache the item in b:de.
+	ld b, a
+	ld a, [hli]
+	ld e, a
+	ld a, [hld] ; we can start moving backwards now
+	ld d, a
+	; Now swap!
+	dec hl ; gotta move back to the previous item
+	dec hl
+	; we'll store this item in e:cd
+	ld c, [hl] ; swap high
+	ld a, d ; only b:e left
+	ld [hld], a
+	ld d, [hl]
+	ld a, e ; just b!
+	ld [hld], a
+	ld e, [hl]
+	ld a, b
+	ld [hli], a
+	inc hl
+	inc hl
+	ld a, e
+	ld [hli], a
+	ld a, d
+	ld [hli], a
+	ld a, c
+	ld [hli], a
+	; increment the cursor too
+	ld hl, sp+2
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	inc hl
+	inc [hl]
+	lb bc, 8, 8
+	ld hl, $9877
+	ld d, idof_vBlankTile
+	call FillRegion
+	jp xInventoryDrawItemNames
 
 xInventoryMove:
 	ld a, 1
