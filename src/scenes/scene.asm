@@ -196,7 +196,7 @@ SceneState::
 	ld b, idof_vAPrompt
 	jr .drawAPrompt
 .noAPrompt
-	ld b, $59
+	ld b, idof_vUIFrameRight
 .drawAPrompt
 	ldh a, [rSTAT]
 	and a, STATF_BUSY

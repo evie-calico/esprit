@@ -19,6 +19,7 @@ def POPUP_SPEED equ 8
 	dtile vUIFrameTop
 	dtile vUIFrameLeft
 	dtile vUIFrameRight
+	export idof_vUIFrameRight
 	dtile vUIFrameLeftCorner
 	dtile vUIFrameRightCorner
 	dtile vUIArrowUp
