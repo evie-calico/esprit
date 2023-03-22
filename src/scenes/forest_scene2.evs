@@ -10,7 +10,7 @@ npc xInitForestScene2 {
 		return;
 	}
 	set_flag(FLAG_FOREST_COMPLETE, 1);
-
+/*
 	load(xForestSceneBackground2);
 	play_music(xCricketSound);
 
@@ -277,7 +277,7 @@ npc xInitForestScene2 {
 	// TOWN SCENE
 	fade_to_black();
 		while check_fade() { yield; }
-		load(xTreeSceneBackground);
+		load(xVillageSceneBackground);
 		position(PLAYER, 0, 0);
 		position(2, 0, 0);
 		position(PARTNER, 14 * 8, 64);
@@ -364,6 +364,94 @@ npc xInitForestScene2 {
 		yield;
 	}
 	position(PARTNER, 0, 0);
+*/
+	// TOWN SCENE
+	fade_to_black();
+		while check_fade() { yield; }
+		load(xTreeSceneBackground);
+		position(PARTNER, 0, 0);
+		frame(PARTNER, ENTITY_FRAME_IDLE);
+		direction(PARTNER, UP);
+		spawn_npc(2, xPuppy);
+		frame(2, ENTITY_FRAME_IDLE);
+		direction(2, UP);
+		position(2, 80, 24);
+	fade_in();
 
-	open_map();
+	sleep(60);
+	position(PARTNER, 80, 80);
+	sleep(30);
+
+	repeat 30 {
+		dmove(PARTNER, UP, 12);
+		yield;
+	}
+	direction(2, RIGHT);
+	repeat 10 {
+		dmove(PARTNER, UP, 12);
+		yield;
+	}
+	direction(2, DOWN);
+	say(Puppy, "Hi, Aris!<WAIT> Got something for me?");
+	say(Aris, "Actually, it's not much.<PAUSE> I took Luvui into the forest yesterday to collect food, but we ended up eating most of it.");
+	say(Puppy, "That's okay.<PAUSE> We have plenty stocked up; I appreciate you trying though.<WAIT> I'll take whatever you do have, and you can have the first pick for breakfast.");
+	sleep(20);
+
+	// Luvui Enters
+	position(PLAYER, 80, 80);
+	direction(PLAYER, UP);
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	sleep(20);
+	direction(PARTNER, RIGHT);
+	sleep(10);
+	direction(PARTNER, DOWN);
+	sleep(20);
+
+	say_no_wait(Aris, "Luvui!<WAIT> I'm so sorry I kept us out so late last night.");
+	repeat 20 {
+		dmove(PLAYER, UP, 12);
+		yield;
+	}
+	print_wait();
+
+	say(Luvui, "It's okay,<PAUSE> really!<WAIT> I had fun, even if it was tiring.");
+
+	sleep(20);
+	direction(PLAYER, RIGHT);
+	sleep(40);
+	direction(PLAYER, DOWN);
+	sleep(10);
+	direction(PLAYER, LEFT);
+	sleep(40);
+	direction(PLAYER, UP);
+	sleep(20);
+
+	say(Luvui, "So, this is the pantry?<PAUSE> Mom said I'd find you here.");
+	say_no_wait(Puppy, "That's right!<PAUSE> If anyone has excess food, they leave it with me.<PAUSE> Then, whenever you need something to eat, you can find it here.");
+	sleep(10);
+	direction(PARTNER, RIGHT);
+	sleep(10);
+	direction(PARTNER, UP);
+	sleep(40);
+	print_wait();
+
+	sleep(10);
+	direction(PARTNER, RIGHT);
+	sleep(10);
+	direction(PARTNER, DOWN);
+	sleep(10);
+	say(Aris, "That way, everyone has something to eat, even if you don't go out collecting food.");
+	say_no_wait(Puppy, "And when you two bring in food, I'll let you pick out anything you'd like.<WAIT> We have some treats and other items that aren't for meals.");
+	sleep(10);
+	direction(PARTNER, RIGHT);
+	sleep(10);
+	direction(PARTNER, UP);
+	sleep(40);
+	print_wait();
+	say(Luvui, "We collected some food last night… would you like it?");
+	say(Puppy, "Of course!<PAUSE> Whenever you have leftover food, you can bring it to me.");
+
+	// Now open the trade menu.
+
+	open_trader(xFoodTrader);
 }

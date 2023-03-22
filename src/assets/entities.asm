@@ -109,3 +109,11 @@ endm
 		incbin "res/sprites/kangaroo.pal8", 3
 	.moves
 		db 0
+
+	entity xPuppy, "Puppy", "res/sprites/puppy.2bpp"
+	.palette
+		rgb 255, 255, 128
+		rgb 32, 32, 176
+		rgb 0, 0, 32
+	.moves
+		db 0

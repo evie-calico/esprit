@@ -195,6 +195,7 @@ env script {
 	def check_fade(return u8);
 	def open_map();
 	def open_map_immediately();
+	def open_trader(const u16);
 
 	pool = 18;
 }

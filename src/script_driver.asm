@@ -94,6 +94,7 @@ EvscriptBytecodeTable:
 	dw ScriptCheckFade
 	dw ScriptOpenMap
 	dw ScriptOpenMapImmediately
+	dw ScriptOpenTrader
 
 section "evscript Return", rom0
 StdReturn:
@@ -896,6 +897,30 @@ ScriptOpenMap:
 	ld a, high(InitMap)
 	ld [bc], a
 	ret
+
+ScriptOpenTrader:
+	call FadeToBlack
+
+	ld bc, wCurrentTrader
+	ld a, [hli]
+	ld [bc], a
+	inc bc
+	ld a, [hli]
+	ld [bc], a
+
+	ld bc, wFadeCallback
+	ld a, low(.open)
+	ld [bc], a
+	inc bc
+	ld a, high(.open)
+	ld [bc], a
+	ret
+.open
+	ld a, GAMESTATE_MENU
+	ld [wGameState], a
+	ld b, bank(xTradeMenu)
+	ld de, xTradeMenu
+	jp AddMenu
 
 section "evscript ScriptRandRange", rom0
 ScriptRandRange:
