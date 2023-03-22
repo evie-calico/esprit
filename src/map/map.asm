@@ -213,8 +213,6 @@ InitMap::
 		endr
 	:
 
-	xor a, a
-	ld [wMapShouldSave], a
 	; Null out all enemies.
 	ld hl, wEntity0
 	ld b, NB_ENTITIES
@@ -330,8 +328,8 @@ InitMap::
 	ld a, bank(xCommitSaveFile)
 	rst SwapBank
 
-	ld a, [wGameState]
-	cp a, GAMESTATE_MENU
+	ld a, [wMapShouldSave]
+	and a, a
 	jr nz, :+
 		xor a, a
 		ld hl, wEffects + (3 + evscript_script_pool_size) * (NB_DROPLETS + 2)
@@ -425,6 +423,7 @@ InitMap::
 	xor a, a
 	ldh [hShadowSCX], a
 	ldh [hShadowSCY], a
+	ld [wMapShouldSave], a
 
 	ld a, GAMESTATE_MAP
 	ld [wGameState], a
