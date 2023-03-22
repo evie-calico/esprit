@@ -5,6 +5,7 @@ def PULSE1 equ %0001
 def PULSE2 equ %0010
 def WAVE   equ %0100
 def NOISE  equ %1000
+def MODULATE equ %10000000
 
 macro sound ; channels (bitmask), length, [next]
 	db (\1), (\2)
@@ -24,6 +25,10 @@ macro reg ; reg = value
 		regex "([^ =]*) = (.*)", "\1", register, value
 		db low(register), value
 	endc
+endm
+
+macro mod ; reg = value
+	reg MODULATE|\1
 endm
 
 section "play sound", rom0
@@ -55,8 +60,20 @@ PlaySound::
 	ld a, [hli]
 	and a, a
 	jp z, BankReturn
+	bit 7, a
+	jr nz, .modulate
 	ld c, a
 	ld a, [hli]
+	ldh [c], a
+	jr .setRegs
+.modulate
+	and a, $7F
+	ld c, a
+	rst Rand8
+	and a, $1F
+	add a, [hl]
+	sub a, $F
+	inc hl
 	ldh [c], a
 	jr .setRegs
 
@@ -170,7 +187,7 @@ sfxGenericVoice::
 	reg rNR10 = $1f
 	reg rNR11 = $32
 	reg rNR12 = $f0
-	reg rNR13 = $25
+	mod rNR13 = $25
 	reg rNR14 = $c6
 	reg end
 
@@ -179,7 +196,7 @@ sfxLuvuiVoice::
 	reg rNR10 = $0f
 	reg rNR11 = $36
 	reg rNR12 = $f0
-	reg rNR13 = $30
+	mod rNR13 = $30
 	reg rNR14 = $c7
 	reg end
 
@@ -188,7 +205,7 @@ sfxArisVoice::
 	reg rNR10 = $17
 	reg rNR11 = $72
 	reg rNR12 = $f0
-	reg rNR13 = $4e
+	mod rNR13 = $4e
 	reg rNR14 = $c6
 	reg end
 
@@ -197,7 +214,7 @@ sfxMomVoice::
 	reg rNR10 = $7f
 	reg rNR11 = $28
 	reg rNR12 = $f1
-	reg rNR13 = $6e
+	mod rNR13 = $6e
 	reg rNR14 = $c6
 	reg end
 

@@ -10,7 +10,7 @@ npc xInitForestScene2 {
 		return;
 	}
 	set_flag(FLAG_FOREST_COMPLETE, 1);
-/*
+
 	load(xForestSceneBackground2);
 	play_music(xCricketSound);
 
@@ -364,7 +364,7 @@ npc xInitForestScene2 {
 		yield;
 	}
 	position(PARTNER, 0, 0);
-*/
+
 	// TOWN SCENE
 	fade_to_black();
 		while check_fade() { yield; }
