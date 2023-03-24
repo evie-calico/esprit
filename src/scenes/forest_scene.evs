@@ -10,6 +10,7 @@ npc xInitForestScene {
 	}
 
 	load(xForestSceneBackground);
+	play_music(null);
 
 	// Luvui and Aris enter from the left.
 	// Luvui falls slightly behind, before stopping at the foot of a tree.

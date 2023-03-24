@@ -90,6 +90,10 @@ StartSong::
 	ld a, $77
 	ldh [rNR50], a
 
+	ld a, d
+	or a, e
+	ret z ; do nothing if null
+
 	ld hl, hUGE_LoadedWaveID
 	ld a, hUGE_NO_WAVE
 	ld [hli], a

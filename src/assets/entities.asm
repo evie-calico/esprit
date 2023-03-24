@@ -117,3 +117,15 @@ endm
 		rgb 0, 0, 32
 	.moves
 		db 0
+
+	entity xTachy, "Tachy", "res/sprites/wolf.2bpp"
+	.palette
+		incbin "res/sprites/wolf.pal8", 3
+	.moves
+		db 0
+
+	entity xFox, "Fox", "res/sprites/fox.2bpp"
+	.palette
+		incbin "res/sprites/fox.pal8", 3
+	.moves
+		db 0
