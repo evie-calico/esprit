@@ -210,10 +210,14 @@ InitMap::
 			inc e
 			ld a, [de]
 			ld [hli], a
+			ld e, low(wEntity0_CanRevive)
+			ld a, [de]
+			ld [hli], a
 		endr
 	:
 
 	; Null out all enemies.
+	xor a, a
 	ld hl, wEntity0
 	ld b, NB_ENTITIES
 .clearEntities

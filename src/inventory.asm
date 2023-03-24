@@ -170,16 +170,11 @@ HealHandler:
 
 section "Fatigue Heal Handler", rom0
 ; @param b: User pointer high byte
-; @param hl: Heal data ptr
+; @param hl: Fatigue data ptr
 FatigueHealHandler:
-	ld c, low(wEntity0_Fatigue)
-	ld a, [bc]
-	add a, 50
-	cp a, 101
-	jr c, :+
-	ld a, 100
-:
-	ld [bc], a
+	ld e, [hl]
+	call RestoreEntityFatigue
+	inc hl
 	jp HealHandler
 
 section "Revive Handler", rom0

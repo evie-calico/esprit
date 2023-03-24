@@ -60,43 +60,19 @@ UseMove::
 	jr c, .tooTired
 	ld [bc], a
 
-	; Load up printing variables
-	; First the move name
-	assert Move_Fatigue + 1 == Move_Name
-	inc de
-	ld hl, wfmt_xUsedMoveString_move
-	ldh a, [hCurrentBank]
-	ld [hli], a
-	ld a, e
-	ld [hli], a
-	ld a, d
-	ld [hli], a
-	; Then the user's name
-	ld a, b
-	ld [wfmt_xUsedMoveString_user], a
-
-	ld hl, wEntityAnimation
-	ld a, low(EntityAttackAnimation)
-	ld [hli], a
-	ld a, high(EntityAttackAnimation)
-	ld [hli], a
-	ld a, low(.dispatchMoveAction)
-	ld [hli], a
-	ld a, high(.dispatchMoveAction)
-	ld [hli], a
-	ld [hl], b
-
-	ld hl, sfxReadyAttack
-	call PlaySound
-
-	ld b, bank(xUsedMoveString)
-	ld hl, xUsedMoveString
-	call PrintHUD
+	; Execute the move's script.
+	; It will likely initiate an animation with a callback.
+	call GetMoveInfo
+	; Check move action and execute.
+	assert Move_Action == 0
+	ld a, [de]
+	ld hl, .moveActions
+	call HandleJumpTable
 
 	pop af
 	rst SwapBank
 	xor a, a
-	inc a ; This sets the Z flag.
+	inc a ; This resets the Z flag.
 	ret
 
 .tooTired
@@ -129,30 +105,6 @@ UseMove::
 	xor a, a
 	ret
 
-.dispatchMoveAction
-	ldh a, [hCurrentBank]
-	push af
-
-	ld hl, wMoveState
-	assert wMoveState.userIndex + 1 == wMoveState.moveBank
-	ld a, [hli]
-	ld [hSaveUserIndex], a
-	ld b, a
-	ld a, [hli]
-	rst SwapBank
-	ld a, [hli]
-	ld e, a
-	ld d, [hl]
-	; Check move action and execute.
-	assert Move_Action == 0
-	ld a, [de]
-	ld hl, .moveActions
-	call HandleJumpTable
-
-	pop af
-	rst SwapBank
-	ret
-
 ; Functions to handle move behaviors.
 ; @param b: Entity pointer high byte
 ; @param de: Move pointer
@@ -170,11 +122,74 @@ UseMove::
 
 	assert MOVE_ACTION_COUNT == 5
 
+; @return b: Move user
+; @return de: Move pointer
+; Also switches to the move's bank.
+GetMoveInfo:
+	ld hl, wMoveState
+	assert wMoveState.userIndex + 1 == wMoveState.moveBank
+	ld a, [hli]
+	ld [hSaveUserIndex], a
+	ld b, a
+	ld a, [hli]
+	rst SwapBank
+	ld a, [hli]
+	ld e, a
+	ld d, [hl]
+	ret
+
+; @param de: function to call once animation is complete.
+; @clobbers c, hl
+PlayAttackAnimation:
+	ld hl, wEntityAnimation
+	ld a, low(EntityAttackAnimation)
+	ld [hli], a
+	ld a, high(EntityAttackAnimation)
+	ld [hli], a
+	ld a, e
+	ld [hli], a
+	ld a, d
+	ld [hli], a
+	ld a, [wMoveState.userIndex]
+	ld [hl], a
+
+	ld hl, sfxReadyAttack
+	jp PlaySound
+
+; @param hCurrentBank: bank of move.
+; @param de: move name
+; @param b: move user
+; @clobbers b, hl
+PrintUsedMove:
+	ld hl, wfmt_xUsedMoveString_move
+	ldh a, [hCurrentBank]
+	ld [hli], a
+	ld a, e
+	ld [hli], a
+	ld a, d
+	ld [hli], a
+	; Then the user's name
+	ld a, b
+	ld [wfmt_xUsedMoveString_user], a
+
+	ld b, bank(xUsedMoveString)
+	ld hl, xUsedMoveString
+	jp PrintHUD
+
 ; Basic attack. Check <range> tiles in front of <entity>, and attack the first
 ; enemy seen. Deals <power> damage and has a <chance> chance of succeeding.
 ; @param b: Entity pointer high byte
 ; @param de: Move pointer
 MoveActionAttack:
+	rept Move_Name
+		inc de
+	endr
+	call PrintUsedMove
+
+	ld de, .after
+	jp PlayAttackAnimation
+.after
+	call GetMoveInfo
 	call CheckMoveAccuracy
 	jp c, PrintMissed
 	call ScanForEntities
@@ -195,6 +210,15 @@ MoveActionAttack:
 ; @param b: Entity pointer high byte
 ; @param de: Move pointer
 MoveActionHeal:
+	rept Move_Name
+		inc de
+	endr
+	call PrintUsedMove
+
+	ld de, .after
+	jp PlayAttackAnimation
+.after
+	call GetMoveInfo
 	call CheckMoveAccuracy
 	jp c, PrintMissed
 	ldh a, [hMoveUserTeam]
@@ -214,6 +238,15 @@ MoveActionHeal:
 	jp HealDamage
 
 MoveActionPoison:
+	rept Move_Name
+		inc de
+	endr
+	call PrintUsedMove
+
+	ld de, .after
+	jp PlayAttackAnimation
+.after
+	call GetMoveInfo
 	call CheckMoveAccuracy
 	jp c, PrintMissed
 	call ScanForEntities
@@ -239,6 +272,15 @@ MoveActionPoison:
 ; @param b: Entity pointer high byte
 ; @param de: Move pointer
 MoveActionPoisonAttack:
+	rept Move_Name
+		inc de
+	endr
+	call PrintUsedMove
+
+	ld de, .after
+	jp PlayAttackAnimation
+.after
+	call GetMoveInfo
 	; This type of attack always hits; accuracy only applies to the status.
 	assert Move_Chance == 1
 	inc de
@@ -268,6 +310,15 @@ MoveActionPoisonAttack:
 ; @param b: Entity pointer high byte
 ; @param de: Move pointer
 MoveActionFly:
+	rept Move_Name
+		inc de
+	endr
+	call PrintUsedMove
+
+	ld de, .after
+	jp PlayAttackAnimation
+.after
+	call GetMoveInfo
 	ld hl, wEntityAnimation
 	ld a, low(EntityFlyAnimation)
 	ld [hli], a

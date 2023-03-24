@@ -191,6 +191,7 @@ env script {
 	def _enter_dungeon_immediately();
 	macro enter_dungeon_immediately(const u8) = enter_dungeon_immediately;
 	def fade_to_black();
+	def fade_to_white();
 	def fade_in();
 	def check_fade(return u8);
 	def open_map();

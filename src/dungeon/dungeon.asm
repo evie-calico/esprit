@@ -644,6 +644,12 @@ SetPreviousHudStats:
 
 section "Floor complete", rom0
 FloorComplete::
+	ld b, high(wEntity0)
+	ld e, 80
+	call RestoreEntityFatigue
+	inc b
+	call RestoreEntityFatigue
+
 	ld hl, wActiveDungeon
 	ld a, [hli]
 	rst SwapBank
@@ -694,9 +700,8 @@ DungeonComplete::
 	jr z, .switch
 	assert DUNGEON_COMPLETION_SCENE == 2
 .scene
-	; cenes can do a few things, including switching the dungeon pointer or exiting the dungeon.
+	; Scenes can do a few things, including switching the dungeon pointer or exiting the dungeon.
 	; SWITCH and EXIT are just shortcuts for common operations.
-	; For example, if a scene has already been seen, it could immedietly quit and 
 	assert Dungeon_CompletionType + 1 == Dungeon_NextScenePointer
 	inc hl
 	ld a, [hli]

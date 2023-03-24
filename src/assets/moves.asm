@@ -25,7 +25,11 @@ endm
 	move ATTACK,    xScratch,     "Scratch",         8,      1,    100%,     0,
 	move ATTACK,    xBite,        "Bite",           12,      1,     85%,    15,
 	move ATTACK,    xPounce,      "Pounce",          8,      2,     85%,    15,
-	move HEAL,      xHeal,        "Heal",            5,      1,     60%,    20,
+	; Luvui heal moves
+	move HEAL,      xHeal,        "Heal",            8,      1,     70%,    30,
+	; Aris buff moves
+	;move ATK_BUFF,  xGrowl,       "Growl",           6,      1,    100%,    20,
+	;move ATK_BUFF,  xRoar,        "Roar",           12,      1,    100%,    20,
 	; Enemy-only moves.
 	; These may have extreme effects that the player shouldn't be able to access.
 	move ATTACK,    xNibble,      "Nibble",          3,      1,     90%,     0,
