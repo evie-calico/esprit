@@ -90,6 +90,7 @@ EvscriptBytecodeTable:
 	dw ScriptEnterDungeon
 	dw ScriptEnterDungeonImmediately
 	dw FadeToBlack
+	dw FadeToWhite
 	dw FadeIn
 	dw ScriptCheckFade
 	dw ScriptOpenMap
@@ -899,7 +900,7 @@ ScriptOpenMap:
 	ret
 
 ScriptOpenTrader:
-	call FadeToBlack
+	call FadeToWhite
 
 	ld bc, wCurrentTrader
 	ld a, [hli]

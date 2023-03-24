@@ -275,7 +275,7 @@ npc xInitForestScene2 {
 	say(Mom, "He really likes her…");
 
 	// TOWN SCENE
-	fade_to_black();
+	fade_to_white();
 		while check_fade() { yield; }
 		load(xVillageSceneBackground);
 		position(PLAYER, 0, 0);
@@ -366,7 +366,7 @@ npc xInitForestScene2 {
 	position(PARTNER, 0, 0);
 
 	// TOWN SCENE
-	fade_to_black();
+	fade_to_white();
 		while check_fade() { yield; }
 		load(xTreeSceneBackground);
 		position(PARTNER, 0, 0);
