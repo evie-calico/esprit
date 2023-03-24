@@ -141,6 +141,7 @@ EndTurn::
 			call HealEntity
 .skipHealing
 */
+/* Passive fatigue restoration seems too easy to abuse. Instead, entering a new floor will restore 80%
 	; Restore 1% fatigue
 	ld a, [wActiveEntity]
 	add a, high(wEntity0)
@@ -156,6 +157,7 @@ EndTurn::
 	jr nc, .skipFatigue
 		ld [hl], a
 .skipFatigue
+*/
 .skip::
 	; Move on to the next entity
 	ld a, [wActiveEntity]
@@ -512,7 +514,7 @@ section "Restore entity", rom0
 RestoreEntity::
 	; Start with 100% fatigue
 	ld l, low(wEntity0_Fatigue)
-	ld [hl], 100
+	ld [hl], ENTITY_MAX_FATIGUE
 
 	; Get level
 	ld l, low(wEntity0_Level)
@@ -531,37 +533,39 @@ RestoreEntity::
 
 section "Load players", rom0
 LoadPlayers::
-	ld hl, wPlayerData
-	ld a, [hli]
-	ld b, a
-	ld a, [hli]
-	ld e, a
-	ld a, [hli]
-	ld d, a
-	ld c, [hl]
-	ld h, high(wEntity0)
-	call SpawnEntity
-	ld l, low(wEntity0_Experience)
-	ld a, [wPlayerData_Experience]
-	ld [hli], a
-	ld a, [wPlayerData_Experience + 1]
-	ld [hl], a
+	for i, 2
+		if !i
+			ld hl, wPlayerData
+		else
+			ld hl, wPartnerData
+		endc
+		ld a, [hli]
+		ld b, a
+		ld a, [hli]
+		ld e, a
+		ld a, [hli]
+		ld d, a
+		ld c, [hl]
+		ld h, high(wEntity0) + i
+		call SpawnEntity
+		ld l, low(wEntity0_Experience)
+		if !i
+			ld de, wPlayerData_Experience
+		else
+			ld de, wPartnerData_Experience
+		endc
+		ld a, [de]
+		ld [hli], a
+		inc de
+		ld a, [de]
+		ld [hl], a
+		inc de
+		assert wPartnerData_Experience + 2 == wPartnerData_CanRevive
+		ld l, low(wEntity0_CanRevive)
+		ld a, [de]
+		ld [hl], a
+	endr
 
-	ld hl, wPartnerData
-	ld a, [hli]
-	ld b, a
-	ld a, [hli]
-	ld e, a
-	ld a, [hli]
-	ld d, a
-	ld c, [hl]
-	ld h, high(wEntity1)
-	call SpawnEntity
-	ld l, low(wEntity0_Experience)
-	ld a, [wPartnerData_Experience]
-	ld [hli], a
-	ld a, [wPartnerData_Experience + 1]
-	ld [hl], a
 	ret
 
 section "Spawn Enemy", rom0
@@ -910,6 +914,19 @@ HealEntity::
 	ld d, h
 	ld e, l
 	jr .heal
+
+; @param b: entity high byte
+; @param e: Heal amount
+RestoreEntityFatigue::
+	ld c, low(wEntity0_Fatigue)
+	ld a, [bc]
+	add a, e
+	cp a, ENTITY_MAX_FATIGUE + 1
+	jr c, :+
+	ld a, ENTITY_MAX_FATIGUE
+:
+	ld [bc], a
+	ret
 
 ; This loop creates page-aligned entity structures. This is a huge benefit to
 ; the engine as it allows very quick structure seeking and access.

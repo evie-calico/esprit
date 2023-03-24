@@ -10,6 +10,7 @@ def NB_ENTITIES equ 8
 def ENTITY_MOVE_COUNT equ 4
 def PLAYER_MAXIMUM_LEVEL equ 20
 def PLAYER_MINIMUM_LEVEL equ 5
+def ENTITY_MAX_FATIGUE equ 100
 
 def SPRITE_DIRECTION_SIZE equ 128 * 3
 def ENTITY_FRAME_IDLE equ 0
@@ -88,7 +89,7 @@ def TIRED_THRESHOLD equ 35
 		bytes 1, Direction
 		; The entities direction on the last frame is used to check if its
 		; graphics should be updated. A graphics update can be forced by setting
-		; this to an invalid value, usually -1 or $FF.
+		; this to an invalid value, usually -1/$FF.
 		bytes 1, LastDirection
 		; Determines what the latter 8 tiles should be. These tiles are only
 		; used if the frame is non-zero.
@@ -143,6 +144,7 @@ def TIRED_THRESHOLD equ 35
 		words 1, Data
 		bytes 1, Level
 		words 1, Experience
+		bytes 1, CanRevive
 	end_struct
 
 	struct Move

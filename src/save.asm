@@ -142,10 +142,12 @@ xInitialFile:
 	farptr xLuvui
 	db INIT_LEVEL
 	dw 0
+	db 1
 .partnerData
 	farptr xAris
 	db INIT_LEVEL + 1
 	dw 0
+	db 0
 .inventory
 	; Fill the inventory with default items
 	; if a comma is present anywhere, this is a list.
