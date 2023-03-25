@@ -104,15 +104,16 @@ xCommitSaveFile::
 .skip
 	ld bc, sizeof("Save Version {d:SAVE_VERSION}")
 
-	di
-	ld a, CART_SRAM_ENABLE
-	ld [rRAMG], a
+	;di
+	;ld a, CART_SRAM_ENABLE
+	;ld [rRAMG], a
 
 	call MemCopy
 
-	xor a, a
-	ld [rRAMG], a
-	reti
+	;xor a, a
+	;ld [rRAMG], a
+	;reti
+	ret
 
 xLoadSaveFile::
 	ld de, wFile

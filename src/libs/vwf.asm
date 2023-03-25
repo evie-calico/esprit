@@ -1821,17 +1821,23 @@ CHARSET equs "CHARSET_{d:_RS}"
 CHARSET_DEFINED equs "def({CHARSET})"
 
 		if CHARSET_DEFINED
-CHARSET_LABEL equs "Charset{d:_RS}"
+			def CHARSET_LABEL equs "sCharset{d:_RS}"
+			def ACTUAL_CHARSET_LABEL equs "xCharset{d:_RS}"
+			def ACTUAL_CHARSET_LABEL_END equs "xCharset{d:_RS}.end"
 			dw CHARSET_LABEL
 			PUSHS
-section "Charset {d:_RS}", rom0
-CHARSET_LABEL:
+section "actual Charset {d:_RS}", romx
+ACTUAL_CHARSET_LABEL::
 				incbin "{{CHARSET}}"
-				if @ - CHARSET_LABEL > CHARACTER_SIZE * NB_FONT_CHARACTERS
+.end::
+				if @ - ACTUAL_CHARSET_LABEL > CHARACTER_SIZE * NB_FONT_CHARACTERS
 					warn "Charset {d:_RS} is larger than expected; keep in mind they can only contain {d:NB_FONT_CHARACTERS} characters"
 				endc
+section "Charset {d:_RS}", sram
+CHARSET_LABEL::
+	ds ACTUAL_CHARSET_LABEL_END - ACTUAL_CHARSET_LABEL
 			POPS
-			purge CHARSET_LABEL
+			purge CHARSET_LABEL, ACTUAL_CHARSET_LABEL, ACTUAL_CHARSET_LABEL_END
 
 		else
 			dw 0
@@ -1840,7 +1846,6 @@ CHARSET_LABEL:
 		purge CHARSET
 		rsset _RS + 2
 	endr
-
 
 section "VWF engine memory", wram0,ALIGN[7]
 

@@ -147,6 +147,25 @@ Initialize::
 		dec c
 		jr nz, :-
 
+	; We use SRAM as scratch space, so it needs to be left unlocked.
+	; Not ideal, but neither is having 16KiB of ROM0
+	ld a, CART_SRAM_ENABLE
+	ld [rRAMG], a
+
+	; Copy fonts to WRAM
+	ld a, bank(xCharset0)
+	rst SwapBank
+	ld hl, xCharset0
+	ld de, sCharset0
+	ld bc, xCharset0.end - xCharset0
+	call MemCopy
+	ld a, bank(xCharset2)
+	rst SwapBank
+	ld hl, xCharset2
+	ld de, sCharset2
+	ld bc, xCharset2.end - xCharset2
+	call MemCopy
+
 	; Initialize OAM
 	call InitSprObjLib
 	ld a, high(wShadowOAM)
