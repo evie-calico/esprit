@@ -141,7 +141,7 @@ EndTurn::
 			call HealEntity
 .skipHealing
 */
-/* Passive fatigue restoration seems too easy to abuse. Instead, entering a new floor will restore 80%
+; Passive fatigue restoration seems too easy to abuse. Instead, entering a new floor will restore 80%
 	; Restore 1% fatigue
 	ld a, [wActiveEntity]
 	add a, high(wEntity0)
@@ -149,15 +149,14 @@ EndTurn::
 	ld l, low(wEntity0_IsHeatstroked)
 	ld a, [hl]
 	and a, a
-	jr nz, .skipFatigue
+	jr z, .skipFatigueLoss
 	ld l, low(wEntity0_Fatigue)
 	ld a, [hl]
-	inc a
-	cp a, 101
-	jr nc, .skipFatigue
+	dec a
+	jr z, .skipFatigueLoss
 		ld [hl], a
-.skipFatigue
-*/
+.skipFatigueLoss
+
 .skip::
 	; Move on to the next entity
 	ld a, [wActiveEntity]

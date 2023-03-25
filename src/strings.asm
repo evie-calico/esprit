@@ -12,7 +12,7 @@ xElipsesString:: db "<SET_DELAY><5>...<SET_DELAY><2><DELAY><30>", 0
 	format xDealtDamageString, "Dealt [u8:value] damage to [entity:target]!"
 	format xHealedDamageString, "[entity:target] healed [u8:value] HP."
 	format xGotPoisonedString, "[entity:target] was poisoned!"
-	format xGotHeatstrokeString, "[entity:target] is overheating and cannot restore energy."
+	format xGotHeatstrokeString, "[entity:target] is overheating and losing energy."
 	format xSomeoneBlinkedString, "[entity:target] blinked!"
 
 	format xLeveledUpString, "[entity:target]'s level increased to [u8:level]![condition:newMove] [entity:target] learned [str:moveName]."
