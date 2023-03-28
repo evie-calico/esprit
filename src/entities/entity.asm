@@ -668,14 +668,25 @@ section "Get Max Health", rom0
 ; @param a: Level
 ; @return hl: Max Health
 GetMaxHealth::
-	; The current formula is 8 + level * 8
-	; or in other words, (level + 1) * 4
-	inc a
+	; The current formula is:
+	;   2 * sum(1..level, |n| n) + 5
+	; This can be expressed as:
+	;   hl = 5
+	;   a *= 2
+	;   while (a) { hl += a; a -= 2; }
+	ld hl, 5
+	add a, a ; a * 2
+	ldh [hMaxHealthCounter], a
+.loop
+	add a, l
 	ld l, a
-	ld h, 0
-	add hl, hl
-	add hl, hl
-	add hl, hl
+	adc a, h
+	sub a, l
+	ld h, a
+	ldh a, [hMaxHealthCounter]
+	sub a, 2
+	ldh [hMaxHealthCounter], a
+	jr nz, .loop
 	ret
 
 section "Get Experience Target", rom0
@@ -945,3 +956,6 @@ section FRAGMENT "dungeon BSS", wram0
 ; The next entity to be processed.
 wActiveEntity:: db
 wMoveEntityCounter: db
+
+section "max health counter", hram
+hMaxHealthCounter: db
