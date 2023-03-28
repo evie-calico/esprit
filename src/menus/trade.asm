@@ -77,7 +77,7 @@ xFoodTrader::
 .xWaterMelon
 	trade null, null
 	trade xGrapes, xIceCream
-	trade null, null
+	trade xBlinkfruit, xPurefruit
 
 .xTwig
 	trade null, null
@@ -85,9 +85,14 @@ xFoodTrader::
 	trade null, null
 
 .xAloe
-	trade null, null
+	trade xBlinkfruit, xPurefruit
 	trade xApple, xSlimyApple
 	trade null, null
+
+.xBlinkfruit
+	trade null, null
+	trade xBlinkfruit, xPurefruit
+	trade xAloe, xPurefruit
 
 xTradeMenu::
 	db bank(@)
@@ -298,7 +303,16 @@ xTradeMenuSecond:
 		sub a, 1
 		jr c, :+
 		call xIsSelectionValid
+		jr nz, .moveUp
+		ld a, [wTradeCursor]
+		cp a, 2
+		jr nz, :+
+		xor a, a
+		call xIsSelectionValid
 		jr z, :+
+		ld hl, wTradeCursor
+		dec [hl]
+	.moveUp
 		ld hl, wTradeCursor
 		dec [hl]
 	:
@@ -311,7 +325,16 @@ xTradeMenuSecond:
 		cp a, 3
 		jr nc, :+
 		call xIsSelectionValid
+		jr nz, .moveDown
+		ld a, [wTradeCursor]
+		and a, a
+		jr nz, :+
+		ld a, 2
+		call xIsSelectionValid
 		jr z, :+
+		ld hl, wTradeCursor
+		inc [hl]
+	.moveDown
 		ld hl, wTradeCursor
 		inc [hl]
 	:
