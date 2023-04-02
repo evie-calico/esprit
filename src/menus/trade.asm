@@ -37,6 +37,8 @@ macro trade
 	farptr \2
 endm
 
+def empty equs "trade null, null"
+
 xFoodBackground:
 	incbin "res/ui/trade/tree_background.2bpp"
 .map
@@ -53,6 +55,7 @@ xFoodTrader::
 	item xWaterMelon
 	item xTwig
 	item xAloe
+	item xBlinkfruit
 	db 0
 ; Default trade
 	trade null, null
@@ -70,29 +73,29 @@ xFoodTrader::
 	trade xTwig, xPearOnAStick
 
 .xGrapes
-	trade null, null
+	trade xAloe, xLily
+	trade xGrapes, xWaterChestnut
 	trade xWaterMelon, xIceCream
-	trade null, null
 
 .xWaterMelon
-	trade null, null
-	trade xGrapes, xIceCream
 	trade xBlinkfruit, xPurefruit
+	trade xWaterMelon, xIceCream
+	trade xGrapes, xIceCream
 
 .xTwig
-	trade null, null
+	empty
 	trade xPear, xPearOnAStick
-	trade null, null
+	empty
 
 .xAloe
 	trade xBlinkfruit, xPurefruit
 	trade xApple, xSlimyApple
-	trade null, null
+	trade xGrapes, xLily
 
 .xBlinkfruit
-	trade null, null
-	trade xBlinkfruit, xPurefruit
 	trade xAloe, xPurefruit
+	trade xBlinkfruit, xPurefruit
+	empty
 
 xTradeMenu::
 	db bank(@)

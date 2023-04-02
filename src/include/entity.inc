@@ -26,24 +26,25 @@ def ENTITY_FRAME_HURT_OFFSET rb 64
 
 ; Move actions. Must not exceed 128, as this is the limit for a jump table.
 rsreset
-def MOVE_ACTION_ATTACK rb 1 ; A simple attack, dealing damage to an enemy in front of the user.
-def MOVE_ACTION_HEAL rb 1 ; Heals an ally in front of the user
-def MOVE_ACTION_POISON rb 1 ; Inflicts poison on an enemy in front of the user.
-def MOVE_ACTION_POISN_ATK rb 1 ; Inflicts poison on and deals damage to an enemy in front of the user.
-def MOVE_ACTION_FLY rb 1 ; Flies away from the battle and appears somewhere.
-def MOVE_ACTION_COUNT rb 1
+def MOVE_ACTION_ATTACK rb ; A simple attack, dealing damage to an enemy in front of the user.
+def MOVE_ACTION_HEAL rb ; Heals an ally in front of the user
+def MOVE_ACTION_POISON rb ; Inflicts poison on an enemy in front of the user.
+def MOVE_ACTION_POISN_ATK rb ; Inflicts poison on and deals damage to an enemy in front of the user.
+def MOVE_ACTION_FLY rb ; Flies away from the battle and appears somewhere.
+def MOVE_ACTION_TEND_WOUNDS rb
+def MOVE_ACTION_COUNT rb
 
 def MOVE_MAXIMUM_LENGTH equ 16
 
 ; Animation bytecode
 rsreset
-def ENTITY_ANIMATION_WAIT rb 1
-def ENTITY_ANIMATION_FRAME rb 1
-def ENTITY_ANIMATION_HIDE rb 1
-def ENTITY_ANIMATION_SHOW rb 1
-def ENTITY_ANIMATION_FORWARD rb 1
-def ENTITY_ANIMATION_BACKWARD rb 1
-def ENTITY_ANIMATION_END rb 1
+def ENTITY_ANIMATION_WAIT rb
+def ENTITY_ANIMATION_FRAME rb
+def ENTITY_ANIMATION_HIDE rb
+def ENTITY_ANIMATION_SHOW rb
+def ENTITY_ANIMATION_FORWARD rb
+def ENTITY_ANIMATION_BACKWARD rb
+def ENTITY_ANIMATION_END rb
 
 ; This determines when the "Tired" status should appear.
 def TIRED_THRESHOLD equ 35

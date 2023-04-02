@@ -23,7 +23,11 @@ endm
 		level 1, xScratch
 		level 6, xBite
 		level 7, xPounce
-		level 10, xHeal
+		level 9, xTendWounds
+		level 11, xSlash
+		level 13, xCrunch
+		level 15, xSootheWounds
+		level 17, xHealWounds
 		db 0
 
 	entity xAris, "Aris", "res/sprites/aris.2bpp"
@@ -84,7 +88,8 @@ endm
 		hex 01133e
 	.moves
 		level 1, xMoonlight
-		level 1, xFly
+		level 1, xStingShot
+		level 5, xFly
 		db 0
 
 	entity xAlligator, "Alligator", "res/sprites/alligator.2bpp"

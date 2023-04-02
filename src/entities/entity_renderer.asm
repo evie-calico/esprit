@@ -598,6 +598,37 @@ EntityFlyAnimation::
 	endr
 	ea_end
 
+EntityMoveAndShakeAnimation::
+	ea_frame ENTITY_FRAME_IDLE
+	ea_forward
+	ea_wait 2
+	ea_forward
+	ea_wait 2
+	ea_forward
+	ea_wait 2
+	rept 3
+		ea_forward
+		ea_wait 20
+		ea_backward
+		ea_wait 20
+	endr
+	ea_backward
+	ea_wait 2
+	ea_backward
+	ea_wait 2
+	ea_backward
+	ea_end
+
+EntityShakeAnimation::
+	ea_frame ENTITY_FRAME_IDLE
+	rept 3
+		ea_forward
+		ea_wait 20
+		ea_backward
+		ea_wait 20
+	endr
+	ea_end
+
 section "Entity animation graphics update", rom0
 UpdateAnimationFrame::
 	push hl

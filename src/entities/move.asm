@@ -119,8 +119,10 @@ UseMove::
 	dw MoveActionPoisonAttack
 	assert MOVE_ACTION_FLY == 4
 	dw MoveActionFly
+	assert MOVE_ACTION_TEND_WOUNDS == 5
+	dw MoveActionTendWounds
 
-	assert MOVE_ACTION_COUNT == 5
+	assert MOVE_ACTION_COUNT == 6
 
 ; @return b: Move user
 ; @return de: Move pointer
@@ -129,7 +131,7 @@ GetMoveInfo:
 	ld hl, wMoveState
 	assert wMoveState.userIndex + 1 == wMoveState.moveBank
 	ld a, [hli]
-	ld [hSaveUserIndex], a
+	ldh [hSaveUserIndex], a
 	ld b, a
 	ld a, [hli]
 	rst SwapBank
@@ -139,12 +141,17 @@ GetMoveInfo:
 	ret
 
 ; @param de: function to call once animation is complete.
-; @clobbers c, hl
+; @clobbers bc, hl
 PlayAttackAnimation:
+	ld bc, EntityAttackAnimation
+; @param de: function to call once animation is complete.
+; @param bc: animation pointer
+; @clobbers hl
+PlayAnimation:
 	ld hl, wEntityAnimation
-	ld a, low(EntityAttackAnimation)
+	ld a, c
 	ld [hli], a
-	ld a, high(EntityAttackAnimation)
+	ld a, b
 	ld [hli], a
 	ld a, e
 	ld [hli], a
@@ -204,6 +211,54 @@ MoveActionAttack:
 	and a, 3
 	ld b, a
 	jp DealDamage
+
+; Basic healing move. Check <range> tiles in front of <entity>, and heal the first
+; ally seen. Heals <power> health and has a <chance> chance of succeeding.
+; @param b: Entity pointer high byte
+; @param de: Move pointer
+MoveActionTendWounds:
+	inc de
+	ldh a, [hMoveUserTeam]
+	xor a, 1 ; Flip the team to check around
+	ldh [hMoveUserTeam], a
+	call ScanForEntities
+	assert SCAN_ENTITY == 0
+	and a, a
+	jr z, :+
+		ld d, bank(xTendWoundsSelf)
+		ld hl, xTendWoundsSelf
+		ld bc, EntityShakeAnimation
+		jr .print
+	:
+		ld d, bank(xTendWoundsOther)
+		ld hl, xTendWoundsOther
+		ld bc, EntityMoveAndShakeAnimation
+	.print
+	ld a, d
+	ld [wPrintString], a
+	ld a, l
+	ld [wPrintString + 1], a
+	ld a, h
+	ld [wPrintString + 2], a
+
+	ld de, .after
+	jp PlayAnimation
+.after
+	call GetMoveInfo
+	call CheckMoveAccuracy
+	jp c, PrintMissed
+	call ScanForEntities
+	assert SCAN_ENTITY == 0
+	and a, a
+	; If an entity was not found, heal ourself
+	jr z, :+
+		ldh a, [hSaveUserIndex]
+		ld h, a
+:
+	rst Rand8
+	and a, 3
+	ld b, a
+	jp HealDamage
 
 ; Basic healing move. Check <range> tiles in front of <entity>, and heal the first
 ; ally seen. Heals <power> health and has a <chance> chance of succeeding.
@@ -669,8 +724,9 @@ DefeatCheck::
 	ld [hl], high(InitMap)
 	ret
 
-.reviveFinal
-
+section "Strings", romx
+xTendWoundsSelf: db "Luvui tends to her wounds.", 0
+xTendWoundsOther: db "Luvui tends to Aris's wounds.", 0
 
 ; User to save the parameters of UseMove for animation callbacks.
 section "Move state", wram0
