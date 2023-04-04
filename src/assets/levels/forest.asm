@@ -66,10 +66,10 @@ section "Forest Dungeon", romx
 
 	next_part
 		after_floor 4, switch
-		shape LATTICE
+		shape GROTTO
 		music xForestNightMusic
 
-		items_per_floor 5
+		items_per_floor 1
 		item xApple
 		item xAloe
 		item xGrapes

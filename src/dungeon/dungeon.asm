@@ -954,7 +954,7 @@ DungeonGenerateFloor::
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, wScriptPool
+	ld de, wMainScript_Pool
 	call ExecuteScript
 	ld hl, wActiveDungeon
 	ld a, [hli]
@@ -991,7 +991,9 @@ DungeonGenerateFloor::
 	farptr xGenerateHalls
 	assert DUNGEON_TYPE_LATTICE == 2
 	farptr xGenerateLattice
-	assert DUNGEON_TYPE_DEBUG == 3
+	assert DUNGEON_TYPE_GROTTO == 3
+	farptr xGenerateGrotto
+	assert DUNGEON_TYPE_DEBUG == 4
 	farptr xGenerateDebug
 
 section "MapCheck3x3IsEmpty", rom0

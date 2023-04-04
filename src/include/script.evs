@@ -158,8 +158,9 @@ env script {
 	// Engine extensions
 	def sleep(u8);
 	def rand(return u8);
-	def rand_range(const u8, const u8, return u8);
+	def rand_range(u8, u8, return u8);
 	def is_cgb(return u8);
+
 	def print(const string);
 	def _play_music();
 	macro play_music(const u8) = play_music;

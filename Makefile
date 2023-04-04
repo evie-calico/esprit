@@ -51,7 +51,7 @@ ifeq (,$(shell which cargo))
 	$(error cargo is not installed on the PATH (https://www.rust-lang.org/))
 endif
 ifeq (,$(shell which evscript))
-	$(error evscript is not installed on the PATH. Please run `cargo install evscript`)
+	$(error evscript is not installed on the PATH. (https://github.com/eievui5/evscript))
 endif
 	$(MAKE) $(ROM)
 .PHONY: all

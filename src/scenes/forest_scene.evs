@@ -58,8 +58,10 @@ npc xInitForestScene {
 	say(Aris, "You're right… it's getting dark too.");
 	sleep(120);
 	direction(PARTNER, LEFT);
-	say(Aris, "There should be a few more apples up ahead.<WAIT> Let's go a bit further before we head back.");
+	sleep(30);
 	direction(PLAYER, RIGHT);
+	sleep(30);
+	say(Aris, "There's a little grotto with lots of fruit up ahead.<WAIT> Let's go a bit further before we head back.");
 	sleep(30);
 
 	// Exit scene while fading out.

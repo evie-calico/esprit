@@ -1,6 +1,8 @@
 if !def(DEFINES_INC)
 def DEFINES_INC equ 1
 
+include "structs.inc"
+
 def UP equ 0
 def RIGHT equ 1
 def DOWN equ 2
@@ -28,8 +30,16 @@ def FLAG_SEEN_FOREST_CUTSCENE rb
 
 def LD_A_PREFIX = $3E
 
-def evscript_script_pool_size = 18
-def evscript_npc_pool_size = 8
+def evscript_script_pool_size equ 18
+def evscript_npc_pool_size equ 8
+; Having many scripts could be useful for functions and multithreading
+def NB_SCRIPT_THREADS equ 1
+
+	struct ScriptThread
+		bytes 1, Bank
+		bytes 2, Pointer
+		bytes evscript_script_pool_size, Pool
+	end_struct
 
 ; Call a function in a foreign bank. Preserves the current bank, but can only
 ; be used from rom0

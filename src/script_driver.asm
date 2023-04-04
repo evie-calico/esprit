@@ -926,18 +926,33 @@ ScriptOpenTrader:
 section "evscript ScriptRandRange", rom0
 ScriptRandRange:
 	ld a, [hli]
+	; add de, a -> bc
+	add a, e
+	ld c, a
+	adc a, d
+	sub a, c
 	ld b, a
-	ld a, [hli]
-	push hl
-	ld h, b
-	ld l, a
-	ld a, l
-	sub a, h
-	ld l, a
+	ld a, [bc]
+	ld b, a
 	push de
-	call RandRange
+		ld a, [hli]
+		; add de, a -> de
+		add a, e
+		ld e, a
+		adc a, d
+		sub a, e
+		ld d, a
+		ld a, [de]
+
+		push hl
+			ld h, b
+			ld l, a
+			ld a, l
+			sub a, h
+			ld l, a
+			call RandRange
+		pop hl
 	pop de
-	pop hl
 	; Time to set the return value.
 	; The random number is currently stored in `a`
 	ld b, a
@@ -964,3 +979,8 @@ ScriptCheckFade:
 	ld a, [wFadeSteps]
 	ld [de], a
 	ret
+
+section "General Script Pool", wram0
+wScriptThreads::
+	dstruct ScriptThread, wMainScript
+	dstructs NB_SCRIPT_THREADS - 1, ScriptThread, wScriptThread
