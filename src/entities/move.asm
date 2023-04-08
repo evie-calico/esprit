@@ -121,8 +121,10 @@ UseMove::
 	dw MoveActionFly
 	assert MOVE_ACTION_TEND_WOUNDS == 5
 	dw MoveActionTendWounds
+	assert MOVE_ACTION_ATK_BUFF == 6
+	dw MoveActionAttackBuff
 
-	assert MOVE_ACTION_COUNT == 6
+	assert MOVE_ACTION_COUNT == 7
 
 ; @return b: Move user
 ; @return de: Move pointer
@@ -207,8 +209,18 @@ MoveActionAttack:
 	ld hl, sfxAttack
 	call PlaySound
 	pop hl
+	ldh a, [hSaveUserIndex]
+	ld b, a
+	ld c, low(wEntity0_Level)
+	ld a, [bc]
+	ld l, a
+	ld c, low(wEntity0_AttackBuff)
+	ld a, [bc]
+	add a, l
+	ld l, a
 	rst Rand8
 	and a, 3
+	add a, l
 	ld b, a
 	jp DealDamage
 
@@ -259,6 +271,42 @@ MoveActionTendWounds:
 	and a, 3
 	ld b, a
 	jp HealDamage
+
+MoveActionAttackBuff:
+	rept Move_Name
+		inc de
+	endr
+	ld hl, wfmt_xBuffedString_move
+	ldh a, [hCurrentBank]
+	ld [hli], a
+	ld a, e
+	ld [hli], a
+	ld a, d
+	ld [hli], a
+	; Then the user's name
+	ld a, b
+	ld [wfmt_xBuffedString_user], a
+
+	ld b, bank(xBuffedString)
+	ld hl, xBuffedString
+	call PrintHUD
+
+	ld de, .after
+	ld bc, EntityHurtAnimation
+	jp PlayAnimation
+.after
+	call GetMoveInfo
+	rept Move_Power
+		inc de
+	endr
+	ld a, [de]
+	ld [wEntity0_AttackBuff], a
+	add a, ENTITY_ATTACK_BUFF_DECAY_SPEED
+	ld [wEntity1_AttackBuff], a
+
+	ld b, bank(xPartyBuff)
+	ld hl, xPartyBuff
+	jp PrintHUD
 
 ; Basic healing move. Check <range> tiles in front of <entity>, and heal the first
 ; ally seen. Heals <power> health and has a <chance> chance of succeeding.

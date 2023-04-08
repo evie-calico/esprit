@@ -24,10 +24,11 @@ endm
 		level 6, xBite
 		level 7, xPounce
 		level 9, xTendWounds
+
 		level 11, xSlash
-		level 13, xCrunch
+		level 12, xCrunch
+		level 13, xLunge
 		level 15, xSootheWounds
-		level 17, xHealWounds
 		db 0
 
 	entity xAris, "Aris", "res/sprites/aris.2bpp"
@@ -37,8 +38,14 @@ endm
 		rgb 0, 0, 32
 	.moves
 		level 1, xScratch
-		level 5, xBite
+		level 6, xBite
 		level 7, xPounce
+		level 9, xGrowl
+
+		level 11, xSlash
+		level 12, xCrunch
+		level 13, xLunge
+		level 15, xRoar
 		db 0
 
 	; Enemies

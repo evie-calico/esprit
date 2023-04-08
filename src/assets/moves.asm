@@ -22,21 +22,24 @@ assert STRLEN(\3) <= MOVE_MAXIMUM_LENGTH
 endm
 
 	;  | Type     | Identifier  | Name          | Power | Range | Chance | Cost
-	move ATTACK,    xScratch,     "Scratch",         8,      1,    100%,     0, ; level 5
-	move ATTACK,    xBite,        "Bite",           14,      1,     85%,    15, ; level 6
-	move ATTACK,    xPounce,      "Pounce",          8,      2,     85%,    15, ; level 7
-	; upgrade moves to 16/26/16 at 9
-	move ATTACK,    xSlash,       "Slash",          24,      1,     70%,     0, ; level 10
-	; upgrade moves to 24/36/20 at 11
-	move ATTACK,    xLunge,       "Lunge",          30,      2,    100%,    15, ; level 12
-	move ATTACK,    xCrunch,      "Crunch",         50,      1,     90%,    15, ; level 13
+	move ATTACK,    xScratch,     "Scratch",         3,      1,    100%,     0, ; level 5
+	move ATTACK,    xBite,        "Bite",            8,      1,     85%,    15, ; level 6
+	move ATTACK,    xPounce,      "Pounce",          3,      2,     85%,    15, ; level 7
+	; special
+	move ATTACK,    xSlash,       "Slash",           8,      1,     70%,     0, ; level 10
+	move ATTACK,    xCrunch,      "Crunch",         16,      1,     90%,    15, ; level 12
+	move ATTACK,    xLunge,       "Lunge",          12,      2,    100%,    15, ; level 13
+	; special
+
 	; Luvui heal moves
 	move TEND_WOUNDS, xTendWounds, "Tend",   16,      1,    100%,    30, ; level 8
 	move TEND_WOUNDS, xSootheWounds,"Soothe",40,      1,    100%,    20,
-	move TEND_WOUNDS, xHealWounds, "Heal",   24,      1,    100%,    15,
+	;move TEND_WOUNDS, xHealWounds, "Heal",   24,      1,    100%,    15,
+
 	; Aris buff moves
-	;move ATK_BUFF,  xGrowl,       "Growl",          8,      1,    100%,    20,
-	;move ATK_BUFF,  xRoar,        "Roar",          24,      1,    100%,    20,
+	move ATK_BUFF,  xGrowl,       "Growl",          8,      1,    100%,    20,
+	move ATK_BUFF,  xRoar,        "Roar",          24,      1,    100%,    20,
+
 	; Enemy-only moves.
 	; These may have extreme effects that the player shouldn't be able to access.
 	move ATTACK,    xNibble,      "Nibble",          3,      1,     90%,     0,

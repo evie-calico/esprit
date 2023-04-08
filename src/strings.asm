@@ -14,6 +14,8 @@ xElipsesString:: db "<SET_DELAY><5>...<SET_DELAY><2><DELAY><30>", 0
 	format xGotPoisonedString, "[entity:target] was poisoned!"
 	format xGotHeatstrokeString, "[entity:target] is overheating and losing energy."
 	format xSomeoneBlinkedString, "[entity:target] blinked!"
+	format xBuffedString, "[entity:user] [str:move]ed!"
+	format xPartyBuff, "The party's attack temporarily increased."
 
 	format xLeveledUpString, "[entity:target]'s level increased to [u8:level]![condition:newMove] [entity:target] learned [str:moveName]."
 	format xEnteredFloorString, "Floor [u8::wDungeonCurrentFloor][condition:quicksave]\nYour progress has been saved."

@@ -143,7 +143,7 @@ xInitialFile:
 	farptr xLuvui
 	db INIT_LEVEL
 	dw 0
-	db 1
+	db 0
 .partnerData
 	farptr xAris
 	db INIT_LEVEL + 1

@@ -11,6 +11,7 @@ def ENTITY_MOVE_COUNT equ 4
 def PLAYER_MAXIMUM_LEVEL equ 20
 def PLAYER_MINIMUM_LEVEL equ 5
 def ENTITY_MAX_FATIGUE equ 100
+def ENTITY_ATTACK_BUFF_DECAY_SPEED equ 4
 
 def SPRITE_DIRECTION_SIZE equ 128 * 3
 def ENTITY_FRAME_IDLE equ 0
@@ -32,6 +33,7 @@ def MOVE_ACTION_POISON rb ; Inflicts poison on an enemy in front of the user.
 def MOVE_ACTION_POISN_ATK rb ; Inflicts poison on and deals damage to an enemy in front of the user.
 def MOVE_ACTION_FLY rb ; Flies away from the battle and appears somewhere.
 def MOVE_ACTION_TEND_WOUNDS rb
+def MOVE_ACTION_ATK_BUFF rb
 def MOVE_ACTION_COUNT rb
 
 def MOVE_MAXIMUM_LENGTH equ 16
@@ -137,6 +139,8 @@ def TIRED_THRESHOLD equ 35
 		bytes 1, CanRevive
 		; if nonzero, the entity will not be rendered
 		bytes 1, Hidden
+		; Bonus damage applied to attacks. Decays over time
+		bytes 1, AttackBuff
 	end_struct
 
 	; Any information about an entity that must persist.

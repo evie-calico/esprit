@@ -142,7 +142,7 @@ EndTurn::
 .skipHealing
 */
 ; Passive fatigue restoration seems too easy to abuse. Instead, entering a new floor will restore 80%
-	; Restore 1% fatigue
+	; Lose 1% fatigue
 	ld a, [wActiveEntity]
 	add a, high(wEntity0)
 	ld h, a
@@ -156,6 +156,15 @@ EndTurn::
 	jr z, .skipFatigueLoss
 		ld [hl], a
 .skipFatigueLoss
+
+	; Cause the attack buff to decay
+	ld l, low(wEntity0_AttackBuff)
+	ld a, [hl]
+	sub a, ENTITY_ATTACK_BUFF_DECAY_SPEED
+	jr nc, .buffIsSome
+	xor a, a
+.buffIsSome
+	ld [hl], a
 
 .skip::
 	; Move on to the next entity
