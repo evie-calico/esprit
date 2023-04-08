@@ -400,6 +400,12 @@ xAllyLogic::
 	cp a, FOLLOWER_PURSUIT_DISTANCE
 	jr nc, .followLeader
 	push hl
+	ld a, [wActiveEntity]
+	add a, high(wEntity0)
+	ld h, a
+	ld l, low(wEntity0_Fatigue)
+	ld a, [hl]
+	ldh [hTryMoveFatigue], a
 	xor a, a
 	ldh [hMoveUserTeam], a
 	call TryMove
@@ -532,6 +538,12 @@ xEnemyLogic::
 	ld a, high(wEntity0) + NB_ALLIES
 	call xGetClosestOfEntities
 	push hl
+	ld a, [wActiveEntity]
+	add a, high(wEntity0)
+	ld h, a
+	ld l, low(wEntity0_Fatigue)
+	ld a, [hl]
+	ldh [hTryMoveFatigue], a
 	ld a, 1
 	ldh [hMoveUserTeam], a
 	call TryMove
@@ -793,9 +805,18 @@ TryMove:
 	push hl
 	ld h, [hl]
 	ld l, a
-	assert Move_Range == 2
+	assert Move_Fatigue == 4
 	inc hl
 	inc hl
+	inc hl
+	inc hl
+	ldh a, [hTryMoveFatigue]
+	cp a, [hl]
+	ccf
+	jr nc, .popNext
+	assert Move_Fatigue - 2 == Move_Range
+	dec hl
+	dec hl
 	; When comparing distances, use the absolute value.
 	ld a, d
 	bit 7, a
@@ -1011,8 +1032,8 @@ hClosestEntityFinal:: db
 section "Volatile", hram
 ; this is a union
 hMoveQueue:
-hCurrentMoveCounter:
-	db
+hCurrentMoveCounter: db
+hTryMoveFatigue: db
 
 section fragment "dungeon BSS", wram0
 wMovementToggleWatch: db
