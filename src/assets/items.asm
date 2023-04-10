@@ -21,7 +21,7 @@ endm
 	item NULL, xDummyItem, "Dummy", "You should not be reading this.", "res/items/dummy.2bpp"
 	.palette incbin "res/items/dummy.pal8", 3
 
-	item NULL, xFabricShred, "Fabric Shred", "A shred of someone's clothes. You could make something with this.", "res/items/fabric_shred.2bpp"
+	item NULL, xFabricShred, "Fabric Shred", "You could probably make something with this.", "res/items/fabric_shred.2bpp"
 	.palette incbin "res/items/fabric_shred.pal8", 3
 
 	item HEAL, xApple, "Apple", "A small round fruit. Eat it to restore 20 HP.", "res/items/apple.2bpp", 20
@@ -78,11 +78,11 @@ endm
 	item HEAL_HEATSTROKE, xIceCream, "Ice Cream", "Strawberry and Vanilla~ Heals 50 HP and cools you down.", "res/items/ice_cream.2bpp", 50
 	.palette incbin "res/items/ice_cream.pal8", 3
 
-	item HEAL, xWaterChestnut, "WaterChestnut", "They're all wet and crunchy. Eating them restores 60 HP", "res/items/water_chestnut.2bpp", 60
+	item HEAL, xWaterChestnut, "WaterChestnut", "They're all wet and crunchy. Eating them restores 85 HP", "res/items/water_chestnut.2bpp", 85
 	.palette incbin "res/items/water_chestnut.pal8", 3
 
-	item POISON_CURE, xLily, "Lily", "Smells like fox. Cures poison and restores 40 HP.", "res/items/lily.2bpp", 40
+	item POISON_CURE, xLily, "Lily", "Smells like fox. Cures poison and restores 60 HP.", "res/items/lily.2bpp", 60
 	.palette incbin "res/items/lily.pal8", 3
 
-	item FATIGUE_HEAL, xSuperPepper, "Super Pepper", "Even spicier! Makes you feel less tired and heals 36 HP.", "res/items/super_pepper.2bpp", 75, 36
+	item FATIGUE_HEAL, xSuperPepper, "Super Pepper", "Even spicier! Makes you feel less tired and heals 60 HP.", "res/items/super_pepper.2bpp", 75, 60
 	.palette incbin "res/items/super_pepper.pal8", 3

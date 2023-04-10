@@ -1,6 +1,8 @@
 include "assets/levels/level.inc"
 
 section "Field Dungeon", romx
+	; this dungeon should range from levels 3-6 with 7 floors
+
 	dungeon xFieldDungeon
 		tileset "res/dungeons/field_tiles.2bpp"
 		after_floor 2, switch
@@ -13,14 +15,14 @@ section "Field Dungeon", romx
 		item xAloe
 		item xWaterMelon
 
-		enemy xForestRat, 3
-		enemy xForestRat, 3
 		enemy xForestRat, 4
+		enemy xForestRat, 5
+		enemy xForestRat, 6
 		enemy xSnake,     3
 		enemy xSnake,     4
-		enemy xFieldRat,  2
 		enemy xFieldRat,  3
 		enemy xFieldRat,  4
+		enemy xFieldRat,  5
 	end
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
@@ -37,6 +39,7 @@ section "Field Dungeon", romx
 		after_floor 4, switch
 		; Start giving heatstroke now
 		on_tick xFieldsGiveHeatstroke
+		shape HALLS_OR_CLEARING
 
 		items_per_floor 3
 		item xWaterMelon
@@ -45,13 +48,13 @@ section "Field Dungeon", romx
 		item xGrapes
 
 		enemy xAlligator, 3
-		enemy xForestRat, 3
-		enemy xForestRat, 4
+		enemy xForestRat, 5
+		enemy xForestRat, 6
 		enemy xSnake,     3
 		enemy xSnake,     4
-		enemy xFieldRat,  2
 		enemy xFieldRat,  3
 		enemy xFieldRat,  4
+		enemy xFieldRat,  5
 	end
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
@@ -75,14 +78,15 @@ section "Field Dungeon", romx
 		item xGrapes
 		item xAloe
 
-		enemy xAlligator, 3
-		enemy xAlligator, 3
-		enemy xSnake,     3
+		; These enemies are the toughest in the dungeon :)
+		enemy xAlligator, 4
+		enemy xAlligator, 6
 		enemy xSnake,     3
 		enemy xSnake,     4
-		enemy xFieldRat,  2
-		enemy xFieldRat,  3
+		enemy xSnake,     5
 		enemy xFieldRat,  4
+		enemy xFieldRat,  5
+		enemy xFieldRat,  6
 	end
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground

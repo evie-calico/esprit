@@ -727,7 +727,7 @@ section "Get Experience Reward", rom0
 ; @return a: Reward
 GetXpReward::
 	ld b, a
-	; The current formula is 15 + 8 * level
+	; The current formula is 15 + 10 * level
 	add a, a ; a * 2
 	add a, a ; a * 4
 	add a, b ; a * 5

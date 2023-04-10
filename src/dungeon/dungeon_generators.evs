@@ -4,6 +4,14 @@ include "src/include/script.evs";
 	include "dungeon.inc"
 #end
 
+script xGenerateHallsOrClearing {
+	if rand() & 1 {
+		farjmp(xGenerateClearing);
+	} else {
+		farjmp(xGenerateHalls);
+	}
+}
+
 script xGenerateScraper {
 	u8 x = 32;
 	u8 y = 32;
@@ -197,6 +205,48 @@ script xGenerateHalls {
 			map_put_tile(x, y, TILE_WALL);
 		}
 	}
+}
+
+script xGenerateClearing {
+	// This is reused grotto code without the item-rich branches
+	u8 grotto_width_half = rand_range(3, 6);
+	u8 grotto_height_half = rand_range(3, 6);
+
+	u8 grotto_left_bound = 32 - grotto_width_half;
+	u8 grotto_right_bound = 32 + grotto_width_half;
+	u8 grotto_upper_bound = 33 - (grotto_height_half + grotto_height_half);
+	u8 grotto_lower_bound = 33;
+
+	// Create a horizontal "hash".
+	for u8 y = grotto_upper_bound; y < grotto_lower_bound; y += 1; {
+		u8 x = grotto_left_bound - rand_range(0, 4);
+		u8 x_end = grotto_right_bound + rand_range(0, 4);
+		for x; x < x_end; x += 1; {
+			map_put_tile(x, y, TILE_CLEAR);
+		}
+	}
+
+	// Overlap a verticle "hash".
+	// This does a lot of rudundant work, but is necessary for the messy look.
+	// TODO: For some reason these variables have to have different names?
+	// This is *totally* some evscript bug, but I'm not sure what's causing it.
+	// Fix this before release please.
+	for u8 x2 = grotto_left_bound; x2 < grotto_right_bound; x2 += 1; {
+		// give some variance to each strip; this makes the grotto look "hashy".
+		// This should actually be (32 - grotto_height_half + rand_range(-2, 2)),
+		// but rand_range only handles unsigned values.
+		u8 y2 = grotto_upper_bound - rand_range(0, 4);
+		u8 y_end = grotto_lower_bound + rand_range(0, 4);
+		for y2; y2 < y_end; y2 += 1; {
+			map_put_tile(x2, y2, TILE_CLEAR);
+		}
+	}
+
+	map_put_tile(
+		rand_range(grotto_left_bound, grotto_right_bound),
+		grotto_upper_bound,
+		TILE_EXIT,
+	);
 }
 
 script xGenerateGrotto {

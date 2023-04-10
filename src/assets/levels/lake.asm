@@ -1,6 +1,8 @@
 include "assets/levels/level.inc"
 
 section "Lake Dungeon", romx
+	; this dungeon should range from levels 5-8 with 7 floors
+
 	dungeon xLakeDungeon
 		tileset "res/dungeons/lake_tiles.2bpp"
 		after_floor 2, switch
@@ -10,15 +12,15 @@ section "Lake Dungeon", romx
 
 		items_per_floor 2
 		item xWaterChestnut
-		item xBlinkfruit
 		item xLily
+		item xBlinkfruit
 		item xPurefruit
 
 		enemy xFieldRat,  5
 		enemy xFieldRat,  5
 		enemy xFieldRat,  6
-		enemy xPlatypus,  4
-		enemy xPlatypus,  4
+		enemy xPlatypus,  5
+		enemy xPlatypus,  5
 		enemy xPlatypus,  5
 		enemy xAlligator, 6
 		enemy xAlligator, 6
@@ -41,19 +43,19 @@ section "Lake Dungeon", romx
 		on_tick xLakeAnimationFunction.stars
 
 		items_per_floor 2
-		item xPurefruit
-		item xLily
+		item xWaterChestnut
 		item xSuperPepper
 		item xBlinkfruit
+		item xPurefruit
 
-		enemy xFieldRat,  6
-		enemy xFirefly,   4
+		enemy xFieldRat,  7
 		enemy xFirefly,   5
-		enemy xPlatypus,  4
+		enemy xFirefly,   6
 		enemy xPlatypus,  5
-		enemy xAlligator, 6
-		enemy xAlligator, 6
-		enemy xAlligator, 6
+		enemy xPlatypus,  6
+		enemy xAlligator, 7
+		enemy xAlligator, 7
+		enemy xAlligator, 8
 	end
 	dungeon_palette $7b, $82, $a6, \ ; Blank
 	                80, 96, 152, \
@@ -72,9 +74,9 @@ section "Lake Dungeon", romx
 		on_tick xLakeAnimationFunction.stars
 
 		items_per_floor 2
-		item xBlinkfruit
-		item xWaterChestnut
 		item xLily
+		item xSuperPepper
+		item xBlinkfruit
 		item xFabricShred
 
 		enemy xFirefly,   5
@@ -82,9 +84,9 @@ section "Lake Dungeon", romx
 		enemy xPlatypus,  5
 		enemy xPlatypus,  6
 		enemy xPlatypus,  7
-		enemy xAlligator, 6
 		enemy xAlligator, 7
 		enemy xAlligator, 7
+		enemy xAlligator, 8
 	end
 	dungeon_palette $7b, $82, $a6, \ ; Blank
 	                80, 96, 152, \

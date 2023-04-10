@@ -1,5 +1,4 @@
 typedef string = u16;
-typedef ptr = u16;
 
 struct sprite {
 	x: u8,
@@ -30,6 +29,12 @@ endm
 
 macro enter_dungeon_immediately
 	db script@_enter_dungeon_immediately
+	db bank(\1)
+	dw \1
+endm
+
+macro farjmp
+	db script@_farjmp
 	db bank(\1)
 	dw \1
 endm
@@ -160,6 +165,8 @@ env script {
 	def rand(return u8);
 	def rand_range(u8, u8, return u8);
 	def is_cgb(return u8);
+	def _farjmp();
+	macro farjmp(const u8) = farjmp;
 
 	def print(const string);
 	def _play_music();

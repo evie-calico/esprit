@@ -26,8 +26,8 @@ endm
 	move ATTACK,    xBite,        "Bite",            8,      1,     85%,    15, ; level 6
 	move ATTACK,    xPounce,      "Pounce",          3,      2,     85%,    15, ; level 7
 	; special
-	move ATTACK,    xSlash,       "Slash",           8,      1,     70%,     0, ; level 10
-	move ATTACK,    xCrunch,      "Crunch",         16,      1,     90%,    15, ; level 12
+	move ATTACK,    xSlash,       "Slash",          12,      1,     70%,     0, ; level 10
+	move ATTACK,    xCrunch,      "Crunch",         20,      1,     90%,    15, ; level 12
 	move ATTACK,    xLunge,       "Lunge",          12,      2,    100%,    15, ; level 13
 	; special
 

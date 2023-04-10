@@ -68,6 +68,8 @@ EvscriptBytecodeTable:
 	dw ScriptRand
 	dw ScriptRandRange
 	dw ScriptIsCgb
+	dw ScriptFarJump
+
 	dw ScriptPrint
 	dw ScriptPlayMusic
 	dw ScriptSay
@@ -347,6 +349,17 @@ ScriptIsCgb:
 	inc a
 :
 	ld [de], a
+	ret
+
+section "evscript ScriptFarJump", rom0
+ScriptFarJump:
+	ld a, [hli]
+	ld b, a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld a, b
+	rst SwapBank
 	ret
 
 section "evscript ScriptPrint", rom0

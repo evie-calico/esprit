@@ -1,6 +1,8 @@
 include "assets/levels/level.inc"
 
 section "Forest Dungeon", romx
+	; this dungeon should range from levels 2-4 with 6 floors
+
 	dungeon xForestDungeon
 		tileset "res/dungeons/tree_tiles.2bpp"
 		after_floor 2, switch
@@ -13,14 +15,14 @@ section "Forest Dungeon", romx
 		item xTwig
 		item xGrapes
 
-		enemy xForestRat, 1
-		enemy xForestRat, 1
-		enemy xForestRat, 2
 		enemy xForestRat, 2
 		enemy xForestRat, 2
 		enemy xForestRat, 3
-		enemy xMudCrab,   1
-		enemy xFieldRat,  1
+		enemy xForestRat, 3
+		enemy xForestRat, 3
+		enemy xForestRat, 4
+		enemy xMudCrab,   2
+		enemy xFieldRat,  2
 	end
 	dungeon_palette 128, 255, 144, \ ; Blank
 	                  0, 120,   0, \ ; Ground
@@ -46,12 +48,12 @@ section "Forest Dungeon", romx
 		; In the deep forest, dangerous enemies are slightly more common
 		enemy xForestRat, 2
 		enemy xForestRat, 2
-		enemy xForestRat, 2
 		enemy xForestRat, 3
-		enemy xMudCrab,   1
-		enemy xMudCrab,   1
-		enemy xFieldRat,  1
+		enemy xForestRat, 4
+		enemy xMudCrab,   2
+		enemy xMudCrab,   3
 		enemy xFieldRat,  2
+		enemy xFieldRat,  3
 	end
 	dungeon_palette 128, 255, 144, \ ; Blank
 	                  0, 120,   0, \ ; Ground
@@ -78,12 +80,12 @@ section "Forest Dungeon", romx
 		; In the deep forest, dangerous enemies are slightly more common
 		enemy xForestRat, 2
 		enemy xForestRat, 2
-		enemy xForestRat, 2
 		enemy xForestRat, 3
-		enemy xMudCrab,   1
-		enemy xMudCrab,   1
-		enemy xFieldRat,  1
+		enemy xForestRat, 4
+		enemy xMudCrab,   2
+		enemy xMudCrab,   3
 		enemy xFieldRat,  2
+		enemy xFieldRat,  3
 	end
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
@@ -107,14 +109,14 @@ section "Forest Dungeon", romx
 		item xGrapes
 		item xTwig
 
-		enemy xForestRat, 1
-		enemy xForestRat, 1
-		enemy xForestRat, 1
-		enemy xForestRat, 2
 		enemy xForestRat, 2
 		enemy xForestRat, 2
 		enemy xForestRat, 3
-		enemy xFieldRat,  1
+		enemy xForestRat, 3
+		enemy xForestRat, 3
+		enemy xForestRat, 4
+		enemy xMudCrab,   2
+		enemy xFieldRat,  2
 	end
 	dungeon_palette 120, 192,  96, \ ; Blank
 	                 32, 120,   0, \ ; Ground
