@@ -139,7 +139,7 @@ xPauseMenuAPress:
 	dec a
 	jr z, .inventory
 	dec a
-	jr z, .party
+	;jr z, .party
 	dec a
 	jr z, .options
 	xor a, a
