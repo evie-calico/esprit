@@ -1,0 +1,71 @@
+include "src/include/script.evs";
+#asm
+	include "entity.inc";
+	include "scene.inc";
+#end
+
+npc xInitFieldScene1 {
+//	if get_flag(FLAG_SEEN_FIELD_CUTSCENE) {
+//		enter_dungeon_immediately(xFieldDungeon_part2);
+//	}
+
+	load(xFieldSceneBackground);
+	play_music(null);
+
+	// Luvui and Aris enter from the left.
+	// Luvui falls slightly behind, before stopping at the foot of a tree.
+	position(PLAYER, 0, 48);
+	position(PARTNER, 24, 50);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PARTNER, ENTITY_FRAME_STEP);
+
+	say_no_wait(Luvui, "So, where are we going?<PAUSE> We didn't go out this far yesterday.");
+
+	repeat 120 {
+		dmove(PLAYER, RIGHT, 8);
+		dmove(PARTNER, RIGHT, 8);
+		yield;
+	}
+
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+
+	sleep(20);
+	direction(PARTNER, UP);
+	sleep(10);
+	direction(PARTNER, LEFT);
+	sleep(20);
+
+	wait();
+
+	sleep(20);
+	say(Aris, "I heard that a couple of animals were living in the fields.");
+	sleep(20);
+	say(Aris, "I just wanted to go visit them I guess.");
+	say(Aris, "There aren't many animals to hang out with in the village.");
+	sleep(20);
+
+	say_no_wait(Luvui, "Hm…");
+	sleep(20);
+	direction(PARTNER, UP);
+	sleep(10);
+	direction(PARTNER, RIGHT);
+	sleep(20);
+
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 90 {
+		dmove(PARTNER, RIGHT, 16);
+		yield;
+	}
+
+	wait();
+	say(Luvui, "What about me…");
+
+	set_flag(FLAG_SEEN_FIELD_CUTSCENE, 1);
+	enter_dungeon(xFieldDungeon_part2);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 30 {
+		dmove(PLAYER, RIGHT, 18);
+		yield;
+	}
+}

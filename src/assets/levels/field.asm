@@ -5,7 +5,7 @@ section "Field Dungeon", romx
 
 	dungeon xFieldDungeon
 		tileset "res/dungeons/field_tiles.2bpp"
-		after_floor 2, switch
+		after_floor 2, scene, xFieldScene1
 		shape HALLS
 		music xFieldMusic
 
