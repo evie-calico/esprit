@@ -1,0 +1,61 @@
+include "src/include/script.evs";
+#asm
+	include "entity.inc";
+	include "scene.inc";
+#end
+
+npc xInitFieldScene2 {
+//	if get_flag(FLAG_SEEN_FIELD_CUTSCENE2) {
+//		enter_dungeon_immediately(xFieldDungeon_part3);
+//	}
+
+	load(xFieldSceneBackground2);
+	play_music(null);
+
+	position(PLAYER, 10 * 8, 16 * 8);
+	position(PARTNER, 9 * 8, 14 * 8);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PARTNER, ENTITY_FRAME_STEP);
+
+	repeat 120 {
+		dmove(PLAYER, UP, 8);
+		dmove(PARTNER, UP, 8);
+		yield;
+	}
+
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	say_no_wait(Luvui, "Pant… pant…<WAIT> It's… so hot…");
+
+	repeat 20 {
+		dmove(PARTNER, UP, 8);
+		yield;
+	}
+
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+
+	sleep(20);
+	direction(PARTNER, LEFT);
+	sleep(10);
+	direction(PARTNER, DOWN);
+	sleep(20);
+
+	wait();
+
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(PARTNER, DOWN, 8);
+		yield;
+	}
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+
+	say(Aris, "It's just a bit further… I see a house up ahead where we can cool off.");
+	sleep(20);
+	direction(PARTNER, LEFT);
+	sleep(10);
+	direction(PARTNER, UP);
+	sleep(20);
+	say(Aris, "That must be what we're looking for…");
+
+	set_flag(FLAG_SEEN_FIELD_CUTSCENE2, 1);
+	enter_dungeon(xFieldDungeon_part3);
+}

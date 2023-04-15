@@ -12,8 +12,6 @@ npc xInitFieldScene1 {
 	load(xFieldSceneBackground);
 	play_music(null);
 
-	// Luvui and Aris enter from the left.
-	// Luvui falls slightly behind, before stopping at the foot of a tree.
 	position(PLAYER, 0, 48);
 	position(PARTNER, 24, 50);
 	frame(PLAYER, ENTITY_FRAME_STEP);
@@ -39,10 +37,9 @@ npc xInitFieldScene1 {
 	wait();
 
 	sleep(20);
-	say(Aris, "I heard that a couple of animals were living in the fields.");
+	say(Aris, "I heard that a couple of animals are living in the fields.");
 	sleep(20);
-	say(Aris, "I just wanted to go visit them I guess.");
-	say(Aris, "There aren't many animals to hang out with in the village.");
+	say(Aris, "I want to go visit them I guess.<PAUSE> There aren't many animals to hang out with in the village.");
 	sleep(20);
 
 	say_no_wait(Luvui, "Hm…");
@@ -59,13 +56,8 @@ npc xInitFieldScene1 {
 	}
 
 	wait();
-	say(Luvui, "What about me…");
+	say(Luvui, "But what about me…");
 
 	set_flag(FLAG_SEEN_FIELD_CUTSCENE, 1);
 	enter_dungeon(xFieldDungeon_part2);
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	repeat 30 {
-		dmove(PLAYER, RIGHT, 18);
-		yield;
-	}
 }
