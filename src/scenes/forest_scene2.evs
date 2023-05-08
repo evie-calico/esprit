@@ -339,8 +339,9 @@ npc xInitForestScene2 {
 	direction(PARTNER, DOWN);
 	print_wait();
 	say(Aris, "What's up?");
-	say(Someone, "Well, you know those fields to the north of the forest?<WAIT> I heard that a couple of animals have been living out there, away from the village.");
-	say(Someone, "Apparently they were looking for a way back home… Luvui might be interested in that.");
+	say(Someone, "Well, you know those fields to the north of the forest?<WAIT> I heard that a couple have been living out there, away from the village.");
+	say(Aris, "Yeah!<PAUSE> I've heard about them.");
+	say(Someone, "Well, apparently they were looking for a way back home… Luvui might be interested in that.");
 	say(Aris, "…");
 	sleep(40);
 	direction(PARTNER, DOWN);

@@ -218,6 +218,24 @@ sfxMomVoice::
 	reg rNR14 = $c6
 	reg end
 
+sfxSephoneVoice::
+	sound PULSE1, 5
+	reg rNR10 = $0f
+	reg rNR11 = $36
+	reg rNR12 = $f0
+	mod rNR13 = $c6
+	reg rNR14 = $c6
+	reg end
+
+sfxLiberaVoice::
+	sound PULSE1, 5
+	reg rNR10 = $17
+	reg rNR11 = $72
+	reg rNR12 = $f0
+	mod rNR13 = $b3
+	reg rNR14 = $c4
+	reg end
+
 section "sound channels", hram
 hSound::
 .frames:: db

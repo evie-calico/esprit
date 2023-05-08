@@ -5,9 +5,9 @@ include "src/include/script.evs";
 #end
 
 npc xInitFieldScene2 {
-//	if get_flag(FLAG_SEEN_FIELD_CUTSCENE2) {
-//		enter_dungeon_immediately(xFieldDungeon_part3);
-//	}
+	if get_flag(FLAG_SEEN_FIELD_CUTSCENE2) {
+		enter_dungeon_immediately(xFieldDungeon_part3);
+	}
 
 	load(xFieldSceneBackground2);
 	play_music(null);
