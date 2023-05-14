@@ -141,3 +141,15 @@ endm
 		incbin "res/sprites/fox.pal8", 3
 	.moves
 		db 0
+
+	entity xSephone, "Sephone", "res/sprites/sephone.2bpp"
+	.palette
+		incbin "res/sprites/sephone.pal8", 3
+	.moves
+		db 0
+
+	entity xLibera, "Libera", "res/sprites/libera.2bpp"
+	.palette
+		incbin "res/sprites/libera.pal8", 3
+	.moves
+		db 0

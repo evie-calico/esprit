@@ -68,7 +68,7 @@ section "Field Dungeon", romx
 	                 32,  24,   0, \
 
 	next_part
-		after_floor 7, exit, FLAG_FIELDS_COMPLETE
+		after_floor 7, scene, xFieldScene3
 		; Continue giving heatstroke
 		on_tick xFieldsGiveHeatstroke.harsh
 

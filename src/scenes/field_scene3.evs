@@ -1,0 +1,220 @@
+include "src/include/script.evs";
+#asm
+	include "entity.inc";
+	include "scene.inc";
+#end
+
+npc xInitFieldScene3 {
+	if get_flag(FLAG_FIELDS_COMPLETE) {
+		open_map_immediately();
+		return;
+	}
+
+	load(xRemoteHouseSceneBackground);
+	play_music(null);
+
+	position(PLAYER, 7 * 8, 18 * 8 - 4);
+	position(PARTNER, 6 * 8, 16 * 8);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PARTNER, ENTITY_FRAME_STEP);
+
+	spawn_npc(2, xSephone);
+	frame(2, ENTITY_FRAME_IDLE);
+	direction(2, UP);
+	position(2, 13 * 8, 6 * 8);
+
+	spawn_npc(3, xLibera);
+	frame(3, ENTITY_FRAME_IDLE);
+	direction(3, LEFT);
+	position(3, 20 * 8, 8 * 8);
+
+	say_no_wait(Aris, "This is it!");
+
+	repeat 100 {
+		dmove(PLAYER, UP, 12);
+		dmove(PARTNER, UP, 12);
+		yield;
+	}
+
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+
+	sleep(20);
+	direction(PARTNER, RIGHT);
+	sleep(10);
+	direction(PLAYER, RIGHT);
+	sleep(20);
+	direction(2, LEFT);
+	sleep(20);
+
+	wait();
+
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 40 {
+		dmove(PARTNER, RIGHT, 12);
+		yield;
+	}
+	repeat 10 {
+		dmove(PARTNER, RIGHT, 12);
+		move(2, 12, 0);
+		yield;
+	}
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+
+	say_no_wait(Aris, "You're Sephone, right?<WAIT> It's nice to meet you!");
+	sleep(30);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 40 {
+		dmove(PLAYER, RIGHT, 9);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	wait();
+
+	say(Sephone, "Yes… that's me.<PAUSE> Why did you two come here?<PAUSE> Are you from the village?");
+	say(Aris, "Yeah!<PAUSE> I wanted--<PAUSE> WE wanted to meet you.");
+	direction(PLAYER, UP);
+	say_no_wait(Aris, "Mom told me about how you used to live with her.");
+	sleep(60);
+	direction(PLAYER, RIGHT);
+	wait();
+	say(Sephone, "Mom?<PAUSE> Is she still mad that I left?<WAIT> I know how she worried about me…");
+
+	// Libera enters :3
+	frame(3, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(3, LEFT, 16);
+		yield;
+	}
+
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 10 {
+		dmove(3, LEFT, 16);
+		move(PLAYER, -12, 0);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	repeat 10 {
+		dmove(3, LEFT, 16);
+		yield;
+	}
+	frame(3, ENTITY_FRAME_IDLE);
+
+	direction(2, DOWN);
+	sleep(20);
+	say_no_wait(Sephone, "Oh, Libera!<WAIT> These cats are from the village.");
+	sleep(40);
+	direction(2, LEFT);
+	wait();
+	say(Aris, "I'm Aris<PAUSE>, and this is Luvui.");
+	say(Luvui, "Hi…");
+	say(Libera, "…");
+
+	frame(3, ENTITY_FRAME_STEP);
+	repeat 8 {
+		dmove(3, LEFT, 16);
+		yield;
+	}
+	frame(3, ENTITY_FRAME_IDLE);
+
+	direction(3, UP);
+	sleep(20);
+	direction(2, DOWN);
+	say(Libera, "I'm going to go check on the baby.");
+
+	frame(3, ENTITY_FRAME_STEP);
+	repeat 40 {
+		dmove(3, LEFT, 10);
+		yield;
+	}
+
+	say_no_wait(Luvui, "…baby?");
+	direction(PARTNER, DOWN);
+	direction(2, LEFT);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(3, LEFT, 10);
+		move(PLAYER, -10, 0);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	direction(PLAYER, UP);
+	direction(PARTNER, LEFT);
+
+	repeat 10 {
+		dmove(3, LEFT, 10);
+		yield;
+	}
+
+	repeat 32 {
+		dmove(3, UP, 8);
+		yield;
+	}
+
+	frame(3, ENTITY_FRAME_IDLE);
+	wait();
+	sleep(60);
+	direction(3, LEFT);
+	sleep(20);
+	direction(3, DOWN);
+	sleep(60);
+	say(Libera, "You can come see if you want.");
+	direction(3, LEFT);
+	sleep(20);
+	direction(3, UP);
+	sleep(30);
+	position(3, 0, 0);
+	sleep(60);
+
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 16 {
+		dmove(PLAYER, RIGHT, 8);
+		yield;
+	}
+	repeat 32 {
+		dmove(PLAYER, UP, 8);
+		yield;
+	}
+	position(PLAYER, 0, 0);
+
+	sleep(60);
+	direction(PARTNER, DOWN);
+	sleep(10);
+	direction(PARTNER, RIGHT);
+	say(Aris, "I heard you were looking for a way home.");
+	sleep(10);
+	say(Sephone, "…so that's why you're here?<PAUSE> I figured you two just wanted to meet another couple.");
+	sleep(30);
+	direction(PARTNER, DOWN);
+	sleep(10);
+	direction(PARTNER, LEFT);
+	say(Aris, "Sorta… I wanted to meet you… but I think Luvui might want to go home… I figured we might as well see what you found.");
+	repeat 16 {
+		dmove(2, LEFT, 8);
+		yield;
+	}
+	say(Sephone, "Does she know why you came here?");
+	sleep(30);
+	direction(PARTNER, DOWN);
+	sleep(10);
+	direction(PARTNER, RIGHT);
+	say(Aris, "No.<PAUSE> I'm worried that she won't want to stay with me if she finds out she can go home.");
+	sleep(30);
+	direction(PARTNER, DOWN);
+	sleep(10);
+	direction(PARTNER, LEFT);
+	sleep(30);
+	say(Sephone, "Maybe you could spend some time with her,<PAUSE> before you tell her the truth.<PAUSE> See how she feels about it.");
+	sleep(60);
+	direction(PARTNER, DOWN);
+	sleep(10);
+	direction(PARTNER, RIGHT);
+	sleep(30);
+	say(Aris, "That would be nice.");
+	sleep(30);
+	say(Sephone, "Lets go see what they're up to.<WAIT> I'll tell you what we learned later.");
+	sleep(30);
+
+	set_flag(FLAG_FIELDS_COMPLETE, 1);
+	open_map();
+}
