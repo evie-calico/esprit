@@ -52,6 +52,9 @@ wInventory::
 	ds 3 * INVENTORY_SIZE
 .end::
 
+wActiveMenuPalette:: ds 3
+wActiveMenuTheme:: ds 3
+
 wQuicksave::
 .isPresent:: db
 .floorSeed:: dl
@@ -177,5 +180,8 @@ xInitialFile:
 			dw INIT_INVENTORY
 		endr
 	endc
+.menuPalette farptr PinkMenuPalette
+.menuTheme farptr PawprintMenuTheme
+
 .quicksave ds wQuicksave.end - wQuicksave, 0
 assert sizeof("Save Version {d:SAVE_VERSION}") == @ - xInitialFile

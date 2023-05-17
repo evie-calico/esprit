@@ -90,7 +90,3 @@ endm
 		         64,  64,  64,\
 		        128, 128, 128,\
 		        255, 255, 255,\
-
-section "Active Theme", wram0
-wActiveMenuPalette:: ds 3
-wActiveMenuTheme:: ds 3

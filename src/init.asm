@@ -112,19 +112,6 @@ Initialize::
 	ld [wTextSrcPtr + 1], a
 	ldh [rNR51], a ; set panning
 
-	; Set a default theme.
-	ld a, bank(PinkMenuPalette)
-	ld [wActiveMenuPalette], a
-	ld a, low(PinkMenuPalette)
-	ld [wActiveMenuPalette + 1], a
-	ld a, high(PinkMenuPalette)
-	ld [wActiveMenuPalette + 2], a
-	ld a, bank(PawprintMenuTheme)
-	ld [wActiveMenuTheme], a
-	ld a, low(PawprintMenuTheme)
-	ld [wActiveMenuTheme + 1], a
-	ld a, high(PawprintMenuTheme)
-	ld [wActiveMenuTheme + 2], a
 	ld a, 42
 	ld [randstate], a
 	ld [randstate + 1], a

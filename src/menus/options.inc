@@ -17,7 +17,7 @@ xOptionsMenu::
 	; Default selected item
 	db 0
 	; Number of items in the menu
-	db 3
+	db 2
 	; Redraw
 	dw xOptionsMenuRedraw
 	; Private Items Pointer
@@ -28,12 +28,11 @@ xOptionsMenu::
 xDrawOptionsMenu::
 	set_region 20, 0, SCRN_VX_B - 20, SCRN_VY_B, idof_vBlankTile
 	dtile_section vScratchRegion
-	dregion vOptionsMenu, 20, 0, 12, 13
+	dregion vOptionsMenu, 20, 0, 12, 10
 	set_frame vOptionsMenu, idof_vFrame
 	print_text 24, 1, "Options"
 	print_text 23, 3, "Theme:"
 	print_text 23, 6, "Color:"
-	print_text 23, 9, "Window style:"
 	end_menu
 	dtile vSelectionsText
 
@@ -221,24 +220,6 @@ xOptionsMenuDrawSelections:
 	; Text is already mostly initialized by the menu renderer.
 	lb de, 8, 1
 	ld hl, $9800 + 23 + 4 * 32
-	call TextDefineBox
-
-	call PrintVWFChar
-	call DrawVWFChars
-
-	ld a, [wWindowSticky]
-	ld hl, .loose
-	and a, a
-	jr z, :+
-	ld hl, .sticky
-:
-	ld a, 1
-	ld b, bank(@)
-	call PrintVWFText
-
-	; Text is already mostly initialized by the menu renderer.
-	lb de, 8, 1
-	ld hl, $9800 + 23 + 10 * 32
 	call TextDefineBox
 
 	call PrintVWFChar
