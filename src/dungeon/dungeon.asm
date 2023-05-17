@@ -1009,7 +1009,9 @@ DungeonGenerateFloor::
 	farptr xGenerateGrotto
 	assert DUNGEON_TYPE_HALLS_OR_CLEARING == 4
 	farptr xGenerateHallsOrClearing
-	assert DUNGEON_TYPE_DEBUG == 5
+	assert DUNGEON_TYPE_BRIDGE == 5
+	farptr xGenerateBridge
+	assert DUNGEON_TYPE_DEBUG == 6
 	farptr xGenerateDebug
 
 section "MapCheck3x3IsEmpty", rom0

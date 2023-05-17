@@ -26,22 +26,22 @@ section "Lake Dungeon", romx
 		enemy xAlligator, 6
 	end
 	; maybe the first two floors could be brighter (sunset)
-	dungeon_palette $7b, $82, $a6, \ ; Blank
-	                80, 96, 152, \
-	                $3e, $4a, $83, \
+	dungeon_palette $9b, $82, $96, \ ; Blank
+	                112, 96, 136, \
+	                $5e, $4a, $73, \
 	                24, 32, $72, \
 	                216, 136, 88, \
 	                $3e, $4a, $83, \
 	                24, 32, $72, \
 	                $63, $7f, $b7, \
-	                64, 80, 160, \
-	                24, 32, $72, \
+	                64, 160, 80, \
+	                24, $72, 32, \
 
 	next_part
 		tileset "res/dungeons/bridge_lake_tiles.2bpp"
 		use_floor_color_for_terminals
 		after_floor 4, switch ; scene??
-		shape HALLS ; A new dungeon type would be cool. Maybe a big long river walk.
+		shape BRIDGE
 		on_tick xLakeAnimationFunction.stars
 
 		items_per_floor 2
@@ -68,12 +68,12 @@ section "Lake Dungeon", romx
 	                24, 32, $72, \
 	                $9C, $4b, $34, \
 	                $3d, $13, $19, \
-	                24, 32, $72, \
+	                192, 255, 255, \
 
 	next_part
 		tileset "res/dungeons/lake_tiles.2bpp"
 		after_floor 7, exit, FLAG_LAKE_COMPLETE
-		shape HALLS ; river but in the other direction?
+		shape HALLS
 		on_tick xLakeAnimationFunction.stars
 
 		items_per_floor 2
@@ -91,16 +91,16 @@ section "Lake Dungeon", romx
 		enemy xAlligator, 7
 		enemy xAlligator, 8
 	end
-	dungeon_palette $7b, $82, $a6, \ ; Blank
-	                80, 96, 152, \
-	                $3e, $4a, $83, \
+	dungeon_palette $Bb, $82, $a6, \ ; Blank
+	                144, 96, 152, \
+	                $7e, $4a, $83, \
 	                24, 32, $72, \
 	                216, 136, 88, \
 	                $3e, $4a, $83, \
 	                24, 32, $72, \
 	                $63, $7f, $b7, \
-	                64, 80, 160, \
-	                24, 32, $72, \
+	                64, 160, 80, \
+	                24, $72, 32, \
 
 ; Placing this after the dungeon ensures it's in the same bank.
 ; Animates the stars in the reflection of the water
