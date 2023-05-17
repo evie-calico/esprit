@@ -52,6 +52,7 @@ endm
 macro _new_dungeon
     redef NAME equs "\1"
     redef TICK_FUNCTION equs "null"
+    redef ALT_COLOR_TERMINALS equs "0"
 
     for i, DUNGEON_ITEM_COUNT
         try_purge ITEM{d:i}
@@ -140,6 +141,10 @@ macro enemy ; name, level
     endc
 endm
 
+macro use_floor_color_for_terminals
+    def_equs ALT_COLOR_TERMINALS, 1
+endm
+
 macro end
     {NAME}:: dw .tileset, .palette
 
@@ -172,7 +177,9 @@ macro end
 
     dw {TICK_FUNCTION}
 
-    assert sizeof_Dungeon == 60
+    db {ALT_COLOR_TERMINALS}
+
+    assert sizeof_Dungeon == 61
     .tileset incbin {TILESET}
 endm
 

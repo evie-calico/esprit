@@ -125,6 +125,20 @@ EnterNewFloor::
 	ld a, [hli]
 	call StartSong
 
+	ld hl, wActiveDungeon
+	ld a, [hli]
+	rst SwapBank
+	; Deref pointer
+	ld a, [hli]
+	ld h, [hl]
+	add a, Dungeon_AlternateColorTerminals
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	ld a, [hl]
+	ld [wDungeonAlternateColorTerminals], a
+
 	xor a, a
 	ld [wfmt_xEnteredFloorString_quicksave], a
 

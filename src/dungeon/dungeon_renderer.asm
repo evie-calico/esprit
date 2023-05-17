@@ -310,12 +310,39 @@ xDrawTile::
 	ldh a, [hSystem]
 	and a, a
 	ret z
+
 	; If on CGB, repeat for colors.
 	pop hl
 	; Switch bank
-	ld a, 1
-	ldh [rVBK], a
 	ld bc, $20 - 2
+
+	call GetTileColor
+	ld [hli], a
+	call GetTileColor
+	ld [hli], a
+	add hl, bc
+	call GetTileColor
+	ld [hli], a
+	call GetTileColor
+	ld [hli], a
+
+	xor a, a
+	ldh [rVBK], a
+	ret
+
+; Returns the colors of a given tile.
+; This is usually straightforward, but levels like the lake interpret
+; terminals differently and need to adjust their palettes.
+; The code is kinda messy but for such a simple case it doesn't matter much.
+; Returns with VRAM accessible
+GetTileColor:
+	ld a, [wDungeonAlternateColorTerminals]
+	and a, a
+	jr z, .normalColor
+
+	xor a, a
+	ldh [rVBK], a
+
 	; Wait for VRAM.
 	; On the CGB, we have twice as much time.
 :
@@ -323,16 +350,30 @@ xDrawTile::
 	and a, STATF_BUSY
 	jr nz, :-
 
-	dec de
-	ld a, [de]
-	inc de
-	ld [hli], a
-	ld [hli], a
-	add hl, bc
-	ld [hli], a
-	ld [hli], a
-	xor a, a
+	ld a, [hl]
+	cp a, STANDALONE_METATILE_ID
+	jr c, .normalColor
+	cp a, TERMINAL_METATILE_ID + 4
+	jr nc, .normalColor
+
+	ld a, 1
 	ldh [rVBK], a
+	xor a, a
+	ret
+
+.normalColor
+	ld a, 1
+	ldh [rVBK], a
+
+	dec de ; this is undone after the waitloop
+
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+
+	ld a, [de]
+	inc de ; see above
 	ret
 
 ; Move the VRAM pointer to the right by 16 pixels, wrapping around to the left
@@ -403,3 +444,6 @@ xGetMapBelow:
 section "Map drawing counters", hram
 hMapDrawX: db
 hMapDrawY: db
+
+section "wDungeonAlternateColorTerminals", wram0
+wDungeonAlternateColorTerminals:: db

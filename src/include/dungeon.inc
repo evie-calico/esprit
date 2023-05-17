@@ -70,6 +70,7 @@ def DUNGEON_COMPLETION_SCENE rb
 		bytes 3, NextDungeonPointer
 		bytes 3, Music
 		words 1, TickFunction
+		bytes 1, AlternateColorTerminals
 	end_struct
 
 endc

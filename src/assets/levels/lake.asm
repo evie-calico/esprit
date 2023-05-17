@@ -39,6 +39,7 @@ section "Lake Dungeon", romx
 
 	next_part
 		tileset "res/dungeons/bridge_lake_tiles.2bpp"
+		use_floor_color_for_terminals
 		after_floor 4, switch ; scene??
 		shape HALLS ; A new dungeon type would be cool. Maybe a big long river walk.
 		on_tick xLakeAnimationFunction.stars
@@ -58,15 +59,15 @@ section "Lake Dungeon", romx
 		enemy xAlligator, 7
 		enemy xAlligator, 8
 	end
-	dungeon_palette $7b, $82, $a6, \ ; Blank
-	                80, 96, 152, \
-	                $3e, $4a, $83, \
+	dungeon_palette $BA, $69, $53, \ ; Blank
+	                $9C, $4b, $34, \
+	                $3d, $13, $19, \
 	                24, 32, $72, \
 	                216, 136, 88, \
 	                $3e, $4a, $83, \
 	                24, 32, $72, \
-	                $63, $7f, $b7, \
-	                64, 80, 160, \
+	                $9C, $4b, $34, \
+	                $3d, $13, $19, \
 	                24, 32, $72, \
 
 	next_part
