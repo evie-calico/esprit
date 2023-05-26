@@ -2,11 +2,11 @@
 
 ## Screenshots
 
-![the game's world map](https://user-images.githubusercontent.com/14899090/183221351-5f6b9d2d-f617-4ed0-838d-6ccbeead8e7d.png)
-![the main characters fighting in a dungeon](https://user-images.githubusercontent.com/14899090/183221401-5bf87df2-3001-458f-ac44-f55f65885306.png)
+![esprit-screenshot0](https://github.com/eievui5/esprit/assets/14899090/3c3cd93b-a5e5-4717-8e7a-60533293bd12)
+![esprit-screenshot1](https://github.com/eievui5/esprit/assets/14899090/7df06aa4-ed79-461e-b67c-10ed729d785a)
 
-![the inventory menu](https://user-images.githubusercontent.com/14899090/183221872-20b48756-8e38-48f7-93d6-e92d97b6c867.png)
-![the player eating grapes](https://user-images.githubusercontent.com/14899090/183221981-14065202-7c6f-4bb7-af74-5f03551b787c.png)
+![esprit-screenshot2](https://github.com/eievui5/esprit/assets/14899090/22f68f8d-a4c8-4374-a075-7fefc2aa25b3)
+![esprit-screenshot3](https://github.com/eievui5/esprit/assets/14899090/d18b33f1-30b9-49ad-8144-8c27dba94990)
 
 ## Dependencies
 
