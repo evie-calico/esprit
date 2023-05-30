@@ -5,7 +5,7 @@ section "Caves Dungeon", romx
 		tileset "res/dungeons/cave_tiles.2bpp"
 		after_floor 5, exit, FLAG_CAVES_COMPLETE
 		shape HALLS
-		music xLakeMusic
+		music xCaveMusic
 
 		items_per_floor 1
 		item xApple
