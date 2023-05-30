@@ -84,13 +84,13 @@ section "World map nodes", romx
 		press TRADER, xFoodTrader
 	end_node
 
-	node xForestNode, "Crater Forest", 12, 88
+	node xForestNode, "Circum Thicket", 12, 88
 		right MOVE, xVillageNode
 		up LOCK, xFieldsNode, FOREST_COMPLETE
 		press DUNGEON, xForestDungeon
 	end_node
 
-	node xFieldsNode, "Crater Fields", 12, 32
+	node xFieldsNode, "Circum Outskirts", 12, 32
 		press DUNGEON, xFieldDungeon
 		down MOVE, xForestNode
 		up LOCK, xRemoteHouse, FIELDS_COMPLETE
@@ -115,11 +115,11 @@ section "World map nodes", romx
 
 	node xTurn1, "", 69, 56
 		press AUTOMOVE, null
-		right MOVE, xBlazingPlains
+		right MOVE, xPlainsNode
 		up MOVE, xTurn0
 	end_node
 
-	node xBlazingPlains, "Blazing Plains", 101, 56
+	node xPlainsNode, "Blazing Plains", 101, 56
 		press DUNGEON, xPlainsDungeon
 		left MOVE, xTurn1
 		up LOCK, xTurn2, PLAINS_COMPLETE
@@ -128,7 +128,7 @@ section "World map nodes", romx
 
 	node xTurn2, "", 101, 24
 		press AUTOMOVE, null
-		down MOVE, xBlazingPlains
+		down MOVE, xPlainsNode
 		left MOVE, xTurn3
 	end_node
 
@@ -141,17 +141,17 @@ section "World map nodes", romx
 	node xTurn4, "", 85, 8
 		press AUTOMOVE, null
 		down MOVE, xTurn3
-		right MOVE, xCraterCaverns
+		right MOVE, xCavesNode
 	end_node
 
-	node xCraterCaverns, "Crater Caverns", 101, 8
+	node xCavesNode, "Sursum Caverns", 101, 8
 		press DUNGEON, xCavesDungeon
 		left MOVE, xTurn4
 	end_node
 
 	node xGemstoneWoodsNode, "Gemstone Woods", 101, 80
 		press DUNGEON, xGemstoneWoodsDungeon
-		up MOVE, xBlazingPlains
+		up MOVE, xPlainsNode
 	end_node
 
 section "World Map", romx
