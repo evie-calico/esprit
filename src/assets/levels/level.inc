@@ -145,6 +145,10 @@ macro use_floor_color_for_terminals
     def_equs ALT_COLOR_TERMINALS, 1
 endm
 
+macro use_floor_color_for_standalones
+    def_equs ALT_COLOR_TERMINALS, 2
+endm
+
 macro end
     {NAME}:: dw .tileset, .palette
 

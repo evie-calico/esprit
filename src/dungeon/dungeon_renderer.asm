@@ -339,6 +339,9 @@ GetTileColor:
 	ld a, [wDungeonAlternateColorTerminals]
 	and a, a
 	jr z, .normalColor
+	; If the value is 2, only color standalones
+	dec a
+	jr nz, .standalone
 
 	xor a, a
 	ldh [rVBK], a
@@ -354,6 +357,27 @@ GetTileColor:
 	cp a, STANDALONE_METATILE_ID
 	jr c, .normalColor
 	cp a, TERMINAL_METATILE_ID + 4
+	jr nc, .normalColor
+
+	ld a, 1
+	ldh [rVBK], a
+	xor a, a
+	ret
+
+; Standalone terminals only
+.standalone
+
+	xor a, a
+	ldh [rVBK], a
+:
+	ldh a, [rSTAT]
+	and a, STATF_BUSY
+	jr nz, :-
+
+	ld a, [hl]
+	cp a, STANDALONE_METATILE_ID
+	jr c, .normalColor
+	cp a, STANDALONE_METATILE_ID + 4
 	jr nc, .normalColor
 
 	ld a, 1
