@@ -1,0 +1,5 @@
+include "src/include/script.evs";
+#asm
+	include "entity.inc";
+	include "scene.inc";
+#end

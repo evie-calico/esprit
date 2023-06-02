@@ -1,8 +1,4 @@
-include "src/include/script.evs";
-#asm
-	include "entity.inc";
-	include "scene.inc";
-#end
+include "src/scenes/scene.evs"
 
 npc xInitFieldScene1 {
 	if get_flag(FLAG_SEEN_FIELD_CUTSCENE) {
