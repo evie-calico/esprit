@@ -9,6 +9,7 @@ include "scene.inc"
 	image xFieldSceneBackground, "res/scenes/field_scene_map1"
 	image xFieldSceneBackground2, "res/scenes/field_scene_map2"
 	image xRemoteHouseSceneBackground, "res/scenes/remote_house_scene_map"
+	image xLakeSceneBeachBackground, "res/scenes/lake_scene_beachside"
 	
 	def random = $0
 
@@ -44,5 +45,12 @@ section "Field Scene 3", romx
 xFieldScene3::
 	scene
 		redef SCENE_ENTRANCE_SCRIPT equs "xInitFieldScene3"
+	begin_draw
+	end_scene
+
+section "Lake Scene 1", romx
+xLakeScene1::
+	scene
+		redef SCENE_ENTRANCE_SCRIPT equs "xInitLakeScene1"
 	begin_draw
 	end_scene

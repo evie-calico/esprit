@@ -1,0 +1,175 @@
+include "src/scenes/scene.evs";
+
+npc xInitLakeScene1 {
+	if get_flag(FLAG_SEEN_LAKE_CUTSCENE) {
+		init_dungeon_immediately(xLakeDungeon);
+		return;
+	}
+
+	load(xLakeSceneBeachBackground);
+	play_music(null);
+
+	spawn_npc(PLAYER, xLuvui);
+	spawn_npc(PARTNER, xAris);
+	position(PARTNER, 0, 48);
+	position(PLAYER, 24, 50);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PARTNER, ENTITY_FRAME_STEP);
+
+	spawn_npc(2, xFieldRat);
+	direction(2, DOWN);
+	frame(2, ENTITY_FRAME_STEP);
+	position(2, 10 * 8, -2 * 8);
+
+	spawn_npc(3, xFirefly);
+	direction(3, LEFT);
+	frame(3, ENTITY_FRAME_IDLE);
+	position(3, 20 * 8, 9 * 8);
+
+	spawn_npc(4, xFieldRat);
+	direction(4, DOWN);
+	frame(4, ENTITY_FRAME_STEP);
+	position(4, 13 * 8, -2 * 8);
+
+	spawn_npc(5, xFieldRat);
+	direction(5, DOWN);
+	frame(5, ENTITY_FRAME_STEP);
+	position(5, 8 * 8, -2 * 8);
+
+	say_no_wait(Aris, "I hope you like the lake.<PAUSE> When the stars come out the reflection on the water is beautiful.<PAUSE> Flickering and swaying in the waves…");
+
+	// Aris and Luvui walk into frame while he is speaking.
+
+	repeat 120 {
+		dmove(PLAYER, RIGHT, 8);
+		dmove(PARTNER, RIGHT, 8);
+		yield;
+	}
+
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+
+	sleep(20);
+	direction(PLAYER, UP);
+	sleep(10);
+	direction(PLAYER, LEFT);
+	sleep(20);
+
+	wait();
+
+	sleep(20);
+	direction(PLAYER, UP);
+	sleep(10);
+	direction(PLAYER, RIGHT);
+	sleep(20);
+
+	say(Luvui, "It looks so tranquil… I can see why mom used to take you here.");
+
+	frame(PARTNER, ENTITY_FRAME_STEP);
+
+	repeat 20 {
+		dmove(PARTNER, RIGHT, 6);
+		yield;
+	}
+
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+
+	sleep(30);
+
+	say_no_wait(Aris, "The water is pretty shallow on the east and west sides.<WAIT> There's an old bridge out in the lake we can use to cross the gap.");
+
+	// She turns around to look at him as he speaks
+
+	sleep(60);
+	direction(PLAYER, UP);
+	sleep(10);
+	direction(PLAYER, LEFT);
+	sleep(20);
+
+	wait();
+
+	// A rat enters scene from the north.
+
+	repeat 15 {
+		dmove(2, DOWN, 10);
+		yield;
+	}
+
+	// Aris and Luvui turn to look at it.
+	direction(PLAYER, UP);
+	direction(PARTNER, UP);
+
+	repeat 15 {
+		dmove(2, DOWN, 10);
+		yield;
+	}
+
+	frame(PLAYER, ENTITY_FRAME_STEP);
+
+	repeat 15 {
+		dmove(2, DOWN, 10);
+		move(PLAYER, 0, 16);
+		yield;
+	}
+
+	frame(2, ENTITY_FRAME_IDLE);
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+
+	say(Luvui, "More rats?<PAUSE> All the way out here!?");
+
+	sleep(20);
+	say_no_wait(Aris, "It must have followed us from the fields.<WAIT> Come on, we need to get moving.");
+
+	// While he's talking a firefly enters from the east
+	repeat 30 {
+		dmove(3, LEFT, 10);
+		yield;
+	}
+
+	// ...and a rat.
+	repeat 30 {
+		dmove(4, DOWN, 12);
+		yield;
+	}
+	frame(4, ENTITY_FRAME_IDLE);
+
+	wait();
+
+	// Both run southwards
+	// the firefly chases after them
+	// the rat chases them for a second before turning around.
+	// 2 more rats enter the frame, running southwards.
+
+	// One more rat enters
+	repeat 30 {
+		dmove(5, DOWN, 12);
+		yield;
+	}
+	frame(5, ENTITY_FRAME_IDLE);
+
+	direction(PLAYER, RIGHT);
+	sleep(10);
+	direction(PLAYER, DOWN);
+	direction(PARTNER, RIGHT);
+	sleep(20);
+	direction(PARTNER, DOWN);
+
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(PLAYER, DOWN, 12);
+		dmove(3, DOWN, 8);
+		yield;
+	}
+
+	set_flag(FLAG_SEEN_LAKE_CUTSCENE, 1);
+	init_dungeon(xLakeDungeon);
+
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 60 {
+		dmove(PLAYER, DOWN, 12);
+		dmove(PARTNER, DOWN, 12);
+		dmove(3, DOWN, 8);
+		yield;
+	}
+
+}

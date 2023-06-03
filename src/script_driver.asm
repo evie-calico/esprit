@@ -91,6 +91,8 @@ EvscriptBytecodeTable:
 	dw ScriptSceneImageLoad
 	dw ScriptEnterDungeon
 	dw ScriptEnterDungeonImmediately
+	dw ScriptInitDungeon
+	dw ScriptInitDungeonImmediately
 	dw FadeToBlack
 	dw FadeToWhite
 	dw FadeIn
@@ -888,6 +890,37 @@ ScriptEnterDungeon:
 	ld [bc], a
 	inc bc
 	ld a, high(EnterNewFloor)
+	ld [bc], a
+	ret
+
+ScriptInitDungeonImmediately:
+	ld a, 1
+	ld [wFadeSteps], a
+	ld a, 1
+	ld [wFadeAmount], a
+	ld a, -1
+	ld [wFadeDelta], a
+	jr ScriptInitDungeon.after
+
+ScriptInitDungeon:
+	call FadeToBlack
+.after
+	ld bc, wActiveDungeon
+	ld a, [hli]
+	ld [bc], a
+	inc bc
+	ld a, [hli]
+	ld [bc], a
+	inc bc
+	ld a, [hli]
+	ld [bc], a
+
+
+	ld bc, wFadeCallback
+	ld a, low(InitDungeon)
+	ld [bc], a
+	inc bc
+	ld a, high(InitDungeon)
 	ld [bc], a
 	ret
 

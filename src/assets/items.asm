@@ -78,7 +78,7 @@ endm
 	item HEAL_HEATSTROKE, xIceCream, "Ice Cream", "Strawberry and Vanilla~ Heals 50 HP and cools you down.", "res/items/ice_cream.2bpp", 50
 	.palette incbin "res/items/ice_cream.pal8", 3
 
-	item HEAL, xWaterChestnut, "WaterChestnut", "They're all wet and crunchy. Eating them restores 85 HP", "res/items/water_chestnut.2bpp", 85
+	item HEAL, xWaterChestnut, "Water Nut", "They're all wet and crunchy. Eating them restores 85 HP", "res/items/water_chestnut.2bpp", 85
 	.palette incbin "res/items/water_chestnut.pal8", 3
 
 	item POISON_CURE, xLily, "Lily", "Smells like fox. Cures poison and restores 60 HP.", "res/items/lily.2bpp", 60

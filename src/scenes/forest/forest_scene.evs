@@ -1,8 +1,9 @@
-include "src/scenes/scene.evs"
+include "src/scenes/scene.evs";
 
 npc xInitForestScene {
 	if get_flag(FLAG_SEEN_FOREST_CUTSCENE) {
 		enter_dungeon_immediately(xForestDungeon_part3);
+		return;
 	}
 
 	load(xForestSceneBackground);

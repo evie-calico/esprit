@@ -102,7 +102,7 @@ section "World map nodes", romx
 	end_node
 
 	node xLakeNode, "Crystal Lake", 45, 32
-		press DUNGEON, xLakeDungeon
+		press SCENE, xLakeScene1
 		left MOVE, xFieldsNode
 		right LOCK, xTurn0, LAKE_COMPLETE
 	end_node

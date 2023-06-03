@@ -1,8 +1,9 @@
-include "src/scenes/scene.evs"
+include "src/scenes/scene.evs";
 
 npc xInitFieldScene1 {
 	if get_flag(FLAG_SEEN_FIELD_CUTSCENE) {
 		enter_dungeon_immediately(xFieldDungeon_part2);
+		return;
 	}
 
 	load(xFieldSceneBackground);

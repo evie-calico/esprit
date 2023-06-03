@@ -1,4 +1,4 @@
-include "src/scenes/scene.evs"
+include "src/scenes/scene.evs";
 
 npc xInitFieldScene3 {
 	if get_flag(FLAG_FIELDS_COMPLETE) {

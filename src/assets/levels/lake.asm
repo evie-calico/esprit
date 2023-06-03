@@ -40,7 +40,7 @@ section "Lake Dungeon", romx
 	next_part
 		tileset "res/dungeons/bridge_lake_tiles.2bpp"
 		use_floor_color_for_terminals
-		after_floor 4, switch ; scene??
+		after_floor 4, switch
 		shape BRIDGE
 		on_tick xLakeAnimationFunction.stars
 
@@ -50,11 +50,11 @@ section "Lake Dungeon", romx
 		item xBlinkfruit
 		item xPurefruit
 
-		enemy xFieldRat,  7
 		enemy xFirefly,   5
 		enemy xFirefly,   6
 		enemy xPlatypus,  5
 		enemy xPlatypus,  6
+		enemy xPlatypus,  7
 		enemy xAlligator, 7
 		enemy xAlligator, 7
 		enemy xAlligator, 8
@@ -83,10 +83,10 @@ section "Lake Dungeon", romx
 		item xFabricShred
 
 		enemy xFirefly,   5
-		enemy xFirefly,   6
 		enemy xPlatypus,  5
 		enemy xPlatypus,  6
 		enemy xPlatypus,  7
+		enemy xAlligator, 6
 		enemy xAlligator, 7
 		enemy xAlligator, 7
 		enemy xAlligator, 8
