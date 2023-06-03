@@ -36,7 +36,7 @@ npc xInitLakeScene1 {
 	frame(5, ENTITY_FRAME_STEP);
 	position(5, 8 * 8, -2 * 8);
 
-	say_no_wait(Aris, "I hope you like the lake.<PAUSE> When the stars come out the reflection on the water is beautiful.<PAUSE> Flickering and swaying in the waves…");
+	say_no_wait(Aris, "I hope you like the lake.");
 
 	// Aris and Luvui walk into frame while he is speaking.
 
@@ -56,6 +56,7 @@ npc xInitLakeScene1 {
 	sleep(20);
 
 	wait();
+	say(Aris, "When the stars come out the reflection on the water is beautiful.");
 
 	sleep(20);
 	direction(PLAYER, UP);
@@ -63,7 +64,7 @@ npc xInitLakeScene1 {
 	direction(PLAYER, RIGHT);
 	sleep(20);
 
-	say(Luvui, "It looks so tranquil… I can see why mom used to take you here.");
+	say(Luvui, "It looks so tranquil… I can see why mom used to take you all the way out here.");
 
 	frame(PARTNER, ENTITY_FRAME_STEP);
 

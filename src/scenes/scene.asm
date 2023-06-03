@@ -26,8 +26,9 @@ InitScene::
 		ld [hl], a
 		inc h
 	endr
-	ld [wSceneOverrideColor], a
-	; TODO: we'll need to load the player and ally from the save file here.
+	ld c, SIZEOF("scene BSS")
+	ld hl, STARTOF("scene BSS")
+	call MemSetSmall
 
 	; Push the RNG state onto the stack and restore it later.
 	; This ensures that the static seed of the scene doesn't create a
@@ -177,6 +178,21 @@ SceneState::
 	rst SwapBank
 	call xRenderNPCs
 	call UpdateEntityGraphics
+
+	; Check the function for null, not the bank.
+	ld hl, wSceneTickFunction + 1
+	ld a, [hli]
+	or a, [hl]
+	jr z, .noTick
+	; Go back and switch the bank
+	ld a, [wSceneTickFunction]
+	rst SwapBank
+	; This is a sort of backwards deref
+	ld a, [hld]
+	ld l, [hl]
+	ld h, a
+	rst CallHL
+.noTick
 
 	ld a, [wPrintString]
 	and a, a
@@ -657,6 +673,11 @@ wSceneNPCIdleScriptVariables:: ds evscript_npc_pool_size * NB_NPCS
 wScenePrimaryScript:
 .pointer ds 3
 .scriptVariables:: ds evscript_npc_pool_size * 2
+
+section fragment "scene BSS", wram0
+
+; Called once per frame, can be configured via evscript
+wSceneTickFunction:: ds 3
 
 wSceneOverrideColor:: db
 

@@ -1,0 +1,140 @@
+include "src/scenes/scene.evs";
+
+#asm
+section "xLakeScene2Script", romx
+xLakeScene2Script:
+	ldh a, [hFrameCounter]
+	and a, 7
+	ret nz
+	ld a, [wLakeAnimationCounter]
+	inc a
+	cp a, 8
+	jr nz, :+
+	xor a, a
+:
+	ld [wLakeAnimationCounter], a
+
+	add a, a ; a * 2 (18)
+	add a, a ; a * 4 (36)
+	add a, a ; a * 8 (72)
+	add a, a ; a * 16 (144)
+	add a, low(xLakeAnimationFrames / 8)
+	ld l, a
+	adc a, high(xLakeAnimationFrames / 8)
+	sub a, l
+	ld h, a
+	add hl, hl
+	add hl, hl
+	add hl, hl
+
+	ld de, $8800 ; Address of full-wall tile
+	ld c, 32 * 4
+	jp VramCopySmall
+
+ALIGN 3
+xLakeAnimationFrames:
+	for i, 8
+		incbin "res/dungeons/starless_lake_animation.2bpp", i * 16 * 4, 16 * 4
+		incbin "res/dungeons/lake_animation.2bpp", i * 16 * 4, 16 * 4
+	endr
+
+section fragment "scene BSS", wram0
+wLakeAnimationCounter: db
+#end
+
+npc xInitLakeScene2 {
+	if get_flag(FLAG_SEEN_LAKE_CUTSCENE2) {
+		init_dungeon_immediately(xLakeDungeon_part2);
+		return;
+	}
+
+	load(xLakeSceneBridgeBackground);
+	set_scene_tick(xLakeScene2Script);
+	play_music(null);
+
+	spawn_npc(PLAYER, xLuvui);
+	spawn_npc(PARTNER, xAris);
+	position(PARTNER, 8, 48);
+	position(PLAYER, 0, 64);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PARTNER, ENTITY_FRAME_STEP);
+
+	repeat 60 {
+		dmove(PLAYER, RIGHT, 8);
+		dmove(PARTNER, RIGHT, 8);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+
+	say(Aris, "This is the bridge…");
+
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 80 {
+		dmove(PLAYER, RIGHT, 8);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+
+	sleep(40);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 30 {
+		dmove(PLAYER, UP, 8);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	sleep(40);
+	direction(PLAYER, LEFT);
+	sleep(10);
+
+	say(Luvui, "It looks a little… worn…?");
+
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(PARTNER, RIGHT, 8);
+		yield;
+	}
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+
+	sleep(20);
+	say(Aris, "Yeah, it's pretty run down.<WAIT> No one knows who built it;<PAUSE> it's always been here in the middle of the lake.");
+	
+	sleep(20);
+	direction(PLAYER, UP);
+	sleep(20);
+	direction(PARTNER, UP);
+	sleep(20);
+
+	say(Luvui, "Isn't it a little weird that someone built a bridge here,<PAUSE> and not at the shore?<WAIT> And the water is so shallow… it's like the lake is flooding.");
+	say(Aris, "…");
+
+	sleep(120);
+
+	say(Aris, "Hey,<PAUSE> look!<PAUSE> The stars are coming out.");
+
+	sleep(60);
+
+	say(Luvui, "They really are pretty.");
+
+	sleep(120);
+
+	sleep(20);
+	direction(PARTNER, RIGHT);
+	sleep(20);
+	direction(PLAYER, LEFT);
+	sleep(20);
+
+	say(Aris, "Let's keep moving.<WAIT> The view from the other side is amazing.");
+
+	set_flag(FLAG_SEEN_LAKE_CUTSCENE2, 1);
+	init_dungeon(xLakeDungeon_part2);
+
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PARTNER, ENTITY_FRAME_STEP);
+	repeat 60 {
+		dmove(PLAYER, RIGHT, 8);
+		dmove(PARTNER, RIGHT, 8);
+		yield;
+	}
+
+}

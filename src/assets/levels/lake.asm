@@ -5,7 +5,7 @@ section "Lake Dungeon", romx
 
 	dungeon xLakeDungeon
 		tileset "res/dungeons/lake_tiles.2bpp"
-		after_floor 2, switch
+		after_floor 2, scene, xLakeScene2
 		shape HALLS
 		music xLakeMusic
 		on_tick xLakeAnimationFunction.noStars

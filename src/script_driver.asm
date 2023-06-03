@@ -100,6 +100,7 @@ EvscriptBytecodeTable:
 	dw ScriptOpenMap
 	dw ScriptOpenMapImmediately
 	dw ScriptOpenTrader
+	dw ScriptSetSceneTick
 
 section "evscript Return", rom0
 StdReturn:
@@ -1024,6 +1025,19 @@ ScriptCheckFade:
 	ld d, a
 	ld a, [wFadeSteps]
 	ld [de], a
+	ret
+
+section "evscript ScriptSetSceneTick", rom0
+ScriptSetSceneTick:
+	ld bc, wSceneTickFunction
+	ld a, [hli]
+	ld [bc], a
+	inc bc
+	ld a, [hli]
+	ld [bc], a
+	inc bc
+	ld a, [hli]
+	ld [bc], a
 	ret
 
 section "General Script Pool", wram0
