@@ -3,7 +3,6 @@
 ROM = bin/esprit.gb
 MAKEFONT = tools/target/release/makefont
 PALCONV = tools/target/release/palconv
-EVUNIT_CONFIG_GEN = tools/target/release/evunit-config-gen
 
 # 0x1B is MBC5 with RAM + Battery
 MBC := 0x1B
@@ -80,13 +79,8 @@ release:
 	${MAKE} LDFLAGS="-p 0xFF -w"
 .PHONY: release
 
-test: $(ROM) $(EVUNIT_CONFIG_GEN)
-ifeq (, $(shell which evunit))
-	$(error evunit is not installed on the PATH (https://github.com/eievui5/evunit))
-endif
-	$(EVUNIT_CONFIG_GEN) | \
-	cat evunit-config.toml - | \
-	evunit --config - --symfile bin/esprit.sym --silent $<
+test: $(ROM)
+	cd tools/ && cargo run --release --bin unit-test --features evunit
 .PHONY: test
 
 ###############################################
@@ -189,10 +183,6 @@ $(MAKEFONT): tools/src/bin/makefont.rs
 $(PALCONV): tools/src/bin/palconv.rs
 	@mkdir -p $(@D)
 	cd tools/ && cargo build --release --bin palconv
-
-$(EVUNIT_CONFIG_GEN): tools/src/bin/evunit-config-gen.rs
-	@mkdir -p $(@D)
-	cd tools/ && cargo build --release --bin evunit-config-gen
 
 # Catch non-existent files
 # KEEP THIS LAST!!
