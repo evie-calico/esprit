@@ -123,7 +123,7 @@ section "World map nodes", romx
 		press DUNGEON, xPlainsDungeon
 		left MOVE, xTurn1
 		up LOCK, xTurn2, PLAINS_COMPLETE
-		down LOCK, xGemstoneWoodsNode, CAVES_COMPLETE
+		down LOCK, xCrystalwoodNode, CAVES_COMPLETE
 	end_node
 
 	node xTurn2, "", 101, 24
@@ -149,8 +149,8 @@ section "World map nodes", romx
 		left MOVE, xTurn4
 	end_node
 
-	node xGemstoneWoodsNode, "Gemstone Woods", 101, 80
-		press DUNGEON, xGemstoneWoodsDungeon
+	node xCrystalwoodNode, "Crystalwood", 101, 80
+		press DUNGEON, xCrystalwoodDungeon
 		up MOVE, xPlainsNode
 	end_node
 
