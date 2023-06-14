@@ -77,8 +77,15 @@ macro say_no_wait
 	elif !strcmp("\1", "Mom")
 		def name equs "xMom.name"
 		def voice equs "sfxMomVoice"
+	elif !strcmp("\1", "Sephone")
+		def name equs "xSephone.name"
+		def voice equs "sfxSephoneVoice"
+	elif !strcmp("\1", "Libera")
+		def name equs "xLibera.name"
+		def voice equs "sfxLiberaVoice"
 	else
 		if !def(_name_\1)
+			warn "There is no voice associated with \"\1\"."
 			if !def(_say_index)
 				def _say_index = -1
 			endc

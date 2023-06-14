@@ -41,7 +41,7 @@ CrashHandler::
 	ldh [rBCPD], a
 	ldh [rBCPD], a
 	ld [wTextSrcPtr + 1], a
-	inc a
+	xor a, a
 	ld [wTextCharset], a
 	ld [wTextCurPixel], a
 	ld [wTextLetterDelay], a
