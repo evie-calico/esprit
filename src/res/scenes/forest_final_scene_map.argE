@@ -1,0 +1,7 @@
+-a res/scenes/forest_final_scene_map.pmap
+-t res/scenes/forest_final_scene_map.map
+-o res/scenes/forest_final_scene_map.2bpp
+-p res/scenes/forest_final_scene_map.pal
+-u
+-c embedded
+-b 0x80
