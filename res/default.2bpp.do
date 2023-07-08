@@ -15,4 +15,4 @@ if [[ $2 = *.obj ]]; then
 	COLUMNS_FLAG=-Z
 fi
 
-exec rgbgfx $COLUMNS_FLAG "$IMG" -o "$3" -p "$2.pal" -t "$2.map" -a "$2.pmap" ${ARGSFILE+"@$ARGSFILE"}
+exec rgbgfx -c embedded $COLUMNS_FLAG "$IMG" -o "$3" -p "$2.pal" -t "$2.map" -a "$2.pmap" ${ARGSFILE+"@$ARGSFILE"}
