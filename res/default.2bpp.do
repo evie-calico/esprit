@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 . ./res.sh
 
 apply_vpath IMG "$2.png"

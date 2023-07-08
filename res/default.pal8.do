@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 PALCONV=../tools/target/release/palconv
 redo-ifchange "$PALCONV"
 

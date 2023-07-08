@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 . ./res.sh
 
 MAKEFONT=../tools/target/release/makefont

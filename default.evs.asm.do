@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 EVS="src/${2#obj/}.evs"
 redo-ifchange "$EVS"
 

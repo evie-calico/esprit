@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 GIT_VERSION=$(git describe --tags --always --dirty)
 
 redo-always
