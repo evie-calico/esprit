@@ -28,6 +28,31 @@ if !def(NO_QUICKLOAD)
 	def NO_QUICKLOAD = 0
 endc
 
-if !def(SET_ALL_FLAGS)
-	def SET_ALL_FLAGS = 0
+if !def(FLAGS_SET)
+	if !def(SET_ALL_FLAGS)
+		def FLAGS_SET = 0
+	else
+		def FLAGS_SET = 256
+	endc
 endc
+
+for i, 256 / 8
+	if FLAGS_SET < 8
+		def byte = 0
+		for j, FLAGS_SET
+			def byte <<= 1
+			def byte |= 1
+		endr
+	else
+		def byte = $FF
+	endc
+	def FLAG_VALUE_{d:i} equ byte
+	; This extra step is to convert FLAGS_SET from equs to equ
+	def temp = FLAGS_SET - 8
+	if temp < 0
+		def temp = 0
+	endc
+	purge FLAGS_SET
+	redef FLAGS_SET equ temp
+	purge byte, temp
+endr

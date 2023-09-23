@@ -7,7 +7,7 @@ npc xInitLakeScene1 {
 	}
 
 	load(xLakeSceneBeachBackground);
-	play_music(null);
+	play_music(xPreLakeMusic);
 
 	spawn_npc(PLAYER, xLuvui);
 	spawn_npc(PARTNER, xAris);
