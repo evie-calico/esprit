@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.2.1", features = ["derive"], optional = true }
 image = { version = "0.24.5", optional = true }
-evunit = { version = "1.3", optional = true }
+evunit = { version = "1.3.1", optional = true }
 
 [[bin]]
 name = "makefont"
