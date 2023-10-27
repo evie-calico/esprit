@@ -50,7 +50,7 @@ npc xInitLakeScene2 {
 
 	load(xLakeSceneBridgeBackground);
 	set_scene_tick(xLakeScene2Script);
-	play_music(null);
+	play_music(xPreLakeMusic);
 
 	spawn_npc(PLAYER, xLuvui);
 	spawn_npc(PARTNER, xAris);

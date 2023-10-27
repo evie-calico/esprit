@@ -180,11 +180,15 @@ npc xInitFieldScene3 {
 	say(Aris, "I heard you were looking for a way home.");
 	sleep(10);
 	say(Sephone, "…so that's why you're here?<PAUSE> I figured you two just wanted to meet another couple.");
+	sleep(10);
+	say(Aris, "Couple!?");
 	sleep(30);
 	direction(PARTNER, DOWN);
 	sleep(10);
 	direction(PARTNER, LEFT);
-	say(Aris, "Sorta… I wanted to meet you… but I think Luvui might want to go home… I figured we might as well see what you found.");
+	say(Aris, "Mom's talked about you so much. Part of me just wanted to meet you.
+	sleep(60);
+	say(Aris, "…but,<PAUSE> I think Luvui might want to go home… I figured we might as well see what you had found.");
 	repeat 16 {
 		dmove(2, LEFT, 8);
 		yield;
@@ -200,6 +204,8 @@ npc xInitFieldScene3 {
 	sleep(10);
 	direction(PARTNER, LEFT);
 	sleep(30);
+	say(Sephone, "Aris…");
+	sleep(60);
 	say(Sephone, "Maybe you could spend some time with her,<PAUSE> before you tell her the truth.<PAUSE> See how she feels about it.");
 	sleep(60);
 	direction(PARTNER, DOWN);
@@ -207,9 +213,11 @@ npc xInitFieldScene3 {
 	direction(PARTNER, RIGHT);
 	sleep(30);
 	say(Aris, "That would be nice.");
-	sleep(30);
+	sleep(60);
 	say(Sephone, "Lets go see what they're up to.<WAIT> I'll tell you what we learned later.");
 	sleep(30);
+
+	// TODO: Tell them what she learned!
 
 	set_flag(FLAG_FIELDS_COMPLETE, 1);
 	open_map();
