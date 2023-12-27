@@ -9,6 +9,8 @@
 
 - [Henry "Tachytaenius" F.T.](https://github.com/wolfboyft)
   - [platypus.png](src/res/sprites/platypus.h.png)
+  - [wolf.png](src/res/sprites/wolf.h.png)
+  - [fox.png](src/res/sprites/fox.h.png)
 
 - [Damian "PinoBatch" Y.](https://github.com/pinobatch)
   - [input.asm](https://github.com/pinobatch/libbet/blob/master/src/pads.z80)
