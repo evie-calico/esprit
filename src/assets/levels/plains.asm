@@ -1,5 +1,8 @@
 include "assets/levels/level.inc"
 
+; TODO: unkillable dragon enemies that force you to move quickly through the dungeon.
+; TODO: gold & gems that can be traded for hp & xp. only a certain amount of each per save file. rare and protected by the dragons 
+
 section "Plains Dungeon", romx
 	dungeon xPlainsDungeon
 		tileset "res/dungeons/plains_tiles.2bpp"

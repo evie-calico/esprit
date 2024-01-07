@@ -186,7 +186,7 @@ npc xInitFieldScene3 {
 	direction(PARTNER, DOWN);
 	sleep(10);
 	direction(PARTNER, LEFT);
-	say(Aris, "Mom's talked about you so much. Part of me just wanted to meet you.
+	say(Aris, "Mom's talked about you so much. Part of me just wanted to meet you.");
 	sleep(60);
 	say(Aris, "…but,<PAUSE> I think Luvui might want to go home… I figured we might as well see what you had found.");
 	repeat 16 {
