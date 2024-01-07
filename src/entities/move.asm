@@ -123,8 +123,10 @@ UseMove::
 	dw MoveActionTendWounds
 	assert MOVE_ACTION_ATK_BUFF == 6
 	dw MoveActionAttackBuff
+	assert MOVE_ACTION_WISH == 7
+	dw MoveActionWish
 
-	assert MOVE_ACTION_COUNT == 7
+	assert MOVE_ACTION_COUNT == 8
 
 ; @return b: Move user
 ; @return de: Move pointer
@@ -223,6 +225,72 @@ MoveActionAttack:
 	add a, l
 	ld b, a
 	jp DealDamage
+
+; Luvui's ability. Chooses a random supporting effect.
+; Effect can be upgraded with gems.
+; @param b: Entity pointer high byte
+; @param de: Move pointer
+MoveActionWish:
+	rept Move_Name
+		inc de
+	endr
+	call PrintUsedMove
+
+	ld de, .after
+	jp PlayAttackAnimation
+.after
+	ld a, [wWishState] ; nothing or one gem.
+	assert WISH_STATE_NONE == 0
+	and a, a
+	jr z, NeutralWish
+.reindex
+	assert WISH_STATE_RUBY == 1
+	dec a
+	jr z,  RubyWish
+	assert WISH_STATE_SAPPHIRE == 2
+	dec a
+	jr z, SapphireWish
+	assert WISH_STATE_EMERALD == 3
+EmeraldWish:
+	; TODO: Clear nearby tiles and reveal items.
+
+RubyWish:
+	; TODO: Damage nearby enemies.
+
+NeutralWish:
+	; This just re-indexes the original lookup with a random value.
+	; The effect will be non-upgraded because wWishState is NONE.
+	lb hl, 1, 2
+	call RandRange
+	jr MoveActionWish.reindex
+
+SapphireWish:
+	; Healing effect.
+	ld a, [wWishState]
+	and a, a
+
+	jr nz, .upgrade
+		lb hl, 8, 12
+		jr .heal
+	.upgrade
+		lb hl, 16, 24
+	.heal
+
+	push hl
+		call RandRange
+		ld e, a
+		ld b, high(wEntity0)
+		call HealEntity
+	pop hl
+
+	call RandRange
+	ld e, a
+	ld b, high(wEntity1)
+	call HealEntity
+
+	ld b, bank(xSapphireWishText)
+	ld hl, xSapphireWishText
+	jp PrintHUD
 
 ; Basic healing move. Check <range> tiles in front of <entity>, and heal the first
 ; ally seen. Heals <power> health and has a <chance> chance of succeeding.

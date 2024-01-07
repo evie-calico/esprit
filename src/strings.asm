@@ -24,6 +24,12 @@ xElipsesString:: db "<SET_DELAY><5>...<SET_DELAY><2><DELAY><30>", 0
 	format xTooTiredString, "You're too tired to use that move."
 	format xMissedString, "[str:user] missed!"
 
+	format xRubyWishText, "Luvui's wish damaged nearby enemies!"
+	format xRubyWishFailed, "But nothing happened!"
+	format xSapphireWishText, "Luvui's wish healed the party!"
+	format xEmeraldWishText, "Luvui's wish cleared the way!"
+	format xEmeraldWishFailed, "The walls rumble..."
+
 	format xGetItemString, "Picked up [str:name]."
 	format xFullBagString, "Your bag is full."
 

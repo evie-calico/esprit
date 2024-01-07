@@ -34,9 +34,16 @@ def MOVE_ACTION_POISN_ATK rb ; Inflicts poison on and deals damage to an enemy i
 def MOVE_ACTION_FLY rb ; Flies away from the battle and appears somewhere.
 def MOVE_ACTION_TEND_WOUNDS rb
 def MOVE_ACTION_ATK_BUFF rb
+def MOVE_ACTION_WISH rb
 def MOVE_ACTION_COUNT rb
 
 def MOVE_MAXIMUM_LENGTH equ 16
+
+rsreset
+def WISH_STATE_NONE rb
+def WISH_STATE_RUBY rb
+def WISH_STATE_SAPPHIRE rb
+def WISH_STATE_EMERALD rb
 
 ; Animation bytecode
 rsreset

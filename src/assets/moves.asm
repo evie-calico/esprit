@@ -32,6 +32,16 @@ endm
 	; special
 
 	; Luvui heal moves
+	; I wanna change this to a "Wish" or something.
+	; Random effect:
+	; - Heal party
+	; - Damage enemies
+	; - clear terrain to reveal items
+	; Items to force a certain more powerful effect.
+	; - ruby: always damage enemies
+	; - sapphire: always heal for some extra HP
+	; - emerald: always find an item -- guaranteed to find 2.
+	move WISH,      xWish,        "Wish", 0, 1, 100%, 30, ; level 8
 	move TEND_WOUNDS, xTendWounds, "Tend",   16,      1,    100%,    30, ; level 8
 	move TEND_WOUNDS, xSootheWounds,"Soothe",40,      1,    100%,    20,
 	;move TEND_WOUNDS, xHealWounds, "Heal",   24,      1,    100%,    15,

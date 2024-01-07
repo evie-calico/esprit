@@ -23,12 +23,11 @@ endm
 		level 1, xScratch
 		level 6, xBite
 		level 7, xPounce
-		level 9, xTendWounds
+		level 9, xWish
 
 		level 11, xSlash
 		level 12, xCrunch
 		level 13, xLunge
-		level 15, xSootheWounds
 		db 0
 
 	entity xAris, "Aris", "res/sprites/aris.2bpp"

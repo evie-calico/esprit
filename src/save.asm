@@ -52,6 +52,9 @@ wInventory::
 	ds 3 * INVENTORY_SIZE
 .end::
 
+; Which wish upgrade was used, if any.
+wWishState:: db
+
 wActiveMenuPalette:: ds 3
 wActiveMenuTheme:: ds 3
 
@@ -183,6 +186,8 @@ xInitialFile:
 			dw INIT_INVENTORY
 		endr
 	endc
+.wishState
+	db 0
 .menuPalette farptr PinkMenuPalette
 .menuTheme farptr PawprintMenuTheme
 
