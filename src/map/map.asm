@@ -658,6 +658,11 @@ UpdateMapNode:
 	; If PadToDir fails, that means A is the only key which is pressed.
 	; A corresponds to an index of 4
 	jr nc, .notA
+	; However, we need to make sure that A was just pressed, not held down.
+	ldh a, [hNewKeys]
+	bit PADB_A, a
+	ret z
+	; Otherwise, select the map node.
 	ld a, 4
 .notA
 	; Preserve the direction in B, so that it may be referenced by the target
