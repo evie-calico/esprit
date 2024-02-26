@@ -15,7 +15,7 @@ WARNINGS = all extra no-unmapped-char
 CONFIG = 
 
 ASFLAGS  = -p 0xFF -h -Q 4 $(addprefix -I, $(INCDIRS)) $(addprefix -W, $(WARNINGS)) $(addprefix -D, $(CONFIG))
-LDFLAGS  = -p 0xFF -w -S romx=256
+LDFLAGS  = -p 0xFF -w -S romx=255
 FIXFLAGS = -p 0xFF -j -v -c -k "EV" -l 0x33 -m $(MBC) \
            -n $(VERSION) -r $(SRAMSIZE) -t "Esprit"
 GFXFLAGS = -c embedded
