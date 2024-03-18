@@ -220,8 +220,10 @@ npc xInitFieldScene3 {
 	direction(2, DOWN);
 	say(Luvui, "That was rude…");
 	sleep(20);
-	say_no_wait(Sephone, "She can be a handful sometimes.<WAIT> She was a powerful ruler in her past life.");
-	sleep(40);
+	say(Sephone, "She can be a pawful sometimes.<WAIT> In her past life she controlled legions of servants at her beck and call…");
+	sleep(20);
+	say_no_wait(Sephone, Now, the only thing she has power to change is her attitude.<PAUSE><PAUSE> As you can see, she is using none of it.");
+	sleep(60);
 	direction(PLAYER, UP);
 	wait();
 	sleep(20);
@@ -270,7 +272,7 @@ npc xInitFieldScene3 {
 		dmove(2, LEFT, 8);
 		yield;
 	}
-	say(Sephone, "Does she know that that's why you brought her here?");
+	say(Sephone, "And I suppose you've already explained to her why that isn't possible?");
 	sleep(30);
 	direction(PARTNER, DOWN);
 	sleep(10);
