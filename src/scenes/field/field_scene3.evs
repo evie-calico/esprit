@@ -222,7 +222,7 @@ npc xInitFieldScene3 {
 	sleep(20);
 	say(Sephone, "She can be a pawful sometimes.<WAIT> In her past life she controlled legions of servants at her beck and call…");
 	sleep(20);
-	say_no_wait(Sephone, Now, the only thing she has power to change is her attitude.<PAUSE><PAUSE> As you can see, she is using none of it.");
+	say_no_wait(Sephone, "Now the only thing she has power to change is her attitude.<PAUSE><PAUSE> As you can see, she is using none of it.");
 	sleep(60);
 	direction(PLAYER, UP);
 	wait();
