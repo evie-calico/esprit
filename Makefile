@@ -57,7 +57,7 @@ endif
 
 # `clean`: Clean temp and bin files
 clean:
-	rm -rf bin obj dep res
+	rm -rf bin obj res
 	rm -f src/include/charmap.inc
 .PHONY: clean
 
@@ -97,21 +97,23 @@ bin/%.gb bin/%.sym bin/%.map: $(OBJS)
 	rgblink $(LDFLAGS) -m bin/$*.map -n bin/$*.sym -o bin/$*.gb $^ obj/version.o  \
 	&& rgbfix $(FIXFLAGS) bin/$*.gb
 
-obj/libs/vwf.o dep/libs/vwf.mk res/charmap.inc: src/libs/vwf.asm
-	@mkdir -p obj/libs/ dep/libs/ res/
-	rgbasm $(ASFLAGS) -M dep/libs/vwf.mk -MG -MP -MQ obj/libs/vwf.o -MQ dep/libs/vwf.mk -o obj/libs/vwf.o $< > res/charmap.inc
+obj/libs/vwf.o obj/libs/vwf.mk res/charmap.inc: src/libs/vwf.asm
+	@mkdir -p obj/libs/ res/
+	rgbasm $(ASFLAGS) -M obj/libs/vwf.mk -MG -MP -MQ obj/libs/vwf.o -MQ obj/libs/vwf.mk -o obj/libs/vwf.o $< > res/charmap.inc
 
-obj/%.o dep/%.mk: src/%.asm
-	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$*))
-	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o $<
+obj/%.mk: src/%.asm
+	@mkdir -p "${@D}"
+	rgbasm $(ASFLAGS) -M $@ -MG -MP -MQ ${@:.mk=.o} -MQ $@ -o ${@:.mk=.o} $<
+obj/%.o: obj/%.mk
+	@touch $@
 
-obj/%.o obj/%.asm dep/%.mk: src/%.evs
-	@mkdir -p $(patsubst %/, %, $(dir obj/$* dep/$*))
+obj/%.mk obj/%.asm: src/%.evs
+	@mkdir -p "${@D}"
 	evscript -o obj/$*.asm $<
-	rgbasm $(ASFLAGS) -M dep/$*.mk -MG -MP -MQ obj/$*.o -MQ dep/$*.mk -o obj/$*.o obj/$*.asm
+	rgbasm $(ASFLAGS) -M obj/$*.mk -MG -MP -MQ obj/$*.o -MQ obj/$*.mk -o obj/$*.o obj/$*.asm
 
 ifneq ($(MAKECMDGOALS),clean)
--include $(patsubst src/%.asm, dep/%.mk, $(SRCS))
+-include $(patsubst src/%.asm, obj/%.mk, $(SRCS))
 endif
 
 ################################################
@@ -127,7 +129,10 @@ endif
 VPATH := src
 
 # Convert .png files using custom atfile arguments
-res/%.2bpp res/%.map: res/%.arg res/%.png
+res/%.2bpp: res/%.arg res/%.png
+	@mkdir -p $(@D)
+	rgbgfx @$^
+res/%.map: res/%.arg res/%.png
 	@mkdir -p $(@D)
 	rgbgfx @$^
 
