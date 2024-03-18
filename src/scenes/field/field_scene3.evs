@@ -194,6 +194,7 @@ npc xInitFieldScene3 {
 	}
 	frame(4, ENTITY_FRAME_IDLE);
 
+	// Bastet pauses here.
 	frame(PLAYER, ENTITY_FRAME_STEP);
 	repeat 30 {
 		dmove(3, RIGHT, 16);
@@ -203,7 +204,7 @@ npc xInitFieldScene3 {
 	frame(PLAYER, ENTITY_FRAME_IDLE);
 	direction(PLAYER, RIGHT);
 
-	frame(3, ENTITY_FRAME_STEP);
+	frame(4, ENTITY_FRAME_STEP);
 	repeat 30 {
 		dmove(4, RIGHT, 14);
 		yield;
@@ -246,7 +247,7 @@ npc xInitFieldScene3 {
 		yield;
 	}
 	direction(2, RIGHT);
-	repeat 20 {
+	repeat 30 {
 		dmove(PLAYER, RIGHT, 16);
 		yield;
 	}
@@ -268,10 +269,12 @@ npc xInitFieldScene3 {
 	direction(PARTNER, LEFT);
 	sleep(60);
 	say(Aris, "Luvui wants to go 'home'…<PAUSE> I heard that you were looking for a way out.");
+	frame(2, ENTITY_FRAME_STEP);
 	repeat 16 {
 		dmove(2, LEFT, 8);
 		yield;
 	}
+	frame(2, ENTITY_FRAME_IDLE);
 	say(Sephone, "And I suppose you've already explained to her why that isn't possible?");
 	sleep(30);
 	direction(PARTNER, DOWN);
