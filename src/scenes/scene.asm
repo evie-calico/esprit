@@ -234,18 +234,20 @@ wSceneCamera::
 
 wSceneMovementLocked:: db
 
-wSceneNPCIdleScriptVariables:: ds evscript_npc_pool_size * NB_NPCS
-
-wScenePrimaryScript:
-.pointer ds 3
-.scriptVariables:: ds evscript_npc_pool_size * 2
-
 section fragment "scene BSS", wram0
-
 ; Called once per frame, can be configured via evscript
 wSceneTickFunction:: ds 3
 
 wSceneOverrideColor:: db
+
+wScenePrimaryScript:
+	.pointer ds 3
+	.scriptVariables:: ds evscript_npc_pool_size
+	.threads::
+	for i, 1, 8
+		.thread{d:i}:: ds 3
+		.thread{d:i}Pool ds evscript_npc_pool_size
+	endr
 
 section "Scene Loop counter", hram
 hSceneLoopCounter: db

@@ -1,5 +1,19 @@
 include "src/scenes/scene.evs";
 
+npc xLuvuiWalk {
+	repeat 100 {
+		dmove(PLAYER, UP, 12);
+		yield;
+	}
+}
+
+npc xArisWalk {
+	repeat 100 {
+		dmove(PARTNER, UP, 12);
+		yield;
+	}
+}
+
 npc xInitFieldScene3 {
 	if get_flag(FLAG_FIELDS_COMPLETE) {
 		open_map_immediately();
@@ -29,11 +43,9 @@ npc xInitFieldScene3 {
 
 	say_no_wait(Aris, "This is it!");
 
-	repeat 100 {
-		dmove(PLAYER, UP, 12);
-		dmove(PARTNER, UP, 12);
-		yield;
-	}
+	spawn(xLuvuiWalk);
+	spawn(xArisWalk);
+	join();
 
 	frame(PLAYER, ENTITY_FRAME_IDLE);
 	frame(PARTNER, ENTITY_FRAME_IDLE);
