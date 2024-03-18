@@ -68,30 +68,30 @@ if !def(lb)
 endc
 
 
-CHARACTER_HEIGHT equ 8
-CHARACTER_SIZE equ CHARACTER_HEIGHT + 1
+def CHARACTER_HEIGHT equ 8
+def CHARACTER_SIZE equ CHARACTER_HEIGHT + 1
 
 
 
 section "VWF engine", rom0
 
 
-CTRL_CHAR_PTRS equs ""
+def CTRL_CHAR_PTRS equs ""
 	rsreset
 macro control_char
 	if def(PRINT_CHARMAP)
 		PRINT "charmap \"<\1>\", {d:_RS}\n"
 	endc
-TEXT_\1 rb 1
+	def TEXT_\1 rb 1
 	if def(EXPORT_CONTROL_CHARS)
 		export TEXT_\1
 	endc
 
 	if _NARG > 1
 		dw \2
-TMP equs "{CTRL_CHAR_PTRS}\ndw \3"
+		def TMP equs "{CTRL_CHAR_PTRS}\ndw \3"
 		purge CTRL_CHAR_PTRS
-CTRL_CHAR_PTRS equs "{TMP}"
+		def CTRL_CHAR_PTRS equs "{TMP}"
 		purge TMP
 	endc
 endm
@@ -114,28 +114,28 @@ RefillerControlChars:
 	control_char SET_DELAY,       Reader2ByteNop,                TextSetDelay
 	control_char SET_VOICE,       Reader3ByteNop,                TextSetVoice
 	control_char ZWS,             _RefillCharBuffer.canNewline,  PrintNextCharInstant
-TEXT_BAD_CTRL_CHAR rb 0
+	def TEXT_BAD_CTRL_CHAR rb 0
 	if def(EXPORT_CONTROL_CHARS)
 		export TEXT_BAD_CTRL_CHAR
 	endc
 
 	assert TEXT_NEWLINE == "\n"
 
-PTRS equs ""
+	def PTRS equs ""
 	rsset 256
 macro reader_only_control_char
-_RS = _RS - 1
+	def _RS = _RS - 1
 	if def(PRINT_CHARMAP)
 		PRINT "charmap \"<\1>\", {d:_RS}\n"
 	endc
-TEXT_\1 equ _RS
+	def TEXT_\1 equ _RS
 	if def(EXPORT_CONTROL_CHARS)
 		export TEXT_\1
 	endc
 
-TMP equs "dw \2\n{PTRS}"
+	def TMP equs "dw \2\n{PTRS}"
 	purge PTRS
-PTRS equs "{TMP}"
+	def PTRS equs "{TMP}"
 	purge TMP
 endm
 
@@ -156,9 +156,9 @@ endm
 	; Unusual, I know, but it works better!
 	PTRS
 RefillerOnlyControlChars:
-FIRST_READER_ONLY_CONTROL_CHAR rb 0
+def FIRST_READER_ONLY_CONTROL_CHAR rb 0
 
-NB_FONT_CHARACTERS equ FIRST_READER_ONLY_CONTROL_CHAR - " "
+def NB_FONT_CHARACTERS equ FIRST_READER_ONLY_CONTROL_CHAR - " "
 
 ; Sets the pen's position somewhere in memory
 ; The code is designed for a pen in VRAM, but it can be anywhere
@@ -292,8 +292,8 @@ DrawVWFChars::
 
 
 
-TEXT_CONT_STR equ 0
-TEXT_NEW_STR  equ 1
+def TEXT_CONT_STR equ 0
+def TEXT_NEW_STR  equ 1
 	export TEXT_CONT_STR
 	export TEXT_NEW_STR
 ; Sets up the VWF engine to start printing text
@@ -1817,8 +1817,8 @@ endc
 CharsetPtrs::
 	rsreset
 	rept NB_CHARSETS
-CHARSET equs "CHARSET_{d:_RS}"
-CHARSET_DEFINED equs "def({CHARSET})"
+		def CHARSET equs "CHARSET_{d:_RS}"
+		def CHARSET_DEFINED equs "def({CHARSET})"
 
 		if CHARSET_DEFINED
 			def CHARSET_LABEL equs "sCharset{d:_RS}"

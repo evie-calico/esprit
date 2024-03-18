@@ -24,12 +24,12 @@
 ;
 include "hardware.inc"
 
-DAS_DELAY equ 15
-DAS_SPEED equ 3
+def DAS_DELAY equ 15
+def DAS_SPEED equ 3
 
-P1F_NONE     equ $30
-P1F_BUTTONS  equ $10
-P1F_DPAD     equ $20
+def P1F_NONE     equ $30
+def P1F_BUTTONS  equ $10
+def P1F_DPAD     equ $20
 
 section "hram_pads", hram
 hCurrentKeys:: db
