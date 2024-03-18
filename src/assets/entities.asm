@@ -147,6 +147,12 @@ endm
 	.moves
 		db 0
 
+	entity xLibera, "Libera", "res/sprites/libera.2bpp"
+	.palette
+		incbin "res/sprites/libera.pal8", 3
+	.moves
+		db 0
+
 	entity xBastet, "Bastet", "res/sprites/bastet.2bpp"
 	.palette
 		incbin "res/sprites/bastet.pal8", 3

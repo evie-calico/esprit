@@ -5,7 +5,7 @@ section "Forest Dungeon", romx
 
 	dungeon xForestDungeon
 		tileset "res/dungeons/tree_tiles.2bpp"
-		after_floor 2, switch
+		after_floor 2, scene, xFieldScene3
 		shape HALLS
 		music xForestMusic
 

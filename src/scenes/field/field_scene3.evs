@@ -24,6 +24,9 @@ npc xInitFieldScene3 {
 	direction(3, LEFT);
 	position(3, 20 * 8, 8 * 8);
 
+	spawn_npc(4, xBastet);
+	position(4, 20 * 8, 8 * 8);
+
 	say_no_wait(Aris, "This is it!");
 
 	repeat 100 {
@@ -116,97 +119,171 @@ npc xInitFieldScene3 {
 	direction(3, UP);
 	sleep(20);
 	direction(2, DOWN);
-	say(Libera, "I'm going to go check on the baby.");
-
-	frame(3, ENTITY_FRAME_STEP);
-	repeat 40 {
-		dmove(3, LEFT, 10);
-		yield;
-	}
-
-	say_no_wait(Luvui, "…baby?");
-	direction(PARTNER, DOWN);
-	direction(2, LEFT);
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	repeat 20 {
-		dmove(3, LEFT, 10);
-		move(PLAYER, -10, 0);
-		yield;
-	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
-	direction(PLAYER, UP);
-	direction(PARTNER, LEFT);
-
-	repeat 10 {
-		dmove(3, LEFT, 10);
-		yield;
-	}
-
-	repeat 32 {
-		dmove(3, UP, 8);
-		yield;
-	}
-
-	frame(3, ENTITY_FRAME_IDLE);
-	wait();
-	sleep(60);
-	direction(3, LEFT);
-	sleep(20);
-	direction(3, DOWN);
-	sleep(60);
-	say(Libera, "You can come see if you want.");
-	direction(3, LEFT);
-	sleep(20);
-	direction(3, UP);
+	say(Libera, "Have you seen Bastet?");
 	sleep(30);
-	position(3, 0, 0);
-	sleep(60);
-
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	say(Luvui, "…Bastet?");
+	sleep(30);
+	frame(4, ENTITY_FRAME_STEP);
+	position(4, 8 * 8 + 4, 5 * 8);
 	repeat 16 {
-		dmove(PLAYER, RIGHT, 8);
+		dmove(4, DOWN, 8);
 		yield;
 	}
-	repeat 32 {
+	frame(4, ENTITY_FRAME_IDLE);
+	direction(PLAYER, UP);
+
+	// Look between Luvui & parents.
+	wait();
+	direction(PARTNER, DOWN);
+	sleep(10);
+	direction(3, LEFT);
+	sleep(10);
+	direction(PARTNER, LEFT);
+	repeat 10 {
+		dmove(3, LEFT, 8);
+		yield;
+	}
+	direction(4, RIGHT);
+	direction(2, LEFT);
+	repeat 10 {
+		dmove(3, LEFT, 8);
+		yield;
+	}
+	sleep(50);
+	direction(4, DOWN);
+	sleep(90);
+	say(Bastet, "'sup?<WAIT> More villagers?<PAUSE> I am NOT sharing my bed again.");
+	
+	sleep(20);
+	say_no_wait(Libera, "I need you to get the linens with me.<PAUSE> They've been drying for hours now.");
+	sleep(30);
+	direction(4, RIGHT);
+	wait();
+	
+	say(Bastet, "Ugh,<PAUSE> whatever dad.");
+	sleep(20);
+	direction(4, DOWN);
+	sleep(30);
+	frame(4, ENTITY_FRAME_STEP);
+	repeat 20 {
+		move(PLAYER, 0, 12);
+		dmove(4, DOWN, 12);
+		yield;
+	}
+	frame(4, ENTITY_FRAME_IDLE);
+	wait();
+	sleep(20);
+	say(Bastet, "I'm serious about my bed, dude.");
+
+	frame(4, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(4, RIGHT, 8);
+		yield;
+	}
+	direction(3, UP);
+	repeat 10 {
+		dmove(4, RIGHT, 10);
+		yield;
+	}
+	direction(PARTNER, DOWN);
+	frame(3, ENTITY_FRAME_STEP);
+	repeat 30 {
+		dmove(4, RIGHT, 12);
+		dmove(3, RIGHT, 16);
+		yield;
+	}
+	frame(4, ENTITY_FRAME_IDLE);
+
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 30 {
+		dmove(3, RIGHT, 16);
 		dmove(PLAYER, UP, 8);
 		yield;
 	}
-	position(PLAYER, 0, 0);
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	direction(PLAYER, RIGHT);
+
+	frame(3, ENTITY_FRAME_STEP);
+	repeat 30 {
+		dmove(4, RIGHT, 14);
+		yield;
+	}
+	direction(PARTNER, RIGHT);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 50 {
+		dmove(4, RIGHT, 16);
+		dmove(PLAYER, RIGHT, 12);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+
+	direction(2, DOWN);
+	say(Luvui, "That was rude…");
+	sleep(20);
+	say_no_wait(Sephone, "She can be a handful sometimes.<WAIT> She was a powerful ruler in her past life.");
+	sleep(40);
+	direction(PLAYER, UP);
+	wait();
+	sleep(20);
+	direction(PLAYER, RIGHT);
+	say(Luvui, "Past life… that's pretty cute.");
+	say_no_wait(Luvui, "Oh,<PAUSE> that's a mess… I'm gonna go help them out.");
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(PLAYER, RIGHT, 8);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	sleep(40);
+	direction(PLAYER, UP);
+	wait();
+	sleep(20);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 20 {
+		dmove(PLAYER, RIGHT, 16);
+		yield;
+	}
+	direction(2, RIGHT);
+	repeat 20 {
+		dmove(PLAYER, RIGHT, 16);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
 
 	sleep(60);
-	direction(PARTNER, DOWN);
+	say(Aris, "So… I heard you were looking for a way home.");
 	sleep(10);
-	direction(PARTNER, RIGHT);
-	say(Aris, "I heard you were looking for a way home.");
-	sleep(10);
-	say(Sephone, "…so that's why you're here?<PAUSE> I figured you two just wanted to meet another couple.");
+	direction(2, DOWN);
+	sleep(20);
+	direction(2, LEFT);
+	sleep(20);
+	say(Sephone, "…that's why you're here?<PAUSE> I figured you two just wanted to meet another couple.");
 	sleep(10);
 	say(Aris, "Couple!?");
 	sleep(30);
 	direction(PARTNER, DOWN);
 	sleep(10);
 	direction(PARTNER, LEFT);
-	say(Aris, "Mom's talked about you so much. Part of me just wanted to meet you.");
 	sleep(60);
-	say(Aris, "…but,<PAUSE> I think Luvui might want to go home… I figured we might as well see what you had found.");
+	say(Aris, "Luvui wants to go 'home'…<PAUSE> I heard that you were looking for a way out.");
 	repeat 16 {
 		dmove(2, LEFT, 8);
 		yield;
 	}
-	say(Sephone, "Does she know why you came here?");
+	say(Sephone, "Does she know that that's why you brought her here?");
 	sleep(30);
 	direction(PARTNER, DOWN);
 	sleep(10);
 	direction(PARTNER, RIGHT);
-	say(Aris, "No.<PAUSE> I'm worried that she won't want to stay with me if she finds out she can go home.");
-	sleep(30);
+	say(Aris, "No.<PAUSE> She doesn't even know how she ended up in this place.<WAIT>");
+	sleep(90);
 	direction(PARTNER, DOWN);
 	sleep(10);
 	direction(PARTNER, LEFT);
 	sleep(30);
 	say(Sephone, "Aris…");
 	sleep(60);
-	say(Sephone, "Maybe you could spend some time with her,<PAUSE> before you tell her the truth.<PAUSE> See how she feels about it.");
+	say(Sephone, "Maybe you could spend some time with her,<PAUSE> before you tell her the truth.<NEWLINE> See how she feels about it.");
 	sleep(60);
 	direction(PARTNER, DOWN);
 	sleep(10);
@@ -214,10 +291,8 @@ npc xInitFieldScene3 {
 	sleep(30);
 	say(Aris, "That would be nice.");
 	sleep(60);
-	say(Sephone, "Lets go see what they're up to.<WAIT> I'll tell you what we learned later.");
+	say(Sephone, "Come on, let's go see what they're up to.<WAIT> I can tell you what we've learned later.");
 	sleep(30);
-
-	// TODO: Tell them what she learned!
 
 	set_flag(FLAG_FIELDS_COMPLETE, 1);
 	open_map();
