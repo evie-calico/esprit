@@ -45,7 +45,7 @@ npc xInitLakeScene3 {
 
 	long_sleep(timer, 300);
 
-	say(Luvui, "The forest seems so far away now.<WAIT> I can't believe how far we've walked.");
+	say(Luvui, "The forest seems so far away now.<WAIT> I can't believe how much we've walked.");
 	sleep(60);
 	say(Aris, "Yeah… now you can see why Mom stopped taking me,<PAUSE> hehe.");
 
