@@ -60,7 +60,7 @@ npc xInitFieldScene3 {
 	}
 	frame(PARTNER, ENTITY_FRAME_IDLE);
 
-	say_no_wait(Aris, "You're Sephone, right?<WAIT> It's nice to meet you!");
+	say_no_wait(Aris, "Sephone! How have you been?");
 	sleep(30);
 	frame(PLAYER, ENTITY_FRAME_STEP);
 	repeat 40 {
@@ -70,14 +70,12 @@ npc xInitFieldScene3 {
 	frame(PLAYER, ENTITY_FRAME_IDLE);
 	wait();
 
-	say(Sephone, "Yes… that's me.<PAUSE> Why did you two come here?<PAUSE> Are you from the village?");
-	say(Aris, "Yeah!<PAUSE> I wanted--<PAUSE> WE wanted to meet you.");
-	direction(PLAYER, UP);
-	say_no_wait(Aris, "Mom told me about how you used to live with her.");
-	sleep(60);
-	direction(PLAYER, RIGHT);
-	wait();
-	say(Sephone, "Mom?<PAUSE> Is she still mad that I left?<WAIT> I know how she worried about me…");
+	say(Sephone, "How did you two get here?<PAUSE> Is Mom okay with this?");
+	say(Aris, "Yeah!<PAUSE> I wanted to introduce you to Luvui.<WAIT> She just got here and she's been living with us.");
+	say(Luvui, "Mom told me about how you used to live with her.");
+	say(Sephone, "Mom?<PAUSE> I hope she hasn't been too worried about us…");
+	say_no_wait(Luvui, "<SET_COLOR><2>…us?<SET_COLOR><3>");
+	sleep(90);
 
 	// Libera enters :3
 	_spawn(|| {
@@ -102,7 +100,8 @@ npc xInitFieldScene3 {
 
 	direction(2, DOWN);
 	sleep(20);
-	say_no_wait(Sephone, "Oh, Libera!<WAIT> These cats are from the village.");
+	wait();
+	say_no_wait(Sephone, "Libera!<WAIT> These cats are from the village.");
 	sleep(40);
 	direction(2, LEFT);
 	wait();
@@ -224,14 +223,14 @@ npc xInitFieldScene3 {
 	sleep(20);
 	say(Sephone, "She can be a pawful sometimes.<WAIT> In her past life she controlled legions of servants at her beck and call…");
 	sleep(20);
-	say_no_wait(Sephone, "Now the only thing she has power to change is her attitude.<PAUSE><PAUSE> As you can see, she is using none of it.");
+	say_no_wait(Sephone, "Now the only thing she has power to change is her attitude.<WAIT> As you can see, she is using none of it.");
 	sleep(60);
 	direction(PLAYER, UP);
 	wait();
 	sleep(20);
 	direction(PLAYER, RIGHT);
-	say(Luvui, "Past life… that's pretty cute.");
-	say_no_wait(Luvui, "Oh,<PAUSE> that's a mess… I'm gonna go help them out.");
+	say(Luvui, "Her past life… that's pretty cute.");
+	say_no_wait(Luvui, "Oh,<PAUSE> she's making a mess… I'm gonna go help them out.");
 	frame(PLAYER, ENTITY_FRAME_STEP);
 	repeat 20 {
 		dmove(PLAYER, RIGHT, 8);
@@ -269,7 +268,7 @@ npc xInitFieldScene3 {
 	sleep(10);
 	direction(PARTNER, LEFT);
 	sleep(60);
-	say(Aris, "Luvui wants to go 'home'…<PAUSE> I heard that you were looking for a way out.");
+	say(Aris, "Luvui wants to go<PAUSE> 'home'…<PAUSE> I heard that you were looking for a way out.");
 	frame(2, ENTITY_FRAME_STEP);
 	repeat 16 {
 		dmove(2, LEFT, 8);
