@@ -34,26 +34,27 @@ npc xInitFieldScene1 {
 	wait();
 
 	sleep(20);
-	say(Aris, "I heard that a couple of animals are living in the fields.");
+	say(Aris, "I want you to meet someone.<WAIT> Mom and I used to live with another cat<PAUSE> named Sephone.<WAIT> She was kinda like an older sister.");
 	sleep(20);
-	say(Aris, "I want to go visit them I guess.<PAUSE> There aren't many animals to hang out with in the village.");
+	say(Aris, "…but she left a little while after I moved in with them.<WAIT> I haven't seen her in a long time.");
 	sleep(20);
 
-	say_no_wait(Luvui, "Hm…");
-	sleep(20);
 	direction(PARTNER, UP);
 	sleep(10);
 	direction(PARTNER, RIGHT);
 	sleep(20);
 
 	frame(PARTNER, ENTITY_FRAME_STEP);
-	repeat 90 {
+	repeat 30 {
 		dmove(PARTNER, RIGHT, 16);
 		yield;
 	}
-
-	wait();
-	say(Luvui, "But what about me…");
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 30 {
+		dmove(PARTNER, RIGHT, 16);
+		dmove(PLAYER, RIGHT, 16);
+		yield;
+	}
 
 	set_flag(FLAG_SEEN_FIELD_CUTSCENE, 1);
 	enter_dungeon(xFieldDungeon_part2);

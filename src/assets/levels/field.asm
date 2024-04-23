@@ -36,7 +36,7 @@ section "Field Dungeon", romx
 	                 32,  24,   0, \
 
 	next_part
-		after_floor 4, scene, xFieldScene2
+		after_floor 4, switch
 		; Start giving heatstroke now
 		on_tick xFieldsGiveHeatstroke
 		shape HALLS_OR_CLEARING
@@ -68,11 +68,11 @@ section "Field Dungeon", romx
 	                 32,  24,   0, \
 
 	next_part
-		after_floor 7, scene, xFieldScene3
+		after_floor 5, scene, xFieldScene3
 		; Continue giving heatstroke
 		on_tick xFieldsGiveHeatstroke.harsh
 
-		items_per_floor 2
+		items_per_floor 6
 		item xWaterMelon
 		item xPepper
 		item xGrapes
