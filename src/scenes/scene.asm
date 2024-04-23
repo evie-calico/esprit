@@ -245,7 +245,7 @@ wScenePrimaryScript:
 	.scriptVariables:: ds evscript_npc_pool_size
 	.threads::
 	for i, 1, 8
-		.thread{d:i}:: ds 3
+		.thread{d:i}:: dw
 		.thread{d:i}Pool ds evscript_npc_pool_size
 	endr
 

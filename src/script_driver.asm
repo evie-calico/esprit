@@ -239,24 +239,20 @@ ScriptJoin:
 	for i, 1, 8
 		ld de, wScenePrimaryScript.thread{d:i}
 		ld a, [de]
-		and a, a
+		ld b, a
+		inc de
+		ld a, [de]
+		dec de
+		or a, b
 		jr z, :+
 			push hl
-			ld b, a
-			inc de
 			ld a, [de]
 			ld l, a
 			inc de
 			ld a, [de]
 			ld h, a
 			inc de
-			ldh a, [hCurrentBank]
-			push af
-			ld a, b
-			rst SwapBank
 			call ExecuteScript
-			pop af
-			rst SwapBank
 			dec de
 			ld a, h
 			ld [de], a
@@ -280,11 +276,12 @@ ScriptSpawn:
 	ld de, wScenePrimaryScript.threads
 .loop
 	ld a, [de]
-	and a, a
-	jr nz, .next
-	ld a, [hli]
-	ld [de], a
+	ld b, a
 	inc de
+	ld a, [de]
+	dec de
+	or a, b
+	jr nz, .next
 	ld a, [hli]
 	ld [de], a
 	inc de
@@ -292,12 +289,12 @@ ScriptSpawn:
 	ld [de], a
 	ret
 .next
-	ld a, 3 + npc__pool_size
+	ld a, 2 + npc__pool_size
 	add a, e
 	ld e, a
-	adc a, b
+	adc a, d
 	sub a, e
-	ld b, a
+	ld d, a
 	jr .loop
 
 section "evscript Goto", rom0

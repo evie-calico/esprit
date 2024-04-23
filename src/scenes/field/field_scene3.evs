@@ -1,19 +1,5 @@
 include "src/scenes/scene.evs";
 
-npc xLuvuiWalk {
-	repeat 100 {
-		dmove(PLAYER, UP, 12);
-		yield;
-	}
-}
-
-npc xArisWalk {
-	repeat 100 {
-		dmove(PARTNER, UP, 12);
-		yield;
-	}
-}
-
 npc xInitFieldScene3 {
 	if get_flag(FLAG_FIELDS_COMPLETE) {
 		open_map_immediately();
@@ -43,9 +29,11 @@ npc xInitFieldScene3 {
 
 	say_no_wait(Aris, "This is it!");
 
-	spawn(xLuvuiWalk);
-	spawn(xArisWalk);
-	join();
+	repeat 100 {
+		dmove(PLAYER, UP, 12);
+		dmove(PARTNER, UP, 12);
+		yield;
+	}
 
 	frame(PLAYER, ENTITY_FRAME_IDLE);
 	frame(PARTNER, ENTITY_FRAME_IDLE);
@@ -92,24 +80,25 @@ npc xInitFieldScene3 {
 	say(Sephone, "Mom?<PAUSE> Is she still mad that I left?<WAIT> I know how she worried about me…");
 
 	// Libera enters :3
-	frame(3, ENTITY_FRAME_STEP);
-	repeat 20 {
-		dmove(3, LEFT, 16);
-		yield;
-	}
-
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	repeat 10 {
-		dmove(3, LEFT, 16);
-		move(PLAYER, -12, 0);
-		yield;
-	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
-	repeat 10 {
-		dmove(3, LEFT, 16);
-		yield;
-	}
-	frame(3, ENTITY_FRAME_IDLE);
+	_spawn(|| {
+		frame(3, ENTITY_FRAME_STEP);
+		repeat 40 {
+			dmove(3, LEFT, 16);
+			yield;
+		}
+		frame(3, ENTITY_FRAME_IDLE);
+	});
+	// Luvui is startled when she notices him.
+	_spawn(|| {
+		sleep(20);
+		frame(PLAYER, ENTITY_FRAME_STEP);
+		repeat 10 {
+			move(PLAYER, -12, 0);
+			yield;
+		}
+		frame(PLAYER, ENTITY_FRAME_IDLE);
+	});
+	join();
 
 	direction(2, DOWN);
 	sleep(20);

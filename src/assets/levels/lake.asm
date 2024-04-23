@@ -72,7 +72,7 @@ section "Lake Dungeon", romx
 
 	next_part
 		tileset "res/dungeons/lake_tiles.2bpp"
-		after_floor 7, exit, FLAG_LAKE_COMPLETE
+		after_floor 5, scene, xLakeScene3
 		shape HALLS
 		on_tick xLakeAnimationFunction.stars
 

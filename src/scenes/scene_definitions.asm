@@ -11,6 +11,7 @@ include "scene.inc"
 	image xRemoteHouseSceneBackground, "res/scenes/remote_house_scene_map"
 	image xLakeSceneBeachBackground, "res/scenes/lake_scene_beachside"
 	image xLakeSceneBridgeBackground, "res/scenes/lake_scene_bridge"
+	image xLakeSceneLookoutBackground, "res/scenes/lake_scene_lookout"
 	
 	def random = $0
 
@@ -60,5 +61,12 @@ section "Lake Scene 2", romx
 xLakeScene2::
 	scene
 		redef SCENE_ENTRANCE_SCRIPT equs "xInitLakeScene2"
+	begin_draw
+	end_scene
+
+section "Lake Scene 3", romx
+xLakeScene3::
+	scene
+		redef SCENE_ENTRANCE_SCRIPT equs "xInitLakeScene3"
 	begin_draw
 	end_scene

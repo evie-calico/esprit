@@ -1,3 +1,4 @@
+include "config.inc"
 include "defines.inc"
 include "hardware.inc"
 
@@ -5,6 +6,11 @@ section "Main", rom0
 Main::
 	; Poll player input and move as needed.
 	call UpdateInput
+	if REPEAT_A
+		ld a, PADF_A
+		ldh [hNewKeys], a
+		ldh [hCurrentKeys], a
+	endc
 
 	; Soft reset if A B START SELECT is held.
 	ld a, [hCurrentKeys]

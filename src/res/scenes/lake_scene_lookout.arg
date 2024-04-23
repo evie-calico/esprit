@@ -1,0 +1,6 @@
+-a res/scenes/lake_scene_lookout.pmap
+-t res/scenes/lake_scene_lookout.map
+-o res/scenes/lake_scene_lookout.2bpp
+-p res/scenes/lake_scene_lookout.pal
+-u
+-b 0x80

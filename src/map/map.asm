@@ -81,7 +81,12 @@ def NB_EFFECTS equ NB_DROPLETS + 3
 section "World map nodes", romx
 	node xVillageNode, "The village", 48, 88
 		left MOVE, xForestNode
-		press TRADER, xFoodTrader
+		; For debugging cutscenes
+		if def(VILLAGE_OVERRIDE)
+			press SCENE, VILLAGE_OVERRIDE
+		else
+			press TRADER, xFoodTrader
+		endc
 	end_node
 
 	node xForestNode, "Circum Thicket", 12, 88
@@ -764,6 +769,9 @@ MapNodeScene:
 	ld a, [hli]
 	ld [de], a
 
+	ld a, 1
+	ld [wMapLockInput], a
+
 	call FadeToBlack
 
 	ld hl, wFadeCallback
@@ -780,6 +788,9 @@ MapNodeTrader:
 	inc de
 	ld a, [hli]
 	ld [de], a
+
+	ld a, 1
+	ld [wMapLockInput], a
 
 	call FadeToBlack
 

@@ -1,5 +1,7 @@
 ; Build-time config options.
 
+; VILLAGE_OVERRIDE: make the village a cutscene instead of a trader.
+
 if def(DEV)
 	redef D_SA equs "DungeonComplete"
 	redef NO_QUICKLOAD = 1
@@ -26,6 +28,10 @@ endc
 
 if !def(NO_QUICKLOAD)
 	def NO_QUICKLOAD = 0
+endc
+
+if !def(REPEAT_A)
+	def REPEAT_A = 0
 endc
 
 if !def(FLAGS_SET)

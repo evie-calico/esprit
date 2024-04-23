@@ -1,0 +1,100 @@
+include "src/scenes/scene.evs";
+
+npc xInitLakeScene3 {
+	u8 timer;
+
+	if get_flag(FLAG_LAKE_COMPLETE) {
+		open_map_immediately();
+		return;
+	}
+	set_flag(FLAG_LAKE_COMPLETE, 1);
+
+	load(xLakeSceneLookoutBackground);
+	play_music(xPreLakeMusic);
+
+	spawn_npc(PLAYER, xLuvui);
+	spawn_npc(PARTNER, xAris);
+	position(PARTNER, 4, 13 * 8);
+	position(PLAYER, -20, 13 * 8 + 4);
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PARTNER, ENTITY_FRAME_STEP);
+
+	repeat 160 {
+		dmove(PLAYER, UP, 2);
+		dmove(PARTNER, UP, 2);
+		dmove(PLAYER, RIGHT, 8);
+		dmove(PARTNER, RIGHT, 8);
+		yield;
+	}
+	frame(PARTNER, ENTITY_FRAME_IDLE);
+	repeat 10 {
+		dmove(PLAYER, UP, 2);
+		dmove(PLAYER, RIGHT, 8);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+	direction(PARTNER, UP);
+	sleep(30);
+	direction(PLAYER, UP);
+
+	sleep(120);
+
+	say(Aris, "I haven't been here in a long time…");
+	sleep(30);
+	say(Luvui, "You were right.<PAUSE> It really is pretty.");
+
+	long_sleep(timer, 300);
+
+	say(Luvui, "The forest seems so far away now.<WAIT> I can't believe how far we've walked.");
+	sleep(60);
+	say(Aris, "Yeah… now you can see why Mom stopped taking me,<PAUSE> hehe.");
+
+	long_sleep(timer, 300);
+
+	direction(PARTNER, LEFT);
+	sleep(90);
+	direction(PARTNER, UP);
+
+	sleep(200);
+
+	direction(PARTNER, LEFT);
+	sleep(10);
+	say_no_wait(Aris, "Hey… I've been meaning to ask you something.");
+	sleep(20);
+	direction(PLAYER, RIGHT);
+	wait();
+
+	sleep(20);
+
+	say(Aris, "Do you know how you ended up here with me?<PAUSE> No one's explained it to you yet…");
+	sleep(30);
+	say(Luvui, "You mean… in this world?<PAUSE><PAUSE><PAUSE> …you know?");
+
+	sleep(20);
+
+	say_no_wait(Aris, "Yeah,<PAUSE> I do.");
+	sleep(20);
+	direction(PARTNER, UP);
+	wait();
+
+	sleep(120);
+
+	say(Aris, "Everyone here is<PAUSE><PAUSE> dead.<PAUSE> This world is like… an afterlife.");
+	sleep(120);
+	direction(PLAYER, UP);
+	long_sleep(timer, 300);
+
+	say(Luvui, "So… we<PAUSE> probably can't… go home<PAUSE> then.");
+
+	long_sleep(timer, 500);
+
+	say(Aris, "Do you remember how it happened?");
+
+	long_sleep(timer, 300);
+
+	say(Luvui, "Yeah.");
+
+	sleep(200);
+
+	open_map();
+}
