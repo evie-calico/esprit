@@ -4,7 +4,7 @@ include "entity.inc"
 include "hardware.inc"
 
 ; How fast the entity should move during animations. Should be a power of two.
-def MOVEMENT_SPEED equ 32
+def MOVEMENT_SPEED equ 16
 def RUNNING_SPEED equ 64
 
 ; Determines whether health should be restored on a given turn.

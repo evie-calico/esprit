@@ -609,7 +609,7 @@ section "Show HP bar", rom0
 ShowHPBar:
 	ldh a, [rSTAT]
 	and a, STATF_BUSY
-	jr nz, ShowDungeonView
+	jp nz, ShowDungeonView
 	; Set view
 	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_BG9C00 | LCDCF_OBJ16
 	ldh [rLCDC], a
