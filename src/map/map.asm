@@ -124,10 +124,11 @@ section "World map nodes", romx
 		up MOVE, xTurn0
 	end_node
 
-	node xPlainsNode, "Blazing Plains", 101, 56
-		press DUNGEON, xPlainsDungeon
+	node xPlainsNode, "", 101, 56
+		;press DUNGEON, xPlainsDungeon
 		left MOVE, xTurn1
-		up LOCK, xTurn2, PLAINS_COMPLETE
+		;up LOCK, xTurn2, PLAINS_COMPLETE
+		up MOVE, xTurn2
 		down LOCK, xCrystalwoodNode, CAVES_COMPLETE
 	end_node
 
@@ -149,7 +150,7 @@ section "World map nodes", romx
 		right MOVE, xCavesNode
 	end_node
 
-	node xCavesNode, "Sursum Caverns", 101, 8
+	node xCavesNode, "Sursa Caverns", 101, 8
 		press DUNGEON, xCavesDungeon
 		left MOVE, xTurn4
 	end_node

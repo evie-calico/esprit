@@ -121,7 +121,7 @@ npc xInitFieldScene3 {
 	direction(2, DOWN);
 	say(Libera, "Have you seen Bastet?");
 	sleep(30);
-	say(Luvui, "…Bastet?");
+	say(Luvui, "Bastet?");
 	sleep(30);
 	frame(4, ENTITY_FRAME_STEP);
 	position(4, 8 * 8 + 4, 5 * 8);
