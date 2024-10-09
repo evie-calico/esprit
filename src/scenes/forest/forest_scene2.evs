@@ -145,6 +145,14 @@ npc xInitForestScene2 {
 
 	// HOUSE SCENE
 	fade_to_black();
+		// One extra push, so that it doesn't look like she's stopped during the fade.
+		frame(PLAYER, ENTITY_FRAME_STEP);
+		repeat 10 {
+			dmove(PLAYER, DOWN, 6);
+			move(PARTNER, 0, 6);
+			yield;
+		}
+		frame(PLAYER, ENTITY_FRAME_IDLE);
 		sleep(120);
 		load(xBarrelSceneBackground);
 		play_music(xTownMusic);
@@ -322,9 +330,9 @@ npc xInitForestScene2 {
 		yield;
 	}
 
-	say(Someone, "Hi, Aris!<WAIT> Where's your new friend?");
+	say(Someone, "Hey,<PAUSE> Aris!<WAIT> Where's your new friend?");
 	say(Aris, "Luvui's still sleeping.<PAUSE> I'm just donating the food we collected yesterday.");
-	say_no_wait(Someone, "Oh, that's nice.<PAUSE> Hey, I heard about something you might be interested in.");
+	say_no_wait(Someone, "Oh, that's nice.<PAUSE> Hey, I learned about something you might be interested in.");
 	// Aris starts slowy walking away, thinking he's finished.
 	sleep(80);
 	repeat 20 {
@@ -335,9 +343,9 @@ npc xInitForestScene2 {
 	direction(PARTNER, DOWN);
 	print_wait();
 	say(Aris, "What's up?");
-	say(Someone, "Well, you know those fields to the north of the forest?<WAIT> I heard that a couple have been living out there, away from the village.");
-	say(Aris, "Yeah!<PAUSE> I've heard about them.");
-	say(Someone, "Well, apparently they were looking for a way back home… Luvui might be interested in that.");
+	say(Someone, "Well, you know those fields to the north of the forest?<WAIT> I met a couple that have been living out there, away from the village.");
+	say(Aris, "…Sephone?<PAUSE> She used to be my sister.");
+	say(Someone, "She claims they may have found a way back home…<WAIT> Luvui might be interested in that.");
 	say(Aris, "…");
 	sleep(40);
 	direction(PARTNER, DOWN);
@@ -347,7 +355,7 @@ npc xInitForestScene2 {
 		dmove(PARTNER, LEFT, 4);
 		yield;
 	}
-	say(Someone, "Aris…<WAIT> you can't hide the truth from her.<WAIT> If she wants to go home she should know.");
+	say(Someone, "Aris…<WAIT> you can't hide the truth from her.<WAIT> She should know she has the choice.");
 	repeat 20 {
 		dmove(PARTNER, LEFT, 6);
 		yield;
@@ -391,7 +399,8 @@ npc xInitForestScene2 {
 	direction(2, DOWN);
 	say(Puppy, "Hi, Aris!<WAIT> Got something for me?");
 	say(Aris, "Actually, it's not much.<PAUSE> I took Luvui into the forest yesterday to collect food, but we ended up eating most of it.");
-	say(Puppy, "That's okay.<PAUSE> We have plenty stocked up; I appreciate you trying though.<WAIT> I'll take whatever you do have, and you can have the first pick for breakfast.");
+	say(Puppy, "<SET_COLOR><2>That seems typical of you cats…<SET_COLOR><3><PAUSE> Well,<PAUSE>, that's okay.<PAUSE> We have plenty stocked up; I appreciate you trying though.");
+	say(Puppy, "I'll take whatever you brought in, and you can have the first pick for breakfast.");
 	sleep(20);
 
 	// Luvui Enters
@@ -445,8 +454,6 @@ npc xInitForestScene2 {
 	direction(PARTNER, UP);
 	sleep(40);
 	print_wait();
-	say(Luvui, "We collected some food last night… would you like it?");
-	say(Puppy, "Of course!<PAUSE> Whenever you have leftover food, you can bring it to me.");
 
 	// Now open the trade menu.
 

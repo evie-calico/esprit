@@ -74,7 +74,6 @@ Rand::
 	ret
 
 ; This calls Rand in a loop until it gets a valid result.
-
 ; @param h: low
 ; @param l: (high - low) (must be > 1)
 ; @return a: result

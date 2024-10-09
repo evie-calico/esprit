@@ -43,19 +43,19 @@ npc xInitLakeScene3 {
 	sleep(30);
 	say(Luvui, "You were right.<PAUSE> It really is pretty.");
 
-	long_sleep(timer, 300);
+	long_sleep(timer, 120);
 
 	say(Luvui, "The forest seems so far away now.<WAIT> I can't believe how much we've walked.");
 	sleep(60);
 	say(Aris, "Yeah… now you can see why Mom stopped taking me,<PAUSE> hehe.");
 
-	long_sleep(timer, 300);
+	long_sleep(timer, 120);
 
 	direction(PARTNER, LEFT);
 	sleep(90);
 	direction(PARTNER, UP);
 
-	sleep(200);
+	sleep(120);
 
 	direction(PARTNER, LEFT);
 	sleep(10);
@@ -78,22 +78,32 @@ npc xInitLakeScene3 {
 	wait();
 
 	sleep(120);
+	play_music(null);
 
-	say(Aris, "Luvui<DELAY><60>.<DELAY><60>.<DELAY><60>.<WAIT> This world<PAUSE> is an afterlife.");
+	say(Aris, "Luvui<DELAY><30>.<DELAY><30>.<DELAY><30>.<WAIT> This world<PAUSE> is an afterlife.");
 
-	long_sleep(timer, 300);
+	long_sleep(timer, 120);
+
+	frame(PLAYER, ENTITY_FRAME_STEP);
+	repeat 20 {
+		move(PLAYER, -4, 0);
+		yield;
+	}
+	frame(PLAYER, ENTITY_FRAME_IDLE);
+
+	sleep(120);
 
 	direction(PLAYER, UP);
 
-	long_sleep(timer, 300);
+	sleep(150);
 
 	say(Aris, "Do you remember how it happened?");
 
-	long_sleep(timer, 300);
+	long_sleep(timer, 120);
 
 	say(Luvui, "Yeah.");
 
-	long_sleep(timer, 500);
+	long_sleep(timer, 240);
 
 	direction(PLAYER, RIGHT);
 	sleep(20);
@@ -102,6 +112,7 @@ npc xInitLakeScene3 {
 	sleep(20);
 	say_no_wait(Aris, "Anyways,<PAUSE> I'm telling you this because Sephone knows a way home.<WAIT> Bastet found it before they met.");
 	sleep(40);
+	direction(PARTNER, LEFT);
 	wait();
 
 	sleep(20);
@@ -121,29 +132,29 @@ npc xInitLakeScene3 {
 	sleep(20);
 
 	say_no_wait(Aris, "At the very top of one of the tunnels,<PAUSE> there's a mirror that shows… your 'past' self.");
-	sleep(120);
+	sleep(160);
 	direction(PARTNER, DOWN);
 	wait();
 	sleep(20);
 	direction(PARTNER, LEFT);
-	say(Aris, "Sephone and Bastet were able to push some rocks into the surface.<WAIT> They sank into it and appeared on the other side.");
+	say(Aris, "Sephone and Bastet were able to push some apples into the surface.<WAIT> They sank into it and appeared on the other side<PAUSE>--as real apples.");
 	sleep(40);
 	direction(PARTNER, UP);
 	sleep(20);
-	say(Aris, "Now,<PAUSE> no one other than us knows this.<WAIT> And,<PAUSE> evidently,<PAUSE> no one's tested it yet.<WAIT>");
+	say(Aris, "Now,<PAUSE> only the 5 of us know about this.<WAIT> And,<PAUSE> evidently,<PAUSE> no one's tested it on themselves yet.<WAIT>");
 	sleep(120);
-	say(Luvui, "You think that's our way home?");
+	say(Luvui, "But… you think that's our way home?");
 
-	long_sleep(timer, 300);
+	long_sleep(timer, 120);
 
 	// This ellipses is intentionally faster; please leave as ..., not …
 	say_no_wait(Aris, "<SET_VOICE><0><0><SET_COLOR><2>sniff...<SET_COLOR><3>");
 	sleep(50);
 	direction(PLAYER, UP);
 
-	long_sleep(timer, 300);
+	long_sleep(timer, 120);
 
-	say(Aris, "<PAUSE><PAUSE>None of them tried it………… they were too happy together.");
+	say(Aris, "<PAUSE><PAUSE>Sephone convinced Bastet not to try it…… they were too happy together to leave.");
 	sleep(50);
 	direction(PLAYER, RIGHT);
 	sleep(20);
@@ -153,12 +164,12 @@ npc xInitLakeScene3 {
 
 	sleep(200);
 	direction(PLAYER, DOWN);
-	long_sleep(timer, 300);
+	long_sleep(timer, 120);
 	direction(PLAYER, RIGHT);
 
 	sleep(50);
 
-	say(Luvui, "Aris,<WAIT> I will never leave you.");
+	say(Luvui, "Aris,<WAIT> I'm not going to leave you,<PAUSE> either.");
 
 	sleep(80);
 
