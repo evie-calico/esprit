@@ -6,16 +6,31 @@ include "structs.inc"
 ; This must be less than the number of palettes.
 def INVENTORY_SIZE equ 8
 
-rsreset
-def ITEM_NULL rb ; cannot be used.
-def ITEM_HEAL rb ; restores health.
-def ITEM_FATIGUE_HEAL rb ; restores health and fatigue.
-def ITEM_REVIVE rb ; revives the entity upon death
-def ITEM_POISON_CURE rb ; cures poison
-def ITEM_BLINK_TEAM rb ; causes the party to collectively blink after 1..N turns.
-def ITEM_PURE_BLINK_TEAM rb ; causes the party to collectively blink to the exit after 1..N turns.
-def ITEM_HEAL_HEATSTROKE rb ; clears the IsHeatstroked flag
-def ITEM_MAX rb 0
+	enum ItemType
+		; Cannot be used
+		case Null
+		; Restores health
+		case Heal
+			bytes 1, Health
+		; Restores health and fatigue
+		case FatigueHeal
+			bytes 1, Fatigue
+			bytes 1, Health
+		; Revives the entity upon death
+		case Revive
+		; Cures poison and restores health
+		case PoisonCure
+			bytes 1, Health
+		; Causes the party to blink after 1..N turns
+		case BlinkTeam
+			bytes 1, Delay
+		; Causes the party to blink to the exit after 1..N turns
+		case PureBlinkTeam
+			bytes 1, Delay
+		; Clears the `IsHeatstroked` flag.
+		case HealHeatstroke
+			bytes 1, Health
+	end_enum
 
 	struct Item
 		words 1, Palette
@@ -23,16 +38,6 @@ def ITEM_MAX rb 0
 		words 1, Name
 		words 1, Description
 		bytes 1, Type
-	end_struct
-
-	struct HealItem
-		extends Item
-		bytes 1, Strength
-	end_struct
-
-	struct BlinkItem
-		extends Item
-		bytes 1, Length
 	end_struct
 
 endc

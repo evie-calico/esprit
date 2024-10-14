@@ -109,24 +109,24 @@ UseMove::
 ; @param b: Entity pointer high byte
 ; @param de: Move pointer
 .moveActions
-	assert MOVE_ACTION_ATTACK == 0
+	assert MoveAction_Attack == 0
 	dw MoveActionAttack
-	assert MOVE_ACTION_HEAL == 1
+	assert MoveAction_Heal == 1
 	dw MoveActionHeal
-	assert MOVE_ACTION_POISON == 2
+	assert MoveAction_Poison == 2
 	dw MoveActionPoison
-	assert MOVE_ACTION_POISN_ATK == 3
+	assert MoveAction_PoisonAttack == 3
 	dw MoveActionPoisonAttack
-	assert MOVE_ACTION_FLY == 4
+	assert MoveAction_Fly == 4
 	dw MoveActionFly
-	assert MOVE_ACTION_TEND_WOUNDS == 5
+	assert MoveAction_TendWounds == 5
 	dw MoveActionTendWounds
-	assert MOVE_ACTION_ATK_BUFF == 6
+	assert MoveAction_AttackBuff == 6
 	dw MoveActionAttackBuff
-	assert MOVE_ACTION_WISH == 7
+	assert MoveAction_Wish == 7
 	dw MoveActionWish
 
-	assert MOVE_ACTION_COUNT == 8
+	assert maxof_MoveAction== 8
 
 ; @return b: Move user
 ; @return de: Move pointer

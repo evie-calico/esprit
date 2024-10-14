@@ -1,8 +1,9 @@
 if !def(STRUCTS_INC)
 def STRUCTS_INC equ 1
+
 ; MIT License
 ;
-; Copyright (c) 2018-2021 Eldred Habert and contributors
+; Copyright (c) 2018-2024 Eldred Habert and contributors
 ; Originally hosted at https://github.com/ISSOtm/rgbds-structs
 ;
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -17,173 +18,173 @@ def STRUCTS_INC equ 1
 ;
 ; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 ; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-; FITNESS for A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE for ANY CLAIM, DAMAGES OR OTHER
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 ; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 
-def STRUCTS_VERSION equs "2.0.0"
-macro structs_assert
-    assert (\1), "rgbds-structs {STRUCTS_VERSION} bug. Please report at https://github.com/ISSOtm/rgbds-structs, and share your code there!"
-endm
+DEF STRUCTS_VERSION equs "4.0.1"
+MACRO structs_assert
+    assert (\1), "rgbds-structs {STRUCTS_VERSION} bug. Please report at https://github.com/ISSOtm/rgbds-structs, and share the above stack trace *and* your code there!"
+ENDM
 
 
 ; Call with the expected RGBDS-structs version string to ensure your code
 ; is compatible with the INCLUDEd version of RGBDS-structs.
 ; Example: `rgbds_structs_version 2.0.0`
-macro rgbds_structs_version ; version_string
-    def CURRENT_VERSION equs STRRPL("{STRUCTS_VERSION}", ".", ",")
+MACRO rgbds_structs_version ; version_string
+    DEF CURRENT_VERSION EQUS STRRPL("{STRUCTS_VERSION}", ".", ",")
 
     ; Undefine `EXPECTED_VERSION` if it does not match `CURRENT_VERSION`
-    def EXPECTED_VERSION equs STRRPL("\1", ".", ",")
+    DEF EXPECTED_VERSION EQUS STRRPL("\1", ".", ",")
     check_ver {EXPECTED_VERSION}, {CURRENT_VERSION}
 
-    if !def(EXPECTED_VERSION)
-        fail "rgbds-structs version \1 is required, which is incompatible with current version {STRUCTS_VERSION}"
-    endc
+    IF !DEF(EXPECTED_VERSION)
+        FAIL "rgbds-structs version \1 is required, which is incompatible with current version {STRUCTS_VERSION}"
+    ENDC
 
-    purge CURRENT_VERSION, EXPECTED_VERSION
-endm
+    PURGE CURRENT_VERSION, EXPECTED_VERSION
+ENDM
 
 ; Checks whether trios of version components match.
 ; Used internally by `rgbds_structs_version`.
-macro check_ver ; expected major, minor, patch, current major, minor, patch
-    if (\1) != (\4) || (\2) > (\5) || (\3) > (\6)
-        purge EXPECTED_VERSION
-    endc
-endm
+MACRO check_ver ; expected major, minor, patch, current major, minor, patch
+    IF (\1) != (\4) || (\2) > (\5) || (\3) > (\6)
+        PURGE EXPECTED_VERSION
+    ENDC
+ENDM
 
 
 ; Begins a struct declaration.
-macro struct ; struct_name
-    if def(STRUCT_NAME) || def(NB_FIELDS)
-        fail "Please close struct definitions using `end_struct`"
-    endc
+MACRO struct ; struct_name
+    IF DEF(STRUCT_NAME) || DEF(NB_FIELDS)
+        FAIL "Please close struct definitions using `end_struct`"
+    ENDC
 
     ; Define two internal variables for field definitions
-    def STRUCT_NAME equs "\1"
-    def NB_FIELDS = 0
-    def NB_NONALIASES = 0
+    DEF STRUCT_NAME EQUS "\1"
+    DEF NB_FIELDS = 0
+    DEF NB_NONALIASES = 0
 
     ; Initialize _RS to 0 for defining offset constants
-    rsreset
-endm
+    RSRESET
+ENDM
 
 ; Ends a struct declaration.
-macro end_struct
+MACRO end_struct
     ; Define the number of fields and size in bytes
-    def {STRUCT_NAME}_nb_fields equ NB_FIELDS
-    def {STRUCT_NAME}_nb_nonaliases equ NB_NONALIASES
-    def sizeof_{STRUCT_NAME}    equ _RS
+    DEF {STRUCT_NAME}_nb_fields EQU NB_FIELDS
+    DEF {STRUCT_NAME}_nb_nonaliases EQU NB_NONALIASES
+    DEF sizeof_{STRUCT_NAME}    EQU _RS
 
-    if def(STRUCTS_EXPORT_CONSTANTS)
-        export {STRUCT_NAME}_nb_fields, sizeof_{STRUCT_NAME}
-    endc
+    IF DEF(STRUCTS_EXPORT_CONSTANTS)
+        EXPORT {STRUCT_NAME}_nb_fields, sizeof_{STRUCT_NAME}
+    ENDC
 
     ; Purge the internal variables defined by `struct`
-    purge STRUCT_NAME, NB_FIELDS, NB_NONALIASES
-endm
+    PURGE STRUCT_NAME, NB_FIELDS, NB_NONALIASES
+ENDM
 
 
 ; Defines a field of N bytes.
-def bytes equs "new_field rb,"
-def words equs "new_field rw,"
-def longs equs "new_field rl,"
-def alias equs "new_field rb, 0,"
+DEF bytes equs "new_field rb,"
+DEF words equs "new_field rw,"
+DEF longs equs "new_field rl,"
+DEF alias equs "new_field rb, 0,"
 
 ; Extends a new struct by an existing struct, effectively cloning its fields.
-macro extends ; struct_type[, sub_struct_name]
-    if !def(\1_nb_fields)
-        fail "Struct \1 isn't defined!"
-    endc
-    if _NARG != 1 && _NARG != 2
-        fail "Invalid number of arguments, expected 1 or 2"
-    endc
-    for FIELD_ID, \1_nb_fields
-        def EXTENDS_FIELD equs "\1_field{d:FIELD_ID}"
+MACRO extends ; struct_type[, sub_struct_name]
+    IF !DEF(\1_nb_fields)
+        FAIL "Struct \1 isn't defined!"
+    ENDC
+    IF _NARG != 1 && _NARG != 2
+        FAIL "Invalid number of arguments, expected 1 or 2"
+    ENDC
+    FOR FIELD_ID, \1_nb_fields
+        DEF EXTENDS_FIELD EQUS "\1_field{d:FIELD_ID}"
         get_nth_field_info {STRUCT_NAME}, NB_FIELDS
 
-        if _NARG == 1
-            def {STRUCT_FIELD_NAME} equs "{{EXTENDS_FIELD}_name}"
-        else
-            def {STRUCT_FIELD_NAME} equs "\2_{{EXTENDS_FIELD}_name}"
-        endc
-        def {STRUCT_FIELD} rb {EXTENDS_FIELD}_size
-        if def(STRUCTS_EXPORT_CONSTANTS)
-            export {STRUCT_FIELD}
-        endc
-        def {STRUCT_NAME}_{{STRUCT_FIELD_NAME}} equ {STRUCT_FIELD}
-        def {STRUCT_FIELD_SIZE} equ {EXTENDS_FIELD}_size
-        def {STRUCT_FIELD_TYPE} equs "{{EXTENDS_FIELD}_type}"
+        IF _NARG == 1
+            DEF {STRUCT_FIELD_NAME} EQUS "{{EXTENDS_FIELD}_name}"
+        ELSE
+            DEF {STRUCT_FIELD_NAME} EQUS "\2_{{EXTENDS_FIELD}_name}"
+        ENDC
+        DEF {STRUCT_FIELD} RB {EXTENDS_FIELD}_size
+        IF DEF(STRUCTS_EXPORT_CONSTANTS)
+            EXPORT {STRUCT_FIELD}
+        ENDC
+        DEF {STRUCT_NAME}_{{STRUCT_FIELD_NAME}} EQU {STRUCT_FIELD}
+        DEF {STRUCT_FIELD_SIZE} EQU {EXTENDS_FIELD}_size
+        DEF {STRUCT_FIELD_TYPE} EQUS "{{EXTENDS_FIELD}_type}"
 
         purge_nth_field_info
 
-        def NB_FIELDS += 1
-        if {EXTENDS_FIELD}_size != 0
-            def NB_NONALIASES += 1
-        endc
-        purge EXTENDS_FIELD
-    endr
-endm
+        DEF NB_FIELDS += 1
+        IF {EXTENDS_FIELD}_size != 0
+            DEF NB_NONALIASES += 1
+        ENDC
+        PURGE EXTENDS_FIELD
+    ENDR
+ENDM
 
 
-; Defines equs strings pertaining to a struct's Nth field.
+; Defines EQUS strings pertaining to a struct's Nth field.
 ; Used internally by `new_field` and `dstruct`.
-macro get_nth_field_info ; struct_name, field_id
-    def STRUCT_FIELD      equs "\1_field{d:\2}"       ; prefix for other equs
-    def STRUCT_FIELD_NAME equs "{STRUCT_FIELD}_name"  ; field's name
-    def STRUCT_FIELD_TYPE equs "{STRUCT_FIELD}_type"  ; type ("b", "l", or "l")
-    def STRUCT_FIELD_SIZE equs "{STRUCT_FIELD}_size"  ; sizeof(type) * nb_el
-endm
+MACRO get_nth_field_info ; struct_name, field_id
+    DEF STRUCT_FIELD      EQUS "\1_field{d:\2}"       ; prefix for other EQUS
+    DEF STRUCT_FIELD_NAME EQUS "{STRUCT_FIELD}_name"  ; field's name
+    DEF STRUCT_FIELD_TYPE EQUS "{STRUCT_FIELD}_type"  ; type ("b", "l", or "l")
+    DEF STRUCT_FIELD_SIZE EQUS "{STRUCT_FIELD}_size"  ; sizeof(type) * nb_el
+ENDM
 
 ; Purges the variables defined by `get_nth_field_info`.
 ; Used internally by `new_field` and `dstruct`.
-def purge_nth_field_info equs "purge STRUCT_FIELD, STRUCT_FIELD_NAME, STRUCT_FIELD_TYPE, STRUCT_FIELD_SIZE"
+DEF purge_nth_field_info equs "PURGE STRUCT_FIELD, STRUCT_FIELD_NAME, STRUCT_FIELD_TYPE, STRUCT_FIELD_SIZE"
 
 ; Defines a field with a given RS type (`rb`, `rw`, or `rl`).
 ; Used internally by `bytes`, `words`, and `longs`.
-macro new_field ; rs_type, nb_elems, field_name
-    if !def(STRUCT_NAME) || !def(NB_FIELDS)
-        fail "Please start defining a struct, using `struct`"
-    endc
+MACRO new_field ; rs_type, nb_elems, field_name
+    IF !DEF(STRUCT_NAME) || !DEF(NB_FIELDS)
+        FAIL "Please start defining a struct, using `struct`"
+    ENDC
 
     get_nth_field_info {STRUCT_NAME}, NB_FIELDS
 
     ; Set field name
-    def {STRUCT_FIELD_NAME} equs "\3"
+    DEF {STRUCT_FIELD_NAME} EQUS "\3"
     ; Set field offset
-    def {STRUCT_FIELD} \1 (\2)
-    if def(STRUCTS_EXPORT_CONSTANTS)
-        export {STRUCT_FIELD}
-    endc
+    DEF {STRUCT_FIELD} \1 (\2)
+    IF DEF(STRUCTS_EXPORT_CONSTANTS)
+        EXPORT {STRUCT_FIELD}
+    ENDC
     ; Alias this in a human-comprehensible manner
-    def {STRUCT_NAME}_\3 equ {STRUCT_FIELD}
+    DEF {STRUCT_NAME}_\3 EQU {STRUCT_FIELD}
     ; Compute field size
-    def {STRUCT_FIELD_SIZE} equ _RS - {STRUCT_FIELD}
+    DEF {STRUCT_FIELD_SIZE} EQU _RS - {STRUCT_FIELD}
     ; Set properties
-    def {STRUCT_FIELD_TYPE} equs strsub("\1", 2, 1)
+    DEF {STRUCT_FIELD_TYPE} EQUS STRSUB("\1", 2, 1)
 
     purge_nth_field_info
 
-    def NB_FIELDS += 1
-    if \2 != 0
-        def NB_NONALIASES += 1
-    endc
-endm
+    DEF NB_FIELDS += 1
+    IF \2 != 0
+        DEF NB_NONALIASES += 1
+    ENDC
+ENDM
 
 
 ; Strips whitespace from the left of a string.
 ; Used internally by `dstruct`.
-macro lstrip ; string_variable
-    for START_POS, 1, strlen("{\1}") + 1
-        if !strin(" \t", strsub("{\1}", START_POS, 1))
-            break
-        endc
-    endr
-    redef \1 equs strsub("{\1}", START_POS)
-    purge START_POS
-endm
+MACRO lstrip ; string_variable
+    FOR START_POS, 1, STRLEN("{\1}") + 1
+        IF !STRIN(" \t", STRSUB("{\1}", START_POS, 1))
+            BREAK
+        ENDC
+    ENDR
+    REDEF \1 EQUS STRSUB("{\1}", START_POS)
+    PURGE START_POS
+ENDM
 
 ; Allocates space for a struct in memory.
 ; If no further arguments are supplied, the space is allocated using `ds`.
@@ -191,134 +192,143 @@ endm
 ; For example, a struct defined with `bytes 1, Field1` and `words 3, Field2`
 ; could take four extra arguments, one byte then three words.
 ; Each such argument would have an equal sign between the name and value.
-macro dstruct ; struct_type, instance_name[, ...]
-    if !def(\1_nb_fields)
-        fail "Struct \1 isn't defined!"
-    elif _NARG != 2 && _NARG != 2 + \1_nb_nonaliases
+MACRO dstruct ; struct_type, instance_name[, ...]
+    IF !DEF(\1_nb_fields)
+        FAIL "Struct \1 isn't defined!"
+    ELIF _NARG != 2 && _NARG != 2 + \1_nb_nonaliases
         ; We must have either a RAM declaration (no data args)
         ; or a ROM one (RAM args + data args)
-        fail strfmt("Expected 2 or %u args to `dstruct`, but got {d:_NARG}", 2 + \1_nb_nonaliases)
-    endc
+        FAIL STRFMT("Expected 2 or %u args to `dstruct`, but got {d:_NARG}", 2 + \1_nb_nonaliases)
+    ENDC
 
-    ; RGBASM always expands macro args, so `if _NARG > 2 && strin("\3", "=")`
+    ; RGBASM always expands macro args, so `IF _NARG > 2 && STRIN("\3", "=")`
     ; would error out when there are only two args.
-    ; Therefore, the condition is checked here (we can't nest the `if`s over
-    ; there because that would require a duplicated `else`).
-    def IS_NAMED_INSTANTIATION = 0
-    if _NARG > 2
-        redef IS_NAMED_INSTANTIATION = strin("\3", "=")
-    endc
+    ; Therefore, the condition is checked here (we can't nest the `IF`s over
+    ; there because that would require a duplicated `ELSE`).
+    DEF IS_NAMED_INSTANTIATION = 0
+    IF _NARG > 2
+        DEF IS_NAMED_INSTANTIATION = !STRCMP(STRSUB("\3", 1, 1), ".") && STRIN("\3", "=")
+    ENDC
 
-    if IS_NAMED_INSTANTIATION
+    IF IS_NAMED_INSTANTIATION
         ; This is a named instantiation; translate that to an ordered one.
         ; This is needed because data has to be laid out in order, so some translation is needed anyway.
         ; And finally, I believe it's better to re-use the existing code at the cost of a single nested macro.
 
-        for ARG_NUM, 3, _NARG + 1
+        FOR ARG_NUM, 3, _NARG + 1
             ; Remove leading whitespace to obtain something like ".name=value"
             ; (this enables a simple check for starting with a period)
-            redef CUR_ARG equs "\<ARG_NUM>"
+            REDEF CUR_ARG EQUS "\<ARG_NUM>"
             lstrip CUR_ARG
 
             ; Ensure that the argument has a name and a value,
             ; separated by an equal sign
-            def EQUAL_POS = strin("{CUR_ARG}", "=")
-            if !EQUAL_POS
-                fail "\"{CUR_ARG}\" is not a named initializer!"
-            elif strcmp(strsub("{CUR_ARG}", 1, 1), ".")
-                fail "\"{CUR_ARG}\" does not start with a period!"
-            endc
+            DEF EQUAL_POS = STRIN("{CUR_ARG}", "=")
+            IF !EQUAL_POS
+                FAIL "\"{CUR_ARG}\" is not a named initializer!"
+            ELIF STRCMP(STRSUB("{CUR_ARG}", 1, 1), ".")
+                FAIL "\"{CUR_ARG}\" does not start with a period!"
+            ENDC
 
             ; Find out which field the current argument is
-            for FIELD_ID, \1_nb_fields
-                if !strcmp(strsub("{CUR_ARG}", 2, EQUAL_POS - 2), "{\1_field{d:FIELD_ID}_name}")
-                    if \1_field{d:FIELD_ID}_size == 0
-                        fail "Cannot initialize an alias"
-                    endc
-                    break ; Match found!
-                endc
-            endr
+            FOR FIELD_ID, \1_nb_fields
+                IF !STRCMP(STRSUB("{CUR_ARG}", 2, EQUAL_POS - 2), "{\1_field{d:FIELD_ID}_name}")
+                    IF \1_field{d:FIELD_ID}_size == 0
+                        FAIL "Cannot initialize an alias"
+                    ENDC
+                    BREAK ; Match found!
+                ENDC
+            ENDR
 
-            if FIELD_ID == \1_nb_fields
-                fail "\"{CUR_ARG}\" does not match any member of \1"
-            elif def(FIELD_{d:FIELD_ID}_INITIALIZER)
-                fail "\"{CUR_ARG}\" conflicts with \"{FIELD_{d:FIELD_ID}_ARG}\""
-            endc
+            IF FIELD_ID == \1_nb_fields
+                FAIL "\"{CUR_ARG}\" does not match any member of \1"
+            ELIF DEF(FIELD_{d:FIELD_ID}_INITIALIZER)
+                FAIL "\"{CUR_ARG}\" conflicts with \"{FIELD_{d:FIELD_ID}_ARG}\""
+            ENDC
 
             ; Save the argument to report in case a later argument conflicts with it
-            def FIELD_{d:FIELD_ID}_ARG equs "{CUR_ARG}"
+            DEF FIELD_{d:FIELD_ID}_ARG EQUS "{CUR_ARG}"
 
-            ; Escape any commas in a multi-byte argument initializer so it can
-            ; be passed as one argument to the nested ordered instantiation
-            def FIELD_{d:FIELD_ID}_INITIALIZER equs STRRPL(strsub("{CUR_ARG}", EQUAL_POS + 1), ",", "\\,")
-        endr
-        purge ARG_NUM, CUR_ARG
+            ; Enclose argument initializers in parentheses so any commas inside
+            ; it will not start a new argument
+            DEF FIELD_{d:FIELD_ID}_INITIALIZER EQUS STRCAT("(", STRSUB("{CUR_ARG}", EQUAL_POS + 1), ")")
+        ENDR
+        PURGE ARG_NUM, CUR_ARG
 
         ; Now that we matched each named initializer to their order,
         ; invoke the macro again but without names
-        def ORDERED_ARGS equs "\1, \2"
-        for FIELD_ID, \1_nb_fields
-            if \1_field{d:FIELD_ID}_size != 0
-                redef ORDERED_ARGS equs "{ORDERED_ARGS}, {FIELD_{d:FIELD_ID}_INITIALIZER}"
-                purge FIELD_{d:FIELD_ID}_ARG, FIELD_{d:FIELD_ID}_INITIALIZER
-            endc
-        endr
-        purge FIELD_ID
+        DEF ORDERED_ARGS EQUS "\1, \2"
+        FOR FIELD_ID, \1_nb_fields
+            IF \1_field{d:FIELD_ID}_size != 0
+                REDEF ORDERED_ARGS EQUS "{ORDERED_ARGS}, {FIELD_{d:FIELD_ID}_INITIALIZER}"
+                PURGE FIELD_{d:FIELD_ID}_ARG, FIELD_{d:FIELD_ID}_INITIALIZER
+            ENDC
+        ENDR
+        PURGE FIELD_ID
 
         ; Do the nested ordered instantiation
+        DEF WAS_NAMED_INSTANTIATION = 1
         dstruct {ORDERED_ARGS} ; purges IS_NAMED_INSTANTIATION
-        purge ORDERED_ARGS
+        PURGE ORDERED_ARGS, WAS_NAMED_INSTANTIATION
 
-    else
+    ELSE
         ; This is an ordered instantiation, not a named one.
 
         ; Define the struct's root label
         \2::
 
-        if def(STRUCT_SEPARATOR)
-            def DSTRUCT_SEPARATOR equs "{STRUCT_SEPARATOR}"
-        else
-            def DSTRUCT_SEPARATOR equs "_"
-        endc
+        IF DEF(STRUCT_SEPARATOR)
+            DEF DSTRUCT_SEPARATOR equs "{STRUCT_SEPARATOR}"
+        ELSE
+            DEF DSTRUCT_SEPARATOR equs "_"
+        ENDC
         ; Define each field
-        def ARG_NUM = 3
-        for FIELD_ID, \1_nb_fields
+        DEF ARG_NUM = 3
+        FOR FIELD_ID, \1_nb_fields
             get_nth_field_info \1, FIELD_ID
 
             ; Define the label for the field
             \2_{{STRUCT_FIELD_NAME}}::
 
-            if STRUCT_FIELD_SIZE != 0 ; Skip aliases
+            IF STRUCT_FIELD_SIZE != 0 ; Skip aliases
                 ; Declare the space for the field
-                if ARG_NUM <= _NARG
+                IF ARG_NUM <= _NARG
                     ; ROM declaration; use `db`, `dw`, or `dl`
-                    d{{STRUCT_FIELD_TYPE}} \<ARG_NUM>
-                    redef ARG_NUM = ARG_NUM + 1
-                endc
+                    DEF FIELD_INITIALIZER EQUS "\<ARG_NUM>"
+                    IF DEF(WAS_NAMED_INSTANTIATION)
+                        ; Remove the parentheses that named instantiation placed around the field initializer
+                        REDEF FIELD_INITIALIZER EQUS STRSUB("{FIELD_INITIALIZER}", 2, STRLEN("{FIELD_INITIALIZER}") - 2)
+                    ENDC
+                    d{{STRUCT_FIELD_TYPE}} {FIELD_INITIALIZER}
+                    PURGE FIELD_INITIALIZER
+                    DEF ARG_NUM += 1
+                ENDC
                 ; Add padding as necessary after the provided initializer
                 ; (possibly all of it, especially for RAM use)
-                if {STRUCT_FIELD_SIZE} < @ - \2_{{STRUCT_FIELD_NAME}}
-                    fail strfmt("Initializer for %s is %u bytes, expected %u at most", "\2_{{STRUCT_FIELD_NAME}}", @ - \2_{{STRUCT_FIELD_NAME}}, {STRUCT_FIELD_SIZE})
-                endc
+                IF {STRUCT_FIELD_SIZE} < @ - \2_{{STRUCT_FIELD_NAME}}
+                    FAIL STRFMT("Initializer for %s is %u bytes, expected %u at most", "\2_{{STRUCT_FIELD_NAME}}", @ - \2_{{STRUCT_FIELD_NAME}}, {STRUCT_FIELD_SIZE})
+                ENDC
                 ds {STRUCT_FIELD_SIZE} - (@ - \2_{{STRUCT_FIELD_NAME}})
-            endc
+            ENDC
 
             purge_nth_field_info
-        endr
-        purge FIELD_ID, ARG_NUM, DSTRUCT_SEPARATOR
+        ENDR
+        PURGE FIELD_ID, ARG_NUM, DSTRUCT_SEPARATOR
 
         ; Define instance's properties from struct's
-        def \2_nb_fields equ \1_nb_fields
-        def sizeof_\2    equ @ - (\2)
-        structs_assert sizeof_\1 == sizeof_\2
+        IF !STRIN("\2", ".")
+            DEF \2_nb_fields EQU \1_nb_fields
+            DEF sizeof_\2    EQU @ - (\2)
+            structs_assert sizeof_\1 == sizeof_\2
 
-        if def(STRUCTS_EXPORT_CONSTANTS)
-            export \2_nb_fields, sizeof_\2
-        endc
+            IF DEF(STRUCTS_EXPORT_CONSTANTS)
+                EXPORT \2_nb_fields, sizeof_\2
+            ENDC
+        ENDC
 
-        purge IS_NAMED_INSTANTIATION
-    endc
-endm
+        PURGE IS_NAMED_INSTANTIATION
+    ENDC
+ENDM
 
 
 ; Allocates space for an array of structs in memory.
@@ -326,15 +336,85 @@ endm
 ; For example: `dstructs 32, NPC, wNPC` will define `wNPC0`, `wNPC1`, and so on until `wNPC31`.
 ; This is a change from the previous version of rgbds-structs, where the index was uppercase hexadecimal.
 ; Does not support data declarations because I think each struct should be defined individually for that purpose.
-macro dstructs ; nb_structs, struct_type, instance_name
-    if _NARG != 3
-        fail "`dstructs` only takes 3 arguments!"
-    endc
+MACRO dstructs ; nb_structs, struct_type, instance_name
+    IF _NARG != 3
+        FAIL "`dstructs` only takes 3 arguments!"
+    ENDC
 
-    for STRUCT_ID, \1
+    FOR STRUCT_ID, \1
         dstruct \2, \3{d:STRUCT_ID}
-    endr
-    purge STRUCT_ID
+    ENDR
+    PURGE STRUCT_ID
+ENDM
+
+macro _maybe_close
+    if ENUM_DISCRIMINANT != 0
+        def OLD_STRUCT_NAME equs "{STRUCT_NAME}"
+        end_struct
+        if sizeof_{OLD_STRUCT_NAME} > sizeof_{ENUM_NAME}
+            def sizeof_{ENUM_NAME} = sizeof_{OLD_STRUCT_NAME}
+        endc
+        purge OLD_STRUCT_NAME
+    endc
+endm
+
+; Defines an enum from a list of `case`s.
+;
+; `Type` is an optional argument that determines what storage to use for enum discriminants.
+; Valid values for this argument are: `byte`, `word`, `long`.
+; When absent, it defaults to `byte`.
+macro enum ; Name, [Type]
+    def ENUM_NAME equs "\1"
+    if _NARG > 1
+        if !STRCMP("\2", "byte")
+                def typeof_{ENUM_NAME} equs "b"
+        elif !STRCMP("\2", "word")
+                def typeof_{ENUM_NAME} equs "w"
+        elif !STRCMP("\2", "long")
+                def typeof_{ENUM_NAME} equs "l"
+        else
+                FAIL "Unrecognized discriminant type: \2"
+        endc
+    else
+        def typeof_{ENUM_NAME} equs "b"
+    endc
+    ; We can't use RB because it'll be clobbered by `struct`
+    def ENUM_DISCRIMINANT = 0
+    def sizeof_\1 = 0
+endm
+
+macro case ; Name
+    _maybe_close
+    def {ENUM_NAME}_\1 equ ENUM_DISCRIMINANT
+    def ENUM_DISCRIMINANT += 1
+    struct {ENUM_NAME}_\1
+endm
+
+macro end_enum
+    _maybe_close
+    def maxof_{ENUM_NAME} equ ENUM_DISCRIMINANT
+    struct {ENUM_NAME}
+        new_field r{typeof_{ENUM_NAME}}, 1, Discriminant
+        if sizeof_{ENUM_NAME} > 0
+            bytes sizeof_{ENUM_NAME}, Content
+        endc
+        ; `end_struct` will recreate this with the discriminant considered
+        purge sizeof_{ENUM_NAME}
+    end_struct
+    purge ENUM_NAME, ENUM_DISCRIMINANT
+endm
+
+macro denum
+    \3::
+    d{typeof_\1} \1_\2
+    def ENUM_NAME equs "\1_\2"
+    SHIFT 3
+    if _NARG == 0
+        dstruct {ENUM_NAME}, .contents
+    else
+        dstruct {ENUM_NAME}, .contents, \#
+    endc
+    purge ENUM_NAME
 endm
 
 endc

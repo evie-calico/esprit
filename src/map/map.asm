@@ -528,7 +528,7 @@ MapMovement:
 		ld a, c
 		cp a, b
 		; If they do not match, animate the player. This does NOT clobber flags!
-		ld a, ENTITY_FRAME_STEP
+		ld a, EntityFrame_Step
 		ld [wEntity0_Frame], a
 		; If the target is greater, move right.
 		ld a, (RIGHT + Y) & 3
@@ -565,7 +565,7 @@ MapMovement:
 .noMovement
 	ld a, DOWN
 	ld [wEntity0_Direction], a
-	ld a, ENTITY_FRAME_IDLE
+	ld a, EntityFrame_Idle
 	ld [wEntity0_Frame], a
 	scf
 	ret

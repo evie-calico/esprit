@@ -16,8 +16,8 @@ npc xInitLakeScene3 {
 	spawn_npc(PARTNER, xAris);
 	position(PARTNER, 4, 13 * 8);
 	position(PLAYER, -20, 13 * 8 + 4);
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
+	frame(PARTNER, EntityFrame_Step);
 
 	repeat 160 {
 		dmove(PLAYER, UP, 2);
@@ -26,13 +26,13 @@ npc xInitLakeScene3 {
 		dmove(PARTNER, RIGHT, 8);
 		yield;
 	}
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, EntityFrame_Idle);
 	repeat 10 {
 		dmove(PLAYER, UP, 2);
 		dmove(PLAYER, RIGHT, 8);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	direction(PARTNER, UP);
 	sleep(30);
 	direction(PLAYER, UP);
@@ -84,12 +84,12 @@ npc xInitLakeScene3 {
 
 	long_sleep(timer, 120);
 
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 20 {
 		move(PLAYER, -4, 0);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 
 	sleep(120);
 

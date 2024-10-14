@@ -3,7 +3,8 @@ include "entity.inc"
 
 macro entity ; label, name, graphic
 	section "\1 entity", romx
-	\1:: dw .gfx, .palette, .name, .moves
+	\1::
+	dstruct EntityData, ._, .gfx, .palette, .name, .moves
 	.gfx incbin \3
 	.name:: db \2, 0
 endm
@@ -21,13 +22,9 @@ endm
 		rgb 32, 0, 0
 	.moves
 		level 1, xScratch
-		level 6, xBite
-		level 7, xPounce
-		level 9, xWish
-
-		level 11, xSlash
-		level 12, xCrunch
-		level 13, xLunge
+		level 6, xLunge
+		level 8, xTendWounds
+		level 10, xMagicMissile
 		db 0
 
 	entity xAris, "Aris", "res/sprites/aris.2bpp"
@@ -36,15 +33,10 @@ endm
 		rgb 32, 32, 176
 		rgb 0, 0, 32
 	.moves
-		level 1, xScratch
-		level 6, xBite
-		level 7, xPounce
-		level 9, xGrowl
-
-		level 11, xSlash
-		level 12, xCrunch
-		level 13, xLunge
-		level 15, xRoar
+		level 1, xBite
+		level 7, xHowl
+		level 8, xGrowl
+		level 10, xPounce
 		db 0
 
 	; Enemies

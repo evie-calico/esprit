@@ -144,27 +144,27 @@ InventoryUseItem::
 	push de
 	ret
 .table
-	assert ITEM_HEAL == 1
+	assert ItemType_Heal == 1
 	dw HealHandler
-	assert ITEM_FATIGUE_HEAL == 2
+	assert ItemType_FatigueHeal == 2
 	dw FatigueHealHandler
-	assert ITEM_REVIVE == 3
+	assert ItemType_Revive == 3
 	dw ReviveHandler
-	assert ITEM_POISON_CURE == 4
+	assert ItemType_PoisonCure == 4
 	dw PoisonCureHandler
-	assert ITEM_BLINK_TEAM == 5
+	assert ItemType_BlinkTeam == 5
 	dw BlinkTeamHandler
-	assert ITEM_PURE_BLINK_TEAM == 6
+	assert ItemType_PureBlinkTeam == 6
 	dw PureBlinkTeamHandler
-	assert ITEM_HEAL_HEATSTROKE == 7
+	assert ItemType_HealHeatstroke == 7
 	dw HealHeatstrokeHandler
-	assert ITEM_MAX == 8
+	assert maxof_ItemType== 8
 
 section "Heal Handler", rom0
 ; @param b: User pointer high byte
 ; @param hl: Heal data ptr
 HealHandler:
-	assert HealItem_Strength - sizeof_Item == 0
+	assert ItemType_Heal_Health == 0
 	ld e, [hl]
 	jp HealEntity
 
@@ -172,9 +172,10 @@ section "Fatigue Heal Handler", rom0
 ; @param b: User pointer high byte
 ; @param hl: Fatigue data ptr
 FatigueHealHandler:
+	assert ItemType_FatigueHeal_Fatigue == 0
 	ld e, [hl]
 	call RestoreEntityFatigue
-	inc hl
+	assert ItemType_FatigueHeal_Health == 1
 	jp HealHandler
 
 section "Revive Handler", rom0
@@ -212,7 +213,7 @@ BlinkTeamHandler:
 	xor a, a
 	ld [bc], a
 .hook
-	assert BlinkItem_Length - sizeof_Item == 0
+	assert ItemType_BlinkTeam_Delay == 0
 	ld l, [hl]
 	ld h, 0
 	push bc

@@ -325,7 +325,7 @@ xRenderEntity::
 		ld l, low(wEntity0_Frame)
 		ld a, [hl]
 		ld l, low(wEntity0_WasMovingLastFrame)
-		cp a, ENTITY_FRAME_STEP
+		cp a, EntityFrame_Step
 		jr nz, .notMoving\@
 		ld [hl], 3
 		jr .moving\@
@@ -338,7 +338,7 @@ xRenderEntity::
 
 		ld l, low(wEntity0_Frame)
 		ld a, [hl]
-		cp a, ENTITY_FRAME_ATTK
+		cp a, EntityFrame_Attack
 		ld a, 0
 		jr nc, :+
 		ld l, low(wEntity0_AnimationDesync)
@@ -391,16 +391,22 @@ xUpdateAnimation::
 	ld a, [hli]
 	; execute bytecode
 	and a, a
+	assert EntityAnimation_Wait == 0
 	jr z, .wait
 	dec a
+	assert EntityAnimation_Frame == 1
 	jr z, .frame
 	dec a
+	assert EntityAnimation_Hide == 2
 	jr z, .hide
 	dec a
+	assert EntityAnimation_Show == 3
 	jr z, .show
 	dec a
+	assert EntityAnimation_Forward == 4
 	jr z, .forward
 	dec a
+	assert EntityAnimation_Backward == 5
 	jr z, .backward
 	; end
 	ld hl, wEntityAnimation.pointer
@@ -529,15 +535,15 @@ EntityAttackAnimation::
 	ea_backward
 	ea_wait 3
 	ea_forward
-	ea_frame ENTITY_FRAME_HURT
+	ea_frame EntityFrame_Hurt
 	ea_wait 8
-	ea_frame ENTITY_FRAME_ATTK
+	ea_frame EntityFrame_Attack
 	ea_wait 8
-	ea_frame ENTITY_FRAME_IDLE
+	ea_frame EntityFrame_Idle
 	ea_end
 
 EntityHurtAnimation::
-	ea_frame ENTITY_FRAME_HURT
+	ea_frame EntityFrame_Hurt
 	; Get knocked back.
 	rept 3
 		ea_backward
@@ -554,11 +560,11 @@ EntityHurtAnimation::
 		ea_forward
 		ea_wait 2
 	endr
-	ea_frame ENTITY_FRAME_IDLE
+	ea_frame EntityFrame_Idle
 	ea_end
 
 EntityDefeatAnimation::
-	ea_frame ENTITY_FRAME_HURT
+	ea_frame EntityFrame_Hurt
 	rept 10
 		ea_hide
 		ea_wait 2
@@ -568,7 +574,7 @@ EntityDefeatAnimation::
 	ea_end
 
 EntityFlickerAnimation::
-	ea_frame ENTITY_FRAME_IDLE
+	ea_frame EntityFrame_Idle
 	rept 10
 		ea_hide
 		ea_wait 2
@@ -582,14 +588,14 @@ EntityDelayAnimation::
 	ea_end
 
 EntityFlyAnimation::
-	ea_frame ENTITY_FRAME_IDLE
+	ea_frame EntityFrame_Idle
 	rept 10
 		ea_hide
 		ea_wait 2
 		ea_show
 		ea_wait 2
 	endr
-	ea_frame ENTITY_FRAME_STEP
+	ea_frame EntityFrame_Step
 	rept 20
 		rept 8
 			ea_forward
@@ -599,7 +605,7 @@ EntityFlyAnimation::
 	ea_end
 
 EntityMoveAndShakeAnimation::
-	ea_frame ENTITY_FRAME_IDLE
+	ea_frame EntityFrame_Idle
 	ea_forward
 	ea_wait 2
 	ea_forward
@@ -620,7 +626,7 @@ EntityMoveAndShakeAnimation::
 	ea_end
 
 EntityShakeAnimation::
-	ea_frame ENTITY_FRAME_IDLE
+	ea_frame EntityFrame_Idle
 	rept 3
 		ea_forward
 		ea_wait 20
@@ -639,7 +645,7 @@ UpdateAnimationFrame::
 	; Save the entity's frame for later.
 	ld e, low(wEntity0_Frame)
 	ld a, [de]
-	cp a, ENTITY_FRAME_STEP ; The idle and step frames should defer updates.
+	cp a, EntityFrame_Step ; The idle and step frames should defer updates.
 	jr nc, :+
 	ld e, low(wEntity0_LastDirection)
 	ld a, -1
@@ -693,9 +699,9 @@ UpdateAnimationFrame::
 		ld e, $80
 	; Finally, determine what to copy using the frame.
 	ld a, [hRenderTempByte]
-	cp a, ENTITY_FRAME_ATTK
+	cp a, EntityFrame_Attack
 	jr z, .attack
-	cp a, ENTITY_FRAME_HURT
+	cp a, EntityFrame_Hurt
 	jr z, .hurt
 .sleep
 	ld bc, 256 + 128

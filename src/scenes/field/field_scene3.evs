@@ -11,16 +11,16 @@ npc xInitFieldScene3 {
 
 	position(PLAYER, 7 * 8, 18 * 8 - 4);
 	position(PARTNER, 6 * 8, 16 * 8);
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
+	frame(PARTNER, EntityFrame_Step);
 
 	spawn_npc(2, xSephone);
-	frame(2, ENTITY_FRAME_IDLE);
+	frame(2, EntityFrame_Idle);
 	direction(2, UP);
 	position(2, 13 * 8, 6 * 8);
 
 	spawn_npc(3, xLibera);
-	frame(3, ENTITY_FRAME_IDLE);
+	frame(3, EntityFrame_Idle);
 	direction(3, LEFT);
 	position(3, 20 * 8, 8 * 8);
 
@@ -35,8 +35,8 @@ npc xInitFieldScene3 {
 		yield;
 	}
 
-	frame(PLAYER, ENTITY_FRAME_IDLE);
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
+	frame(PARTNER, EntityFrame_Idle);
 
 	sleep(20);
 	direction(PARTNER, RIGHT);
@@ -48,7 +48,7 @@ npc xInitFieldScene3 {
 
 	wait();
 
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 40 {
 		dmove(PARTNER, RIGHT, 12);
 		yield;
@@ -58,16 +58,16 @@ npc xInitFieldScene3 {
 		move(2, 12, 0);
 		yield;
 	}
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, EntityFrame_Idle);
 
 	say_no_wait(Aris, "Sephone! How have you been?");
 	sleep(30);
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 40 {
 		dmove(PLAYER, RIGHT, 9);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	wait();
 
 	say(Sephone, "How did you two get here?<PAUSE> Is Mom okay with this?");
@@ -79,22 +79,22 @@ npc xInitFieldScene3 {
 
 	// Libera enters :3
 	_spawn(|| {
-		frame(3, ENTITY_FRAME_STEP);
+		frame(3, EntityFrame_Step);
 		repeat 40 {
 			dmove(3, LEFT, 16);
 			yield;
 		}
-		frame(3, ENTITY_FRAME_IDLE);
+		frame(3, EntityFrame_Idle);
 	});
 	// Luvui is startled when she notices him.
 	_spawn(|| {
 		sleep(20);
-		frame(PLAYER, ENTITY_FRAME_STEP);
+		frame(PLAYER, EntityFrame_Step);
 		repeat 10 {
 			move(PLAYER, -12, 0);
 			yield;
 		}
-		frame(PLAYER, ENTITY_FRAME_IDLE);
+		frame(PLAYER, EntityFrame_Idle);
 	});
 	join();
 
@@ -109,12 +109,12 @@ npc xInitFieldScene3 {
 	say(Luvui, "Hi…");
 	say(Libera, "…");
 
-	frame(3, ENTITY_FRAME_STEP);
+	frame(3, EntityFrame_Step);
 	repeat 8 {
 		dmove(3, LEFT, 16);
 		yield;
 	}
-	frame(3, ENTITY_FRAME_IDLE);
+	frame(3, EntityFrame_Idle);
 
 	direction(3, UP);
 	sleep(20);
@@ -123,13 +123,13 @@ npc xInitFieldScene3 {
 	sleep(30);
 	say(Luvui, "Bastet?");
 	sleep(30);
-	frame(4, ENTITY_FRAME_STEP);
+	frame(4, EntityFrame_Step);
 	position(4, 8 * 8 + 4, 5 * 8);
 	repeat 16 {
 		dmove(4, DOWN, 8);
 		yield;
 	}
-	frame(4, ENTITY_FRAME_IDLE);
+	frame(4, EntityFrame_Idle);
 	direction(PLAYER, UP);
 
 	// Look between Luvui & parents.
@@ -164,18 +164,18 @@ npc xInitFieldScene3 {
 	sleep(20);
 	direction(4, DOWN);
 	sleep(30);
-	frame(4, ENTITY_FRAME_STEP);
+	frame(4, EntityFrame_Step);
 	repeat 20 {
 		move(PLAYER, 0, 12);
 		dmove(4, DOWN, 12);
 		yield;
 	}
-	frame(4, ENTITY_FRAME_IDLE);
+	frame(4, EntityFrame_Idle);
 	wait();
 	sleep(20);
 	say(Bastet, "I'm serious about my bed,<PAUSE> dude.");
 
-	frame(4, ENTITY_FRAME_STEP);
+	frame(4, EntityFrame_Step);
 	repeat 20 {
 		dmove(4, RIGHT, 8);
 		yield;
@@ -186,37 +186,37 @@ npc xInitFieldScene3 {
 		yield;
 	}
 	direction(PARTNER, DOWN);
-	frame(3, ENTITY_FRAME_STEP);
+	frame(3, EntityFrame_Step);
 	repeat 30 {
 		dmove(4, RIGHT, 12);
 		dmove(3, RIGHT, 16);
 		yield;
 	}
-	frame(4, ENTITY_FRAME_IDLE);
+	frame(4, EntityFrame_Idle);
 
 	// Bastet pauses here.
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 30 {
 		dmove(3, RIGHT, 16);
 		dmove(PLAYER, UP, 8);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	direction(PLAYER, RIGHT);
 
-	frame(4, ENTITY_FRAME_STEP);
+	frame(4, EntityFrame_Step);
 	repeat 30 {
 		dmove(4, RIGHT, 14);
 		yield;
 	}
 	direction(PARTNER, RIGHT);
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 50 {
 		dmove(4, RIGHT, 16);
 		dmove(PLAYER, RIGHT, 12);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 
 	direction(2, DOWN);
 	say(Luvui, "That was rude…");
@@ -231,17 +231,17 @@ npc xInitFieldScene3 {
 	direction(PLAYER, RIGHT);
 	say(Luvui, "Her past life… that's pretty cute.");
 	say_no_wait(Luvui, "Oh,<PAUSE> she's making a mess… I'm gonna go help them out.");
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 20 {
 		dmove(PLAYER, RIGHT, 8);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	sleep(40);
 	direction(PLAYER, UP);
 	wait();
 	sleep(20);
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 20 {
 		dmove(PLAYER, RIGHT, 16);
 		yield;
@@ -251,7 +251,7 @@ npc xInitFieldScene3 {
 		dmove(PLAYER, RIGHT, 16);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 
 	sleep(60);
 	say(Aris, "So… I heard you were looking for a way home.");
@@ -269,12 +269,12 @@ npc xInitFieldScene3 {
 	direction(PARTNER, LEFT);
 	sleep(60);
 	say(Aris, "Luvui wants to go<PAUSE> 'home'…<PAUSE> I heard that you were looking for a way out.");
-	frame(2, ENTITY_FRAME_STEP);
+	frame(2, EntityFrame_Step);
 	repeat 16 {
 		dmove(2, LEFT, 8);
 		yield;
 	}
-	frame(2, ENTITY_FRAME_IDLE);
+	frame(2, EntityFrame_Idle);
 	say(Sephone, "And I suppose you've already explained to her why that isn't possible?");
 	sleep(30);
 	direction(PARTNER, DOWN);

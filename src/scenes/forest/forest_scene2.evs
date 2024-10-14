@@ -14,15 +14,15 @@ npc xInitForestScene2 {
 	// They both tiredly walk forwards, stopping the the middle of the field.
 	position(PLAYER, 80, 96);
 	position(PARTNER, 98, 96);
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 60 {
 		dmove(PLAYER, UP, 8);
 		dmove(PARTNER, UP, 8);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
+	frame(PARTNER, EntityFrame_Idle);
 	sleep(40);
 	direction(PLAYER, RIGHT);
 	sleep(20);
@@ -41,31 +41,31 @@ npc xInitForestScene2 {
 	direction(PLAYER, LEFT);
 	sleep(60);
 	// She approaches the grass to their left.
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 30 {
 		dmove(PLAYER, LEFT, 12);
 		yield;
 	}
 	// Aris falls asleep.
-	frame(PARTNER, ENTITY_FRAME_SLEEP);
+	frame(PARTNER, EntityFrame_Sleep);
 	special_frame(PARTNER);
 	repeat 30 {
 		dmove(PLAYER, LEFT, 12);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 
 	say(Luvui, "It's so late… <WAIT>they're probably gonna worry about us.");
 	say(Aris, "…Zzz…");
 	// Luvui turns to approach him
 	direction(PLAYER, RIGHT);
 	sleep(60);
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 60 {
 		dmove(PLAYER, RIGHT, 13);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	// she gives him a few pokes…
 	sleep(60);
 	repeat 2 {
@@ -81,18 +81,18 @@ npc xInitForestScene2 {
 	}
 
 	say(Luvui, "Come on, sleepy… <WAIT>it's not safe here…");
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 20 {
 		move(PLAYER, -4, 0);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	sleep(30);
 
 	// Luvui walks around Aris, looking at him from a few sides…
 	u8 circle_distance = 40;
 
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat circle_distance - 10 {
 		dmove(PLAYER, UP, 8);
 		yield;
@@ -102,10 +102,10 @@ npc xInitForestScene2 {
 		yield;
 	}
 	direction(PLAYER, DOWN);
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	sleep(60);
 
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat circle_distance {
 		dmove(PLAYER, RIGHT, 8);
 		yield;
@@ -115,10 +115,10 @@ npc xInitForestScene2 {
 		yield;
 	}
 	direction(PLAYER, LEFT);
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	sleep(60);
 
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat circle_distance - 10 {
 		dmove(PLAYER, UP, 8);
 		yield;
@@ -128,48 +128,48 @@ npc xInitForestScene2 {
 		yield;
 	}
 	direction(PLAYER, DOWN);
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	sleep(60);
 
 	// …before pushing him offscreen.
 	repeat 3 {
-		frame(PLAYER, ENTITY_FRAME_STEP);
+		frame(PLAYER, EntityFrame_Step);
 		repeat 10 {
 			dmove(PLAYER, DOWN, 6);
 			move(PARTNER, 0, 6);
 			yield;
 		}
-		frame(PLAYER, ENTITY_FRAME_IDLE);
+		frame(PLAYER, EntityFrame_Idle);
 		sleep(60);
 	}
 
 	// HOUSE SCENE
 	fade_to_black();
 		// One extra push, so that it doesn't look like she's stopped during the fade.
-		frame(PLAYER, ENTITY_FRAME_STEP);
+		frame(PLAYER, EntityFrame_Step);
 		repeat 10 {
 			dmove(PLAYER, DOWN, 6);
 			move(PARTNER, 0, 6);
 			yield;
 		}
-		frame(PLAYER, ENTITY_FRAME_IDLE);
+		frame(PLAYER, EntityFrame_Idle);
 		sleep(120);
 		load(xBarrelSceneBackground);
 		play_music(xTownMusic);
 		// init aris
 		direction(PARTNER, RIGHT);
-		frame(PARTNER, ENTITY_FRAME_IDLE);
+		frame(PARTNER, EntityFrame_Idle);
 		position(PARTNER, 88, 48);
 		// init mom
 		spawn_npc(2, xMom);
-		frame(2, ENTITY_FRAME_IDLE);
+		frame(2, EntityFrame_Idle);
 		direction(2, UP);
 		position(2, 0, 0);
 		// init luvui
 		position(PLAYER, 104, 48);
 		direction(PLAYER, LEFT);
 		yield; // Wait for the direction to change before switching to sleep.
-		frame(PLAYER, ENTITY_FRAME_SLEEP);
+		frame(PLAYER, EntityFrame_Sleep);
 		special_frame(PLAYER);
 	fade_in();
 
@@ -188,12 +188,12 @@ npc xInitForestScene2 {
 	say(Aris, "I'm sorry… I just wanted to bring back lots of food.");
 
 	// Mom approaches
-	frame(2, ENTITY_FRAME_STEP);
+	frame(2, EntityFrame_Step);
 	repeat 60 {
 		dmove(2, UP, 12);
 		yield;
 	}
-	frame(2, ENTITY_FRAME_IDLE);
+	frame(2, EntityFrame_Idle);
 	direction(PARTNER, LEFT);
 	direction(2, RIGHT);
 	sleep(40);
@@ -212,12 +212,12 @@ npc xInitForestScene2 {
 	say(Aris, "…she is cute.<WAIT> I hope she stays with us.");
 
 	// Mom steps back to think.
-	frame(2, ENTITY_FRAME_STEP);
+	frame(2, EntityFrame_Step);
 	repeat 20 {
 		dmove(2, LEFT, 4);
 		yield;
 	}
-	frame(2, ENTITY_FRAME_IDLE);
+	frame(2, EntityFrame_Idle);
 	sleep(40);
 
 	say(Mom, "You know how many of the animals here want to go back home.");
@@ -225,23 +225,23 @@ npc xInitForestScene2 {
 	say(Mom, "Just don't be too disappointed if she's unhappy here.<WAIT> We'll take care of her for as long as she wants to stay, okay?");
 
 	// Mom steps back to give him some space.
-	frame(2, ENTITY_FRAME_STEP);
+	frame(2, EntityFrame_Step);
 	repeat 40 {
 		move(2, -4, 0);
 		yield;
 	}
-	frame(2, ENTITY_FRAME_IDLE);
+	frame(2, EntityFrame_Idle);
 	sleep(40);
 
 	say(Mom, "Let's let her sleep a little longer.<PAUSE> You should go donate the food you two collected.");
 	say(Mom, "When she's awake, you can go play with her.<PAUSE> But promise me you'll come home before dark, okay?");
 	// Aris steps forward
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 20 {
 		dmove(PARTNER, LEFT, 8);
 		yield;
 	}
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, EntityFrame_Idle);
 	say(Aris, "I promise.");
 	// He turns to look at her again
 	sleep(20);
@@ -255,16 +255,16 @@ npc xInitForestScene2 {
 	sleep(40);
 	say(Aris, "Tell her where to find me once she wakes up!");
 	// he backs up
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 10 {
 		move(PARTNER, 4, 0);
 		yield;
 	}
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, EntityFrame_Idle);
 	// waits
 	sleep(60);
 	// and then runs off!
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 20 {
 		dmove(PARTNER, DOWN, 16);
 		yield;
@@ -285,18 +285,18 @@ npc xInitForestScene2 {
 		position(PLAYER, 0, 0);
 		position(2, 0, 0);
 		position(PARTNER, 14 * 8, 64);
-		frame(PARTNER, ENTITY_FRAME_IDLE);
+		frame(PARTNER, EntityFrame_Idle);
 		direction(PARTNER, DOWN);
 	fade_in();
 
 	// Aris steps out of the house
 	sleep(40);
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 20 {
 		dmove(PARTNER, DOWN, 6);
 		yield;
 	}
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, EntityFrame_Idle);
 
 	sleep(20);
 	direction(PARTNER, RIGHT);
@@ -306,15 +306,15 @@ npc xInitForestScene2 {
 	direction(PARTNER, LEFT);
 	sleep(40);
 
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 120 {
 		dmove(PARTNER, LEFT, 6);
 		yield;
 	}
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, EntityFrame_Idle);
 
 	spawn_npc(2, xPlatypus); // This is just a placeholder NPC really.
-	frame(2, ENTITY_FRAME_IDLE);
+	frame(2, EntityFrame_Idle);
 	direction(2, RIGHT);
 	position(2, 56, 88);
 
@@ -375,10 +375,10 @@ npc xInitForestScene2 {
 		while check_fade() { yield; }
 		load(xTreeSceneBackground);
 		position(PARTNER, 0, 0);
-		frame(PARTNER, ENTITY_FRAME_IDLE);
+		frame(PARTNER, EntityFrame_Idle);
 		direction(PARTNER, UP);
 		spawn_npc(2, xPuppy);
-		frame(2, ENTITY_FRAME_IDLE);
+		frame(2, EntityFrame_Idle);
 		direction(2, UP);
 		position(2, 80, 24);
 	fade_in();
@@ -406,7 +406,7 @@ npc xInitForestScene2 {
 	// Luvui Enters
 	position(PLAYER, 80, 80);
 	direction(PLAYER, UP);
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	sleep(20);
 	direction(PARTNER, RIGHT);
 	sleep(10);

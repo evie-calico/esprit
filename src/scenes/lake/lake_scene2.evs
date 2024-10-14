@@ -56,45 +56,45 @@ npc xInitLakeScene2 {
 	spawn_npc(PARTNER, xAris);
 	position(PARTNER, 8, 48);
 	position(PLAYER, 0, 64);
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
+	frame(PARTNER, EntityFrame_Step);
 
 	repeat 60 {
 		dmove(PLAYER, RIGHT, 8);
 		dmove(PARTNER, RIGHT, 8);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
+	frame(PARTNER, EntityFrame_Idle);
 
 	say(Aris, "This is the bridge…");
 
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 80 {
 		dmove(PLAYER, RIGHT, 8);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 
 	sleep(40);
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 30 {
 		dmove(PLAYER, UP, 8);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	sleep(40);
 	direction(PLAYER, LEFT);
 	sleep(10);
 
 	say(Luvui, "It looks a little… worn…?");
 
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 20 {
 		dmove(PARTNER, RIGHT, 8);
 		yield;
 	}
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, EntityFrame_Idle);
 
 	sleep(20);
 	say(Aris, "Yeah, it's pretty run down.<WAIT> No one knows who built it;<PAUSE> it's always been here in the middle of the lake.");
@@ -129,8 +129,8 @@ npc xInitLakeScene2 {
 	set_flag(FLAG_SEEN_LAKE_CUTSCENE2, 1);
 	init_dungeon(xLakeDungeon_part2);
 
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 60 {
 		dmove(PLAYER, RIGHT, 8);
 		dmove(PARTNER, RIGHT, 8);

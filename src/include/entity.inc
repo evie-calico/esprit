@@ -14,28 +14,33 @@ def ENTITY_MAX_FATIGUE equ 100
 def ENTITY_ATTACK_BUFF_DECAY_SPEED equ 4
 
 def SPRITE_DIRECTION_SIZE equ 128 * 3
-def ENTITY_FRAME_IDLE equ 0
-def ENTITY_FRAME_STEP equ 1
-def ENTITY_FRAME_ATTK equ 2
-def ENTITY_FRAME_HURT equ 3
-def ENTITY_FRAME_SLEEP equ 4
+
+	enum EntityFrame
+		case Idle
+		case Step
+		case Attack
+		case Hurt
+		case Sleep
+	end_enum
+
 rsreset
 def ENTITY_FRAME_IDLE_OFFSET rb 128
 def ENTITY_FRAME_STEP_OFFSET rb 128
-def ENTITY_FRAME_ATTK_OFFSET rb 64
+def ENTITY_FRAME_ATTACK_OFFSET rb 64
 def ENTITY_FRAME_HURT_OFFSET rb 64
 
 ; Move actions. Must not exceed 128, as this is the limit for a jump table.
 rsreset
-def MOVE_ACTION_ATTACK rb ; A simple attack, dealing damage to an enemy in front of the user.
-def MOVE_ACTION_HEAL rb ; Heals an ally in front of the user
-def MOVE_ACTION_POISON rb ; Inflicts poison on an enemy in front of the user.
-def MOVE_ACTION_POISN_ATK rb ; Inflicts poison on and deals damage to an enemy in front of the user.
-def MOVE_ACTION_FLY rb ; Flies away from the battle and appears somewhere.
-def MOVE_ACTION_TEND_WOUNDS rb
-def MOVE_ACTION_ATK_BUFF rb
-def MOVE_ACTION_WISH rb
-def MOVE_ACTION_COUNT rb
+	enum MoveAction
+		case Attack ; A simple attack, dealing damage to an enemy in front of the user.
+		case Heal ; Heals an ally in front of the user
+		case Poison ; Inflicts poison on an enemy in front of the user.
+		case PoisonAttack; Inflicts poison on and deals damage to an enemy in front of the user.
+		case Fly ; Fly away from the battle and appear somewhere else.
+		case TendWounds 
+		case AttackBuff
+		case Wish 
+	end_enum
 
 def MOVE_MAXIMUM_LENGTH equ 16
 
@@ -44,16 +49,6 @@ def WISH_STATE_NONE rb
 def WISH_STATE_RUBY rb
 def WISH_STATE_SAPPHIRE rb
 def WISH_STATE_EMERALD rb
-
-; Animation bytecode
-rsreset
-def ENTITY_ANIMATION_WAIT rb
-def ENTITY_ANIMATION_FRAME rb
-def ENTITY_ANIMATION_HIDE rb
-def ENTITY_ANIMATION_SHOW rb
-def ENTITY_ANIMATION_FORWARD rb
-def ENTITY_ANIMATION_BACKWARD rb
-def ENTITY_ANIMATION_END rb
 
 ; This determines when the "Tired" status should appear.
 def TIRED_THRESHOLD equ 35
@@ -176,20 +171,32 @@ def TIRED_THRESHOLD equ 35
 		alias Name
 	end_struct
 
+	enum EntityAnimation
+		case Wait
+			bytes 1, Frames
+		case Frame
+			bytes 1, Frame
+		case Hide
+		case Show
+		case Forward
+		case Backward
+		case End
+	end_enum
+
 	; Wait a number of frames before continuing the script.
-	def ea_wait     equs "db ENTITY_ANIMATION_WAIT,"
+	def ea_wait     equs "db EntityAnimation_Wait, "
 	; Change the entity's frame.
-	def ea_frame    equs "db ENTITY_ANIMATION_FRAME,"
+	def ea_frame    equs "db EntityAnimation_Frame, "
 	; Moves the entity's sprite to an unreachable position.
-	def ea_hide     equs "db ENTITY_ANIMATION_HIDE"
+	def ea_hide     equs "db EntityAnimation_Hide"
 	; Resets the position of the entity's sprite.
-	def ea_show     equs "db ENTITY_ANIMATION_SHOW"
+	def ea_show     equs "db EntityAnimation_Show"
 	; Move the entity forward by one pixel.
-	def ea_forward  equs "db ENTITY_ANIMATION_FORWARD"
+	def ea_forward  equs "db EntityAnimation_Forward"
 	; Move the entity backward by one pixel.
-	def ea_backward equs "db ENTITY_ANIMATION_BACKWARD"
+	def ea_backward equs "db EntityAnimation_Backward"
 	; End the animation and jump to the callback function, before returning to
 	; normal gameplay
-	def ea_end      equs "db ENTITY_ANIMATION_END"
+	def ea_end      equs "db EntityAnimation_End"
 
 endc

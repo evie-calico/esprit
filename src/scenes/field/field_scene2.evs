@@ -13,8 +13,8 @@ npc xInitFieldScene2 {
 
 	position(PLAYER, 10 * 8, 16 * 8);
 	position(PARTNER, 9 * 8, 14 * 8);
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
+	frame(PARTNER, EntityFrame_Step);
 
 	repeat 120 {
 		dmove(PLAYER, UP, 8);
@@ -22,7 +22,7 @@ npc xInitFieldScene2 {
 		yield;
 	}
 
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	say_no_wait(Luvui, "Pant… pant…<WAIT> It's… so hot…");
 
 	repeat 20 {
@@ -30,7 +30,7 @@ npc xInitFieldScene2 {
 		yield;
 	}
 
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, EntityFrame_Idle);
 
 	sleep(20);
 	direction(PARTNER, LEFT);
@@ -40,12 +40,12 @@ npc xInitFieldScene2 {
 
 	wait();
 
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 20 {
 		dmove(PARTNER, DOWN, 8);
 		yield;
 	}
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, EntityFrame_Idle);
 
 	say(Aris, "It's just a bit further… I see a house up ahead where we can cool off.");
 	sleep(20);

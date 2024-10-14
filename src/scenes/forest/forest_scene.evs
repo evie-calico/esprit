@@ -13,14 +13,14 @@ npc xInitForestScene {
 	// Luvui falls slightly behind, before stopping at the foot of a tree.
 	position(PLAYER, 16, 48);
 	position(PARTNER, 16, 64);
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 60 {
 		dmove(PLAYER, RIGHT, 10);
 		dmove(PARTNER, RIGHT, 12);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
 	direction(PLAYER, UP);
 	repeat 30 {
 		dmove(PARTNER, RIGHT, 12);
@@ -32,14 +32,14 @@ npc xInitForestScene {
 		dmove(PARTNER, RIGHT, 8);
 		yield;
 	}
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, EntityFrame_Idle);
 	direction(PARTNER, LEFT);
 	sleep(60);
 
 	say(Luvui, "We've gone out pretty far.<WAIT> The forest is getting a lot thicker.");
 
 	// Aris walks over to Luvui to look at the trees.
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 32 {
 		dmove(PARTNER, LEFT, 12);
 		yield;
@@ -48,7 +48,7 @@ npc xInitForestScene {
 		dmove(PARTNER, UP, 12);
 		yield;
 	}
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PARTNER, EntityFrame_Idle);
 
 	// Short delay before speaking.
 	sleep(120);
@@ -62,8 +62,8 @@ npc xInitForestScene {
 	sleep(30);
 
 	// Exit scene while fading out.
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 30 {
 		dmove(PLAYER, RIGHT, 14);
 		dmove(PARTNER, RIGHT, 14);

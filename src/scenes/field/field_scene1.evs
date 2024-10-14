@@ -11,8 +11,8 @@ npc xInitFieldScene1 {
 
 	position(PLAYER, 0, 48);
 	position(PARTNER, 24, 50);
-	frame(PLAYER, ENTITY_FRAME_STEP);
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
+	frame(PARTNER, EntityFrame_Step);
 
 	say_no_wait(Luvui, "So, where are we going?<PAUSE> We didn't go out this far yesterday.");
 
@@ -22,8 +22,8 @@ npc xInitFieldScene1 {
 		yield;
 	}
 
-	frame(PLAYER, ENTITY_FRAME_IDLE);
-	frame(PARTNER, ENTITY_FRAME_IDLE);
+	frame(PLAYER, EntityFrame_Idle);
+	frame(PARTNER, EntityFrame_Idle);
 
 	sleep(20);
 	direction(PARTNER, UP);
@@ -44,12 +44,12 @@ npc xInitFieldScene1 {
 	direction(PARTNER, RIGHT);
 	sleep(20);
 
-	frame(PARTNER, ENTITY_FRAME_STEP);
+	frame(PARTNER, EntityFrame_Step);
 	repeat 30 {
 		dmove(PARTNER, RIGHT, 16);
 		yield;
 	}
-	frame(PLAYER, ENTITY_FRAME_STEP);
+	frame(PLAYER, EntityFrame_Step);
 	repeat 30 {
 		dmove(PARTNER, RIGHT, 16);
 		dmove(PLAYER, RIGHT, 16);
